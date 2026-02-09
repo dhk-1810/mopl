@@ -21,10 +21,12 @@ public class BasicBffPlaylistService implements BffPlaylistService {
     private final CreatePlaylistUseCase createPlaylistUseCase;
 
     @Override
-    public PlaylistDto createPlaylist(PlaylistCreateRequest request) {
+    public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
 
         CreatePlaylistCommand command = playlistMapper.toCommand(request);
-        Playlist playlist = createPlaylistUseCase.create(command);
+        Playlist playlist = createPlaylistUseCase.create(command, ownerId);
+
+        // TODO 이벤트
 
         UUID id = playlist.getId();
         UserDto owner = null; // TODO

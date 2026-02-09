@@ -41,8 +41,9 @@ public class Playlist {
 //    @JoinColumn(name = "content_id")
 //    private Set<Content> contents;
 
-    private Playlist(String title, String description) {
+    private Playlist(String title, String description, UUID ownerId) {
         this.id = UUID.randomUUID();
+        this.ownerId = ownerId;
         this.title = title;
         this.description = description;
         this.createdAt = Instant.now();
@@ -50,8 +51,8 @@ public class Playlist {
         this.subscriberCount = 0;
     }
 
-    public static Playlist create(String title, String description) {
-        return new Playlist(title, description);
+    public static Playlist create(String title, String description, UUID ownerId) {
+        return new Playlist(title, description, ownerId);
     }
 
 }

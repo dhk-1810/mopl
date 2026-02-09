@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 
+import java.util.UUID;
+
 @Tag(name = "플레이리스트 관리")
 public interface PlaylistApi {
 
@@ -15,6 +17,9 @@ public interface PlaylistApi {
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
-    ResponseEntity<PlaylistDto> postPlaylists(@RequestBody(required = true) @Valid PlaylistCreateRequest request);
+    ResponseEntity<PlaylistDto> postPlaylists(
+            @RequestBody(required = true) @Valid PlaylistCreateRequest request,
+            @AuthenticationPrincipal MoplUserDetails user
+    );
 
 }
