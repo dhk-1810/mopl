@@ -7,8 +7,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.application.in.UpdatePasswordCommand;
 import org.codeit.sb06.team03.mopl.account.domain.entity.PasswordReset;
+import org.codeit.sb06.team03.mopl.account.domain.event.AccountEvent;
+import org.codeit.sb06.team03.mopl.account.domain.policy.PasswordEncryptionPolicy;
+import org.codeit.sb06.team03.mopl.account.domain.policy.TempPasswordGenerationPolicy;
+import org.codeit.sb06.team03.mopl.account.domain.policy.TempPasswordResetTimeoutPolicy;
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.account.domain.vo.Password;
+import org.codeit.sb06.team03.mopl.account.domain.vo.Role;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -16,8 +21,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.Instant;
 import java.util.UUID;
 
-import static org.codeit.sb06.team03.mopl.account.domain.event.AccountEvent.AccountRegisteredEvent;
-import static org.codeit.sb06.team03.mopl.account.domain.event.AccountEvent.RoleUpdatedEvent;
+import static org.codeit.sb06.team03.mopl.account.domain.event.AccountEvent.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -74,8 +78,33 @@ public class Account extends AbstractAggregateRoot<Account> {
     public Account updateRole(Role role) {
         if (this.role != role) {
             this.role = role;
-            this.registerEvent(new RoleUpdatedEvent(role));
+            this.registerEvent(new RoleUpdatedEvent(this.id, role));
         }
+        return this;
+    }
+
+    public Account updateLocked(boolean locked) {
+        if (this.locked != locked) {
+            this.locked = locked;
+            this.registerEvent(new AccountLockUpdatedEvent(this.id, this.locked));
+        }
+        return this;
+    }
+
+    public Account passwordReset(
+            TempPasswordGenerationPolicy tempPasswordGenerationPolicy,
+            TempPasswordResetTimeoutPolicy tempPasswordResetTimeoutPolicy,
+            PasswordEncryptionPolicy passwordEncryptionPolicy
+    ) {
+        final String rawTempPassword = tempPasswordGenerationPolicy.generate(); // temporary1!!
+        final Instant expiresAt = tempPasswordResetTimeoutPolicy.createExpiresAt();
+
+        Password encrypted = passwordEncryptionPolicy.apply(rawTempPassword);
+
+        this.passwordReset = PasswordReset.create(this, encrypted, expiresAt);
+        this.registerEvent(new AccountEvent.PasswordResetedEvent(
+                emailAddress.value(), rawTempPassword, expiresAt.toString()
+        ));
         return this;
     }
 }

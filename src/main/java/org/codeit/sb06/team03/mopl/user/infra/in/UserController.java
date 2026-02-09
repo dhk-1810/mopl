@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
@@ -18,7 +20,15 @@ public class UserController implements UserApi {
     @PostMapping
     public ResponseEntity<UserDto> postUsers(@RequestBody UserCreateRequest request) {
         UserDto response = bffUserService.registerAccount(request);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Override
+    @PatchMapping("/{userId}/password")
+    public ResponseEntity<Void> updatePassword(@PathVariable String userId, @RequestBody PasswordUpdateRequest request){
+        bffUserService.updatePassword(userId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+
     }
 
     @Override
@@ -34,7 +44,33 @@ public class UserController implements UserApi {
             @PathVariable(name = "userId") String userId,
             @RequestBody UserRoleUpdateRequest request
     ) {
-        bffUserService.assignUserRole(userId, request);
+        UUID userUuid = UUID.fromString(userId);
+        bffUserService.assignUserRole(userUuid, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @Override
+    @PatchMapping("/{userId}/locked")
+    public ResponseEntity<Void> patchUsersLockStatus(
+            @PathVariable(name = "userId") String userId,
+            @RequestBody UserLockUpdateRequest request
+    ) {
+        UUID userUuid = UUID.fromString(userId);
+        bffUserService.updateUserLockStatus(userUuid, request);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @Override
+    @GetMapping
+    public ResponseEntity<CursorResponseUserDto> getUsers(@ModelAttribute CursorRequestUserDto request) {
+        CursorResponseUserDto response = bffUserService.getUsers(request);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Override
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUsersById(@PathVariable String userId) {
+        UserDto response = bffUserService.getUser(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

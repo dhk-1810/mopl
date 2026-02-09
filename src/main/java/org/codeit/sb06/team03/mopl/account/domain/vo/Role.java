@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.account.domain;
+package org.codeit.sb06.team03.mopl.account.domain.vo;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -13,5 +13,9 @@ public enum Role {
 
     public static boolean contains(String name) {
         return names.contains(name);
+    }
+
+    public static Role parse(String name) {
+        return Role.valueOf(name.toUpperCase());
     }
 }
