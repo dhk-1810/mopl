@@ -1,0 +1,20 @@
+package org.codeit.sb06.team03.mopl.playlist.infra.in;
+
+import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
+
+@RequiredArgsConstructor
+@Component
+public class PlaylistEventListener {
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handlePlaylistCreatedEvent(PlaylistEvent.PlaylistCreatedEvent event) {
+        // TODO 팔로워에게 플레이리스트 생성 알림 전송
+    }
+
+}

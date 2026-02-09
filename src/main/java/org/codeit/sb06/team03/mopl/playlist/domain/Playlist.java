@@ -20,7 +20,7 @@ public class Playlist {
     private UUID id;
 
     @Column(name = "owner_id", nullable = false)
-    private UUID ownerId; // TODO 확인 필요
+    private UUID ownerId;
 
     @Column(name = "title", nullable = false)
     private String title;
