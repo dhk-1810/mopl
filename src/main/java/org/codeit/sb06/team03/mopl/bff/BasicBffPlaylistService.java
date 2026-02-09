@@ -3,10 +3,12 @@ package org.codeit.sb06.team03.mopl.bff;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.playlist.application.in.CreatePlaylistCommand;
 import org.codeit.sb06.team03.mopl.playlist.application.in.CreatePlaylistUseCase;
+import org.codeit.sb06.team03.mopl.playlist.application.in.UpdatePlaylistCommand;
 import org.codeit.sb06.team03.mopl.playlist.domain.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistCreateRequest;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistMapper;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistUpdateRequest;
 import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.stereotype.Service;
 
@@ -47,5 +49,21 @@ public class BasicBffPlaylistService implements BffPlaylistService {
                 subscribed
                 // null
         );
+    }
+
+    @Override
+    public PlaylistDto updatePlayList(String playlistId, PlaylistUpdateRequest request, UUID ownerId) {
+
+        UpdatePlaylistCommand command = playlistMapper.toCommand(request);
+        Playlist playlist = updatePlayListUseCase.update(playlistId, command, ownerId);
+
+        UUID id = playlist.getId();
+        UserDto owner = null;
+        String title = playlist.getTitle();
+        String description = playlist.getDescription();
+        Instant updatedAt = playlist.getUpdatedAt();
+        long subscriberCount = 0;
+        boolean subscribed = false;
+        return new PlaylistDto()
     }
 }

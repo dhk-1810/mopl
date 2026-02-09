@@ -6,8 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-
-import java.util.UUID;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "플레이리스트 관리")
 public interface PlaylistApi {
@@ -19,6 +18,17 @@ public interface PlaylistApi {
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<PlaylistDto> postPlaylists(
             @RequestBody(required = true) @Valid PlaylistCreateRequest request,
+            @AuthenticationPrincipal MoplUserDetails user
+    );
+
+    @Operation(summary = "플레이리스트 수정")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    @ApiResponse(responseCode = "401", description = "인증 오류")
+    @ApiResponse(responseCode = "500", description = "서버 오류")
+    ResponseEntity<PlaylistDto> patchPlaylists(
+            @PathVariable String playlistId,
+            @RequestBody(required = true) PlaylistUpdateRequest request,
             @AuthenticationPrincipal MoplUserDetails user
     );
 
