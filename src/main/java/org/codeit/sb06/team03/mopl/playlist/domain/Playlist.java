@@ -18,4 +18,20 @@ public class Playlist {
     @Column(nullable = false)
     private UUID id;
 
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
+    private String description;
+
+    private Playlist(String title, String description) {
+        this.id = UUID.randomUUID();
+        this.title = title;
+        this.description = description;
+    }
+
+    public static Playlist create(String title, String description) {
+        return new Playlist(title, description);
+    }
+
 }
