@@ -32,7 +32,7 @@ public class AccountAppService implements RegisterAccountUseCase, UpdatePassword
     private final LoadAccountPort loadAccountPort;
     private final CreateUserPort createUserPort;
     private final SaveAccountPort saveAccountPort;
-    private final DeletePasswordResetPort deletePasswordResetPort;
+    private final SavePasswordResetPort savePasswordResetPort;
 
     @Override
     @Transactional
@@ -69,7 +69,7 @@ public class AccountAppService implements RegisterAccountUseCase, UpdatePassword
 
         // 저장, 임시 비밀번호 삭제
         saveAccountPort.save(account);
-        deletePasswordResetPort.deleteByAccountId(accountUUID);
+        savePasswordResetPort.deleteByAccountId(accountUUID);
     }
 
     @Override

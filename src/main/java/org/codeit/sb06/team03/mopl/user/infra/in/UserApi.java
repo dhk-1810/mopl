@@ -22,7 +22,7 @@ public interface UserApi {
     ResponseEntity<UserDto> postUsers(@RequestBody(required = true) @Valid UserCreateRequest request);
 
     @Operation(summary = "사용자 비밀번호 수정")
-    @ApiResponse(responseCode = "201", description = "성공")
+    @ApiResponse(responseCode = "204", description = "성공")
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
