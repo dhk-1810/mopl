@@ -1,10 +1,7 @@
 package org.codeit.sb06.team03.mopl.bff;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.playlist.application.in.CreatePlaylistCommand;
-import org.codeit.sb06.team03.mopl.playlist.application.in.CreatePlaylistUseCase;
-import org.codeit.sb06.team03.mopl.playlist.application.in.UpdatePlaylistCommand;
-import org.codeit.sb06.team03.mopl.playlist.application.in.UpdatePlaylistUseCase;
+import org.codeit.sb06.team03.mopl.playlist.application.in.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistCreateRequest;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
@@ -23,6 +20,7 @@ public class BasicBffPlaylistService implements BffPlaylistService {
     private final PlaylistMapper playlistMapper;
     private final CreatePlaylistUseCase createPlaylistUseCase;
     private final UpdatePlaylistUseCase updatePlaylistUseCase;
+    private final DeletePlaylistUseCase deletePlaylistUseCase;
 
     @Override
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
@@ -75,5 +73,10 @@ public class BasicBffPlaylistService implements BffPlaylistService {
                 subscribed
                 // null
         );
+    }
+
+    @Override
+    public void deletePlaylist(String playlistId, UUID ownerId) {
+        deletePlaylistUseCase.delete(playlistId, ownerId);
     }
 }

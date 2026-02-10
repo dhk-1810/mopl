@@ -17,8 +17,8 @@ public interface PlaylistApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<PlaylistDto> postPlaylists(
-            @RequestBody(required = true) @Valid PlaylistCreateRequest request,
-            @AuthenticationPrincipal MoplUserDetails user
+            @RequestBody(required = true) @Valid PlaylistCreateRequest request
+//            @AuthenticationPrincipal MoplUserDetails user
     );
 
     @Operation(summary = "플레이리스트 수정")
@@ -28,8 +28,18 @@ public interface PlaylistApi {
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<PlaylistDto> patchPlaylists(
             @PathVariable String playlistId,
-            @RequestBody(required = true) PlaylistUpdateRequest request,
-            @AuthenticationPrincipal MoplUserDetails user
+            @RequestBody(required = true) PlaylistUpdateRequest request
+//            @AuthenticationPrincipal MoplUserDetails user
+    );
+
+    @Operation(summary = "플레이리스트 수정")
+    @ApiResponse(responseCode = "204", description = "성공")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    @ApiResponse(responseCode = "401", description = "인증 오류")
+    @ApiResponse(responseCode = "500", description = "서버 오류")
+    ResponseEntity<Void> deletePlaylists(
+            @PathVariable String playlistId
+//            @AuthenticationPrincipal MoplUserDetails user
     );
 
 }

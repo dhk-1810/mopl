@@ -19,11 +19,11 @@ public class PlaylistController implements PlaylistApi {
     @Override
     @PostMapping
     public ResponseEntity<PlaylistDto> postPlaylists(
-            @RequestBody @Valid PlaylistCreateRequest request,
-            @AuthenticationPrincipal MoplUserDetails user
+            @RequestBody @Valid PlaylistCreateRequest request
+//            @AuthenticationPrincipal MoplUserDetails user
     ) {
         // TODO id 추출 후 전달
-        PlaylistDto playlistDto = bffPlaylistService.createPlaylist(request, );
+        PlaylistDto playlistDto = bffPlaylistService.createPlaylist(request, UUID.randomUUID());
         return ResponseEntity.status(HttpStatus.CREATED).body(playlistDto);
     }
 
@@ -31,10 +31,22 @@ public class PlaylistController implements PlaylistApi {
     @PatchMapping("/{playlistId}")
     public ResponseEntity<PlaylistDto> patchPlaylists(
             @PathVariable String playlistId,
-            @RequestBody PlaylistUpdateRequest request,
-            @AuthenticationPrincipal MoplUserDetails user
+            @RequestBody PlaylistUpdateRequest request
+//            @AuthenticationPrincipal MoplUserDetails user
     ) {
-        PlaylistDto playlistDto = bffPlaylistService.updatePlayList(playlistId, request, );
+        // TODO id 추출 후 전달
+        PlaylistDto playlistDto = bffPlaylistService.updatePlayList(playlistId, request, UUID.randomUUID());
         return ResponseEntity.ok(playlistDto);
+    }
+
+    @Override
+    @DeleteMapping("/{playlistId}")
+    public ResponseEntity<Void> deletePlaylists(
+            @PathVariable String playlistId
+//            @AuthenticationPrincipal MoplUserDetails user
+    ) {
+        // TODO id 추출 후 전달
+        bffPlaylistService.deletePlaylist(playlistId, UUID.randomUUID());
+        return ResponseEntity.noContent().build();
     }
 }

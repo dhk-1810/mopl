@@ -2,10 +2,7 @@ package org.codeit.sb06.team03.mopl.playlist.application;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierException;
-import org.codeit.sb06.team03.mopl.playlist.application.in.CreatePlaylistCommand;
-import org.codeit.sb06.team03.mopl.playlist.application.in.CreatePlaylistUseCase;
-import org.codeit.sb06.team03.mopl.playlist.application.in.UpdatePlaylistCommand;
-import org.codeit.sb06.team03.mopl.playlist.application.in.UpdatePlaylistUseCase;
+import org.codeit.sb06.team03.mopl.playlist.application.in.*;
 import org.codeit.sb06.team03.mopl.playlist.application.out.LoadPlaylistPort;
 import org.codeit.sb06.team03.mopl.playlist.application.out.SavePlaylistPort;
 import org.codeit.sb06.team03.mopl.playlist.domain.Playlist;
@@ -21,7 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
-public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase {
+public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase, DeletePlaylistUseCase {
 
     private final SavePlaylistPort savePlaylistPort;
     private final LoadPlaylistPort loadPlaylistPort;
@@ -38,7 +35,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         Playlist newPlaylist = playlistService.create(title, description, ownerId);
         savePlaylistPort.save(newPlaylist);
 
-        eventPublisher.publishEvent(new PlaylistEvent.PlaylistCreatedEvent(ownerId));
+         eventPublisher.publishEvent(new PlaylistEvent.PlaylistCreatedEvent(ownerId));
         return newPlaylist;
     }
 
@@ -55,6 +52,14 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         playlist = playlistService.update(playlist, title, description);
         savePlaylistPort.save(playlist);
         return playlist;
+    }
+
+    @Override
+    public void delete(String playlistId, UUID ownerId) {
+        UUID playlistUUID = parseUUID(playlistId);
+        loadPlaylistPort.findById(playlistUUID)
+                .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+        savePlaylistPort.delete(playlistUUID);
     }
 
     private UUID parseUUID(String id) {

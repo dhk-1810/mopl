@@ -12,4 +12,5 @@ public interface BffPlaylistService {
 
     PlaylistDto updatePlayList(String playlistId, PlaylistUpdateRequest request, UUID ownerId);
 
+    void deletePlaylist(String playlistId, UUID ownerId);
 }
