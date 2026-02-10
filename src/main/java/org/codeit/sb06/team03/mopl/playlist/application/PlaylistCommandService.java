@@ -9,6 +9,7 @@ import org.codeit.sb06.team03.mopl.playlist.domain.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.domain.PlaylistService;
 import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.PlaylistNotFoundException;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +41,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     @Override
-    // TODO 소유자 검증 @PreAuthorize()
+    // TODO 소유자 검증
     public Playlist update(String playlistId, UpdatePlaylistCommand command, UUID ownerId) {
 
         UUID playlistUUID = parseUUID(playlistId);
@@ -55,6 +56,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     @Override
+    // TODO 소유자 검증
     public void delete(String playlistId, UUID ownerId) {
         UUID playlistUUID = parseUUID(playlistId);
         loadPlaylistPort.findById(playlistUUID)

@@ -19,6 +19,7 @@ public class BasicBffPlaylistService implements BffPlaylistService {
 
     private final PlaylistMapper playlistMapper;
     private final CreatePlaylistUseCase createPlaylistUseCase;
+    private final GetPlaylistUseCase getPlaylistUseCase;
     private final UpdatePlaylistUseCase updatePlaylistUseCase;
     private final DeletePlaylistUseCase deletePlaylistUseCase;
 
@@ -47,6 +48,11 @@ public class BasicBffPlaylistService implements BffPlaylistService {
                 subscribed
                 // null
         );
+    }
+
+    @Override
+    public PlaylistDto getPlaylist(String playlistId, UUID ownerId) {
+        return getPlaylistUseCase.get(playlistId, ownerId);
     }
 
     @Override

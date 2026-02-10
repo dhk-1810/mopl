@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,7 +40,7 @@ public class Playlist {
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "content_id")
-//    private Set<Content> contents;
+//    private Set<Content> contents = new HashSet<>();
 
     private Playlist(String title, String description, UUID ownerId) {
         this.id = UUID.randomUUID();

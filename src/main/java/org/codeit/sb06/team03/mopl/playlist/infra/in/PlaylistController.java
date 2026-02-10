@@ -18,7 +18,7 @@ public class PlaylistController implements PlaylistApi {
 
     @Override
     @PostMapping
-    public ResponseEntity<PlaylistDto> postPlaylists(
+    public ResponseEntity<PlaylistDto> postPlaylist(
             @RequestBody @Valid PlaylistCreateRequest request
 //            @AuthenticationPrincipal MoplUserDetails user
     ) {
@@ -28,8 +28,28 @@ public class PlaylistController implements PlaylistApi {
     }
 
     @Override
+    @GetMapping
+    public ResponseEntity<PlaylistDto> getPlaylists(
+            @ModelAttribute CursorRequestPlaylistDto request
+//            @AuthenticationPrincipal MoplUserDetails user
+    ) {
+        return null;
+    }
+
+    @Override
+    @GetMapping("/{playlistId}")
+    public ResponseEntity<PlaylistDto> getPlaylist(
+            @PathVariable String playlistId
+//            @AuthenticationPrincipal MoplUserDetails user
+    ) {
+        // TODO id 추출 후 전달
+        PlaylistDto playlistDto = bffPlaylistService.getPlaylist(playlistId, UUID.randomUUID());
+        return ResponseEntity.ok(playlistDto);
+    }
+
+    @Override
     @PatchMapping("/{playlistId}")
-    public ResponseEntity<PlaylistDto> patchPlaylists(
+    public ResponseEntity<PlaylistDto> patchPlaylist(
             @PathVariable String playlistId,
             @RequestBody PlaylistUpdateRequest request
 //            @AuthenticationPrincipal MoplUserDetails user
@@ -41,7 +61,7 @@ public class PlaylistController implements PlaylistApi {
 
     @Override
     @DeleteMapping("/{playlistId}")
-    public ResponseEntity<Void> deletePlaylists(
+    public ResponseEntity<Void> deletePlaylist(
             @PathVariable String playlistId
 //            @AuthenticationPrincipal MoplUserDetails user
     ) {
