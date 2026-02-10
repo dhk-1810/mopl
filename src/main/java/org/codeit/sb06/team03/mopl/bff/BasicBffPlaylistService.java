@@ -51,8 +51,8 @@ public class BasicBffPlaylistService implements BffPlaylistService {
     }
 
     @Override
-    public PlaylistDto getPlaylist(String playlistId, UUID ownerId) {
-        return getPlaylistUseCase.get(playlistId, ownerId);
+    public PlaylistDto getPlaylist(String playlistId, UUID viewerId) {
+        return getPlaylistUseCase.get(playlistId, viewerId);
     }
 
     @Override

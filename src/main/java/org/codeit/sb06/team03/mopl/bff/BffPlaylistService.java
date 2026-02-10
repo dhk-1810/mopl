@@ -10,7 +10,7 @@ public interface BffPlaylistService {
 
     PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId);
 
-    PlaylistDto getPlaylist(String playlistId, UUID ownerId);
+    PlaylistDto getPlaylist(String playlistId, UUID viewerId);
 
     PlaylistDto updatePlayList(String playlistId, PlaylistUpdateRequest request, UUID ownerId);
 

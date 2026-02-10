@@ -43,7 +43,7 @@ public class PlaylistController implements PlaylistApi {
 //            @AuthenticationPrincipal MoplUserDetails user
     ) {
         // TODO id 추출 후 전달
-        PlaylistDto playlistDto = bffPlaylistService.getPlaylist(playlistId, UUID.randomUUID());
+        PlaylistDto playlistDto = bffPlaylistService.getPlaylist(playlistId, UUID.randomUUID()); // 조회자 ID
         return ResponseEntity.ok(playlistDto);
     }
 
