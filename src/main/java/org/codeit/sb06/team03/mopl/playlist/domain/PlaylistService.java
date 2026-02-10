@@ -13,4 +13,9 @@ public class PlaylistService {
         return Playlist.create(title, description, ownerId);
     }
 
+    public Playlist update(Playlist playlist, String title, String description) {
+        playlist.update(title, description);
+        return playlist;
+    }
+
 }

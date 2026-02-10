@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.playlist.application.in.CreatePlaylistCommand;
 import org.codeit.sb06.team03.mopl.playlist.application.in.CreatePlaylistUseCase;
 import org.codeit.sb06.team03.mopl.playlist.application.in.UpdatePlaylistCommand;
+import org.codeit.sb06.team03.mopl.playlist.application.in.UpdatePlaylistUseCase;
 import org.codeit.sb06.team03.mopl.playlist.domain.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistCreateRequest;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
@@ -21,14 +22,13 @@ public class BasicBffPlaylistService implements BffPlaylistService {
 
     private final PlaylistMapper playlistMapper;
     private final CreatePlaylistUseCase createPlaylistUseCase;
+    private final UpdatePlaylistUseCase updatePlaylistUseCase;
 
     @Override
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
 
         CreatePlaylistCommand command = playlistMapper.toCommand(request);
         Playlist playlist = createPlaylistUseCase.create(command, ownerId);
-
-        // TODO 이벤트
 
         UUID id = playlist.getId();
         UserDto owner = null; // TODO
@@ -55,15 +55,25 @@ public class BasicBffPlaylistService implements BffPlaylistService {
     public PlaylistDto updatePlayList(String playlistId, PlaylistUpdateRequest request, UUID ownerId) {
 
         UpdatePlaylistCommand command = playlistMapper.toCommand(request);
-        Playlist playlist = updatePlayListUseCase.update(playlistId, command, ownerId);
+        Playlist playlist = updatePlaylistUseCase.update(playlistId, command, ownerId);
 
         UUID id = playlist.getId();
-        UserDto owner = null;
+        UserDto owner = null; // TODO
         String title = playlist.getTitle();
         String description = playlist.getDescription();
         Instant updatedAt = playlist.getUpdatedAt();
-        long subscriberCount = 0;
-        boolean subscribed = false;
-        return new PlaylistDto()
+        long subscriberCount = 0; // TODO
+        boolean subscribed = false; // TODO
+        // List<ContentDto> contents; // TODO
+        return new PlaylistDto(
+                id,
+                owner,
+                title,
+                description,
+                updatedAt,
+                subscriberCount,
+                subscribed
+                // null
+        );
     }
 }

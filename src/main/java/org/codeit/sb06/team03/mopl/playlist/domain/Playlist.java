@@ -55,4 +55,13 @@ public class Playlist {
         return new Playlist(title, description, ownerId);
     }
 
+    public void update(String title, String description) {
+        if (title != null && !title.isEmpty()) {
+            this.title = title;
+        }
+        if (description != null && !description.isEmpty()) {
+            this.description = description;
+        }
+    }
+
 }
