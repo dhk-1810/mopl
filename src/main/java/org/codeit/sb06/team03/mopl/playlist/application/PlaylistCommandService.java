@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.playlist.application;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
-import org.codeit.sb06.team03.mopl.playlist.application.out.LoadPlaylistPort;
+import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSinglePlaylistPort;
 import org.codeit.sb06.team03.mopl.playlist.application.out.SavePlaylistPort;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.domain.PlaylistService;
@@ -21,7 +21,7 @@ import java.util.UUID;
 public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase, DeletePlaylistUseCase {
 
     private final SavePlaylistPort savePlaylistPort;
-    private final LoadPlaylistPort loadPlaylistPort;
+    private final LoadSinglePlaylistPort loadPlaylistPort;
     private final PlaylistService playlistService;
     private final ApplicationEventPublisher eventPublisher;
 

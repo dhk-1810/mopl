@@ -3,10 +3,7 @@ package org.codeit.sb06.team03.mopl.bff;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistCreateRequest;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistMapper;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistUpdateRequest;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.*;
 import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +16,8 @@ public class BasicBffPlaylistService implements BffPlaylistService {
 
     private final PlaylistMapper playlistMapper;
     private final CreatePlaylistUseCase createPlaylistUseCase;
-    private final GetPlaylistUseCase getPlaylistUseCase;
+    private final GetPlaylistsUseCase getPlaylistsUseCase;
+    private final GetSinglePlaylistUseCase getPlaylistUseCase;
     private final UpdatePlaylistUseCase updatePlaylistUseCase;
     private final DeletePlaylistUseCase deletePlaylistUseCase;
 
@@ -48,6 +46,11 @@ public class BasicBffPlaylistService implements BffPlaylistService {
                 subscribed
                 // null
         );
+    }
+
+    @Override
+    public CursorResponsePlaylistDto getPlaylists(CursorRequestPlaylistDto request) {
+        return getPlaylistsUseCase.get(request);
     }
 
     @Override

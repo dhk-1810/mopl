@@ -27,9 +27,8 @@ public interface PlaylistApi {
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
-    ResponseEntity<PlaylistDto> getPlaylists(
+    ResponseEntity<CursorResponsePlaylistDto> getPlaylists(
             @ModelAttribute CursorRequestPlaylistDto request
-//            @AuthenticationPrincipal MoplUserDetails user
     );
 
     @Operation(summary = "플레이리스트 단건 조회")

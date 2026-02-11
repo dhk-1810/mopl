@@ -4,7 +4,7 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
 
 import java.util.UUID;
 
-public interface GetPlaylistUseCase {
+public interface GetSinglePlaylistUseCase {
 
     PlaylistDto get(String playlistId, UUID viewerId);
 

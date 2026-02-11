@@ -29,11 +29,11 @@ public class PlaylistController implements PlaylistApi {
 
     @Override
     @GetMapping
-    public ResponseEntity<PlaylistDto> getPlaylists(
+    public ResponseEntity<CursorResponsePlaylistDto> getPlaylists(
             @ModelAttribute CursorRequestPlaylistDto request
-//            @AuthenticationPrincipal MoplUserDetails user
     ) {
-        return null;
+        CursorResponsePlaylistDto response = bffPlaylistService.getPlaylists(request);
+        return ResponseEntity.ok(response);
     }
 
     @Override

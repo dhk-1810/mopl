@@ -5,7 +5,7 @@ import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface LoadPlaylistPort {
+public interface LoadSinglePlaylistPort {
 
     Optional<Playlist> findById(UUID id);
 }
