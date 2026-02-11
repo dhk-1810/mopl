@@ -16,4 +16,11 @@ public class Subscription {
     @EmbeddedId
     private SubscriptionId id;
 
+    private Subscription(SubscriptionId id) {
+        this.id = id;
+    }
+
+    public static Subscription create(UUID playlistId, UUID userId) {
+        return new Subscription(new SubscriptionId(playlistId, userId));
+    }
 }

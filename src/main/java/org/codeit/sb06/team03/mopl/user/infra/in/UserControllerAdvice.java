@@ -114,15 +114,4 @@ public class UserControllerAdvice {
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
-
-    @ExceptionHandler(PlaylistNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handlePlaylistNotFoundException(PlaylistNotFoundException e) {
-        log.error(e.getMessage());
-        var errorResponse = new ErrorResponse(
-                e.getClass().getSimpleName(),
-                "Playlist를 찾을 수 없습니다.",
-                Collections.emptyList()
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-    }
 }

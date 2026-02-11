@@ -6,12 +6,17 @@ import org.codeit.sb06.team03.mopl.playlist.application.in.*;
 import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSinglePlaylistPort;
 import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSubscriptionPort;
 import org.codeit.sb06.team03.mopl.playlist.application.out.SavePlaylistPort;
+import org.codeit.sb06.team03.mopl.playlist.application.out.SaveSubscriptionPort;
+import org.codeit.sb06.team03.mopl.playlist.domain.SubscriptionService;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.domain.PlaylistService;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Subscription;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.SubscriptionId;
 import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.PlaylistNotFoundException;
+import org.codeit.sb06.team03.mopl.playlist.domain.exception.SelfSubscriptionNotAllowedException;
+import org.codeit.sb06.team03.mopl.playlist.domain.exception.SubscriptionAlreadyExistsException;
+import org.codeit.sb06.team03.mopl.playlist.domain.exception.SubscriptionNotFoundException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,10 +29,12 @@ import java.util.UUID;
 public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase, DeletePlaylistUseCase, SubscribePlaylistUseCase, UnsubscribePlaylistUseCase {
 
     private final SavePlaylistPort savePlaylistPort;
+    private final SaveSubscriptionPort saveSubscriptionPort;
     private final LoadSinglePlaylistPort loadPlaylistPort;
-    private final PlaylistService playlistService;
-    private final ApplicationEventPublisher eventPublisher;
     private final LoadSubscriptionPort loadSubscriptionPort;
+    private final PlaylistService playlistService;
+    private final SubscriptionService subscriptionService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -39,7 +46,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         Playlist newPlaylist = playlistService.create(title, description, ownerId);
         savePlaylistPort.save(newPlaylist);
 
-         eventPublisher.publishEvent(new PlaylistEvent.PlaylistCreatedEvent(ownerId)); // TODO 저장?
+        eventPublisher.publishEvent(new PlaylistEvent.PlaylistCreatedEvent(ownerId)); // TODO 저장?
         return newPlaylist;
     }
 
@@ -71,19 +78,44 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     public void subscribe(String playlistId, UUID userId) {
 
         UUID playlistUUID = parseUUID(playlistId);
-        loadPlaylistPort.findById(playlistUUID)
+        Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
 
         SubscriptionId id = new SubscriptionId(playlistUUID, userId);
         if (loadSubscriptionPort.existsById(id)){
-            throw new SubscriptionAlreadyExists(playlistId, userId);
+            throw new SubscriptionAlreadyExistsException(playlistUUID, userId);
+        }
+        if (playlist.getOwnerId().equals(userId)){
+            throw new SelfSubscriptionNotAllowedException(playlistUUID, userId);
         }
 
+        subscriptionService.create(playlistUUID, userId);
+
+        playlist.increaseSubscriberCount();
+        savePlaylistPort.save(playlist);
+
+        eventPublisher.publishEvent(new PlaylistEvent.SubscriptionCreatedEvent(
+                playlistUUID,
+                userId,
+                playlist.getOwnerId()
+        ));
     }
 
     @Override
     public void unsubscribe(String playlistId, UUID userId) {
 
+        UUID playlistUUID = parseUUID(playlistId);
+        Playlist playlist = loadPlaylistPort.findById(playlistUUID)
+                .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+
+        SubscriptionId id = new SubscriptionId(playlistUUID, userId);
+        if (!loadSubscriptionPort.existsById(id)){
+                throw new SubscriptionNotFoundException(playlistUUID, userId);
+        }
+        saveSubscriptionPort.delete(id);
+
+        playlist.decreaseSubscriberCount();
+        savePlaylistPort.save(playlist);
     }
 
     private UUID parseUUID(String id) {

@@ -65,4 +65,14 @@ public class Playlist {
         }
     }
 
+    public void increaseSubscriberCount() {
+        this.subscriberCount++;
+    }
+
+    public void decreaseSubscriberCount() {
+        if (subscriberCount > 0) {
+            this.subscriberCount--;
+        }
+    }
+
 }

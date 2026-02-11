@@ -3,12 +3,10 @@ package org.codeit.sb06.team03.mopl.playlist.application.out;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Subscription;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.SubscriptionId;
 
-import java.util.Optional;
+public interface SaveSubscriptionPort {
 
-public interface LoadSubscriptionPort {
+    void save(Subscription subscription);
 
-    boolean existsById(SubscriptionId id);
-
-    Optional<Subscription> findById(SubscriptionId id);
+    void delete(SubscriptionId id);
 
 }

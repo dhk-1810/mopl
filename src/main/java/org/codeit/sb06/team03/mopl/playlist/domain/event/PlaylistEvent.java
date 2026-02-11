@@ -16,5 +16,11 @@ public abstract sealed class PlaylistEvent {
         private final UUID ownerId;
     }
 
-
+    @Getter
+    @RequiredArgsConstructor
+    public static final class SubscriptionCreatedEvent extends PlaylistEvent {
+        private final UUID playlistId;
+        private final UUID subscriberId;
+        private final UUID ownerId;
+    }
 }
