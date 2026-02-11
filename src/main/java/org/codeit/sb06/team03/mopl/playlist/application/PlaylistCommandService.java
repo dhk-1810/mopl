@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
 import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSinglePlaylistPort;
+import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSubscriptionPort;
 import org.codeit.sb06.team03.mopl.playlist.application.out.SavePlaylistPort;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.domain.PlaylistService;
+import org.codeit.sb06.team03.mopl.playlist.domain.entity.Subscription;
+import org.codeit.sb06.team03.mopl.playlist.domain.entity.SubscriptionId;
 import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.PlaylistNotFoundException;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,12 +21,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
-public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase, DeletePlaylistUseCase {
+public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase, DeletePlaylistUseCase, SubscribePlaylistUseCase, UnsubscribePlaylistUseCase {
 
     private final SavePlaylistPort savePlaylistPort;
     private final LoadSinglePlaylistPort loadPlaylistPort;
     private final PlaylistService playlistService;
     private final ApplicationEventPublisher eventPublisher;
+    private final LoadSubscriptionPort loadSubscriptionPort;
 
     @Override
     @Transactional
@@ -61,6 +65,25 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         loadPlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
         savePlaylistPort.delete(playlistUUID);
+    }
+
+    @Override
+    public void subscribe(String playlistId, UUID userId) {
+
+        UUID playlistUUID = parseUUID(playlistId);
+        loadPlaylistPort.findById(playlistUUID)
+                .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+
+        SubscriptionId id = new SubscriptionId(playlistUUID, userId);
+        if (loadSubscriptionPort.existsById(id)){
+            throw new SubscriptionAlreadyExists(playlistId, userId);
+        }
+
+    }
+
+    @Override
+    public void unsubscribe(String playlistId, UUID userId) {
+
     }
 
     private UUID parseUUID(String id) {
