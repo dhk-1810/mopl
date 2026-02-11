@@ -58,7 +58,11 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
 
         Account account = loadAccountPort.findById(viewerId)
                 .orElseThrow(() -> new AccountNotFoundException(viewerId));
-        UserSummaryDto userDto = new account.
+        UserSummaryDto owner = new UserSummaryDto(
+                account.getId(),
+                null, // TODO 유저네임,
+                null // TODO 프로필URL
+        );
 
 //        List<ContentsDto> contents = playlist.getContents()
 //                .stream().map(ContentsMapper::toDto).toList();
@@ -68,7 +72,7 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
 
         return new PlaylistDto(
                 playlist.getId(),
-                null, // TODO
+                owner,
                 playlist.getTitle(),
                 playlist.getDescription(),
                 playlist.getUpdatedAt(),
