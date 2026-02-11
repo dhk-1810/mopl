@@ -35,7 +35,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         Playlist newPlaylist = playlistService.create(title, description, ownerId);
         savePlaylistPort.save(newPlaylist);
 
-         eventPublisher.publishEvent(new PlaylistEvent.PlaylistCreatedEvent(ownerId));
+         eventPublisher.publishEvent(new PlaylistEvent.PlaylistCreatedEvent(ownerId)); // TODO 저장?
         return newPlaylist;
     }
 

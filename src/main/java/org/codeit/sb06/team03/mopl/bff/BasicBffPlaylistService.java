@@ -65,7 +65,7 @@ public class BasicBffPlaylistService implements BffPlaylistService {
         Playlist playlist = updatePlaylistUseCase.update(playlistId, command, ownerId);
 
         UUID id = playlist.getId();
-        UserDto owner = null; // TODO
+        UserSummaryDto owner = null; // TODO
         String title = playlist.getTitle();
         String description = playlist.getDescription();
         Instant updatedAt = playlist.getUpdatedAt();

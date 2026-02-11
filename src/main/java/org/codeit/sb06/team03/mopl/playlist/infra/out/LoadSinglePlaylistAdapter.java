@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Component
-public class LoadPlaylistAdapter implements LoadSinglePlaylistPort {
+public class LoadSinglePlaylistAdapter implements LoadSinglePlaylistPort {
 
     private final PlaylistRepository playlistRepository;
 

@@ -17,7 +17,6 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.CursorRequestPlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.CursorResponsePlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.UserSummaryDto;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -30,44 +29,53 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
     private final LoadSinglePlaylistPort loadSinglePlaylistPort;
 //    private final LoadContentPort loadContentPort;
     private final LoadSubscriptionPort loadSubscriptionPort;
-    private final LoadAccountPort loadAccountPort;
 
     @Override
     public CursorResponsePlaylistDto get(CursorRequestPlaylistDto request) {
 
-        String keywordLike = request.keywordLike();
-        UUID ownerIdEqual = parseUUID(request.ownerIdEqual());
-        UUID subscriberIdEqual = parseUUID(request.subscriberIdEqual());
-        final String idAfter = request.idAfter();
-        final Integer limit = request.limit();
+        final String keywordLike = request.keywordLike();
+        final UUID ownerIdEqual = (request.ownerIdEqual() == null) ? null : parseUUID(request.ownerIdEqual());
+        final UUID subscriberIdEqual = (request.subscriberIdEqual() == null) ? null : parseUUID(request.subscriberIdEqual());
+        final String cursor = request.cursor();
+        final UUID idAfter =  (request.idAfter() == null) ? null : parseUUID(request.idAfter());
+        final int limit = request.limit();
         final String sortDirection = request.sortDirection();
         final String sortBy = request.sortBy();
 
-        loadPlaylistsPort
-
-        return new CursorResponsePlaylistDto(
-
+        loadPlaylistsPort.findAll(
+                keywordLike,
+                ownerIdEqual,
+                subscriberIdEqual,
+                cursor,
+                idAfter,
+                limit,
+                sortDirection,
+                sortBy
         );
+
+        return null;
     }
 
     @Override
     public PlaylistDto get(String playlistId, UUID viewerId) {
+
         UUID playlistUUID = parseUUID(playlistId);
         Playlist playlist = loadSinglePlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+// TODO
+//        Profile profile = loadProfilePort.findById(viewerId)
+//                .orElseThrow(() -> new ProfileNotFoundException(viewerId));
 
-        Account account = loadAccountPort.findById(viewerId)
-                .orElseThrow(() -> new AccountNotFoundException(viewerId));
         UserSummaryDto owner = new UserSummaryDto(
-                account.getId(),
-                null, // TODO 유저네임,
-                null // TODO 프로필URL
+                viewerId,
+                null, // profile.getName()
+                null //profile.getImage()
         );
 
 //        List<ContentsDto> contents = playlist.getContents()
 //                .stream().map(ContentsMapper::toDto).toList();
 
-        SubscriptionId id = new SubscriptionId(playlistUUID, account.getId());
+        SubscriptionId id = new SubscriptionId(playlistUUID, viewerId);
         boolean subscribedByMe = loadSubscriptionPort.existsById(id);
 
         return new PlaylistDto(
