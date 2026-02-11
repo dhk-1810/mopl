@@ -7,7 +7,9 @@ import org.codeit.sb06.team03.mopl.account.domain.exception.AccountNotFoundExcep
 import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.playlist.application.in.GetPlaylistUseCase;
 import org.codeit.sb06.team03.mopl.playlist.application.out.LoadPlaylistPort;
+import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSubscriptionPort;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
+import org.codeit.sb06.team03.mopl.playlist.domain.entity.SubscriptionId;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.PlaylistNotFoundException;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
 import org.springframework.stereotype.Service;
@@ -20,21 +22,23 @@ public class PlaylistQueryService implements GetPlaylistUseCase {
 
     private final LoadPlaylistPort loadPlaylistPort;
 //    private final LoadContentPort loadContentPort;
+    private final LoadSubscriptionPort loadSubscriptionPort;
     private final LoadAccountPort loadAccountPort;
 
     @Override
     public PlaylistDto get(String playlistId, UUID viewerId) {
-        UUID accountUUID = parseUUID(playlistId);
-        Playlist playlist = loadPlaylistPort.findById(accountUUID)
-                .orElseThrow(() -> new PlaylistNotFoundException(accountUUID));
+        UUID playlistUUID = parseUUID(playlistId);
+        Playlist playlist = loadPlaylistPort.findById(playlistUUID)
+                .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
 
         Account account = loadAccountPort.findById(viewerId)
-                .orElseThrow(() -> new AccountNotFoundException(accountUUID));
+                .orElseThrow(() -> new AccountNotFoundException(viewerId));
 
 //        List<ContentsDto> contents = playlist.getContents()
 //                .stream().map(ContentsMapper::toDto).toList();
 
-        playlist.
+        SubscriptionId id = new SubscriptionId(playlistUUID, account.getId());
+        boolean subscribedByMe = loadSubscriptionPort.existsById(id);
 
         return new PlaylistDto(
                 playlist.getId(),
@@ -43,7 +47,7 @@ public class PlaylistQueryService implements GetPlaylistUseCase {
                 playlist.getDescription(),
                 playlist.getUpdatedAt(),
                 playlist.getSubscriberCount(),
-                false // TODO
+                subscribedByMe
         );
     }
 
