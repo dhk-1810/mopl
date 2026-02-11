@@ -1,13 +1,13 @@
-package org.codeit.sb06.team03.mopl.playlist.domain;
+package org.codeit.sb06.team03.mopl.playlist.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.codeit.sb06.team03.mopl.account.domain.Account;
 
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -40,7 +40,7 @@ public class Playlist {
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "content_id")
-//    private Set<Content> contents = new HashSet<>();
+//    private List<Content> contents = new ArrayList<>();
 
     private Playlist(String title, String description, UUID ownerId) {
         this.id = UUID.randomUUID();

@@ -7,10 +7,9 @@ import org.codeit.sb06.team03.mopl.account.domain.exception.AccountNotFoundExcep
 import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.playlist.application.in.GetPlaylistUseCase;
 import org.codeit.sb06.team03.mopl.playlist.application.out.LoadPlaylistPort;
-import org.codeit.sb06.team03.mopl.playlist.domain.Playlist;
+import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.PlaylistNotFoundException;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -20,6 +19,7 @@ import java.util.UUID;
 public class PlaylistQueryService implements GetPlaylistUseCase {
 
     private final LoadPlaylistPort loadPlaylistPort;
+//    private final LoadContentPort loadContentPort;
     private final LoadAccountPort loadAccountPort;
 
     @Override
@@ -33,6 +33,8 @@ public class PlaylistQueryService implements GetPlaylistUseCase {
 
 //        List<ContentsDto> contents = playlist.getContents()
 //                .stream().map(ContentsMapper::toDto).toList();
+
+        playlist.
 
         return new PlaylistDto(
                 playlist.getId(),

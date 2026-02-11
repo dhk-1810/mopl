@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.bff;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
-import org.codeit.sb06.team03.mopl.playlist.domain.Playlist;
+import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistCreateRequest;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistMapper;

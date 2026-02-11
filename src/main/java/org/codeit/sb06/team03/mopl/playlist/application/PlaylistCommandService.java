@@ -5,11 +5,10 @@ import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierExc
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
 import org.codeit.sb06.team03.mopl.playlist.application.out.LoadPlaylistPort;
 import org.codeit.sb06.team03.mopl.playlist.application.out.SavePlaylistPort;
-import org.codeit.sb06.team03.mopl.playlist.domain.Playlist;
+import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.domain.PlaylistService;
 import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.PlaylistNotFoundException;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
