@@ -6,19 +6,26 @@ import org.codeit.sb06.team03.mopl.playlist.domain.entity.Curation;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.CurationId;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @Component
 public class SaveCurationAdapter implements SaveCurationPort {
 
-    private final CurationRepository curationRepository;
+    private final CurationRepository repository;
 
     @Override
     public void save(Curation curation) {
-        curationRepository.save(curation);
+        repository.save(curation);
     }
 
     @Override
     public void delete(CurationId id) {
-        curationRepository.deleteById(id);
+        repository.deleteById(id);
+    }
+
+    @Override
+    public void deleteAllByPlaylistId(UUID playlistId) {
+        repository.deleteAllByPlaylistId(playlistId);
     }
 }

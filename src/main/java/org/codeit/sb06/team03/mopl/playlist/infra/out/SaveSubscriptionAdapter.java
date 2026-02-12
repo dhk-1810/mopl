@@ -6,6 +6,8 @@ import org.codeit.sb06.team03.mopl.playlist.domain.entity.Subscription;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.SubscriptionId;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @Component
 public class SaveSubscriptionAdapter implements SaveSubscriptionPort {
@@ -20,5 +22,10 @@ public class SaveSubscriptionAdapter implements SaveSubscriptionPort {
     @Override
     public void delete(SubscriptionId id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public void deleteAllByPlaylistId(UUID playlistId) {
+        repository.deleteAllByPlaylistId(playlistId);
     }
 }

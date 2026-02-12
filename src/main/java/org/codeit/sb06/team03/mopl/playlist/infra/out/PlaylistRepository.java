@@ -2,12 +2,9 @@ package org.codeit.sb06.team03.mopl.playlist.infra.out;
 
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.CursorRequestPlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistData;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;

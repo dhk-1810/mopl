@@ -62,15 +62,6 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
         UUID playlistUUID = parseUUID(playlistId);
         Playlist playlist = loadSinglePlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
-// TODO
-//        Profile profile = loadProfilePort.findById(viewerId)
-//                .orElseThrow(() -> new ProfileNotFoundException(viewerId));
-
-        UserSummaryDto owner = new UserSummaryDto(
-                viewerId,
-                null, // profile.getName()
-                null //profile.getImage()
-        );
 
 //        List<ContentsDto> contents = playlist.getContents()
 //                .stream().map(ContentsMapper::toDto).toList();
@@ -80,7 +71,7 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
 
         return new PlaylistDto(
                 playlist.getId(),
-                owner,
+                null,
                 playlist.getTitle(),
                 playlist.getDescription(),
                 playlist.getUpdatedAt(),

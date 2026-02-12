@@ -32,12 +32,12 @@ public class BasicBffPlaylistService implements BffPlaylistService {
         Playlist playlist = createPlaylistUseCase.create(command, ownerId);
 
         UUID id = playlist.getId();
-        UserDto owner = null; // TODO
+        UserSummaryDto owner = null; // TODO
         String title = playlist.getTitle();
         String description = playlist.getDescription();
         Instant updatedAt = playlist.getUpdatedAt();
-        long subscriberCount = 0; // TODO
-        boolean subscribed = false; // TODO
+        long subscriberCount = playlist.getSubscriberCount();
+        boolean subscribed = false;
         // List<ContentDto> contents; // TODO
 
         return new PlaylistDto(
@@ -59,7 +59,22 @@ public class BasicBffPlaylistService implements BffPlaylistService {
 
     @Override
     public PlaylistDto getPlaylist(String playlistId, UUID viewerId) {
-        return getPlaylistUseCase.get(playlistId, viewerId);
+
+        PlaylistDto playlistDto = getPlaylistUseCase.get(playlistId, viewerId);
+
+
+
+        // TODO
+//        Profile profile = loadProfilePort.findById(viewerId)
+//                .orElseThrow(() -> new ProfileNotFoundException(viewerId));
+
+        UserSummaryDto owner = new UserSummaryDto(
+                viewerId,
+                null, // profile.getName()
+                null //profile.getImage()
+        );
+
+        return
     }
 
     @Override
@@ -73,8 +88,8 @@ public class BasicBffPlaylistService implements BffPlaylistService {
         String title = playlist.getTitle();
         String description = playlist.getDescription();
         Instant updatedAt = playlist.getUpdatedAt();
-        long subscriberCount = 0; // TODO
-        boolean subscribed = false; // TODO
+        long subscriberCount = playlist.getSubscriberCount();
+        boolean subscribed = false;
         // List<ContentDto> contents; // TODO
         return new PlaylistDto(
                 id,

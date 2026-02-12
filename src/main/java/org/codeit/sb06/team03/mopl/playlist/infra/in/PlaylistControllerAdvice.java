@@ -36,7 +36,7 @@ public class PlaylistControllerAdvice {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
-    @ExceptionHandler(PlaylistNotFoundException.class)
+    @ExceptionHandler(ContentAlreadyBeenCuratedException.class)
     public ResponseEntity<ErrorResponse> handleContentAlreadyBeenCuratedException(ContentAlreadyBeenCuratedException e) {
         log.error(e.getMessage());
         var errorResponse = new ErrorResponse(

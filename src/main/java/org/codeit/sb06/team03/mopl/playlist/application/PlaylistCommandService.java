@@ -70,6 +70,9 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         loadPlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
         savePlaylistPort.delete(playlistUUID);
+
+        saveSubscriptionPort.deleteAllByPlaylistId(playlistUUID); // TODO 이벤트,비동기?
+        saveCurationPort.deleteAllByPlaylistId(playlistUUID);
     }
 
     @Override
@@ -81,7 +84,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
 
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
-        // TODO loadContentPort.findById()
+        // TODO loadContentPort.existsById()
 
         if (loadCurationPort.existsById(new CurationId(playlistUUID, contentUUID))) {
             throw new ContentAlreadyBeenCuratedException(playlistUUID, contentUUID);
@@ -116,8 +119,6 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
 
         playlist.decreaseContentCount();
         savePlaylistPort.delete(playlistUUID);
-
-        // TODO 구독, 큐레이션 일괄 삭제
     }
 
     @Override
