@@ -95,12 +95,12 @@ public class BasicBffPlaylistService implements BffPlaylistService {
 
     @Override
     public void addContentToPlaylist(String playlistId, String contentId, UUID ownerId) {
-        addContentToCurationUseCase.add(playlistId, contentId, ownerId);
+        addContentToCurationUseCase.addContentToPlaylist(playlistId, contentId, ownerId);
     }
 
     @Override
     public void deleteContentFromPlaylist(String playlistId, String contentId, UUID ownerId) {
-        deleteContentFromCurationUseCase.delete(playlistId, contentId, ownerId);
+        deleteContentFromCurationUseCase.deleteContentFromPlaylist(playlistId, contentId, ownerId);
     }
 
     @Override

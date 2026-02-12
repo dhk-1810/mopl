@@ -19,6 +19,6 @@ public class SaveSubscriptionAdapter implements SaveSubscriptionPort {
 
     @Override
     public void delete(SubscriptionId id) {
-        repository.delete(id);
+        repository.deleteById(id);
     }
 }

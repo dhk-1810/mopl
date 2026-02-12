@@ -14,4 +14,6 @@ public interface CurationRepository extends JpaRepository<Curation, Long> {
     List<Curation> id(CurationId id);
 
     Optional<Curation> findById(CurationId id);
+
+    void deleteById(CurationId id);
 }

@@ -76,7 +76,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     @Override
-    public void addContentToCuration(String playlistId, String contentId, UUID ownerId) {
+    public void addContentToPlaylist(String playlistId, String contentId, UUID ownerId) {
 
         UUID playlistUUID = parseUUID(playlistId);
         UUID contentUUID = parseUUID(contentId);
@@ -94,10 +94,12 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
 
         playlist.increaseContentCount();
         savePlaylistPort.save(playlist);
+
+        // TODO 알림 발송
     }
 
     @Override
-    public void delete(String playlistId, String contentId, UUID ownerId) {
+    public void deleteContentFromPlaylist(String playlistId, String contentId, UUID ownerId) {
 
         UUID playlistUUID = parseUUID(playlistId);
         UUID contentUUID = parseUUID(contentId);
@@ -115,6 +117,8 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
 
         playlist.decreaseContentCount();
         savePlaylistPort.delete(playlistUUID);
+
+        // TODO 구독, 큐레이션 일괄 삭제
     }
 
     @Override
