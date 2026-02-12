@@ -20,6 +20,8 @@ public class BasicBffPlaylistService implements BffPlaylistService {
     private final GetSinglePlaylistUseCase getPlaylistUseCase;
     private final UpdatePlaylistUseCase updatePlaylistUseCase;
     private final DeletePlaylistUseCase deletePlaylistUseCase;
+    private final AddContentToCurationUseCase addContentToCurationUseCase;
+    private final DeleteContentFromCurationUseCase deleteContentFromCurationUseCase;
     private final SubscribePlaylistUseCase subscribePlaylistUseCase;
     private final UnsubscribePlaylistUseCase unsubscribePlaylistUseCase;
 
@@ -89,6 +91,16 @@ public class BasicBffPlaylistService implements BffPlaylistService {
     @Override
     public void deletePlaylist(String playlistId, UUID ownerId) {
         deletePlaylistUseCase.delete(playlistId, ownerId);
+    }
+
+    @Override
+    public void addContentToPlaylist(String playlistId, String contentId, UUID ownerId) {
+        addContentToCurationUseCase.add(playlistId, contentId, ownerId);
+    }
+
+    @Override
+    public void deleteContentFromPlaylist(String playlistId, String contentId, UUID ownerId) {
+        deleteContentFromCurationUseCase.delete(playlistId, contentId, ownerId);
     }
 
     @Override

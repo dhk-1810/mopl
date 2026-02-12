@@ -71,6 +71,30 @@ public class PlaylistController implements PlaylistApi {
     }
 
     @Override
+    @PostMapping("/{playlistId}/contents/{contentId}")
+    public ResponseEntity<Void> postCuration(
+            @PathVariable String playlistId,
+            @PathVariable String contentId
+//            @AuthenticationPrincipal MoplUserDetails user
+    ) {
+        // TODO id 추출 후 전달
+        bffPlaylistService.addContentToPlaylist(playlistId, contentId, UUID.randomUUID());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @DeleteMapping("/{playlistId}/contents/{contentId}")
+    public ResponseEntity<Void> deleteCuration(
+            @PathVariable String playlistId,
+            @PathVariable String contentId
+//            @AuthenticationPrincipal MoplUserDetails user
+    ) {
+        // TODO id 추출 후 전달
+        bffPlaylistService.deleteContentFromPlaylist(playlistId, contentId, UUID.randomUUID());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
     @PostMapping("/{playlistId}/subscription")
     public ResponseEntity<Void> postSubscription(
             @PathVariable String playlistId

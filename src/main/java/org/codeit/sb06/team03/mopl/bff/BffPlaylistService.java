@@ -16,6 +16,10 @@ public interface BffPlaylistService {
 
     void deletePlaylist(String playlistId, UUID ownerId);
 
+    void addContentToPlaylist(String playlistId, String contentId, UUID ownerId);
+
+    void deleteContentFromPlaylist(String playlistId, String contentId, UUID ownerId);
+
     void subscribePlaylist(String playlistId, UUID accountId);
 
     void unsubscribePlaylist(String playlistId, UUID accountId);

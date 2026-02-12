@@ -62,6 +62,28 @@ public interface PlaylistApi {
 //            @AuthenticationPrincipal MoplUserDetails user
     );
 
+    @Operation(summary = "플레이리스트에 컨텐츠 추가")
+    @ApiResponse(responseCode = "204", description = "성공")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    @ApiResponse(responseCode = "401", description = "인증 오류")
+    @ApiResponse(responseCode = "500", description = "서버 오류")
+    ResponseEntity<Void> postCuration(
+            @PathVariable String playlistId,
+            @PathVariable String contentId
+//            @AuthenticationPrincipal MoplUserDetails user
+    );
+
+    @Operation(summary = "플레이리스트에서 컨텐츠 삭제")
+    @ApiResponse(responseCode = "204", description = "성공")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    @ApiResponse(responseCode = "401", description = "인증 오류")
+    @ApiResponse(responseCode = "500", description = "서버 오류")
+    ResponseEntity<Void> deleteCuration(
+            @PathVariable String playlistId,
+            @PathVariable String contentId
+//            @AuthenticationPrincipal MoplUserDetails user
+    );
+
     @Operation(summary = "플레이리스트 구독")
     @ApiResponse(responseCode = "204", description = "성공")
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
