@@ -3,15 +3,11 @@ package org.codeit.sb06.team03.mopl.playlist.application;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
-import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSinglePlaylistPort;
-import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSubscriptionPort;
-import org.codeit.sb06.team03.mopl.playlist.application.out.SavePlaylistPort;
-import org.codeit.sb06.team03.mopl.playlist.application.out.SaveSubscriptionPort;
+import org.codeit.sb06.team03.mopl.playlist.application.out.*;
+import org.codeit.sb06.team03.mopl.playlist.domain.CurationService;
 import org.codeit.sb06.team03.mopl.playlist.domain.SubscriptionService;
-import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
+import org.codeit.sb06.team03.mopl.playlist.domain.entity.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.PlaylistService;
-import org.codeit.sb06.team03.mopl.playlist.domain.entity.Subscription;
-import org.codeit.sb06.team03.mopl.playlist.domain.entity.SubscriptionId;
 import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.PlaylistNotFoundException;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.SelfSubscriptionNotAllowedException;
@@ -30,10 +26,15 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
 
     private final SavePlaylistPort savePlaylistPort;
     private final SaveSubscriptionPort saveSubscriptionPort;
+    private final SaveCurationPort saveCurationPort;
     private final LoadSinglePlaylistPort loadPlaylistPort;
+    private final LoadCurationPort loadCurationPort;
     private final LoadSubscriptionPort loadSubscriptionPort;
+
     private final PlaylistService playlistService;
+    private final CurationService curationService;
     private final SubscriptionService subscriptionService;
+
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -75,24 +76,29 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     @Override
-    public void add(String playlistId, String contentId, UUID ownerId) {
+    public void addContentToCuration(String playlistId, String contentId, UUID ownerId) {
+
         UUID playlistUUID = parseUUID(playlistId);
         UUID contentUUID = parseUUID(contentId);
 
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
-        // loadContentPort.findById()
-        if (loadCurationPort.existsByPlaylist_IdAndContent_Id()){
-            throw new ContentAlreadyCuratedException();
+        // TODO loadContentPort.findById()
+
+        if (loadCurationPort.existsById(new CurationId(playlistUUID, contentUUID))) {
+            throw new ContentAlreadyBeenCuratedException();
         }
-        Curation curation = curationService.create();
+
+        Curation curation = curationService.create(playlistUUID, contentUUID);
         saveCurationPort.save(curation);
+
         playlist.increaseContentCount();
         savePlaylistPort.save(playlist);
     }
 
     @Override
     public void delete(String playlistId, String contentId, UUID ownerId) {
+
         UUID playlistUUID = parseUUID(playlistId);
         UUID contentUUID = parseUUID(contentId);
 
@@ -100,9 +106,13 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                         .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
-        loadCurationPort.findById(new CurationId(playlistUUID, contentId))
+
+        CurationId id = new CurationId(playlistUUID, contentUUID);
+        loadCurationPort.findById(id)
                 .orElseThrow(() -> new CurationNotFoundException(playlistUUID, contentId));
-        saveCurationPort.delete(curation);
+
+        saveCurationPort.delete(id);
+
         playlist.decreaseContentCount();
         savePlaylistPort.delete(playlistUUID);
     }

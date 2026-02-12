@@ -14,7 +14,7 @@ import java.util.UUID;
 @Getter
 @EqualsAndHashCode
 @Embeddable
-public class SubscriptionId implements Serializable {
+public class CurationId implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -25,5 +25,5 @@ public class SubscriptionId implements Serializable {
 
     @NotNull
     @Column(nullable = false)
-    private UUID subscriberId;
+    private UUID contentId;
 }

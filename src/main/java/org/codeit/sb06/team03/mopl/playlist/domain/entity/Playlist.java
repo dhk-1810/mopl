@@ -38,9 +38,8 @@ public class Playlist {
     @Column(name = "subscriber_count", nullable = false)
     private long subscriberCount;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "content_id")
-//    private List<Content> contents = new ArrayList<>();
+    @Column(name = "content_count", nullable = false)
+    private long contentCount;
 
     private Playlist(String title, String description, UUID ownerId) {
         this.id = UUID.randomUUID();
@@ -50,6 +49,7 @@ public class Playlist {
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
         this.subscriberCount = 0;
+        this.contentCount = 0;
     }
 
     public static Playlist create(String title, String description, UUID ownerId) {
@@ -75,4 +75,13 @@ public class Playlist {
         }
     }
 
+    public void increaseContentCount() {
+        this.contentCount++;
+    }
+
+    public void decreaseContentCount() {
+        if (contentCount > 0) {
+            this.contentCount--;
+        }
+    }
 }
