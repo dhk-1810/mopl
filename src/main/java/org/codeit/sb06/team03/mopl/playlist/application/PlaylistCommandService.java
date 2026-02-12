@@ -9,10 +9,7 @@ import org.codeit.sb06.team03.mopl.playlist.domain.SubscriptionService;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.PlaylistService;
 import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
-import org.codeit.sb06.team03.mopl.playlist.domain.exception.PlaylistNotFoundException;
-import org.codeit.sb06.team03.mopl.playlist.domain.exception.SelfSubscriptionNotAllowedException;
-import org.codeit.sb06.team03.mopl.playlist.domain.exception.SubscriptionAlreadyExistsException;
-import org.codeit.sb06.team03.mopl.playlist.domain.exception.SubscriptionNotFoundException;
+import org.codeit.sb06.team03.mopl.playlist.domain.exception.*;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,6 +73,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     @Override
+    // TODO 소유자 검증
     public void addContentToPlaylist(String playlistId, String contentId, UUID ownerId) {
 
         UUID playlistUUID = parseUUID(playlistId);
@@ -86,7 +84,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         // TODO loadContentPort.findById()
 
         if (loadCurationPort.existsById(new CurationId(playlistUUID, contentUUID))) {
-            throw new ContentAlreadyBeenCuratedException();
+            throw new ContentAlreadyBeenCuratedException(playlistUUID, contentUUID);
         }
 
         Curation curation = curationService.create(playlistUUID, contentUUID);
@@ -99,6 +97,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     @Override
+    // TODO 소유자 검증
     public void deleteContentFromPlaylist(String playlistId, String contentId, UUID ownerId) {
 
         UUID playlistUUID = parseUUID(playlistId);
@@ -111,7 +110,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
 
         CurationId id = new CurationId(playlistUUID, contentUUID);
         loadCurationPort.findById(id)
-                .orElseThrow(() -> new CurationNotFoundException(playlistUUID, contentId));
+                .orElseThrow(() -> new CurationNotFoundException(playlistUUID, contentUUID));
 
         saveCurationPort.delete(id);
 
