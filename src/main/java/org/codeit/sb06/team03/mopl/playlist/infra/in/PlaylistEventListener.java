@@ -17,4 +17,22 @@ public class PlaylistEventListener {
         // TODO 팔로워에게 플레이리스트 생성 알림 전송
     }
 
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleSubscriptionCreatedEvent(PlaylistEvent.SubscriptionCreatedEvent event) {
+
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void CurationAddedEvent(PlaylistEvent.CurationAddedEvent event) {
+
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handlePlaylistDeletedEvent(PlaylistEvent.PlaylistDeletedEvent event) {
+
+    }
+
 }

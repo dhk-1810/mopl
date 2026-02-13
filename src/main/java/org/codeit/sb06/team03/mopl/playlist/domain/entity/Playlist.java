@@ -63,6 +63,19 @@ public class Playlist {
         if (description != null && !description.isEmpty()) {
             this.description = description;
         }
+        this.updatedAt = Instant.now();
+    }
+
+    public void increaseContentCount() {
+        this.contentCount++;
+        this.updatedAt = Instant.now();
+    }
+
+    public void decreaseContentCount() {
+        if (contentCount > 0) {
+            this.contentCount--;
+        }
+        this.updatedAt = Instant.now();
     }
 
     public void increaseSubscriberCount() {
@@ -72,16 +85,6 @@ public class Playlist {
     public void decreaseSubscriberCount() {
         if (subscriberCount > 0) {
             this.subscriberCount--;
-        }
-    }
-
-    public void increaseContentCount() {
-        this.contentCount++;
-    }
-
-    public void decreaseContentCount() {
-        if (contentCount > 0) {
-            this.contentCount--;
         }
     }
 }

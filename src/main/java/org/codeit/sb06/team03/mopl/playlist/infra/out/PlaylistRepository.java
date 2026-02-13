@@ -128,7 +128,7 @@ public interface PlaylistRepository extends QuerydslJpaRepository<Playlist, UUID
     private static OrderSpecifier<?> orderByCursor(String sortDirection, String sortBy) {
         return switch (sortBy) {
             case "subscribeCount" -> new OrderSpecifier<>(Order.valueOf(sortDirection), playlist.subscriberCount);
-            default -> new OrderSpecifier<>(Order.valueOf(sortDirection), playlist.updatedAt); // TODO 큐레이션 updatedAt으로?
+            default -> new OrderSpecifier<>(Order.valueOf(sortDirection), playlist.updatedAt);
         };
     }
 }
