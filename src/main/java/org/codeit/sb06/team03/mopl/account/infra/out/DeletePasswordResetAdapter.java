@@ -1,14 +1,14 @@
 package org.codeit.sb06.team03.mopl.account.infra.out;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.account.application.out.SavePasswordResetPort;
+import org.codeit.sb06.team03.mopl.account.application.out.DeletePasswordResetPort;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Component
-public class SavePasswordResetAdapter implements SavePasswordResetPort {
+public class DeletePasswordResetAdapter implements DeletePasswordResetPort {
 
     private final PasswordResetRepository repository;
 

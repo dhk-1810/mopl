@@ -12,6 +12,10 @@ import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.*;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.user.application.out.LoadProfilePort;
+import org.codeit.sb06.team03.mopl.user.domain.Profile;
+import org.codeit.sb06.team03.mopl.user.domain.exception.ProfileNotFoundException;
+import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +35,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     private final LoadSinglePlaylistPort loadPlaylistPort;
     private final LoadCurationPort loadCurationPort;
     private final LoadSubscriptionPort loadSubscriptionPort;
+    private final LoadProfilePort loadProfilePort;
 
     private final PlaylistService playlistService;
     private final CurationService curationService;
@@ -48,11 +53,10 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         Playlist playlist = playlistService.create(title, description, ownerId);
         savePlaylistPort.save(playlist);
 
-        // TODO
-//      UserDto owner = getUserDto(playlist.ownerId);
+        UserSummaryDto owner = getUserDto(playlist.getOwnerId());
 
         eventPublisher.publishEvent(new PlaylistEvent.PlaylistCreatedEvent(ownerId)); // TODO 저장?
-        return PlaylistDto.toDto(playlist, null, false/*, Collections.emptyList()*/);
+        return PlaylistDto.toDto(playlist, owner, false/*, Collections.emptyList()*/);
     }
 
     @Override
@@ -68,10 +72,9 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         playlist = playlistService.update(playlist, title, description);
         savePlaylistPort.save(playlist);
 
-        // TODO
-//      UserDto owner = getUserDto(playlist.ownerId);
-//      List<ContentDto> contents = getContents(playlistUUID);
-        return PlaylistDto.toDto(playlist, null, false/*, contents*/);
+        UserSummaryDto owner = getUserDto(playlist.getOwnerId());
+//      List<ContentDto> contents = getContents(playlistUUID); // TODO
+        return PlaylistDto.toDto(playlist, owner, false/*, contents*/);
     }
 
     @Override
@@ -178,14 +181,13 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     private UserSummaryDto getUserDto(UUID ownerId){
-//        Profile profile = loadProfilePort.findById(ownerId)
-//                .orElseThrow(() -> new ProfileNotFoundException());
-//        return new UserSummaryDto(
-//                ownerId,
-//                profile.getName(),
-//                profile.getImage().url()
-//        );
-        return null;
+        Profile profile = loadProfilePort.load(ownerId)
+                .orElseThrow(() -> new ProfileNotFoundException(ownerId));
+        return new UserSummaryDto(
+                ownerId,
+                profile.getName(),
+                profile.getTimeoutImage().getPresignedUrl()
+        );
     }
 
 //    private List<ContentDto> getContents(playlistUUID){

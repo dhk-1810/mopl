@@ -18,7 +18,9 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.CursorRequestPlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.CursorResponsePlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.user.application.out.LoadProfilePort;
 import org.codeit.sb06.team03.mopl.user.domain.Profile;
+import org.codeit.sb06.team03.mopl.user.domain.exception.ProfileNotFoundException;
 import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,7 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
 
     private final LoadPlaylistsPort loadPlaylistsPort;
     private final LoadSinglePlaylistPort loadSinglePlaylistPort;
-//    private final LoadProfilePort loadProfilePort;
+    private final LoadProfilePort loadProfilePort;
 //    private final LoadContentPort loadContentPort;
     private final LoadCurationPort loadCurationPort;
     private final LoadSubscriptionPort loadSubscriptionPort;
@@ -99,26 +101,24 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
         Playlist playlist = loadSinglePlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
 
-        // TODO
-//      UserDto owner = getUserDto(playlist.ownerId);
+        UserSummaryDto owner = getUserDto(playlist.getOwnerId());
 
         SubscriptionId id = new SubscriptionId(playlistUUID, viewerId);
         boolean subscribedByMe = loadSubscriptionPort.existsById(id);
 
 //      List<ContentDto> contents = getContents(playlistUUID);
 
-        return PlaylistDto.toDto(playlist, null, subscribedByMe);
+        return PlaylistDto.toDto(playlist, owner, subscribedByMe);
     }
 
     private UserSummaryDto getUserDto(UUID ownerId){
-//        Profile profile = loadProfilePort.findById(ownerId)
-//                .orElseThrow(() -> new ProfileNotFoundException());
-//        return new UserSummaryDto(
-//                ownerId,
-//                profile.getName(),
-//                profile.getImage().url()
-//        );
-        return null;
+        Profile profile = loadProfilePort.load(ownerId)
+                .orElseThrow(() -> new ProfileNotFoundException(ownerId));
+        return new UserSummaryDto(
+                ownerId,
+                profile.getName(),
+                profile.getTimeoutImage().getPresignedUrl()
+        );
     }
 
 //    private List<ContentDto> getContents(UUID playlistId){
