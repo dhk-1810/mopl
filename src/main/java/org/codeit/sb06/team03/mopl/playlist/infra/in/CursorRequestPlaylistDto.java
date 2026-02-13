@@ -28,7 +28,6 @@ public record CursorRequestPlaylistDto (
         @NotNull
         Integer limit,
 
-
         @Schema(
                 requiredMode = Schema.RequiredMode.REQUIRED,
                 description = "정렬 방향",

@@ -31,12 +31,12 @@ public interface PlaylistRepository extends QuerydslJpaRepository<Playlist, UUID
     ) {
         Predicate[] predicates = {
                 keywordLikePredicate(keywordLike),
-                ownerIdEqualPredicate(ownerIdEqual),
+//                ownerIdEqualPredicate(ownerIdEqual),
                 subscriberIdEqualPredicate(subscriberIdEqual),
                 cursorExpressionPredicate(cursor, idAfter, sortDirection, sortBy)
         };
         sortDirection = sortDirection.equalsIgnoreCase("ASCENDING") ? "ASC" : "DESC";
-        var contents = select(playlistDtoProjection())
+        var contents = select(playlist)
                 .from(playlist)
                 .leftJoin(subscription).on(subscription.id.playlistId.eq(playlist.id))
                 .where(predicates)
@@ -53,18 +53,6 @@ public interface PlaylistRepository extends QuerydslJpaRepository<Playlist, UUID
         return new SliceImpl<>(contents, PageRequest.ofSize(limit), hasNext);
     }
 
-    private static Expression<Playlist> playlistDtoProjection() {
-        return Projections.constructor(
-                Playlist.class,
-                playlist.id,
-                playlist.ownerId,
-                playlist.title,
-                playlist.description,
-                playlist.updatedAt,
-                playlist.subscriberCount
-        );
-    }
-
     private static BooleanExpression keywordLikePredicate(String keywordLike){
         if (keywordLike == null || keywordLike.isEmpty()) {
             return null;
@@ -72,11 +60,14 @@ public interface PlaylistRepository extends QuerydslJpaRepository<Playlist, UUID
         return playlist.title.containsIgnoreCase(keywordLike);
     }
 
-    private static BooleanExpression ownerIdEqualPredicate(UUID ownerId){
+    private static BooleanExpression ownerIdEqualPredicate(UUID ownerId){ // 사용되지 않음
+        if (ownerId == null) {
+            return null;
+        }
         return playlist.ownerId.eq(ownerId);
     }
 
-    private static BooleanExpression subscriberIdEqualPredicate(UUID subscriberId){ // TODO 사용되지 않음
+    private static BooleanExpression subscriberIdEqualPredicate(UUID subscriberId){
         if (subscriberId == null) {
             return null;
         }

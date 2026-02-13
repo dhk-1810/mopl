@@ -25,6 +25,7 @@ import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -44,10 +45,10 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
     public CursorResponsePlaylistDto get(CursorRequestPlaylistDto request) {
 
         final String keywordLike = request.keywordLike();
-        final UUID ownerIdEqual = (request.ownerIdEqual() == null) ? null : parseUUID(request.ownerIdEqual());
-        final UUID subscriberIdEqual = (request.subscriberIdEqual() == null) ? null : parseUUID(request.subscriberIdEqual());
-        final String cursor = request.cursor();
-        final UUID idAfter =  (request.idAfter() == null) ? null : parseUUID(request.idAfter());
+        final UUID ownerIdEqual = parseUUID(request.ownerIdEqual());
+        final UUID subscriberIdEqual = parseUUID(request.subscriberIdEqual());
+        final String cursor = StringUtils.hasText(request.cursor()) ? request.cursor() : null;
+        final UUID idAfter = parseUUID(request.idAfter());
         final int limit = request.limit();
         final String sortDirection = request.sortDirection();
         final String sortBy = request.sortBy();
@@ -132,6 +133,9 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
 //    }
 
     private UUID parseUUID(String id) {
+        if (!StringUtils.hasText(id)) {
+            return null;
+        }
         try {
             return UUID.fromString(id);
         } catch (IllegalArgumentException | NullPointerException e) {
