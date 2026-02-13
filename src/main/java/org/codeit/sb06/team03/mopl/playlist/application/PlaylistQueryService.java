@@ -7,6 +7,7 @@ import org.codeit.sb06.team03.mopl.account.domain.exception.AccountNotFoundExcep
 import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.playlist.application.in.GetSinglePlaylistUseCase;
 import org.codeit.sb06.team03.mopl.playlist.application.in.GetPlaylistsUseCase;
+import org.codeit.sb06.team03.mopl.playlist.application.out.LoadCurationPort;
 import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSinglePlaylistPort;
 import org.codeit.sb06.team03.mopl.playlist.application.out.LoadPlaylistsPort;
 import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSubscriptionPort;
@@ -17,8 +18,11 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.CursorRequestPlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.CursorResponsePlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.user.domain.Profile;
+import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -28,6 +32,7 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
     private final LoadPlaylistsPort loadPlaylistsPort;
     private final LoadSinglePlaylistPort loadSinglePlaylistPort;
 //    private final LoadContentPort loadContentPort;
+    private final LoadCurationPort loadCurationPort;
     private final LoadSubscriptionPort loadSubscriptionPort;
 
     @Override
@@ -63,22 +68,36 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
         Playlist playlist = loadSinglePlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
 
-//        List<ContentsDto> contents = playlist.getContents()
-//                .stream().map(ContentsMapper::toDto).toList();
+        List<UUID> contentIds = loadCurationPort.findAllByPlaylistId(playlistUUID);
 
+        // TODO
+//      UserDto owner = getUserDto(playlist.ownerId);
+//      List<ContentDto> contents = getContents(playlistUUID);
         SubscriptionId id = new SubscriptionId(playlistUUID, viewerId);
         boolean subscribedByMe = loadSubscriptionPort.existsById(id);
 
-        return new PlaylistDto(
-                playlist.getId(),
-                null,
-                playlist.getTitle(),
-                playlist.getDescription(),
-                playlist.getUpdatedAt(),
-                playlist.getSubscriberCount(),
-                subscribedByMe
-        );
+//      List<ContentDto> contents = loadContentsPort.findAllByIdIn()
+//                .stream().map(ContentDto::toDto).toList();
+
+        return PlaylistDto.toDto(playlist, null, subscribedByMe);
     }
+
+    private UserSummaryDto getUserDto(UUID ownerId){
+//        Profile profile = loadProfilePort.findById(ownerId)
+//                .orElseThrow(() -> new ProfileNotFoundException());
+//        return new UserSummaryDto(
+//                ownerId,
+//                profile.getName(),
+//                profile.getImage().url()
+//        );
+        return null;
+    }
+
+//    private List<ContentDto> getContents(playlistUUID){
+//        List<UUID> contentIds = loadCurationPort.findAllByPlaylistId();
+//        return loadContentsPort.findAllByIdIn(contentIds)
+//                .stream().map(ContentDto::toDto).toList();
+//    }
 
     private UUID parseUUID(String id) {
         try {

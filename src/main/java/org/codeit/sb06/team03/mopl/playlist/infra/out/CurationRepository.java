@@ -19,6 +19,14 @@ public interface CurationRepository extends QuerydslJpaRepository<Curation, Cura
 
     void deleteById(CurationId id);
 
+    default List<UUID> findAllByPlaylistId(UUID playlistId) {
+        QCuration curation = QCuration.curation;
+        return select(curation.id.contentId)
+                .where(curation.id.playlistId.eq(playlistId))
+                .from(curation)
+                .fetch();
+    }
+
     default void deleteAllByPlaylistId(UUID playlistId) {
         QCuration curation = QCuration.curation;
         delete(curation)

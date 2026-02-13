@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public abstract sealed class PlaylistEvent {
+public abstract sealed class PlaylistEvent { // TODO 리스너 구현
 
     @Getter
     @RequiredArgsConstructor
@@ -28,7 +28,6 @@ public abstract sealed class PlaylistEvent {
     @RequiredArgsConstructor
     public static final class CurationAddedEvent extends PlaylistEvent {
         private final UUID playlistId;
-        private final UUID subscriberId;
     }
 
     @Getter

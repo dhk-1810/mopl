@@ -27,29 +27,8 @@ public class BasicBffPlaylistService implements BffPlaylistService {
 
     @Override
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
-
         CreatePlaylistCommand command = playlistMapper.toCommand(request);
-        Playlist playlist = createPlaylistUseCase.create(command, ownerId);
-
-        UUID id = playlist.getId();
-        UserSummaryDto owner = null; // TODO
-        String title = playlist.getTitle();
-        String description = playlist.getDescription();
-        Instant updatedAt = playlist.getUpdatedAt();
-        long subscriberCount = playlist.getSubscriberCount();
-        boolean subscribed = false;
-        // List<ContentDto> contents; // TODO
-
-        return new PlaylistDto(
-                id,
-                null,
-                title,
-                description,
-                updatedAt,
-                subscriberCount,
-                subscribed
-                // null
-        );
+        return createPlaylistUseCase.create(command, ownerId);
     }
 
     @Override
@@ -59,48 +38,13 @@ public class BasicBffPlaylistService implements BffPlaylistService {
 
     @Override
     public PlaylistDto getPlaylist(String playlistId, UUID viewerId) {
-
-        PlaylistDto playlistDto = getPlaylistUseCase.get(playlistId, viewerId);
-
-
-
-        // TODO
-//        Profile profile = loadProfilePort.findById(viewerId)
-//                .orElseThrow(() -> new ProfileNotFoundException(viewerId));
-
-        UserSummaryDto owner = new UserSummaryDto(
-                viewerId,
-                null, // profile.getName()
-                null //profile.getImage()
-        );
-
-        return
+        return getPlaylistUseCase.get(playlistId, viewerId);
     }
 
     @Override
     public PlaylistDto updatePlayList(String playlistId, PlaylistUpdateRequest request, UUID ownerId) {
-
         UpdatePlaylistCommand command = playlistMapper.toCommand(request);
-        Playlist playlist = updatePlaylistUseCase.update(playlistId, command, ownerId);
-
-        UUID id = playlist.getId();
-        UserSummaryDto owner = null; // TODO
-        String title = playlist.getTitle();
-        String description = playlist.getDescription();
-        Instant updatedAt = playlist.getUpdatedAt();
-        long subscriberCount = playlist.getSubscriberCount();
-        boolean subscribed = false;
-        // List<ContentDto> contents; // TODO
-        return new PlaylistDto(
-                id,
-                owner,
-                title,
-                description,
-                updatedAt,
-                subscriberCount,
-                subscribed
-                // null
-        );
+        return updatePlaylistUseCase.update(playlistId, command, ownerId);
     }
 
     @Override

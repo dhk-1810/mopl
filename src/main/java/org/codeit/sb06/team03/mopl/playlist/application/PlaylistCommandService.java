@@ -10,10 +10,14 @@ import org.codeit.sb06.team03.mopl.playlist.domain.entity.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.PlaylistService;
 import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.*;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.UserSummaryDto;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.Collections;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -36,21 +40,24 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
 
     @Override
     @Transactional
-    public Playlist create(CreatePlaylistCommand command, UUID ownerId) {
+    public PlaylistDto create(CreatePlaylistCommand command, UUID ownerId) {
 
         final String title = command.title();
         final String description = command.description();
 
-        Playlist newPlaylist = playlistService.create(title, description, ownerId);
-        savePlaylistPort.save(newPlaylist);
+        Playlist playlist = playlistService.create(title, description, ownerId);
+        savePlaylistPort.save(playlist);
+
+        // TODO
+//      UserDto owner = getUserDto(playlist.ownerId);
 
         eventPublisher.publishEvent(new PlaylistEvent.PlaylistCreatedEvent(ownerId)); // TODO 저장?
-        return newPlaylist;
+        return PlaylistDto.toDto(playlist, null, false/*, Collections.emptyList()*/);
     }
 
     @Override
     // TODO 소유자 검증
-    public Playlist update(String playlistId, UpdatePlaylistCommand command, UUID ownerId) {
+    public PlaylistDto update(String playlistId, UpdatePlaylistCommand command, UUID ownerId) {
 
         UUID playlistUUID = parseUUID(playlistId);
         final String title = command.title();
@@ -60,7 +67,11 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
                         .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
         playlist = playlistService.update(playlist, title, description);
         savePlaylistPort.save(playlist);
-        return playlist;
+
+        // TODO
+//      UserDto owner = getUserDto(playlist.ownerId);
+//      List<ContentDto> contents = getContents(playlistUUID);
+        return PlaylistDto.toDto(playlist, null, false/*, contents*/);
     }
 
     @Override
@@ -96,7 +107,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         playlist.increaseContentCount();
         savePlaylistPort.save(playlist);
 
-        // TODO 알림 발송
+        eventPublisher.publishEvent(new PlaylistEvent.CurationAddedEvent(playlistUUID));
     }
 
     @Override
@@ -165,6 +176,23 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         playlist.decreaseSubscriberCount();
         savePlaylistPort.save(playlist);
     }
+
+    private UserSummaryDto getUserDto(UUID ownerId){
+//        Profile profile = loadProfilePort.findById(ownerId)
+//                .orElseThrow(() -> new ProfileNotFoundException());
+//        return new UserSummaryDto(
+//                ownerId,
+//                profile.getName(),
+//                profile.getImage().url()
+//        );
+        return null;
+    }
+
+//    private List<ContentDto> getContents(playlistUUID){
+//        List<UUID> contentIds = loadCurationPort.findAllByPlaylistId();
+//        return loadContentsPort.findAllByIdIn(contentIds)
+//                .stream().map(ContentDto::toDto).toList();
+//    }
 
     private UUID parseUUID(String id) {
         try {
