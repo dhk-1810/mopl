@@ -2,25 +2,19 @@ package org.codeit.sb06.team03.mopl.account.application;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.application.in.*;
-import org.codeit.sb06.team03.mopl.account.application.in.AssignRoleCommand;
-import org.codeit.sb06.team03.mopl.account.application.in.AssignRoleUseCase;
-import org.codeit.sb06.team03.mopl.account.application.in.RegisterAccountCommand;
-import org.codeit.sb06.team03.mopl.account.application.in.RegisterAccountUseCase;
-import org.codeit.sb06.team03.mopl.account.application.out.CreateUserPort;
-import org.codeit.sb06.team03.mopl.account.application.out.LoadAccountPort;
-import org.codeit.sb06.team03.mopl.account.application.out.SaveAccountPort;
-import org.codeit.sb06.team03.mopl.account.application.in.UpdatePasswordCommand;
-import org.codeit.sb06.team03.mopl.account.application.in.UpdatePasswordUseCase;
 import org.codeit.sb06.team03.mopl.account.application.out.*;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.AccountService;
 import org.codeit.sb06.team03.mopl.account.domain.exception.*;
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.account.domain.vo.Role;
+import org.codeit.sb06.team03.mopl.follow.domain.Followee;
+import org.codeit.sb06.team03.mopl.user.domain.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 @Service
@@ -29,9 +23,10 @@ public class AccountCommandService implements RegisterAccountUseCase, AssignRole
 
     private final AccountService accountService;
     private final LoadAccountPort loadAccountPort;
-    private final CreateUserPort createUserPort;
+    private final CreateProfilePort createProfilePort;
     private final SaveAccountPort saveAccountPort;
-    private final SavePasswordResetPort savePasswordResetPort;
+    private final DeletePasswordResetPort deletePasswordResetPort;
+    private final CreateFollowPort createFollowPort;
 
     @Override
     @Transactional
@@ -44,11 +39,14 @@ public class AccountCommandService implements RegisterAccountUseCase, AssignRole
             throw new EmailAddressAlreadyExistsException(emailAddress.value());
         }
         Account newAccount = accountService.create(emailAddress, rawPassword);
-        createUserPort.create(newAccount.getId(), name)
+        CompletableFuture<Profile> profile = createProfilePort.create(newAccount.getId(), name)
                 .exceptionally(throwable -> {
                     throw new AccountRegistrationFailedException(throwable);
-                })
-                .join();
+                });
+        CompletableFuture<Followee> follow = createFollowPort.create(newAccount.getId());
+        CompletableFuture.allOf(profile, follow).join();
+
+        newAccount.setProfile(profile.join());
 
         saveAccountPort.save(newAccount);
         return newAccount;
@@ -59,10 +57,8 @@ public class AccountCommandService implements RegisterAccountUseCase, AssignRole
     public Account resetPassword(ResetPasswordCommand command) {
         final EmailAddress emailAddress = command.emailAddress();
 
-        if (!loadAccountPort.existsByEmailAddress(emailAddress)) {
-            throw new EmailAddressNotFoundException(emailAddress);
-        }
-        Account existAccount = loadAccountPort.findByEmailAddress(emailAddress);
+        Account existAccount = loadAccountPort.findByEmailAddress(emailAddress)
+                .orElseThrow(() -> new EmailAddressNotFoundException(emailAddress));
 
         Account resetPasswordAccount = accountService.resetPassword(existAccount);
 
@@ -84,7 +80,7 @@ public class AccountCommandService implements RegisterAccountUseCase, AssignRole
 
         // 저장, 임시 비밀번호 삭제
         saveAccountPort.save(account);
-        savePasswordResetPort.deleteByAccountId(accountUUID);
+        deletePasswordResetPort.deleteByAccountId(accountUUID);
     }
 
     @Override

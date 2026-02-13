@@ -1,10 +1,14 @@
 package org.codeit.sb06.team03.mopl.user.infra.in;
 
+import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.bff.BffUserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -31,6 +35,7 @@ public class UserController implements UserApi {
     }
 
     @PatchMapping("/{userId}/role")
+    @RolesAllowed("ADMIN")
     public ResponseEntity<Void> patchUsersRole(
             @PathVariable(name = "userId") String userId,
             @RequestBody UserRoleUpdateRequest request
@@ -42,6 +47,7 @@ public class UserController implements UserApi {
 
     @Override
     @PatchMapping("/{userId}/locked")
+    @RolesAllowed("ADMIN")
     public ResponseEntity<Void> patchUsersLockStatus(
             @PathVariable(name = "userId") String userId,
             @RequestBody UserLockUpdateRequest request
@@ -53,6 +59,7 @@ public class UserController implements UserApi {
 
     @Override
     @GetMapping
+    @RolesAllowed("ADMIN")
     public ResponseEntity<CursorResponseUserDto> getUsers(@ModelAttribute CursorRequestUserDto request) {
         CursorResponseUserDto response = bffUserService.getUsers(request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -62,6 +69,17 @@ public class UserController implements UserApi {
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> getUsersById(@PathVariable String userId) {
         UserDto response = bffUserService.getUser(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Override
+    @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserDto> patchUserProfile(
+            @PathVariable String userId,
+            @RequestPart UserUpdateRequest request,
+            @Nullable @RequestPart(required = false) MultipartFile image
+    ) {
+        UserDto response = bffUserService.updateProfile(userId, request, image);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
