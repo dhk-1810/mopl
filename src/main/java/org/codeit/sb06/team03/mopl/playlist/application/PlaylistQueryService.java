@@ -24,11 +24,13 @@ import org.codeit.sb06.team03.mopl.user.domain.exception.ProfileNotFoundExceptio
 import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlaylistUseCase {
 
     private final LoadPlaylistsPort loadPlaylistsPort;
@@ -101,7 +103,7 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
         Playlist playlist = loadSinglePlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
 
-        UserSummaryDto owner = getUserDto(playlist.getOwnerId());
+        UserSummaryDto owner = getUserSummaryDto(playlist.getOwnerId());
 
         SubscriptionId id = new SubscriptionId(playlistUUID, viewerId);
         boolean subscribedByMe = loadSubscriptionPort.existsById(id);
@@ -111,13 +113,15 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
         return PlaylistDto.toDto(playlist, owner, subscribedByMe);
     }
 
-    private UserSummaryDto getUserDto(UUID ownerId){
+    private UserSummaryDto getUserSummaryDto(UUID ownerId){
         Profile profile = loadProfilePort.load(ownerId)
                 .orElseThrow(() -> new ProfileNotFoundException(ownerId));
+        String profileImageUrl = (profile.getTimeoutImage() != null) ? profile.getTimeoutImage().getPresignedUrl() : null;
+
         return new UserSummaryDto(
                 ownerId,
                 profile.getName(),
-                profile.getTimeoutImage().getPresignedUrl()
+                profileImageUrl
         );
     }
 

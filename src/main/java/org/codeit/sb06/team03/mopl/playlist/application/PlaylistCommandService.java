@@ -17,6 +17,8 @@ import org.codeit.sb06.team03.mopl.user.domain.Profile;
 import org.codeit.sb06.team03.mopl.user.domain.exception.ProfileNotFoundException;
 import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +26,11 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.UUID;
 
+// TODO 사용자 삭제되면 구독 삭제, 컨텐츠 삭제되면 큐레이션 삭제
+
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
+@Transactional
 public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase, DeletePlaylistUseCase, AddContentToCurationUseCase, DeleteContentFromCurationUseCase,SubscribePlaylistUseCase, UnsubscribePlaylistUseCase {
 
     private final SavePlaylistPort savePlaylistPort;
@@ -44,7 +48,6 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
-    @Transactional
     public PlaylistDto create(CreatePlaylistCommand command, UUID ownerId) {
 
         final String title = command.title();
@@ -53,14 +56,13 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         Playlist playlist = playlistService.create(title, description, ownerId);
         savePlaylistPort.save(playlist);
 
-        UserSummaryDto owner = getUserDto(playlist.getOwnerId());
+        UserSummaryDto owner = getUserSummaryDto(playlist.getOwnerId());
 
         eventPublisher.publishEvent(new PlaylistEvent.PlaylistCreatedEvent(ownerId)); // TODO 저장?
         return PlaylistDto.toDto(playlist, owner, false/*, Collections.emptyList()*/);
     }
 
     @Override
-    // TODO 소유자 검증
     public PlaylistDto update(String playlistId, UpdatePlaylistCommand command, UUID ownerId) {
 
         UUID playlistUUID = parseUUID(playlistId);
@@ -69,20 +71,26 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
 
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                         .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+        if (!playlist.getOwnerId().equals(ownerId)) {
+            throw new AccessDeniedException("플레이리스트는 소유자만 수정할 수 있습니다.");
+        }
+
         playlist = playlistService.update(playlist, title, description);
         savePlaylistPort.save(playlist);
 
-        UserSummaryDto owner = getUserDto(playlist.getOwnerId());
+        UserSummaryDto owner = getUserSummaryDto(playlist.getOwnerId());
 //      List<ContentDto> contents = getContents(playlistUUID); // TODO
         return PlaylistDto.toDto(playlist, owner, false/*, contents*/);
     }
 
     @Override
-    // TODO 소유자 검증
     public void delete(String playlistId, UUID ownerId) {
         UUID playlistUUID = parseUUID(playlistId);
-        loadPlaylistPort.findById(playlistUUID)
+        Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+        if (!playlist.getOwnerId().equals(ownerId)) {
+            throw new AccessDeniedException("플레이리스트는 소유자만 삭제할 수 있습니다.");
+        }
         savePlaylistPort.delete(playlistUUID);
 
         saveSubscriptionPort.deleteAllByPlaylistId(playlistUUID); // TODO 이벤트,비동기?
@@ -90,7 +98,6 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     @Override
-    // TODO 소유자 검증
     public void addContentToPlaylist(String playlistId, String contentId, UUID ownerId) {
 
         UUID playlistUUID = parseUUID(playlistId);
@@ -98,6 +105,9 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
 
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+        if (!playlist.getOwnerId().equals(ownerId)) {
+            throw new AccessDeniedException("플레이리스트는 소유자만 수정할 수 있습니다.");
+        }
         // TODO loadContentPort.existsById()
 
         if (loadCurationPort.existsById(new CurationId(playlistUUID, contentUUID))) {
@@ -114,16 +124,16 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     @Override
-    // TODO 소유자 검증
     public void deleteContentFromPlaylist(String playlistId, String contentId, UUID ownerId) {
 
         UUID playlistUUID = parseUUID(playlistId);
         UUID contentUUID = parseUUID(contentId);
 
-        loadPlaylistPort.findById(playlistUUID)
-                .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                         .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+        if (!playlist.getOwnerId().equals(ownerId)) {
+            throw new AccessDeniedException("플레이리스트는 소유자만 수정할 수 있습니다.");
+        }
 
         CurationId id = new CurationId(playlistUUID, contentUUID);
         loadCurationPort.findById(id)
@@ -180,13 +190,15 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         savePlaylistPort.save(playlist);
     }
 
-    private UserSummaryDto getUserDto(UUID ownerId){
+    private UserSummaryDto getUserSummaryDto(UUID ownerId){
         Profile profile = loadProfilePort.load(ownerId)
                 .orElseThrow(() -> new ProfileNotFoundException(ownerId));
+        String profileImageUrl = (profile.getTimeoutImage() != null) ? profile.getTimeoutImage().getPresignedUrl() : null;
+
         return new UserSummaryDto(
                 ownerId,
                 profile.getName(),
-                profile.getTimeoutImage().getPresignedUrl()
+                profileImageUrl
         );
     }
 

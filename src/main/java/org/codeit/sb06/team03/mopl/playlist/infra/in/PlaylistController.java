@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/playlist")
+@RequestMapping("/api/playlists")
 public class PlaylistController implements PlaylistApi {
 
     private final BffPlaylistService bffPlaylistService;
