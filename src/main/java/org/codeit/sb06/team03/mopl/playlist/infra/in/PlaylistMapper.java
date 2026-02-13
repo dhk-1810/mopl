@@ -2,6 +2,8 @@ package org.codeit.sb06.team03.mopl.playlist.infra.in;
 
 import org.codeit.sb06.team03.mopl.playlist.application.in.CreatePlaylistCommand;
 import org.codeit.sb06.team03.mopl.playlist.application.in.UpdatePlaylistCommand;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistCreateRequest;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistUpdateRequest;
 import org.springframework.stereotype.Component;
 
 @Component

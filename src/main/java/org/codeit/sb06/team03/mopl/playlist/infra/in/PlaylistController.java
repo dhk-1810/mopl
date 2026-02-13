@@ -4,12 +4,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.bff.BffPlaylistService;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.request.CursorRequestPlaylistDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistCreateRequest;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistUpdateRequest;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.CursorResponsePlaylistDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController

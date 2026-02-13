@@ -10,20 +10,15 @@ import org.codeit.sb06.team03.mopl.playlist.domain.entity.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.PlaylistService;
 import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.*;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.codeit.sb06.team03.mopl.user.application.out.LoadProfilePort;
 import org.codeit.sb06.team03.mopl.user.domain.Profile;
 import org.codeit.sb06.team03.mopl.user.domain.exception.ProfileNotFoundException;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.Collections;
 import java.util.UUID;
 
 // TODO 사용자 삭제되면 구독 삭제, 컨텐츠 삭제되면 큐레이션 삭제

@@ -1,6 +1,10 @@
 package org.codeit.sb06.team03.mopl.bff;
 
-import org.codeit.sb06.team03.mopl.playlist.infra.in.*;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.request.CursorRequestPlaylistDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistCreateRequest;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistUpdateRequest;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.CursorResponsePlaylistDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
 
 import java.util.UUID;
 

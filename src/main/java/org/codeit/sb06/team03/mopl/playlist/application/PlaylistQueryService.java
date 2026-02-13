@@ -1,9 +1,6 @@
 package org.codeit.sb06.team03.mopl.playlist.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.account.application.out.LoadAccountPort;
-import org.codeit.sb06.team03.mopl.account.domain.Account;
-import org.codeit.sb06.team03.mopl.account.domain.exception.AccountNotFoundException;
 import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.playlist.application.in.GetSinglePlaylistUseCase;
 import org.codeit.sb06.team03.mopl.playlist.application.in.GetPlaylistsUseCase;
@@ -14,14 +11,13 @@ import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSubscriptionPort
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.SubscriptionId;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.PlaylistNotFoundException;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.CursorRequestPlaylistDto;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.CursorResponsePlaylistDto;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.request.CursorRequestPlaylistDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.CursorResponsePlaylistDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.codeit.sb06.team03.mopl.user.application.out.LoadProfilePort;
 import org.codeit.sb06.team03.mopl.user.domain.Profile;
 import org.codeit.sb06.team03.mopl.user.domain.exception.ProfileNotFoundException;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -2,12 +2,14 @@ package org.codeit.sb06.team03.mopl.bff;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
-import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.*;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.request.CursorRequestPlaylistDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistCreateRequest;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistUpdateRequest;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.CursorResponsePlaylistDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @RequiredArgsConstructor

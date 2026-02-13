@@ -28,11 +28,6 @@ public class LoadCurationAdapter implements LoadCurationPort {
     }
 
     @Override
-    public List<UUID> findAllByPlaylistId(UUID playlistId) {
-        return repository.findAllByPlaylistId(playlistId);
-    }
-
-    @Override
     public Map<UUID, List<UUID>> findAllByPlaylistIdsIn(List<UUID> playlistIds) {
         return repository.findAllByPlaylistIdsIn(playlistIds);
     }

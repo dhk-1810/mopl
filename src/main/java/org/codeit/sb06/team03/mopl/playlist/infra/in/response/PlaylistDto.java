@@ -1,9 +1,8 @@
-package org.codeit.sb06.team03.mopl.playlist.infra.in;
+package org.codeit.sb06.team03.mopl.playlist.infra.in.response;
 
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 public record PlaylistDto(

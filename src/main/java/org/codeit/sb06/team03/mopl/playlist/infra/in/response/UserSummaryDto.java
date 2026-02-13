@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.playlist.infra.in;
+package org.codeit.sb06.team03.mopl.playlist.infra.in.response;
 
 import java.util.UUID;
 
