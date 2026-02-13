@@ -12,4 +12,6 @@ public interface SaveCurationPort {
     void delete(CurationId id);
 
     void deleteAllByPlaylistId(UUID playlistId);
+
+    void deleteAllByContentId(UUID contentId);
 }

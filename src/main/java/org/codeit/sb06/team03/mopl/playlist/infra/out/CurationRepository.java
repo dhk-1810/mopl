@@ -33,6 +33,13 @@ public interface CurationRepository extends QuerydslJpaRepository<Curation, Cura
                 .execute();
     }
 
+    default void deleteAllByContentId(UUID playlistId) {
+        QCuration curation = QCuration.curation;
+        delete(curation)
+                .where(curation.id.contentId.eq(playlistId))
+                .execute();
+    }
+
     default Map<UUID, List<UUID>> findAllByPlaylistIdsIn(List<UUID> playlistIds) {
         if (playlistIds == null || playlistIds.isEmpty()) {
             return Collections.emptyMap();

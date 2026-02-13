@@ -13,4 +13,6 @@ public interface SaveSubscriptionPort {
 
     void deleteAllByPlaylistId(UUID playlistId);
 
+    void deleteAllByAccountId(UUID accountId);
+
 }

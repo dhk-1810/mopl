@@ -28,4 +28,9 @@ public class SaveCurationAdapter implements SaveCurationPort {
     public void deleteAllByPlaylistId(UUID playlistId) {
         repository.deleteAllByPlaylistId(playlistId);
     }
+
+    @Override
+    public void deleteAllByContentId(UUID contentId) {
+        repository.deleteAllByContentId(contentId);
+    }
 }

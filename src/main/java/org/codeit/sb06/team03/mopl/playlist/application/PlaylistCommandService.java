@@ -72,7 +72,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                         .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
         if (!playlist.getOwnerId().equals(ownerId)) {
-            throw new AccessDeniedException("플레이리스트는 소유자만 수정할 수 있습니다.");
+            throw new PlaylistAccessDeniedException(ownerId);
         }
 
         playlist = playlistService.update(playlist, title, description);
@@ -89,7 +89,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
         if (!playlist.getOwnerId().equals(ownerId)) {
-            throw new AccessDeniedException("플레이리스트는 소유자만 삭제할 수 있습니다.");
+            throw new PlaylistAccessDeniedException(ownerId);
         }
         savePlaylistPort.delete(playlistUUID);
 
@@ -106,7 +106,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
         if (!playlist.getOwnerId().equals(ownerId)) {
-            throw new AccessDeniedException("플레이리스트는 소유자만 수정할 수 있습니다.");
+            throw new PlaylistAccessDeniedException(ownerId);
         }
         // TODO loadContentPort.existsById()
 
@@ -132,7 +132,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                         .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
         if (!playlist.getOwnerId().equals(ownerId)) {
-            throw new AccessDeniedException("플레이리스트는 소유자만 수정할 수 있습니다.");
+            throw new PlaylistAccessDeniedException(ownerId);
         }
 
         CurationId id = new CurationId(playlistUUID, contentUUID);

@@ -28,4 +28,9 @@ public class SaveSubscriptionAdapter implements SaveSubscriptionPort {
     public void deleteAllByPlaylistId(UUID playlistId) {
         repository.deleteAllByPlaylistId(playlistId);
     }
+
+    @Override
+    public void deleteAllByAccountId(UUID accountId) {
+        repository.deleteAllBySubscriberId(accountId);
+    }
 }
