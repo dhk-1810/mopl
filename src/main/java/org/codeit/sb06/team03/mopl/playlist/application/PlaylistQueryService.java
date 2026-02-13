@@ -20,10 +20,10 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.UserSummaryDto;
 import org.codeit.sb06.team03.mopl.user.domain.Profile;
 import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -31,6 +31,7 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
 
     private final LoadPlaylistsPort loadPlaylistsPort;
     private final LoadSinglePlaylistPort loadSinglePlaylistPort;
+//    private final LoadProfilePort loadProfilePort;
 //    private final LoadContentPort loadContentPort;
     private final LoadCurationPort loadCurationPort;
     private final LoadSubscriptionPort loadSubscriptionPort;
@@ -47,7 +48,7 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
         final String sortDirection = request.sortDirection();
         final String sortBy = request.sortBy();
 
-        loadPlaylistsPort.findAll(
+        Slice<Playlist> playlists = loadPlaylistsPort.findAll(
                 keywordLike,
                 ownerIdEqual,
                 subscriberIdEqual,
@@ -57,8 +58,38 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
                 sortDirection,
                 sortBy
         );
+        List<UUID> playlistIds = playlists.getContent().stream().map(Playlist::getId).toList();
+        Map<UUID, List<UUID>> contentIds = loadCurationPort.findAllByPlaylistIdsIn(playlistIds);
+//        Map<UUID, List<ContentDto>> contentsMap = loadContentPort.getContentsMapByPlaylistIds(playlistIds).map(ContentDto::toDto);
+        List<PlaylistDto> data = playlists.stream()
+                .map(playlist -> PlaylistDto.toDto(
+                        playlist,
+                        null, // 목록 조회에선 사용되지 않음
+                        false // 목록 조회에선 사용되지 않음
+                        // contentsMap.getOrDefault(playlist.getId(), Collections.emptyList())
+                )).toList();
 
-        return null;
+        String nextCursor = null;
+        String nextIdAfter = null;
+        if (!playlists.isEmpty() && playlists.hasNext()) {
+            Playlist lastPlaylist = playlists.getContent().get(playlists.getContent().size() - 1);
+
+            nextCursor = switch (sortBy) {
+                case "subscribeCount" -> String.valueOf(lastPlaylist.getSubscriberCount());
+                default -> lastPlaylist.getUpdatedAt().toString();
+            };
+            nextIdAfter = lastPlaylist.getId().toString();
+        }
+
+        return new CursorResponsePlaylistDto(
+                data,
+                nextCursor,
+                nextIdAfter,
+                playlists.hasNext(),
+                0, // 사용되지 않음.
+                sortBy,
+                CursorResponsePlaylistDto.SortOrder.valueOf(sortDirection)
+        );
     }
 
     @Override
@@ -68,16 +99,13 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
         Playlist playlist = loadSinglePlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
 
-        List<UUID> contentIds = loadCurationPort.findAllByPlaylistId(playlistUUID);
-
         // TODO
 //      UserDto owner = getUserDto(playlist.ownerId);
-//      List<ContentDto> contents = getContents(playlistUUID);
+
         SubscriptionId id = new SubscriptionId(playlistUUID, viewerId);
         boolean subscribedByMe = loadSubscriptionPort.existsById(id);
 
-//      List<ContentDto> contents = loadContentsPort.findAllByIdIn()
-//                .stream().map(ContentDto::toDto).toList();
+//      List<ContentDto> contents = getContents(playlistUUID);
 
         return PlaylistDto.toDto(playlist, null, subscribedByMe);
     }
@@ -93,8 +121,8 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
         return null;
     }
 
-//    private List<ContentDto> getContents(playlistUUID){
-//        List<UUID> contentIds = loadCurationPort.findAllByPlaylistId();
+//    private List<ContentDto> getContents(UUID playlistId){
+//        List<UUID> contentIds = loadCurationPort.findAllByPlaylistId(playlistId);
 //        return loadContentsPort.findAllByIdIn(contentIds)
 //                .stream().map(ContentDto::toDto).toList();
 //    }

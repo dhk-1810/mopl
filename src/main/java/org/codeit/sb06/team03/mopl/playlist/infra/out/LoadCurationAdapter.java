@@ -7,6 +7,7 @@ import org.codeit.sb06.team03.mopl.playlist.domain.entity.CurationId;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,5 +30,10 @@ public class LoadCurationAdapter implements LoadCurationPort {
     @Override
     public List<UUID> findAllByPlaylistId(UUID playlistId) {
         return repository.findAllByPlaylistId(playlistId);
+    }
+
+    @Override
+    public Map<UUID, List<UUID>> findAllByPlaylistIdsIn(List<UUID> playlistIds) {
+        return repository.findAllByPlaylistIdsIn(playlistIds);
     }
 }

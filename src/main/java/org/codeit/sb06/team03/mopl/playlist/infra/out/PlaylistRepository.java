@@ -4,7 +4,6 @@ import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistData;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -20,9 +19,7 @@ import static org.codeit.sb06.team03.mopl.playlist.domain.entity.QSubscription.s
 
 public interface PlaylistRepository extends QuerydslJpaRepository<Playlist, UUID> {
 
-    // TODO
-
-    default Slice<PlaylistData> findAll(
+    default Slice<Playlist> findAll(
             String keywordLike,
             UUID ownerIdEqual,
             UUID subscriberIdEqual,
@@ -56,9 +53,9 @@ public interface PlaylistRepository extends QuerydslJpaRepository<Playlist, UUID
         return new SliceImpl<>(contents, PageRequest.ofSize(limit), hasNext);
     }
 
-    private static Expression<PlaylistData> playlistDtoProjection() {
+    private static Expression<Playlist> playlistDtoProjection() {
         return Projections.constructor(
-                PlaylistData.class,
+                Playlist.class,
                 playlist.id,
                 playlist.ownerId,
                 playlist.title,

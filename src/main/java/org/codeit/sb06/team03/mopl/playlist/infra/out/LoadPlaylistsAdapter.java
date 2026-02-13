@@ -3,7 +3,6 @@ package org.codeit.sb06.team03.mopl.playlist.infra.out;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.playlist.application.out.LoadPlaylistsPort;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.PlaylistData;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +15,7 @@ public class LoadPlaylistsAdapter implements LoadPlaylistsPort {
     private final PlaylistRepository playlistRepository;
 
     @Override
-    public Slice<PlaylistData> findAll(
+    public Slice<Playlist> findAll(
             String keywordLike,
             UUID ownerIdEqual,
             UUID subscriberIdEqual,
