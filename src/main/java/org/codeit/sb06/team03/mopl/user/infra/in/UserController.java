@@ -30,11 +30,10 @@ public class UserController implements UserApi {
     @PatchMapping("/{userId}/password")
     public ResponseEntity<Void> updatePassword(@PathVariable String userId, @RequestBody PasswordUpdateRequest request){
         bffUserService.updatePassword(userId, request);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 
     }
 
-    @Override
     @PatchMapping("/{userId}/role")
     @RolesAllowed("ADMIN")
     public ResponseEntity<Void> patchUsersRole(
