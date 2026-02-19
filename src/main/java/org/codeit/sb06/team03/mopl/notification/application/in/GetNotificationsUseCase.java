@@ -6,5 +6,5 @@ import org.codeit.sb06.team03.mopl.notification.infra.in.CursorResponseNotificat
 import java.util.UUID;
 
 public interface GetNotificationsUseCase {
-    CursorResponseNotificationDto get(CursorRequestNotificationDto request, UUID ownerId);
+    CursorResponseNotificationDto get(CursorRequestNotificationDto request, UUID receiverId);
 }

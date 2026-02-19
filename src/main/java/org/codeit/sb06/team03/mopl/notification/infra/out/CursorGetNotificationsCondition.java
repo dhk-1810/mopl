@@ -3,11 +3,11 @@ package org.codeit.sb06.team03.mopl.notification.infra.out;
 import java.util.UUID;
 
 public record CursorGetNotificationsCondition(
-        UUID ownerId,
+        UUID receiverId,
         String cursor,
-        String idAfter,
+        UUID idAfter,
         int limit,
         String sortBy,
-        String sortDirection
+        boolean descending
 ) {
 }

@@ -21,14 +21,14 @@ public class NotificationCommandService implements DeleteNotificationUseCase {
 
 
     @Override
-    public void delete(String notificationId, UUID ownerId) {
+    public void delete(String notificationId, UUID receiverId) {
 
         UUID notificationUUID = parseUUID(notificationId);
         Notification notification = loadSingleNotificationPort.load(notificationUUID)
                 .orElseThrow(() -> new NotificationNotFoundException(notificationUUID));
 
-        if (!notification.getReceiverId().equals(ownerId)) {
-            throw new NotificationAccessDeniedException(notificationUUID, ownerId);
+        if (!notification.getReceiverId().equals(receiverId)) {
+            throw new NotificationAccessDeniedException(notificationUUID, receiverId);
         }
         deleteNotificationPort.deleteById(notificationUUID);
     }

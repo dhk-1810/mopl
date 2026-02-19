@@ -17,12 +17,12 @@ public class BasicBffNotificationService implements BffNotificationService {
     private final DeleteNotificationUseCase deleteNotificationUseCase;
 
     @Override
-    public CursorResponseNotificationDto getNotifications(CursorRequestNotificationDto request, UUID ownerId) {
-        return getNotificationsUseCase.get(request, ownerId);
+    public CursorResponseNotificationDto getNotifications(CursorRequestNotificationDto request, UUID receiverId) {
+        return getNotificationsUseCase.get(request, receiverId);
     }
 
     @Override
-    public void deleteNotification(String notificationId, UUID ownerId) {
-        deleteNotificationUseCase.delete(notificationId, ownerId);
+    public void deleteNotification(String notificationId, UUID receiverId) {
+        deleteNotificationUseCase.delete(notificationId, receiverId);
     }
 }

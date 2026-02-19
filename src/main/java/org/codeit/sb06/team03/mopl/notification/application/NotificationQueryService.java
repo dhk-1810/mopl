@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.notification.application;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.notification.application.in.GetNotificationsUseCase;
 import org.codeit.sb06.team03.mopl.notification.application.out.LoadNotificationsPort;
 import org.codeit.sb06.team03.mopl.notification.domain.Notification;
@@ -8,7 +9,9 @@ import org.codeit.sb06.team03.mopl.notification.infra.in.CursorRequestNotificati
 import org.codeit.sb06.team03.mopl.notification.infra.in.CursorResponseNotificationDto;
 import org.codeit.sb06.team03.mopl.notification.infra.in.NotificationDto;
 import org.codeit.sb06.team03.mopl.notification.infra.out.CursorGetNotificationsCondition;
+import org.hibernate.query.SortDirection;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,15 +24,15 @@ public class NotificationQueryService implements GetNotificationsUseCase {
     private final LoadNotificationsPort loadNotificationsPort;
 
     @Override
-    public CursorResponseNotificationDto get(CursorRequestNotificationDto request, UUID ownerId) {
+    public CursorResponseNotificationDto get(CursorRequestNotificationDto request, UUID receiverId) {
 
         CursorGetNotificationsCondition condition = new CursorGetNotificationsCondition(
-                ownerId,
+                receiverId,
                 request.cursor(),
-                request.idAfter(),
+                parseUUID(request.idAfter()),
                 request.limit(),
                 request.sortBy(),
-                request.sortDirection()
+                request.sortDirection().equals("DESCENDING")
         );
 
         Slice<Notification> content = loadNotificationsPort.getNotifications(condition);
@@ -53,5 +56,13 @@ public class NotificationQueryService implements GetNotificationsUseCase {
                 request.sortBy(),
                 request.sortDirection()
         );
+    }
+
+    private UUID parseUUID(String id) {
+        try {
+            return UUID.fromString(id);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new InvalidIdentifierException(id);
+        }
     }
 }

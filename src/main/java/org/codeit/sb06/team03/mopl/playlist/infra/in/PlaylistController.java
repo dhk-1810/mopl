@@ -51,7 +51,7 @@ public class PlaylistController implements PlaylistApi {
             @AuthenticationPrincipal MoplUserDetails user
     ) {
         UUID userId =  (user != null) ? user.getId() : null;
-        PlaylistDto playlistDto = bffPlaylistService.getPlaylist(playlistId, userId); // 조회자 ID
+        PlaylistDto playlistDto = bffPlaylistService.getPlaylist(playlistId, user.getId()); // 조회자 ID
         return ResponseEntity.ok(playlistDto);
     }
 

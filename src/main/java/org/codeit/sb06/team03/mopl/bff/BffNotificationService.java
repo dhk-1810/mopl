@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface BffNotificationService {
 
-    CursorResponseNotificationDto getNotifications(CursorRequestNotificationDto request, UUID ownerId);
+    CursorResponseNotificationDto getNotifications(CursorRequestNotificationDto request, UUID receiverId);
 
-    void deleteNotification(String id, UUID ownerId);
+    void deleteNotification(String id, UUID receiverId);
 }
