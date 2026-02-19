@@ -47,12 +47,13 @@ public class NotificationQueryService implements GetNotificationsUseCase {
         }
 
         List<NotificationDto> data = notifications.stream().map(NotificationDto::toDto).toList();
+        long totalCount = loadNotificationsPort.countByReceiverId(receiverId);
         return new CursorResponseNotificationDto(
                 data,
                 nextCursor,
                 nextIdAfter,
                 hasNext,
-                0, // TODO
+                totalCount,
                 request.sortBy(),
                 request.sortDirection()
         );

@@ -17,6 +17,8 @@ import static org.codeit.sb06.team03.mopl.notification.domain.QNotification.noti
 
 public interface NotificationRepository extends QuerydslJpaRepository<Notification, UUID> {
 
+    long countByReceiverId(UUID receiverId);
+
     default Slice<Notification> findAll(CursorGetNotificationsCondition condition) {
         int limit = condition.limit();
         boolean descending = condition.descending();
