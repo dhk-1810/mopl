@@ -6,6 +6,8 @@ import org.codeit.sb06.team03.mopl.notification.application.in.DeleteNotificatio
 import org.codeit.sb06.team03.mopl.notification.application.out.DeleteNotificationPort;
 import org.codeit.sb06.team03.mopl.notification.application.out.LoadSingleNotificationPort;
 import org.codeit.sb06.team03.mopl.notification.domain.Notification;
+import org.codeit.sb06.team03.mopl.notification.domain.exception.NotificationAccessDeniedException;
+import org.codeit.sb06.team03.mopl.notification.domain.exception.NotificationNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -26,7 +28,7 @@ public class NotificationCommandService implements DeleteNotificationUseCase {
                 .orElseThrow(() -> new NotificationNotFoundException(notificationUUID));
 
         if (!notification.getReceiverId().equals(ownerId)) {
-            throw new NotificationAccessDeniedException(notificationUUID);
+            throw new NotificationAccessDeniedException(notificationUUID, ownerId);
         }
         deleteNotificationPort.deleteById(notificationUUID);
     }

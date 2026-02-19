@@ -67,7 +67,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                         .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
         if (!playlist.getOwnerId().equals(ownerId)) {
-            throw new PlaylistAccessDeniedException(ownerId);
+            throw new PlaylistAccessDeniedException(playlistUUID, ownerId);
         }
 
         playlist = playlistService.update(playlist, title, description);
@@ -84,7 +84,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
         if (!playlist.getOwnerId().equals(ownerId)) {
-            throw new PlaylistAccessDeniedException(ownerId);
+            throw new PlaylistAccessDeniedException(playlistUUID, ownerId);
         }
         savePlaylistPort.delete(playlistUUID);
 
@@ -101,7 +101,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
         if (!playlist.getOwnerId().equals(ownerId)) {
-            throw new PlaylistAccessDeniedException(ownerId);
+            throw new PlaylistAccessDeniedException(playlistUUID, ownerId);
         }
         // TODO loadContentPort.existsById()
 
@@ -127,7 +127,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                         .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
         if (!playlist.getOwnerId().equals(ownerId)) {
-            throw new PlaylistAccessDeniedException(ownerId);
+            throw new PlaylistAccessDeniedException(playlistUUID, ownerId);
         }
 
         CurationId id = new CurationId(playlistUUID, contentUUID);
