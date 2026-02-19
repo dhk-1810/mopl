@@ -34,7 +34,7 @@ public class BasicBffPlaylistService implements BffPlaylistService {
     }
 
     @Override
-    public CursorResponsePlaylistDto getPlaylists(CursorRequestPlaylistDto request) {
+    public CursorResponsePlaylistDto getPlaylists(CursorRequestPlaylistDto request, UUID userId) {
         return getPlaylistsUseCase.get(request);
     }
 

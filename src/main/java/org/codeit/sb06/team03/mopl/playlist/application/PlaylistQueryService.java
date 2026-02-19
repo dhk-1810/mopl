@@ -38,7 +38,7 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
     private final LoadSubscriptionPort loadSubscriptionPort;
 
     @Override
-    public CursorResponsePlaylistDto get(CursorRequestPlaylistDto request) {
+    public CursorResponsePlaylistDto get(CursorRequestPlaylistDto request, UUID viewerId) {
 
         final String keywordLike = request.keywordLike();
         final UUID ownerIdEqual = parseUUID(request.ownerIdEqual());
@@ -62,11 +62,15 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
         List<UUID> playlistIds = playlists.getContent().stream().map(Playlist::getId).toList();
         Map<UUID, List<UUID>> contentIds = loadCurationPort.findAllByPlaylistIdsIn(playlistIds);
 //        Map<UUID, List<ContentDto>> contentsMap = loadContentPort.getContentsMapByPlaylistIds(playlistIds).map(ContentDto::toDto);
+        Map<UUID, Boolean> subscriptionMap = (viewerId != null)
+                ? loadSubscriptionPort.existsByIdIn(playlistIds, viewerId)
+                : Collections.emptyMap();
+
         List<PlaylistDto> data = playlists.stream()
                 .map(playlist -> PlaylistDto.toDto(
                         playlist,
-                        null, // 목록 조회에선 사용되지 않음
-                        false // 목록 조회에선 사용되지 않음
+                        getUserSummaryDto(playlist.getOwnerId()),
+                        subscriptionMap.getOrDefault(playlist.getId(), false)
                         // contentsMap.getOrDefault(playlist.getId(), Collections.emptyList())
                 )).toList();
 
