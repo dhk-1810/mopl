@@ -39,7 +39,7 @@ public class PlaylistEventListener {
     public void handleSubscriptionCreatedEvent(PlaylistEvent.SubscriptionCreatedEvent event) {
         createNotificationUseCase.create(
                 event.getOwnerId(),
-                "~~님이 내 플레이리스트 ~~을(를) 구독했어요.",
+                "%s 님이 내 플레이리스트 %s 을(를) 구독했어요.".formatted(event.getSubscriberName(), event.getPlaylistTitle()),
                 null,
                 NotificationLevel.INFO
         );

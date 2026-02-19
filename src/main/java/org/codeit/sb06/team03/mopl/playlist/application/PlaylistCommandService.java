@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.playlist.application;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
 import org.codeit.sb06.team03.mopl.playlist.application.out.*;
@@ -147,6 +148,8 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         UUID playlistUUID = parseUUID(playlistId);
         Playlist playlist = loadPlaylistPort.findById(playlistUUID)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+        Profile subscriber = loadProfilePort.load(userId)
+                .orElseThrow(() -> new ProfileNotFoundException(userId));
 
         SubscriptionId id = new SubscriptionId(playlistUUID, userId);
         if (loadSubscriptionPort.existsById(id)){
@@ -164,7 +167,9 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
 
         eventPublisher.publishEvent(new PlaylistEvent.SubscriptionCreatedEvent(
                 playlistUUID,
+                playlist.getTitle(),
                 userId,
+                subscriber.getName(),
                 playlist.getOwnerId()
         ));
     }

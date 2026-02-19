@@ -20,7 +20,9 @@ public abstract sealed class PlaylistEvent {
     @RequiredArgsConstructor
     public static final class SubscriptionCreatedEvent extends PlaylistEvent {
         private final UUID playlistId;
+        private final String playlistTitle;
         private final UUID subscriberId;
+        private final String subscriberName;
         private final UUID ownerId;
     }
 
