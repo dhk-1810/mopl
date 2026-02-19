@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,12 +33,16 @@ public class Notification {
     @Column(name = "level", nullable = false)
     private NotificationLevel level;
 
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+
     private Notification(UUID receiverId, String title, String content, NotificationLevel level) {
         this.id = UUID.randomUUID();
         this.receiverId = receiverId;
         this.title = title;
         this.content = content;
         this.level = level;
+        this.createdAt = Instant.now();
     }
 
     public static Notification create(UUID receiverId, String title, String content, NotificationLevel level){

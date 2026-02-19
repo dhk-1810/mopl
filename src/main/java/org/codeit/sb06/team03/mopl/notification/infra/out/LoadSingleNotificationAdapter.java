@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Component
-public class LoadNotificationAdapter implements LoadSingleNotificationPort {
+public class LoadSingleNotificationAdapter implements LoadSingleNotificationPort {
 
     private final NotificationRepository repository;
 
