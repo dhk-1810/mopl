@@ -5,10 +5,7 @@ import org.codeit.sb06.team03.mopl.playlist.domain.entity.QSubscription;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Subscription;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.SubscriptionId;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public interface SubscriptionRepository extends QuerydslJpaRepository<Subscription, SubscriptionId> {
@@ -34,6 +31,15 @@ public interface SubscriptionRepository extends QuerydslJpaRepository<Subscripti
                         id -> id,
                         subscribedIds::contains
                 ));
+    }
+
+    default List<UUID> findSubscriberIdsByPlaylistId(UUID playlistId) {
+        QSubscription subscription = QSubscription.subscription;
+
+        return select(subscription.id.subscriberId)
+                .from(subscription)
+                .where(subscription.id.playlistId.eq(playlistId))
+                .fetch();
     }
 
     default void deleteAllByPlaylistId(UUID playlistId) {

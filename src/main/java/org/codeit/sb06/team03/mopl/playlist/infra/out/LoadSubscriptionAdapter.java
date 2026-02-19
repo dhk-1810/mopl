@@ -6,10 +6,7 @@ import org.codeit.sb06.team03.mopl.playlist.domain.entity.Subscription;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.SubscriptionId;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Component
@@ -30,5 +27,10 @@ public class LoadSubscriptionAdapter implements LoadSubscriptionPort {
     @Override
     public Optional<Subscription> findById(SubscriptionId id) {
         return repository.findById(id);
+    }
+
+    @Override
+    public List<UUID> findSubscriberIdsByPlaylistId(UUID playlistId) {
+        return repository.findSubscriberIdsByPlaylistId(playlistId);
     }
 }

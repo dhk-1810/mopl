@@ -1,6 +1,12 @@
 package org.codeit.sb06.team03.mopl.playlist.infra.in;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.follow.application.out.LoadFolloweePort;
+import org.codeit.sb06.team03.mopl.notification.application.in.CreateNotificationUseCase;
+import org.codeit.sb06.team03.mopl.notification.application.out.SaveNotificationPort;
+import org.codeit.sb06.team03.mopl.notification.domain.Notification;
+import org.codeit.sb06.team03.mopl.notification.domain.NotificationLevel;
+import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSubscriptionPort;
 import org.codeit.sb06.team03.mopl.playlist.application.out.SaveCurationPort;
 import org.codeit.sb06.team03.mopl.playlist.application.out.SaveSubscriptionPort;
 import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
@@ -9,29 +15,48 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.List;
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @Component
 public class PlaylistEventListener {
 
+    private final CreateNotificationUseCase createNotificationUseCase;
+    private final LoadSubscriptionPort loadSubscriptionPort;
     private final SaveCurationPort saveCurationPort;
     private final SaveSubscriptionPort saveSubscriptionPort;
+    private final LoadFolloweePort loadFolloweePort;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePlaylistCreatedEvent(PlaylistEvent.PlaylistCreatedEvent event) {
-        // TODO 구독자에게 플레이리스트 생성 알림 전송
+        List<UUID> followerIds; // TODO 팔로워 모두에게 알림 전송
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleSubscriptionCreatedEvent(PlaylistEvent.SubscriptionCreatedEvent event) {
-        // TODO 플레이리스트 주인에게 알림 발송
+        createNotificationUseCase.create(
+                event.getOwnerId(),
+                "~~님이 내 플레이리스트 ~~을(를) 구독했어요.",
+                null,
+                NotificationLevel.INFO
+        );
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void CurationAddedEvent(PlaylistEvent.CurationAddedEvent event) {
-        // TODO 구독자에게 알림 발송
+        List<UUID> subscriberIds = loadSubscriptionPort.findSubscriberIdsByPlaylistId(event.getPlaylistId());
+        subscriberIds.forEach(id ->
+                createNotificationUseCase.create(
+                        id,
+                        "%s 플레이리스트에 컨텐츠가 추가되었습니다.".formatted(event.getPlaylistName()),
+                        null,
+                        NotificationLevel.INFO
+                ) // TODO 쿼리 수 최적화 필요
+        );
     }
 
     @Async

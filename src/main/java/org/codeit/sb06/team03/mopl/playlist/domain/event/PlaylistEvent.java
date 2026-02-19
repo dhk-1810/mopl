@@ -28,6 +28,7 @@ public abstract sealed class PlaylistEvent {
     @RequiredArgsConstructor
     public static final class CurationAddedEvent extends PlaylistEvent {
         private final UUID playlistId;
+        private final String playlistName;
     }
 
     @Getter

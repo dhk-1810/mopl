@@ -115,7 +115,8 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         playlist.increaseContentCount();
         savePlaylistPort.save(playlist);
 
-        eventPublisher.publishEvent(new PlaylistEvent.CurationAddedEvent(playlistUUID));
+        eventPublisher.publishEvent(new PlaylistEvent.CurationAddedEvent(playlist.getId(), playlist.getTitle()));
+        // TODO 컨텐츠 이름도 전달?
     }
 
     @Override

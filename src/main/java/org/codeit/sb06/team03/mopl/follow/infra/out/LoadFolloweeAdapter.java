@@ -2,8 +2,10 @@ package org.codeit.sb06.team03.mopl.follow.infra.out;
 
 import org.codeit.sb06.team03.mopl.follow.application.out.LoadFolloweePort;
 import org.codeit.sb06.team03.mopl.follow.domain.Followee;
+import org.codeit.sb06.team03.mopl.follow.domain.entity.Follower;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,5 +21,10 @@ public class LoadFolloweeAdapter implements LoadFolloweePort {
     @Override
     public Optional<Followee> findById(UUID followeeId) {
         return repository.findById(followeeId);
+    }
+
+    @Override
+    public List<Follower> findAllByFolloweeId(UUID followeeId) {
+        return List.of(); // TODO 팔로이별 팔로워 정보 추출
     }
 }
