@@ -38,7 +38,7 @@ public class PlaylistEventListener {
                 .map(follower -> follower.getId().getFollowerId())
                 .toList();
 
-        final String notificationTitle = "%s 님이 새 플레이리스트 '%s'를 생성했습니다."
+        final String notificationTitle = "%s 님이 새 플레이리스트 '%s'를 생성했어요."
                 .formatted(event.getOwnerName(), event.getPlaylistTitle());
         createNotificationUseCase.createAll(
                 followerIds,
@@ -67,12 +67,12 @@ public class PlaylistEventListener {
 
         List<UUID> subscriberIds = loadSubscriptionPort.findSubscriberIdsByPlaylistId(event.getPlaylistId());
 
-        final String notificationTitle = "%s 플레이리스트에 컨텐츠가 추가되었습니다."
+        final String notificationTitle = "%s 플레이리스트에 컨텐츠가 추가되었어요."
                 .formatted(event.getPlaylistTitle());
         createNotificationUseCase.createAll(
                         subscriberIds,
                         notificationTitle,
-                        null,
+                        null, // TODO 컨텐츠명
                         NotificationLevel.INFO
         );
     }
