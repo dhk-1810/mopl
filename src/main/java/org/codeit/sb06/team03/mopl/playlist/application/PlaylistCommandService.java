@@ -88,9 +88,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
             throw new PlaylistAccessDeniedException(playlistUUID, ownerId);
         }
         savePlaylistPort.delete(playlistUUID);
-
-        saveSubscriptionPort.deleteAllByPlaylistId(playlistUUID); // TODO 이벤트,비동기?
-        saveCurationPort.deleteAllByPlaylistId(playlistUUID);
+        eventPublisher.publishEvent(new PlaylistEvent.PlaylistDeletedEvent(playlistUUID));
     }
 
     @Override
