@@ -9,5 +9,4 @@ import java.util.UUID;
 
 public interface LoadFolloweePort {
     Optional<Followee> findById(UUID followeeId);
-    List<Follower> findAllByFolloweeId(UUID followeeId);
 }

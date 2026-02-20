@@ -23,8 +23,4 @@ public class LoadFolloweeAdapter implements LoadFolloweePort {
         return repository.findById(followeeId);
     }
 
-    @Override
-    public List<Follower> findAllByFolloweeId(UUID followeeId) {
-        return List.of(); // TODO 팔로이별 팔로워 정보 추출
-    }
 }

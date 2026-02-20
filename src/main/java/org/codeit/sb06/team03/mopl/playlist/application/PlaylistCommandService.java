@@ -54,8 +54,8 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
 
         UserSummaryDto owner = getUserSummaryDto(playlist.getOwnerId());
 
-        eventPublisher.publishEvent(new PlaylistEvent.PlaylistCreatedEvent(ownerId)); // TODO 저장?
-        return PlaylistDto.toDto(playlist, owner, false/*, Collections.emptyList()*/);
+        eventPublisher.publishEvent(new PlaylistEvent.PlaylistCreatedEvent(ownerId, owner.name(), playlist.getId(), playlist.getTitle()));
+        return PlaylistDto.toDto(playlist, owner, false/*, Collections.emptyList()*/); // TODO
     }
 
     @Override
