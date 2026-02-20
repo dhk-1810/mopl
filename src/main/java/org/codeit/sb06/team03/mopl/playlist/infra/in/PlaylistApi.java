@@ -1,10 +1,8 @@
 package org.codeit.sb06.team03.mopl.playlist.infra.in;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.CursorRequestPlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistCreateRequest;
@@ -13,9 +11,6 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.response.CursorResponsePlay
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "플레이리스트 관리")
 public interface PlaylistApi {
@@ -57,7 +52,7 @@ public interface PlaylistApi {
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<PlaylistDto> patchPlaylist(
             String playlistId,
-            @ParameterObject PlaylistUpdateRequest request,
+            PlaylistUpdateRequest request,
             MoplUserDetails user
     );
 
