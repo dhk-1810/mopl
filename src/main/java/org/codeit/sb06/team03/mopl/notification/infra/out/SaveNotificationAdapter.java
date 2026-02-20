@@ -5,6 +5,8 @@ import org.codeit.sb06.team03.mopl.notification.application.out.SaveNotification
 import org.codeit.sb06.team03.mopl.notification.domain.Notification;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Component
 public class SaveNotificationAdapter implements SaveNotificationPort {
@@ -14,5 +16,10 @@ public class SaveNotificationAdapter implements SaveNotificationPort {
     @Override
     public void save(Notification notification) {
         repository.save(notification);
+    }
+
+    @Override
+    public void saveAll(List<Notification> notifications) {
+        repository.saveAll(notifications);
     }
 }

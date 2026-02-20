@@ -38,14 +38,14 @@ public class PlaylistEventListener {
                 .map(follower -> follower.getId().getFollowerId())
                 .toList();
 
-        String notificationTitle = "%s 님이 새 플레이리스트 '%s'를 생성했습니다."
+        final String notificationTitle = "%s 님이 새 플레이리스트 '%s'를 생성했습니다."
                 .formatted(event.getOwnerName(), event.getPlaylistTitle());
-        followerIds.forEach(id ->  createNotificationUseCase.create(
-                id,
+        createNotificationUseCase.createAll(
+                followerIds,
                 notificationTitle,
                 null,
                 NotificationLevel.INFO
-        )); // TODO 쿼리 수 최적화 필요
+        );
     }
 
     @Async
@@ -64,15 +64,16 @@ public class PlaylistEventListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void CurationAddedEvent(PlaylistEvent.CurationAddedEvent event) {
+
         List<UUID> subscriberIds = loadSubscriptionPort.findSubscriberIdsByPlaylistId(event.getPlaylistId());
-        final String notificationTitle = "%s 플레이리스트에 컨텐츠가 추가되었습니다.".formatted(event.getPlaylistTitle());
-        subscriberIds.forEach(id ->
-                createNotificationUseCase.create(
-                        id,
+
+        final String notificationTitle = "%s 플레이리스트에 컨텐츠가 추가되었습니다."
+                .formatted(event.getPlaylistTitle());
+        createNotificationUseCase.createAll(
+                        subscriberIds,
                         notificationTitle,
                         null,
                         NotificationLevel.INFO
-                ) // TODO 쿼리 수 최적화 필요
         );
     }
 

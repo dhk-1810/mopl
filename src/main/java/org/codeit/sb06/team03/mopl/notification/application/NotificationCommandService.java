@@ -16,6 +16,7 @@ import org.codeit.sb06.team03.mopl.notification.infra.in.NotificationDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -32,6 +33,14 @@ public class NotificationCommandService implements CreateNotificationUseCase, De
     public void create(UUID receiverId, String title, String content, NotificationLevel level) {
         Notification notification = notificationService.create(receiverId, title, content, level);
         saveNotificationPort.save(notification);
+    }
+
+    @Override
+    public void createAll(List<UUID> receiverIds, String title, String content, NotificationLevel level) {
+        List<Notification> notifications = receiverIds.stream()
+                .map(id -> notificationService.create(id, title, content, level))
+                .toList();
+        saveNotificationPort.saveAll(notifications);
     }
 
     @Override
