@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "알림")
@@ -14,7 +15,7 @@ public interface NotificationApi {
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
-    ResponseEntity<CursorResponseNotificationDto> getNotifications(CursorRequestNotificationDto request, MoplUserDetails user);
+    ResponseEntity<CursorResponseNotificationDto> getNotifications(@ParameterObject CursorRequestNotificationDto request, MoplUserDetails user);
 
     @Operation(summary = "알림 읽음 처리")
     @ApiResponse(responseCode = "204", description = "성공")

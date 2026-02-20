@@ -15,7 +15,6 @@ public abstract sealed class FollowEvent {
     public static final class FollowedEvent extends FollowEvent {
         private final UUID followeeId;
         private final UUID followerId;
-        private final String followerName;
     }
 
     public static final class UnfollowedEvent extends FollowEvent {
