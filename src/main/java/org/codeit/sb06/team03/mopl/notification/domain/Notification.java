@@ -1,9 +1,6 @@
 package org.codeit.sb06.team03.mopl.notification.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +32,10 @@ public class Notification {
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private short version;
 
     private Notification(UUID receiverId, String title, String content, NotificationLevel level) {
         this.id = UUID.randomUUID();
