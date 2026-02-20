@@ -31,6 +31,11 @@ public record CursorRequestNotificationDto (
         @Pattern(regexp = "^(ASCENDING|DESCENDING)$")
         String sortDirection,
 
+        @Schema(
+                requiredMode = Schema.RequiredMode.REQUIRED,
+                description = "정령 기준",
+                allowableValues = {"createdAt"}
+        )
         @NotBlank
         @Pattern(regexp = "^(createdAt)$")
         String sortBy
