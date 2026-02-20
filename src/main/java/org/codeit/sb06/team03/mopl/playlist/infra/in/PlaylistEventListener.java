@@ -51,8 +51,8 @@ public class PlaylistEventListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleSubscriptionCreatedEvent(PlaylistEvent.SubscriptionCreatedEvent event) {
-        String subscriberName = event.getSubscriberName();
-        String playlistTitle = event.getPlaylistTitle();
+        final String subscriberName = event.getSubscriberName();
+        final String playlistTitle = event.getPlaylistTitle();
         createNotificationUseCase.create(
                 event.getOwnerId(),
                 "%s 님이 내 플레이리스트 %s 을(를) 구독했어요.".formatted(subscriberName, playlistTitle),
