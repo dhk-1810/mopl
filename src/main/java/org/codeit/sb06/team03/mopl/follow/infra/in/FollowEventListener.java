@@ -23,12 +23,12 @@ public class FollowEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleFollowedEvent(FollowEvent.FollowedEvent event) {
 
-        Profile profile = loadProfilePort.load(event.getFolloweeId()) // TODO 확인 필요
+        Profile profile = loadProfilePort.load(event.getFolloweeId())
                         .orElseThrow(() -> new ProfileNotFoundException(event.getFolloweeId()));
 
         createNotificationUseCase.create(
                 event.getFolloweeId(),
-                "%s 님이 팔로우했어요.".formatted(profile.getName()),
+                "%s님이 팔로우했어요.".formatted(profile.getName()),
                 null,
                 NotificationLevel.INFO
         );

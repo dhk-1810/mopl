@@ -6,6 +6,8 @@ import org.codeit.sb06.team03.mopl.notification.application.in.CreateNotificatio
 import org.codeit.sb06.team03.mopl.notification.domain.NotificationLevel;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -20,7 +22,7 @@ public class AccountEventListener {
     public void handleRoleUpdatedEvent(AccountEvent.RoleUpdatedEvent event) {
         createNotificationUseCase.create(
                 event.getAccountId(),
-                "권한이 %s로 변경되었어요.".formatted(event.getRole()),
+                "권한이 %s(으)로 변경되었어요.".formatted(event.getRole()),
                 null,
                 NotificationLevel.INFO
         );
