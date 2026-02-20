@@ -24,7 +24,7 @@ public class NotificationController implements NotificationApi {
     }
 
     @Override
-    @PostMapping("/{notificationId}")
+    @DeleteMapping("/{notificationId}")
     public ResponseEntity<Void> deleteNotification(
             @PathVariable String notificationId,
             @AuthenticationPrincipal MoplUserDetails user

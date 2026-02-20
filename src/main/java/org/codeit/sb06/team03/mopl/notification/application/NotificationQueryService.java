@@ -26,10 +26,11 @@ public class NotificationQueryService implements GetNotificationsUseCase {
     @Override
     public CursorResponseNotificationDto get(CursorRequestNotificationDto request, UUID receiverId) {
 
+        final UUID idAfter = request.idAfter() != null ? parseUUID(request.idAfter()): null;
         CursorGetNotificationsCondition condition = new CursorGetNotificationsCondition(
                 receiverId,
                 request.cursor(),
-                parseUUID(request.idAfter()),
+                idAfter,
                 request.limit(),
                 request.sortBy(),
                 request.sortDirection().equals("DESCENDING")
