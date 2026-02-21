@@ -36,18 +36,17 @@ public class NotificationQueryService implements GetNotificationsUseCase {
                 request.sortDirection().equals("DESCENDING")
         );
 
-        Slice<Notification> content = loadNotificationsPort.getNotifications(condition);
+        Slice<NotificationDto> content = loadNotificationsPort.getNotifications(condition);
 
         String nextCursor = null;
         UUID nextIdAfter = null;
         boolean hasNext = content.hasNext();
-        List<Notification> notifications = content.getContent();
+        List<NotificationDto> data = content.getContent();
         if (hasNext) {
-            nextCursor = notifications.get(content.getSize() - 1).getCreatedAt().toString();
-            nextIdAfter = notifications.get(content.getSize() - 1).getId();
+            nextCursor = data.get(content.getSize() - 1).createdAt().toString();
+            nextIdAfter = data.get(content.getSize() - 1).id();
         }
 
-        List<NotificationDto> data = notifications.stream().map(NotificationDto::toDto).toList();
         long totalCount = loadNotificationsPort.countByReceiverId(receiverId);
         return new CursorResponseNotificationDto(
                 data,

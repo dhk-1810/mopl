@@ -2,9 +2,11 @@ package org.codeit.sb06.team03.mopl.notification.infra.out;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
 import org.codeit.sb06.team03.mopl.notification.domain.Notification;
+import org.codeit.sb06.team03.mopl.notification.infra.in.NotificationDto;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -19,10 +21,17 @@ public interface NotificationRepository extends QuerydslJpaRepository<Notificati
 
     long countByReceiverId(UUID receiverId);
 
-    default Slice<Notification> findAll(CursorGetNotificationsCondition condition) {
+    default Slice<NotificationDto> findAll(CursorGetNotificationsCondition condition) {
         int limit = condition.limit();
         boolean descending = condition.descending();
-        var contents = select(notification)
+        var contents = select(Projections.constructor(NotificationDto.class,
+                    notification.id,
+                    notification.createdAt,
+                    notification.receiverId,
+                    notification.title,
+                    notification.content,
+                    notification.level)
+                )
                 .from(notification)
                 .where(
                         receiverIdEq(condition.receiverId()),

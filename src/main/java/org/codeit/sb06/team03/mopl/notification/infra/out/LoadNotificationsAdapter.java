@@ -3,6 +3,7 @@ package org.codeit.sb06.team03.mopl.notification.infra.out;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.notification.application.out.LoadNotificationsPort;
 import org.codeit.sb06.team03.mopl.notification.domain.Notification;
+import org.codeit.sb06.team03.mopl.notification.infra.in.NotificationDto;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,7 @@ public class LoadNotificationsAdapter implements LoadNotificationsPort {
     }
 
     @Override
-    public Slice<Notification> getNotifications(CursorGetNotificationsCondition condition) {
+    public Slice<NotificationDto> getNotifications(CursorGetNotificationsCondition condition) {
         return repository.findAll(condition);
     }
 }

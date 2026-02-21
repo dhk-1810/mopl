@@ -6,7 +6,9 @@ import java.util.UUID;
 
 @Service
 public class NotificationService {
+
     public Notification create(UUID receiverId, String title, String content, NotificationLevel level) {
         return Notification.create(receiverId, title, content, level);
     }
+
 }
