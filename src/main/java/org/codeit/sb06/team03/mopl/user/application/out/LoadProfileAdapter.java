@@ -25,6 +25,11 @@ public class LoadProfileAdapter implements LoadProfilePort {
     }
 
     @Override
+    public List<Profile> load(List<UUID> accountIds) {
+        return repository.findByAccountIdIn(accountIds);
+    }
+
+    @Override
     public Optional<UserSummaryDto> getUserSummary(UUID id) {
         return repository.getUserSummary(id);
     }

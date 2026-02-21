@@ -2,6 +2,7 @@ package org.codeit.sb06.team03.mopl.bff;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
+import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.playlist.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
@@ -13,14 +14,18 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.response.CursorResponsePlay
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.codeit.sb06.team03.mopl.user.application.in.GetProfileUseCase;
+import org.codeit.sb06.team03.mopl.user.application.out.LoadProfilePort;
+import org.codeit.sb06.team03.mopl.user.domain.Profile;
 import org.codeit.sb06.team03.mopl.user.domain.exception.ProfileNotFoundException;
 import org.springframework.data.domain.Slice;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -39,14 +44,23 @@ public class BasicBffPlaylistService implements BffPlaylistService {
 
     private final GetProfileUseCase getProfileUseCase;
     private final GetSubscriptionUseCase getSubscriptionUseCase;
+    private final LoadProfilePort loadProfilePort;
 //    private final GetContentUseCase getContentUseCase;
 
     @Override
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
+
         CreatePlaylistCommand command = playlistMapper.toCommand(request);
         Playlist playlist = createPlaylistUseCase.create(command, ownerId);
-        UserSummaryDto owner = getProfileUseCase.getUserSummary(ownerId)
-                .orElseThrow(() -> new ProfileNotFoundException(ownerId));
+
+        MoplUserDetails userDetails = (MoplUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+        UserSummaryDto owner = new UserSummaryDto(
+                userDetails.getId(),
+                userDetails.getUserDto().name(),
+                userDetails.getUserDto().profileImageUrl());
+
         return PlaylistDto.toDto(playlist, owner, false /*, Collections.emptyList*/);
     }
 
@@ -55,9 +69,16 @@ public class BasicBffPlaylistService implements BffPlaylistService {
         Slice<PlaylistReadModel> slice = getPlaylistsUseCase.get(request, viewerId);
         List<PlaylistReadModel> readModels = slice.getContent();
 
-        List<UUID> playlistIds = readModels.stream().map(PlaylistReadModel::id).toList();
         List<UUID> ownerIds = readModels.stream().map(PlaylistReadModel::ownerId).toList();
-        Map<UUID, UserSummaryDto> owners = getProfileUseCase.getUserSummaries(ownerIds);
+        List<Profile> profileList = loadProfilePort.load(ownerIds);
+        Map<UUID, UserSummaryDto> owners = profileList.stream()
+                .collect(Collectors.toMap(
+                        Profile::getAccountId,
+                        UserSummaryDto::from,
+                        (existing, replacement) -> existing // 중복 ID 발생 시 기존 값 유지
+                ));
+
+        List<UUID> playlistIds = readModels.stream().map(PlaylistReadModel::id).toList();
         Map<UUID, Boolean> subscribedByMe = getSubscriptionUseCase.isSubscribed(playlistIds, viewerId);
 
         List<PlaylistDto> data = readModels.stream()
@@ -91,8 +112,11 @@ public class BasicBffPlaylistService implements BffPlaylistService {
     @Override
     public PlaylistDto getPlaylist(String playlistId, UUID viewerId) {
         PlaylistReadModel readModel = getPlaylistUseCase.get(playlistId, viewerId);
-        UserSummaryDto owner = getProfileUseCase.getUserSummary(readModel.ownerId())
+
+        Profile profile = getProfileUseCase.load(readModel.ownerId())
                 .orElseThrow(() -> new ProfileNotFoundException(readModel.ownerId()));
+        UserSummaryDto owner = UserSummaryDto.from(profile);
+
         boolean subscribedByMe = getSubscriptionUseCase.isSubscribed(playlistId, viewerId);
         // TODO contents
         return PlaylistDto.toDto(readModel, owner, subscribedByMe/*, contents*/);
@@ -100,10 +124,17 @@ public class BasicBffPlaylistService implements BffPlaylistService {
 
     @Override
     public PlaylistDto updatePlayList(String playlistId, PlaylistUpdateRequest request, UUID ownerId) {
+
         UpdatePlaylistCommand command = playlistMapper.toCommand(request);
         Playlist playlist = updatePlaylistUseCase.update(playlistId, command, ownerId);
-        UserSummaryDto owner = getProfileUseCase.getUserSummary(ownerId)
-                .orElseThrow(() -> new ProfileNotFoundException(ownerId));
+
+        MoplUserDetails userDetails = (MoplUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+        UserSummaryDto owner = new UserSummaryDto(
+                userDetails.getId(),
+                userDetails.getUserDto().name(),
+                userDetails.getUserDto().profileImageUrl());
         // TODO contents
         return PlaylistDto.toDto(playlist, owner, false /*, contents*/);
     }

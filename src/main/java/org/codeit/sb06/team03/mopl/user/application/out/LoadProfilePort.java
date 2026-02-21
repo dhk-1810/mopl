@@ -12,6 +12,8 @@ public interface LoadProfilePort {
 
     Optional<Profile> load(UUID accountId);
 
+    List<Profile> load(List<UUID> accountIds);
+
     Optional<UserSummaryDto> getUserSummary(UUID id);
 
     Map<UUID, UserSummaryDto> getUserSummaries(List<UUID> ids);

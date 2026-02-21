@@ -16,6 +16,8 @@ import static org.codeit.sb06.team03.mopl.user.domain.QProfile.profile;
 
 public interface ProfileRepository extends QuerydslJpaRepository<Profile, UUID> {
 
+    List<Profile> findByAccountIdIn(Collection<UUID> accountIds);
+
     default Optional<UserSummaryDto> getUserSummary(UUID id) {
         return Optional.ofNullable(
                 select(userSummaryProjection())
@@ -48,4 +50,6 @@ public interface ProfileRepository extends QuerydslJpaRepository<Profile, UUID> 
                 imageUrlPath
         );
     }
+
+
 }
