@@ -9,7 +9,7 @@ public interface LoadSubscriptionPort {
 
     boolean existsById(SubscriptionId id);
 
-    Map<UUID, Boolean> existsByIdIn(List<UUID> ids, UUID userId);
+    Map<UUID, Boolean> existsByIdIn(List<UUID> playlistIds, UUID userId);
 
     Optional<Subscription> findById(SubscriptionId id);
 

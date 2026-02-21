@@ -44,22 +44,18 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
-    public PlaylistDto create(CreatePlaylistCommand command, UUID ownerId) {
+    public Playlist create(CreatePlaylistCommand command, UUID ownerId) {
 
         final String title = command.title();
         final String description = command.description();
 
         Playlist playlist = playlistService.create(title, description, ownerId);
         savePlaylistPort.save(playlist);
-
-        UserSummaryDto owner = getUserSummaryDto(playlist.getOwnerId());
-
-        eventPublisher.publishEvent(new PlaylistEvent.PlaylistCreatedEvent(ownerId, owner.name(), playlist.getId(), playlist.getTitle()));
-        return PlaylistDto.toDto(playlist, owner, false/*, Collections.emptyList()*/); // TODO
+        return playlist;
     }
 
     @Override
-    public PlaylistDto update(String playlistId, UpdatePlaylistCommand command, UUID ownerId) {
+    public Playlist update(String playlistId, UpdatePlaylistCommand command, UUID ownerId) {
 
         UUID playlistUUID = parseUUID(playlistId);
         final String title = command.title();
@@ -74,9 +70,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
         playlist = playlistService.update(playlist, title, description);
         savePlaylistPort.save(playlist);
 
-        UserSummaryDto owner = getUserSummaryDto(playlist.getOwnerId());
-//      List<ContentDto> contents = getContents(playlistUUID); // TODO
-        return PlaylistDto.toDto(playlist, owner, false/*, contents*/);
+        return playlist;
     }
 
     @Override
