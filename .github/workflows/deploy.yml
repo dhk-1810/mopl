@@ -46,7 +46,7 @@ jobs:
         run: |
           ./gradlew bootBuildImage \
           --imageName=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }} \
-          -PdockerArchitecture=amd64 \
+          -PdockerArchitecture=arm64 \
           -x test 
 
       - name: Tag image as latest
