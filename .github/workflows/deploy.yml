@@ -45,11 +45,10 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Build image with Gradle (ARM64 지정)
+      - name: Build image with Gradle
         run: |
           ./gradlew bootBuildImage \
             --imageName=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }} \
-            -Dspring-boot.build-image.env.BP_ARCH=arm64 \
             -x test
 
       - name: Tag image as latest
