@@ -44,7 +44,10 @@ jobs:
 
       - name: Build image with Gradle
         run: |
-          ./gradlew bootBuildImage --imageName=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }} -x test
+          ./gradlew bootBuildImage \
+          --imageName=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }} \
+          -PdockerArchitecture=amd64 \
+          -x test 
 
       - name: Tag image as latest
         run: |
