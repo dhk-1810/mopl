@@ -2,11 +2,9 @@ name: Deploy to AWS
 
 on:
   push:
-    # TODO 브랜치 확인
     branches: [ "dev" ]
   workflow_dispatch:
 
-# TODO 변수명 확인
 env:
   AWS_REGION: ${{secrets.AWS_REGION}}
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
