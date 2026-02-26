@@ -21,6 +21,11 @@ public class SseEmitterAdapter implements SseEmitterPort {
     }
 
     @Override
+    public Set<UUID> findAllConnectedUserIds() {
+        return repository.findAllConnectedUserIds();
+    }
+
+    @Override
     public List<SseEmitter> findByUserId(UUID userId) {
         return repository.findEmittersByUserId(userId);
     }

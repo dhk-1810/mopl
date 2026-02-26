@@ -37,14 +37,27 @@ public class SseService implements SseUseCase {
         ping(emitter, receiverId, "connect check");
 
         // 마지막으로 받은 메시지 이후 유실된 메시지 재전송
-        if (lastEventId != null) {
-            SseMessage lastMessage = sseMessagePort.findLastMessageByUserId(receiverId);
-            if (lastMessage != null) {
-                sendToClient(emitter, receiverId, "re-delivery", lastMessage);
-            }
-        }
+//        if (lastEventId != null) {
+//            SseMessage lastMessage = sseMessagePort.findLastMessageByUserId(receiverId);
+//            if (lastMessage != null) {
+//                sendToClient(emitter, receiverId, "re-delivery", lastMessage);
+//            }
+//        }
 
         return emitter;
+    }
+
+    @Scheduled(fixedDelay = 15000) // 15초마다 실행
+    public void sendHeartbeat() {
+
+        Set<UUID> connectedUsers = sseEmitterPort.findAllConnectedUserIds();
+        if (connectedUsers.isEmpty()) return;
+
+        Map<UUID, List<SseEmitter>> allEmitters = sseEmitterPort.findAllByUserIdIn(connectedUsers);
+
+        allEmitters.forEach((userId, emitters) ->
+                emitters.forEach(emitter -> ping(emitter, userId, "send heartbeat")));
+        log.debug("Sent SSE heartbeat to {} users", connectedUsers.size());
     }
 
     public void send(Object data, String eventName, UUID receiverId) {
@@ -95,12 +108,11 @@ public class SseService implements SseUseCase {
      * 헬퍼 메서드
      */
 
-    // 최초 연결 또는 만료 여부 확인 위해 더미 이벤트를 보냄
     private void ping(SseEmitter sseEmitter, UUID userId, String message) {
         sendToClient(sseEmitter, userId, "ping", message);
     }
 
-    private void sendToClient(SseEmitter emitter, UUID userId, String eventName, Object data) {
+    private void sendToClient(SseEmitter emitter, UUID userId, String eventName, Object data/*, String eventId*/) {
         try {
             emitter.send(SseEmitter.event()
                     .id(UUID.randomUUID().toString())

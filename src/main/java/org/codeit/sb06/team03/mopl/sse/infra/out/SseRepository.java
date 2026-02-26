@@ -30,6 +30,10 @@ public class SseRepository {
         emitters.computeIfAbsent(userId, k -> new CopyOnWriteArrayList<>()).add(emitter);
     }
 
+    public Set<UUID> findAllConnectedUserIds() {
+        return emitters.keySet();
+    }
+
     public List<SseEmitter> findEmittersByUserId(UUID userId) {
         return emitters.getOrDefault(userId, Collections.emptyList());
     }
