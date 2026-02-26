@@ -34,7 +34,7 @@ public class PlaylistEventListener {
     private final SaveSubscriptionPort saveSubscriptionPort;
     private final GetFolloweeUseCase getFolloweeUseCase;
 
-    private static final String EVENT_NAME = "NOTIFICATION";
+    private static final String EVENT_NAME = "notifications";
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
