@@ -12,6 +12,7 @@ import org.codeit.sb06.team03.mopl.notification.domain.NotificationLevel;
 import org.codeit.sb06.team03.mopl.notification.domain.NotificationService;
 import org.codeit.sb06.team03.mopl.notification.domain.exception.NotificationAccessDeniedException;
 import org.codeit.sb06.team03.mopl.notification.domain.exception.NotificationNotFoundException;
+import org.codeit.sb06.team03.mopl.notification.infra.in.NotificationDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,17 +28,19 @@ public class NotificationCommandService implements CreateNotificationUseCase, De
     private final NotificationService notificationService;
 
     @Override
-    public void create(UUID receiverId, String title, String content, NotificationLevel level) {
+    public NotificationDto create(UUID receiverId, String title, String content, NotificationLevel level) {
         Notification notification = notificationService.create(receiverId, title, content, level);
         saveNotificationPort.save(notification);
+        return NotificationDto.toDto(notification);
     }
 
     @Override
-    public void createAll(List<UUID> receiverIds, String title, String content, NotificationLevel level) {
+    public List<NotificationDto> createAll(List<UUID> receiverIds, String title, String content, NotificationLevel level) {
         List<Notification> notifications = receiverIds.stream()
                 .map(id -> notificationService.create(id, title, content, level))
                 .toList();
         saveNotificationPort.saveAll(notifications);
+        return notifications.stream().map(NotificationDto::toDto).toList();
     }
 
     @Override
