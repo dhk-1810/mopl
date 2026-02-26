@@ -36,7 +36,7 @@ public class SseService implements SseUseCase {
         // 연결되면 더미 이벤트 전송, 연결 확인
         ping(emitter, receiverId, "connect check");
 
-        // 마지막으로 받은 메시지 이후 유실된 메시지 재전송
+        // TODO 마지막으로 받은 메시지 이후 유실된 메시지 재전송
 //        if (lastEventId != null) {
 //            SseMessage lastMessage = sseMessagePort.findLastMessageByUserId(receiverId);
 //            if (lastMessage != null) {
@@ -100,7 +100,7 @@ public class SseService implements SseUseCase {
     // 만료된 SseEmitter 삭제
     @Scheduled(fixedDelay = 1000 * 60 * 30)
     public void cleanUp() {
-        // sseRepository를 순회하며 삭제
+        // TODO sseRepository를 순회하며 삭제
         log.info("SSE Emitter clean up task started.");
     }
 
