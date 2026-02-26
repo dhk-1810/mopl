@@ -12,9 +12,7 @@ import org.codeit.sb06.team03.mopl.notification.domain.NotificationLevel;
 import org.codeit.sb06.team03.mopl.notification.domain.NotificationService;
 import org.codeit.sb06.team03.mopl.notification.domain.exception.NotificationAccessDeniedException;
 import org.codeit.sb06.team03.mopl.notification.domain.exception.NotificationNotFoundException;
-import org.codeit.sb06.team03.mopl.notification.infra.in.NotificationDto;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,7 +27,6 @@ public class NotificationCommandService implements CreateNotificationUseCase, De
     private final NotificationService notificationService;
 
     @Override
-    @Transactional
     public void create(UUID receiverId, String title, String content, NotificationLevel level) {
         Notification notification = notificationService.create(receiverId, title, content, level);
         saveNotificationPort.save(notification);
