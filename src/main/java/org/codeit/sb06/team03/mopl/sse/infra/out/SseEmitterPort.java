@@ -11,8 +11,6 @@ public interface SseEmitterPort {
 
     void save(SseEmitter sseEmitter, UUID userId);
 
-    void saveAll(SseEmitter sseEmitter, UUID userId);
-
     List<SseEmitter> findByUserId(UUID userId);
 
     Map<UUID, List<SseEmitter>> findAllByUserIdIn(Set<UUID> userIds);
