@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.playlist.infra.in;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.follow.application.in.GetFolloweeUseCase;
 import org.codeit.sb06.team03.mopl.follow.application.out.LoadFolloweePort;
 import org.codeit.sb06.team03.mopl.follow.domain.Followee;
 import org.codeit.sb06.team03.mopl.follow.domain.exception.FolloweeNotFoundException;
@@ -31,7 +32,7 @@ public class PlaylistEventListener {
     private final LoadSubscriptionPort loadSubscriptionPort;
     private final SaveCurationPort saveCurationPort;
     private final SaveSubscriptionPort saveSubscriptionPort;
-    private final LoadFolloweePort loadFolloweePort; // TODO UseCase 파야함
+    private final GetFolloweeUseCase getFolloweeUseCase;
 
     private static final String EVENT_NAME = "NOTIFICATION";
 
@@ -39,7 +40,7 @@ public class PlaylistEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePlaylistCreatedEvent(PlaylistEvent.PlaylistCreatedEvent event) {
 
-        Followee followee = loadFolloweePort.findById(event.getOwnerId())
+        Followee followee = getFolloweeUseCase.findById(event.getOwnerId())
                 .orElseThrow(() -> new FolloweeNotFoundException(event.getOwnerId()));
         List<UUID> followerIds = followee.getFollowers().stream()
                 .map(follower -> follower.getId().getFollowerId())
