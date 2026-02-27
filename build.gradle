@@ -66,3 +66,23 @@ dependencyManagement {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// 빌드 실패 해결 위해 추가
+
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+
+sourceSets {
+    main {
+        java {
+            srcDirs += [ querydslDir ]
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.getGeneratedSourceOutputDirectory().set(querydslDir)
+}
+
+clean {
+    delete querydslDir
+}
