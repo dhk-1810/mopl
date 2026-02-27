@@ -25,13 +25,8 @@ public class SseMessageAdapter implements SseMessagePort{
     }
 
     @Override
-    public SseMessage findLastMessageByUserId(UUID userId) {
-        return repository.findLastMessageByUserId(userId);
-    }
-
-    @Override
     public List<SseMessage> findAllMissedMessageByUserIdAndIdAfter(UUID userId, UUID lastMessageId) {
-        return List.of();
+        return repository.findAllMissedMessageByUserIdAndIdAfter(userId, lastMessageId);
     }
 
     @Override

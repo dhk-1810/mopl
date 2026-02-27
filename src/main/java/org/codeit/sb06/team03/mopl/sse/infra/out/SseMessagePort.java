@@ -12,8 +12,6 @@ public interface SseMessagePort {
 
     void saveMessages(Map<UUID, SseMessage> messages);
 
-    SseMessage findLastMessageByUserId(UUID userId);
-
     List<SseMessage> findAllMissedMessageByUserIdAndIdAfter(UUID userId, UUID lastMessageId);
 
     void deleteAll(UUID userId);
