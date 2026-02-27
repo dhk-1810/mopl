@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.sse.infra.out;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.sse.infra.in.SseMessage;
+import org.codeit.sb06.team03.mopl.sse.SseMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
