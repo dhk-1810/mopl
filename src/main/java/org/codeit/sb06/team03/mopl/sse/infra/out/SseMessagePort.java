@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.sse.infra.out;
 
-import org.codeit.sb06.team03.mopl.sse.infra.in.SseMessage;
+import org.codeit.sb06.team03.mopl.sse.SseMessage;
 
 import java.util.List;
 import java.util.Map;
@@ -12,7 +12,7 @@ public interface SseMessagePort {
 
     void saveMessages(Map<UUID, SseMessage> messages);
 
-    SseMessage findLastMessageByUserId(UUID userId);
+    List<SseMessage> findAllMissedMessageByUserIdAndIdAfter(UUID userId, UUID lastMessageId);
 
     List<SseMessage> findAllMissedMessageByUserIdAndIdAfter(UUID userId, UUID lastMessageId);
 

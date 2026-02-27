@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.sse.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.sse.infra.in.SseMessage;
+import org.codeit.sb06.team03.mopl.sse.SseMessage;
 import org.codeit.sb06.team03.mopl.sse.infra.out.SseEmitterPort;
 import org.codeit.sb06.team03.mopl.sse.infra.out.SseMessagePort;
 import org.springframework.scheduling.annotation.Scheduled;

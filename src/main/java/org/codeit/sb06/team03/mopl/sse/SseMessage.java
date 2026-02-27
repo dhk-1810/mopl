@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.sse.infra.in;
+package org.codeit.sb06.team03.mopl.sse;
 
 import java.time.Instant;
 import java.util.UUID;

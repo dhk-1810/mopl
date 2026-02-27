@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.sse.infra.out;
 
-import org.codeit.sb06.team03.mopl.sse.infra.in.SseMessage;
+import org.codeit.sb06.team03.mopl.sse.SseMessage;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -20,7 +20,9 @@ public class SseRepository {
     private final ConcurrentMap<UUID, List<SseEmitter>> emitters = new ConcurrentHashMap<>(); // List로 다중 연결 허용
 
     // SseMessage 저장소 (이벤트 유실 복원용)
-    private final Map<UUID, SseMessage> messages = new ConcurrentHashMap<>();
+    private final ConcurrentMap<UUID, List<SseMessage>> messages = new ConcurrentHashMap<>();
+
+    private static final int MAX_MESSAGE_HISTORY = 10;
 
     /**
      * SseEmitter
@@ -69,15 +71,34 @@ public class SseRepository {
      */
 
     public void saveMessage(SseMessage message, UUID userId) {
-        messages.put(userId, message);
+        messages.compute(userId, (id, history) -> {
+            List<SseMessage> list = (history == null) ? new CopyOnWriteArrayList<>() : history;
+            list.add(message);
+
+            while (list.size() > MAX_MESSAGE_HISTORY) {
+                list.removeFirst();
+            }
+            return list;
+        });
     }
 
     public void saveAllMessages(Map<UUID, SseMessage> messagesToSave) {
-        messages.putAll(messagesToSave);
+        messagesToSave.forEach((userId, message) -> saveMessage(message, userId));
     }
 
-    public SseMessage findLastMessageByUserId(UUID userId) {
-        return messages.get(userId);
+    public List<SseMessage> findAllMissedMessageByUserIdAndIdAfter(UUID userId, UUID lastMessageId) {
+
+        List<SseMessage> history = messages.getOrDefault(userId, Collections.emptyList());
+
+        // lastMessageId가 위치한 인덱스 찾기
+        int lastSeenIndex = -1;
+        for (int i = 0; i < history.size(); i++) {
+            if (history.get(i).id().equals(lastMessageId)) {
+                lastSeenIndex = i;
+                break;
+            }
+        }
+        return new ArrayList<>(history.subList(lastSeenIndex + 1, history.size()));
     }
 
     // 사용자의 모든 SseMessage 삭제 (로그아웃)

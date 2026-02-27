@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.sse.infra.out;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.sse.infra.in.SseMessage;
+import org.codeit.sb06.team03.mopl.sse.SseMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -25,8 +25,8 @@ public class SseMessageAdapter implements SseMessagePort{
     }
 
     @Override
-    public SseMessage findLastMessageByUserId(UUID userId) {
-        return repository.findLastMessageByUserId(userId);
+    public List<SseMessage> findAllMissedMessageByUserIdAndIdAfter(UUID userId, UUID lastMessageId) {
+        return repository.findAllMissedMessageByUserIdAndIdAfter(userId, lastMessageId);
     }
 
     @Override
