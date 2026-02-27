@@ -14,7 +14,5 @@ public interface SseMessagePort {
 
     List<SseMessage> findAllMissedMessageByUserIdAndIdAfter(UUID userId, UUID lastMessageId);
 
-    List<SseMessage> findAllMissedMessageByUserIdAndIdAfter(UUID userId, UUID lastMessageId);
-
     void deleteAll(UUID userId);
 }

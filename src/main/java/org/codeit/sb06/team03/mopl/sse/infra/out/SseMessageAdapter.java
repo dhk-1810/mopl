@@ -30,11 +30,6 @@ public class SseMessageAdapter implements SseMessagePort{
     }
 
     @Override
-    public List<SseMessage> findAllMissedMessageByUserIdAndIdAfter(UUID userId, UUID lastMessageId) {
-        return List.of();
-    }
-
-    @Override
     public void deleteAll(UUID userId) {
         repository.deleteAllMessagesByUserId(userId);
     }
