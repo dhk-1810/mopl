@@ -4,7 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.bff.BffAuthService;
+import org.codeit.sb06.team03.mopl.composite.AuthCompositeService;
 import org.codeit.sb06.team03.mopl.common.security.jwt.*;
 import org.codeit.sb06.team03.mopl.common.security.jwt.exception.InvalidTokenException;
 import org.codeit.sb06.team03.mopl.common.security.jwt.registry.JwtRegistry;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController implements AuthApi{
 
-    private final BffAuthService bffAuthService;
+    private final AuthCompositeService authCompositeService;
     private final RefreshTokenCookieProvider cookieProvider;
     private final JwtRegistry jwtRegistry;
     private final JwtTokenProvider jwtTokenProvider;
@@ -27,7 +27,7 @@ public class AuthController implements AuthApi{
     @Override
     @PostMapping("/reset-password")
     public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
-        bffAuthService.resetPassword(request);
+        authCompositeService.resetPassword(request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -52,7 +52,7 @@ public class AuthController implements AuthApi{
 
         JwtClaims jwtClaims = jwtTokenProvider.getClaims(tokenPair.refreshToken());
         String accountId = jwtClaims.id().toString();
-        UserDto userDto = bffAuthService.getUserDto(accountId);
+        UserDto userDto = authCompositeService.getUserDto(accountId);
         JwtDto jwtDto = new JwtDto(
                 userDto, tokenPair.accessToken()
         );

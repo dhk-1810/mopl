@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.dm.conversation.infra.in;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.bff.BffDMService;
+import org.codeit.sb06.team03.mopl.composite.BffDMService;
 import org.codeit.sb06.team03.mopl.dm.conversation.infra.in.request.ConversationCreateRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

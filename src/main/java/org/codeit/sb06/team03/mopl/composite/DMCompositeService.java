@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.bff;
+package org.codeit.sb06.team03.mopl.composite;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Service
-public class BasicBffDMService implements BffDMService {
+public class DMCompositeService {
 
     private final CreateConversationUseCase createConversationUseCase;
     private final GetConversationUseCase getConversationUseCase;
@@ -32,7 +32,6 @@ public class BasicBffDMService implements BffDMService {
     private final GetDMUserUseCase getDMUserUseCase;
     private final DMMapper dmMapper;
 
-    @Override
     public CursorResponseConversationDto getConversations(CursorRequestConversationDto request) {
         UUID userId = getCurrentUserId();
         int limit = request.limit();
@@ -91,7 +90,6 @@ public class BasicBffDMService implements BffDMService {
         );
     }
 
-    @Override
     public ConversationDto postConversation(ConversationCreateRequest request) {
         UUID userId = getCurrentUserId();
         CreateConversationCommand command = dmMapper.toCommand(request.withUserId());
@@ -99,7 +97,6 @@ public class BasicBffDMService implements BffDMService {
         return toConversationDto(conversation, userId, Optional.empty());
     }
 
-    @Override
     public void postReadDirectMessage(String conversationId, String directMessageId) {
         UUID userId = getCurrentUserId();
         messageReadUseCase.read(new MessageReadCommand(
@@ -109,7 +106,6 @@ public class BasicBffDMService implements BffDMService {
         ));
     }
 
-    @Override
     public ConversationDto getConversation(String conversationId) {
         UUID userId = getCurrentUserId();
         UUID convId = UUID.fromString(conversationId);
@@ -118,7 +114,6 @@ public class BasicBffDMService implements BffDMService {
         return toConversationDto(conversation, userId, liveMessage);
     }
 
-    @Override
     public CursorResponseDirectMessageDto getDirectMessages(String conversationId, CursorRequestDirectMessageDto request) {
         UUID convId = UUID.fromString(conversationId);
         int limit = request.limit();
@@ -165,14 +160,12 @@ public class BasicBffDMService implements BffDMService {
         );
     }
 
-    @Override
     public ConversationDto getConversationWith(String withUserId) {
         UUID userId = getCurrentUserId();
         Conversation conversation = getConversationUseCase.findByWith(userId, UUID.fromString(withUserId));
         return toConversationDto(conversation, userId, Optional.empty());
     }
 
-    @Override
     public void sendMessage(String conversationId, String senderId, MessageSendRequest request) {
         UUID convId = UUID.fromString(conversationId);
         UUID senderUuid = UUID.fromString(senderId);

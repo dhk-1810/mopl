@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.dm.livemessage.infra.in;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.bff.BffDMService;
+import org.codeit.sb06.team03.mopl.composite.BffDMService;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.dm.livemessage.infra.in.request.MessageSendRequest;
 import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;

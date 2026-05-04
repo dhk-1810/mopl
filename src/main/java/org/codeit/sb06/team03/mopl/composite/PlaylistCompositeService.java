@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.bff;
+package org.codeit.sb06.team03.mopl.composite;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;

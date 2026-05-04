@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.playlist.infra.in;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.bff.PlaylistCompositeService;
+import org.codeit.sb06.team03.mopl.composite.PlaylistCompositeService;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.CursorRequestPlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistCreateRequest;

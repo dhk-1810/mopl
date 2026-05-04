@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.bff;
+package org.codeit.sb06.team03.mopl.composite;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.application.in.GetAccountUseCase;
@@ -11,19 +11,17 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class BasicBffAuthService implements BffAuthService {
+public class AuthCompositeService {
 
     private final AuthMapper authMapper;
     private final ResetPasswordUseCase resetPasswordUseCase;
     private final GetAccountUseCase getAccountUseCase;
 
-    @Override
     public void resetPassword(ResetPasswordRequest request) {
         ResetPasswordCommand command = authMapper.toCommand(request);
         resetPasswordUseCase.resetPassword(command);
     }
 
-    @Override
     public UserDto getUserDto(String accountId) {
         return getAccountUseCase.get(accountId);
     }
