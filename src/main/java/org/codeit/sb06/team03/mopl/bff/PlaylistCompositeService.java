@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-public class BasicBffPlaylistService implements BffPlaylistService {
+public class PlaylistCompositeService {
 
     private final PlaylistMapper playlistMapper;
     private final CreatePlaylistUseCase createPlaylistUseCase;
@@ -45,7 +45,6 @@ public class BasicBffPlaylistService implements BffPlaylistService {
     private final GetSubscriptionUseCase getSubscriptionUseCase;
 //    private final GetContentUseCase getContentUseCase;
 
-    @Override
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
 
         CreatePlaylistCommand command = playlistMapper.toCommand(request);
@@ -62,7 +61,6 @@ public class BasicBffPlaylistService implements BffPlaylistService {
         return PlaylistDto.toDto(playlist, owner, false , Collections.emptyList()); // TODO
     }
 
-    @Override
     public CursorResponsePlaylistDto getPlaylists(CursorRequestPlaylistDto request, UUID viewerId) {
         Slice<PlaylistReadModel> slice = getPlaylistsUseCase.get(request, viewerId);
         List<PlaylistReadModel> readModels = slice.getContent();
@@ -107,7 +105,6 @@ public class BasicBffPlaylistService implements BffPlaylistService {
         );
     }
 
-    @Override
     public PlaylistDto getPlaylist(String playlistId, UUID viewerId) {
         PlaylistReadModel readModel = getPlaylistUseCase.get(playlistId, viewerId);
 
@@ -120,7 +117,6 @@ public class BasicBffPlaylistService implements BffPlaylistService {
         return PlaylistDto.toDto(readModel, owner, subscribedByMe, Collections.emptyList());
     }
 
-    @Override
     public PlaylistDto updatePlayList(String playlistId, PlaylistUpdateRequest request, UUID ownerId) {
 
         UpdatePlaylistCommand command = playlistMapper.toCommand(request);
@@ -137,27 +133,22 @@ public class BasicBffPlaylistService implements BffPlaylistService {
         return PlaylistDto.toDto(playlist, owner, false , Collections.emptyList());
     }
 
-    @Override
     public void deletePlaylist(String playlistId, UUID ownerId) {
         deletePlaylistUseCase.delete(playlistId, ownerId);
     }
 
-    @Override
     public void addContentToPlaylist(String playlistId, String contentId, UUID ownerId) {
         addContentToCurationUseCase.addContentToPlaylist(playlistId, contentId, ownerId);
     }
 
-    @Override
     public void deleteContentFromPlaylist(String playlistId, String contentId, UUID ownerId) {
         deleteContentFromCurationUseCase.deleteContentFromPlaylist(playlistId, contentId, ownerId);
     }
 
-    @Override
     public void subscribePlaylist(String playlistId, UUID userId) {
         subscribePlaylistUseCase.subscribe(playlistId, userId);
     }
 
-    @Override
     public void unsubscribePlaylist(String playlistId, UUID userId) {
         unsubscribePlaylistUseCase.unsubscribe(playlistId, userId);
     }

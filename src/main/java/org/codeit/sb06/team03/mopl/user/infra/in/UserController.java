@@ -2,7 +2,6 @@ package org.codeit.sb06.team03.mopl.user.infra.in;
 
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.bff.BffUserService;
 import org.codeit.sb06.team03.mopl.common.SessionDetails;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.springframework.http.HttpStatus;
@@ -20,19 +19,19 @@ import java.util.UUID;
 @RequestMapping("/api/users")
 public class UserController implements UserApi {
 
-    private final BffUserService bffUserService;
+    private final BasicUserService basicUserService;
 
     @Override
     @PostMapping
     public ResponseEntity<UserDto> postUsers(@RequestBody UserCreateRequest request) {
-        UserDto response = bffUserService.registerAccount(request);
+        UserDto response = basicUserService.registerAccount(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Override
     @PatchMapping("/{userId}/password")
     public ResponseEntity<Void> updatePassword(@PathVariable String userId, @RequestBody PasswordUpdateRequest request){
-        bffUserService.updatePassword(userId, request);
+        basicUserService.updatePassword(userId, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 
     }
@@ -44,7 +43,7 @@ public class UserController implements UserApi {
             @RequestBody UserRoleUpdateRequest request
     ) {
         UUID userUuid = UUID.fromString(userId);
-        bffUserService.assignUserRole(userUuid, request);
+        basicUserService.assignUserRole(userUuid, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -56,7 +55,7 @@ public class UserController implements UserApi {
             @RequestBody UserLockUpdateRequest request
     ) {
         UUID userUuid = UUID.fromString(userId);
-        bffUserService.updateUserLockStatus(userUuid, request);
+        basicUserService.updateUserLockStatus(userUuid, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -64,14 +63,14 @@ public class UserController implements UserApi {
     @GetMapping
     @RolesAllowed("ADMIN")
     public ResponseEntity<CursorResponseUserDto> getUsers(@ModelAttribute CursorRequestUserDto request) {
-        CursorResponseUserDto response = bffUserService.getUsers(request);
+        CursorResponseUserDto response = basicUserService.getUsers(request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Override
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> getUsersById(@PathVariable String userId) {
-        UserDto response = bffUserService.getUser(userId);
+        UserDto response = basicUserService.getUser(userId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -82,7 +81,7 @@ public class UserController implements UserApi {
             @RequestPart UserUpdateRequest request,
             @Nullable @RequestPart(required = false) MultipartFile image
     ) {
-        UserDto response = bffUserService.updateProfile(userId, request, image);
+        UserDto response = basicUserService.updateProfile(userId, request, image);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -94,7 +93,7 @@ public class UserController implements UserApi {
     ) {
         UUID watcherUuid = UUID.fromString(watcherId);
 
-        SessionDetails sessionDetails = bffUserService.getSessionDetails(watcherUuid, userDetails);
+        SessionDetails sessionDetails = basicUserService.getSessionDetails(watcherUuid, userDetails);
 
         return ResponseEntity.ok(sessionDetails);
     }

@@ -27,7 +27,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-public class BasicBffUserService implements BffUserService {
+public class UserCompositeService {
 
     private final AccountMapper accountMapper;
     private final ProfileMapper profileMapper;
@@ -41,7 +41,6 @@ public class BasicBffUserService implements BffUserService {
     private final ContentMapper contentMapper;
     private final GetContentUseCase getContentUseCase;
 
-    @Override
     public UserDto registerAccount(UserCreateRequest request) {
         RegisterAccountCommand command = accountMapper.toCommand(request);
         Account newAccount = registerAccountUseCase.register(command);
@@ -49,43 +48,36 @@ public class BasicBffUserService implements BffUserService {
         return getAccountUseCase.get(newAccount.getId().toString());
     }
 
-    @Override
     public void updatePassword(String userId, PasswordUpdateRequest request) {
         UpdatePasswordCommand command = accountMapper.toCommand(request);
         updatePasswordUseCase.updatePassword(userId, command);
     }
 
 
-    @Override
     public void assignUserRole(UUID userId, UserRoleUpdateRequest request) {
         AssignRoleCommand command = accountMapper.toCommand(request);
         assignRoleUseCase.assignRole(userId, command);
     }
 
-    @Override
     public void updateUserLockStatus(UUID userId, UserLockUpdateRequest request) {
         UpdateLockStatusCommand command = accountMapper.toCommand(request);
         updateLockStatusUseCase.updateLocked(userId, command);
     }
 
-    @Override
     public CursorResponseUserDto getUsers(CursorRequestUserDto request) {
         return getAccountUseCase.get(request);
     }
 
-    @Override
     public UserDto getUser(String userId) {
         return getAccountUseCase.get(userId);
     }
 
-    @Override
     public UserDto updateProfile(String userId, UserUpdateRequest request, @Nullable MultipartFile image) {
         UpdateProfileCommand command = profileMapper.toCommand(userId, request, image);
         Profile updated = updateProfileUseCase.update(command);
         return getAccountUseCase.get(updated.getAccountId().toString());
     }
 
-    @Override
     public SessionDetails getSessionDetails(UUID watcherId, MoplUserDetails userDetails) {
         UserDto userDto = userDetails.getUserDto();
 

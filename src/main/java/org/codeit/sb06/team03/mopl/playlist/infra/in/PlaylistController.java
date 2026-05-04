@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.playlist.infra.in;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.bff.BffPlaylistService;
+import org.codeit.sb06.team03.mopl.bff.PlaylistCompositeService;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.CursorRequestPlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistCreateRequest;
@@ -21,7 +21,7 @@ import java.util.UUID;
 @RequestMapping("/api/playlists")
 public class PlaylistController implements PlaylistApi {
 
-    private final BffPlaylistService bffPlaylistService;
+    private final PlaylistCompositeService playlistCompositeService;
 
     @Override
     @PostMapping
@@ -29,7 +29,7 @@ public class PlaylistController implements PlaylistApi {
             @RequestBody @Valid PlaylistCreateRequest request,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
-        PlaylistDto playlistDto = bffPlaylistService.createPlaylist(request, user.getId());
+        PlaylistDto playlistDto = playlistCompositeService.createPlaylist(request, user.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(playlistDto);
     }
 
@@ -40,7 +40,7 @@ public class PlaylistController implements PlaylistApi {
             @AuthenticationPrincipal MoplUserDetails user
     ) {
         UUID userId =  (user != null) ? user.getId() : null;
-        CursorResponsePlaylistDto response = bffPlaylistService.getPlaylists(request, userId);
+        CursorResponsePlaylistDto response = playlistCompositeService.getPlaylists(request, userId);
         return ResponseEntity.ok(response);
     }
 
@@ -51,7 +51,7 @@ public class PlaylistController implements PlaylistApi {
             @AuthenticationPrincipal MoplUserDetails user
     ) {
         UUID userId =  (user != null) ? user.getId() : null;
-        PlaylistDto playlistDto = bffPlaylistService.getPlaylist(playlistId, user.getId()); // 조회자 ID
+        PlaylistDto playlistDto = playlistCompositeService.getPlaylist(playlistId, user.getId()); // 조회자 ID
         return ResponseEntity.ok(playlistDto);
     }
 
@@ -62,7 +62,7 @@ public class PlaylistController implements PlaylistApi {
             @RequestBody PlaylistUpdateRequest request,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
-        PlaylistDto playlistDto = bffPlaylistService.updatePlayList(playlistId, request, user.getId());
+        PlaylistDto playlistDto = playlistCompositeService.updatePlayList(playlistId, request, user.getId());
         return ResponseEntity.ok(playlistDto);
     }
 
@@ -72,7 +72,7 @@ public class PlaylistController implements PlaylistApi {
             @PathVariable String playlistId,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
-        bffPlaylistService.deletePlaylist(playlistId, user.getId());
+        playlistCompositeService.deletePlaylist(playlistId, user.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -83,7 +83,7 @@ public class PlaylistController implements PlaylistApi {
             @PathVariable String contentId,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
-        bffPlaylistService.addContentToPlaylist(playlistId, contentId, user.getId());
+        playlistCompositeService.addContentToPlaylist(playlistId, contentId, user.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -94,7 +94,7 @@ public class PlaylistController implements PlaylistApi {
             @PathVariable String contentId,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
-        bffPlaylistService.deleteContentFromPlaylist(playlistId, contentId, user.getId());
+        playlistCompositeService.deleteContentFromPlaylist(playlistId, contentId, user.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -104,7 +104,7 @@ public class PlaylistController implements PlaylistApi {
             @PathVariable String playlistId,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
-        bffPlaylistService.subscribePlaylist(playlistId, user.getId());
+        playlistCompositeService.subscribePlaylist(playlistId, user.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -114,7 +114,7 @@ public class PlaylistController implements PlaylistApi {
             @PathVariable String playlistId,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
-        bffPlaylistService.unsubscribePlaylist(playlistId, user.getId());
+        playlistCompositeService.unsubscribePlaylist(playlistId, user.getId());
         return ResponseEntity.noContent().build();
     }
 }
