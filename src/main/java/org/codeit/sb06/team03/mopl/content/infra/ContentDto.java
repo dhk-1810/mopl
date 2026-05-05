@@ -1,17 +1,33 @@
 package org.codeit.sb06.team03.mopl.content.infra;
 
-import java.util.List;
+import org.codeit.sb06.team03.mopl.content.ContentReadModel;
+import org.codeit.sb06.team03.mopl.content.domain.vo.Type;
+
+import java.util.Set;
 import java.util.UUID;
 
 public record ContentDto (
         UUID id,
-        String type,
+        Type type,
         String title,
         String description,
         String thumbnailUrl,
-        List<String> tags, // TODO 확인필요
+        Set<String> tags, // TODO 확인필요
         double averageRating,
         int reviewCount,
         long watcherCount
-){
+) {
+    public static ContentDto from(ContentReadModel readModel, double averageRating, int reviewCount, long watcherCount) {
+        return new ContentDto(
+                readModel.id(),
+                readModel.type(),
+                readModel.title(),
+                readModel.description(),
+                readModel.thumbnailUrl(),
+                readModel.tags(),
+                averageRating,
+                reviewCount,
+                watcherCount
+        );
+    }
 }

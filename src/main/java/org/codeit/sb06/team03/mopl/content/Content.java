@@ -61,4 +61,16 @@ public class Content {
 
     @OneToOne(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private ReviewStats reviewStats;
+
+    @NotNull
+    @Column(name = "average_rating", nullable = false)
+    private double averageRating;
+
+    @NotNull
+    @Column(name = "review_count", nullable = false)
+    private int reviewCount;
+
+    @NotNull
+    @Column(name = "watcher_count", nullable = false)
+    private long watcherCount;
 }
