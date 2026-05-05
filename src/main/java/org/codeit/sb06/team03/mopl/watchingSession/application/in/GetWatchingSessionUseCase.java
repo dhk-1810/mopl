@@ -10,4 +10,6 @@ public interface GetWatchingSessionUseCase {
     List<WatchingSession> get(UUID watcherId);
 
     WatchingSession get(UUID liveChatId, UUID watcherId);
+
+//    List<WatchingSession>
 }

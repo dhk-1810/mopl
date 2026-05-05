@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.dm.livemessage.infra.in;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.composite.BffDMService;
+import org.codeit.sb06.team03.mopl.composite.DMCompositeService;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.dm.livemessage.infra.in.request.MessageSendRequest;
 import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
@@ -17,7 +17,7 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class DMWebSocketController {
 
-    private final BffDMService bffDMService;
+    private final DMCompositeService dmCompositeService;
 
     @MessageMapping("/conversations/{conversationId}/direct-messages")
     public void sendMessage(
@@ -29,6 +29,6 @@ public class DMWebSocketController {
         MoplUserDetails userDetails = (MoplUserDetails) authentication.getPrincipal();
         UserDto userDto = userDetails.getUserDto();
 
-        bffDMService.sendMessage(conversationId, userDto.id().toString(), request);
+        dmCompositeService.sendMessage(conversationId, userDto.id().toString(), request);
     }
 }

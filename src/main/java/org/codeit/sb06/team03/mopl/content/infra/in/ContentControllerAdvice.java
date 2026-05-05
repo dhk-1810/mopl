@@ -20,7 +20,7 @@ public class ContentControllerAdvice {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    @ExceptionHandler(ContentNotFoundException.class)x
+    @ExceptionHandler(ContentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleContentNotFoundException(ContentNotFoundException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.getClass().getSimpleName(), e.getMessage(), List.of());
 
