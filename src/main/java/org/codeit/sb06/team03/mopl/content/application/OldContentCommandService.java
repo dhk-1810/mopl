@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.content.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.common.SessionDetails;
+import org.codeit.sb06.team03.mopl.common.WatchingSessionResponse;
 import org.codeit.sb06.team03.mopl.content.Content;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.application.in.CursorResponseWatchingSessionDto;
@@ -45,7 +45,7 @@ public class OldContentCommandService implements GetContentUseCase {
                 command.sortBy()
         );
 
-        List<SessionDetails> sessionsDetails = loadContentPort.findSessionsDetails(query);
+        List<WatchingSessionResponse> sessionsDetails = loadContentPort.findSessionsDetails(query);
 
         boolean hasNext =  sessionsDetails.size() > command.limit();
         if (hasNext) {

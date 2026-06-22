@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.codeit.sb06.team03.mopl.content.domain.entity.Review;
 import org.codeit.sb06.team03.mopl.content.domain.entity.ReviewStats;
 import org.codeit.sb06.team03.mopl.content.domain.entity.Tag;
-import org.codeit.sb06.team03.mopl.content.domain.vo.Type;
+import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 
 import java.time.Instant;
 import java.util.Set;
@@ -34,7 +34,7 @@ public class Content {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private Type type;
+    private ContentType type;
 
     @NotNull
     @Column(name = "title", nullable = false)
@@ -45,8 +45,8 @@ public class Content {
     private String description;
 
     @NotNull
-    @Column(name = "thumbnail_image", nullable = false)
-    private String thumbnailImage;
+    @Column(name = "thumbnail_url", nullable = false)
+    private String thumbnailUrl;
 
     @ManyToMany
     @JoinTable(
@@ -68,7 +68,7 @@ public class Content {
 
     @NotNull
     @Column(name = "review_count", nullable = false)
-    private int reviewCount;
+    private long reviewCount;
 
     @NotNull
     @Column(name = "watcher_count", nullable = false)

@@ -2,7 +2,6 @@ package org.codeit.sb06.team03.mopl.liveChat.application;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.ContentResult;
-import org.codeit.sb06.team03.mopl.common.UserSummary;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.CreateLiveChatUseCase;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.DeleteLiveChatUseCase;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.SendLiveChatMessageUseCase;
@@ -14,6 +13,7 @@ import org.codeit.sb06.team03.mopl.liveChat.application.out.query.SendLiveChatMe
 import org.codeit.sb06.team03.mopl.liveChat.application.out.query.SendPresenceMessageQuery;
 import org.codeit.sb06.team03.mopl.liveChat.domain.LiveChat;
 import org.codeit.sb06.team03.mopl.liveChat.domain.exception.LiveChatDuplicateException;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +38,7 @@ public class LiveChatCommandService implements
 
         ContentResult contentResult = liveChatContentQueryPort.findById(contentId);
 
-        UserSummary userSummary = new UserSummary(command.accountId(), command.name(), command.profileImageUrl());
+        UserSummaryDto userSummary = new UserSummaryDto(command.accountId(), command.name(), command.profileImageUrl());
 
         int watcherCount = liveChatWatchingSessionQueryPort.countByLiveChatId(liveChatId);
 
@@ -58,7 +58,7 @@ public class LiveChatCommandService implements
 
     @Override
     public void sendLiveChatMessage(SendLiveChatMessageCommand command) {
-        UserSummary userSummary = new UserSummary(command.accountId(), command.name(), command.profileImageUrl());
+        UserSummaryDto userSummary = new UserSummaryDto(command.accountId(), command.name(), command.profileImageUrl());
         String text = command.text();
         SendLiveChatMessageQuery sendLiveChatMessageQuery = new SendLiveChatMessageQuery(userSummary, text, command.destination());
         sendMessagePort.broadcastLiveChatMessage(sendLiveChatMessageQuery);

@@ -1,12 +1,14 @@
 package org.codeit.sb06.team03.mopl.common;
 
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+
 import java.time.Instant;
 import java.util.UUID;
 
-public record SessionDetails(
+public record WatchingSessionResponse(
         UUID id,
         Instant createdAt,
-        UserSummary watcher,
+        UserSummaryDto watcher,
         ContentResult content
 ) {
 

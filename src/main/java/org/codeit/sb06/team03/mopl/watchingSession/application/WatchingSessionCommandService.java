@@ -1,6 +1,8 @@
 package org.codeit.sb06.team03.mopl.watchingSession.application;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.content.infra.in.WatchingSessionCursorRequest;
+import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionCommand;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.DeleteWatchingSessionUseCase;
@@ -11,6 +13,7 @@ import org.codeit.sb06.team03.mopl.watchingSession.application.out.SaveWatchingS
 import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.exception.WatchingSessionDuplicateException;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.exception.WatchingSessionNotFoundException;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,8 +57,15 @@ public class WatchingSessionCommandService implements
     }
 
     @Override
-    public List<WatchingSession> get(UUID watcherId) {
-        return loadWatchingSessionPort.findByWatcherId(watcherId);
+    public Slice<WatchingSessionReadModel> get(UUID watcherId) {
+        List<WatchingSession> watchingSession = loadWatchingSessionPort.findByWatcherId(watcherId);
+        return WatchingSessionReadModel.from()
+    }
+
+    @Override
+    public Slice<WatchingSessionReadModel> get(UUID contentId, WatchingSessionCursorRequest request) {
+        List<WatchingSession> watchingSessions
+        return List.of();
     }
 
     @Override

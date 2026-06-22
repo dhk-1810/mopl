@@ -1,9 +1,9 @@
 package org.codeit.sb06.team03.mopl.liveChat.infra.out;
 
-import org.codeit.sb06.team03.mopl.common.UserSummary;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 
 public record LiveChatMessageResponse(
-        UserSummary sender,
+        UserSummaryDto sender,
         String content
 ) {
 }

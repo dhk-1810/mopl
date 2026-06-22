@@ -1,10 +1,10 @@
 package org.codeit.sb06.team03.mopl.liveChat.infra.out;
 
-import org.codeit.sb06.team03.mopl.common.SessionDetails;
+import org.codeit.sb06.team03.mopl.common.WatchingSessionResponse;
 
 public record LiveChatPresenceResponse(
         String type,
-        SessionDetails watchingSession,
+        WatchingSessionResponse watchingSession,
         long watcherCount
 ) {
 }

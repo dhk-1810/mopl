@@ -1,22 +1,21 @@
 package org.codeit.sb06.team03.mopl.content;
 
 import org.codeit.sb06.team03.mopl.content.domain.entity.Tag;
-import org.codeit.sb06.team03.mopl.content.domain.vo.Type;
+import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public record ContentReadModel (
         UUID id,
-        Type type,
+        ContentType type,
         String title,
         String description,
         String thumbnailUrl,
         Set<String> tags,
         double averageRating,
-        int reviewCount,
+        long reviewCount,
         long watcherCount
 ) {
     public static ContentReadModel from(Content content){
@@ -26,7 +25,7 @@ public record ContentReadModel (
                 content.getType(),
                 content.getTitle(),
                 content.getDescription(),
-                content.getThumbnailImage(),
+                content.getThumbnailUrl(),
                 tags,
                 content.getAverageRating(),
                 content.getReviewCount(),

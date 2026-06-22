@@ -2,11 +2,11 @@ package org.codeit.sb06.team03.mopl.liveChat.infra.out;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.ContentResult;
-import org.codeit.sb06.team03.mopl.common.SessionDetails;
-import org.codeit.sb06.team03.mopl.common.UserSummary;
+import org.codeit.sb06.team03.mopl.common.WatchingSessionResponse;
 import org.codeit.sb06.team03.mopl.liveChat.application.out.SendMessagePort;
 import org.codeit.sb06.team03.mopl.liveChat.application.out.query.SendLiveChatMessageQuery;
 import org.codeit.sb06.team03.mopl.liveChat.application.out.query.SendPresenceMessageQuery;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
 
@@ -18,10 +18,10 @@ public class SendMessageAdapter implements SendMessagePort {
 
     @Override
     public void broadcastPresenceMessage(SendPresenceMessageQuery sendPresenceMessageQuery) {
-        UserSummary userSummary = sendPresenceMessageQuery.userSummary();
+        UserSummaryDto userSummary = sendPresenceMessageQuery.userSummary();
         ContentResult contentResult = sendPresenceMessageQuery.contentResult();
 
-        SessionDetails sessionDetails = new SessionDetails(
+        WatchingSessionResponse sessionDetails = new WatchingSessionResponse(
                 sendPresenceMessageQuery.watchingSessionId(),
                 sendPresenceMessageQuery.watchingSessionCreatedAt(),
                 userSummary,
@@ -39,7 +39,7 @@ public class SendMessageAdapter implements SendMessagePort {
 
     @Override
     public void broadcastLiveChatMessage(SendLiveChatMessageQuery sendLiveChatMessageQuery) {
-        UserSummary userSummary = sendLiveChatMessageQuery.userSummary();
+        UserSummaryDto userSummary = sendLiveChatMessageQuery.userSummaryDto();
         String text = sendLiveChatMessageQuery.text();
         String destination = sendLiveChatMessageQuery.destination();
 

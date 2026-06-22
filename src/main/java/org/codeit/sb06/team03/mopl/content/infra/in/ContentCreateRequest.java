@@ -1,11 +1,11 @@
 package org.codeit.sb06.team03.mopl.content.infra.in;
 
-import org.codeit.sb06.team03.mopl.content.domain.vo.Type;
+import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 
 import java.util.Set;
 
 public record ContentCreateRequest (
-        Type type,
+        ContentType type,
         String title,
         String description,
         Set<String> tags

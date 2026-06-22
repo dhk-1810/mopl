@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.user.infra.in;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.composite.UserCompositeService;
-import org.codeit.sb06.team03.mopl.common.SessionDetails;
+import org.codeit.sb06.team03.mopl.common.WatchingSessionResponse;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -88,13 +88,13 @@ public class UserController implements UserApi {
 
     @Override
     @GetMapping("/{watcherId}/watching-sessions")
-    public ResponseEntity<SessionDetails> getSessionDetails(
+    public ResponseEntity<WatchingSessionResponse> getSessionDetails(
             @PathVariable String watcherId,
             @AuthenticationPrincipal MoplUserDetails userDetails
     ) {
         UUID watcherUuid = UUID.fromString(watcherId);
 
-        SessionDetails sessionDetails = userCompositeService.getSessionDetails(watcherUuid, userDetails);
+        WatchingSessionResponse sessionDetails = userCompositeService.getSessionDetails(watcherUuid, userDetails);
 
         return ResponseEntity.ok(sessionDetails);
     }

@@ -1,5 +1,8 @@
 package org.codeit.sb06.team03.mopl.content.infra;
 
+import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
+import org.codeit.sb06.team03.mopl.content.SortContentBy;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -10,7 +13,7 @@ public record CursorRequestContentDto (
         String cursor,
         UUID idAfter,
         int limit,
-        String sortDirection,
-        String sortBy
+        SortContentBy sortBy,
+        SortDirection sortDirection
 ) {
 }

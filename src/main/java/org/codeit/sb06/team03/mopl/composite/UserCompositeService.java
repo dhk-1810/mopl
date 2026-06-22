@@ -5,11 +5,11 @@ import org.codeit.sb06.team03.mopl.account.application.in.*;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.common.ContentMapper;
 import org.codeit.sb06.team03.mopl.common.ContentResult;
-import org.codeit.sb06.team03.mopl.common.SessionDetails;
-import org.codeit.sb06.team03.mopl.common.UserSummary;
+import org.codeit.sb06.team03.mopl.common.WatchingSessionResponse;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
-import org.codeit.sb06.team03.mopl.content.Content;
+import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.codeit.sb06.team03.mopl.user.application.in.UpdateProfileCommand;
 import org.codeit.sb06.team03.mopl.user.application.in.UpdateProfileUseCase;
 import org.codeit.sb06.team03.mopl.user.domain.Profile;
@@ -78,7 +78,7 @@ public class UserCompositeService {
         return getAccountUseCase.get(updated.getAccountId().toString());
     }
 
-    public SessionDetails getSessionDetails(UUID watcherId, MoplUserDetails userDetails) {
+    public WatchingSessionResponse getSessionDetails(UUID watcherId, MoplUserDetails userDetails) {
         UserDto userDto = userDetails.getUserDto();
 
         List<WatchingSession> watchingSessions = getWatchingSessionUseCase.get(watcherId);
@@ -88,11 +88,11 @@ public class UserCompositeService {
 
         WatchingSession watchingSession =  watchingSessions.getFirst();
         // liveChatId == contentId 입니다.
-        Content content = getContentUseCase.get(watchingSession.getLiveChatId());
+        ContentReadModel content = getContentUseCase.get(watchingSession.getLiveChatId());
         ContentResult contentResult = contentMapper.toContentResult(content);
-        UserSummary watcher = new UserSummary(userDto.id(), userDto.name(), userDto.profileImageUrl());
+        UserSummaryDto watcher = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profileImageUrl());
 
-        return new SessionDetails(
+        return new WatchingSessionResponse(
                 watchingSession.getId(),
                 watchingSession.getCreatedAt(),
                 watcher,
