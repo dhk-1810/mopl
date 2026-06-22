@@ -18,6 +18,7 @@ import org.codeit.sb06.team03.mopl.user.infra.in.*;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.exception.WatchingSessionNotFoundException;
+import org.springframework.data.domain.Slice;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -81,6 +82,7 @@ public class UserCompositeService {
     public WatchingSessionResponse getSessionDetails(UUID watcherId, MoplUserDetails userDetails) {
         UserDto userDto = userDetails.getUserDto();
 
+        Slice<WatchingSession> slice = getWatchingSessionUseCase.get(watcherId);
         List<WatchingSession> watchingSessions = getWatchingSessionUseCase.get(watcherId);
         if  (watchingSessions.isEmpty()) {
             throw WatchingSessionNotFoundException.fromWatcherId(watcherId);
@@ -89,14 +91,14 @@ public class UserCompositeService {
         WatchingSession watchingSession =  watchingSessions.getFirst();
         // liveChatId == contentId 입니다.
         ContentReadModel content = getContentUseCase.get(watchingSession.getLiveChatId());
-        ContentResult contentResult = contentMapper.toContentResult(content);
+//        ContentResult contentResult = contentMapper.toContentResult(content);
         UserSummaryDto watcher = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profileImageUrl());
 
         return new WatchingSessionResponse(
                 watchingSession.getId(),
                 watchingSession.getCreatedAt(),
                 watcher,
-                contentResult
+                content
         );
     }
 }

@@ -10,7 +10,7 @@ public record CursorResponseContentDto(
         String nextCursor,
         UUID nextIdAfter,
         boolean hasNext,
-        SortDirection sortDirection,
-        SortContentBy sortBy
+        SortContentBy sortBy,
+        SortDirection sortDirection
 ) {
 }

@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.watchingSession.application.in;
 
-import org.codeit.sb06.team03.mopl.content.infra.in.WatchingSessionCursorRequest;
+import org.codeit.sb06.team03.mopl.content.infra.in.CursorWatchingSessionRequest;
 import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
 import org.springframework.data.domain.Slice;
@@ -11,7 +11,7 @@ public interface GetWatchingSessionUseCase {
 
     Slice<WatchingSessionReadModel> get(UUID watcherId);
 
-    Slice<WatchingSessionReadModel> get(UUID contentId, WatchingSessionCursorRequest request);
+    Slice<WatchingSessionReadModel> get(UUID contentId, CursorWatchingSessionRequest request);
 
     WatchingSession get(UUID liveChatId, UUID watcherId);
 

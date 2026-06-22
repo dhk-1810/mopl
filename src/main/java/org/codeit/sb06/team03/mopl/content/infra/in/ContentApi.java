@@ -4,9 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.codeit.sb06.team03.mopl.content.application.in.CursorResponseWatchingSessionDto;
-import org.hibernate.validator.constraints.UUID;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
+
+import java.util.UUID;
 
 public interface ContentApi {
 
@@ -16,10 +17,11 @@ public interface ContentApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<CursorResponseWatchingSessionDto> getWatchingSessions (
-            @UUID(message = "잘못된 UUID 형식입니다.")
-            String contentId,
+
+            UUID contentId,
+
             @Valid
             @ParameterObject
-            WatchingSessionCursorRequest watchingSessionCursorRequest
+            CursorWatchingSessionRequest watchingSessionCursorRequest
     );
 }

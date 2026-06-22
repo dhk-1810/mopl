@@ -8,7 +8,8 @@ import org.hibernate.validator.constraints.UUID;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 
-public record WatchingSessionCursorRequest(
+public record CursorWatchingSessionRequest(
+
         @Schema(description = "시청자 이름", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         String watcherNameLike,
 
@@ -24,22 +25,22 @@ public record WatchingSessionCursorRequest(
         int limit,
 
         @Schema(
-                description = "정렬 방향",
-                defaultValue = "ASCENDING",
-                allowableValues = {"ASCENDING", "DESCENDING"},
-                requiredMode = Schema.RequiredMode.REQUIRED
-        )
-        String sortDirection,
-
-        @Schema(
                 description = "정렬 기준",
                 defaultValue = "createdAt",
                 allowableValues = "createdAt",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
-        String sortBy
+        String sortBy,
+
+        @Schema(
+                description = "정렬 방향",
+                defaultValue = "ASCENDING",
+                allowableValues = {"ASCENDING", "DESCENDING"},
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
+        String sortDirection
 ) {
-    public WatchingSessionCursorRequest {
+    public CursorWatchingSessionRequest {
         if (sortDirection == null) {
             sortDirection = "ASCENDING";
         }

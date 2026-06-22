@@ -5,13 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.composite.ContentCompositeService;
 import org.codeit.sb06.team03.mopl.content.application.in.CursorResponseWatchingSessionDto;
 import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
-import org.codeit.sb06.team03.mopl.content.application.in.WatchingSessionCursorCommand;
 import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
 import org.codeit.sb06.team03.mopl.content.infra.CursorRequestContentDto;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -62,20 +60,9 @@ public class ContentController implements ContentApi {
     @Override
     @GetMapping("/{contentId}/watching-sessions")
     public ResponseEntity<CursorResponseWatchingSessionDto> getWatchingSessions(
-            @PathVariable String contentId,
-            @ModelAttribute WatchingSessionCursorRequest watchingSessionCursorRequest
+            @PathVariable UUID contentId,
+            @ModelAttribute CursorWatchingSessionRequest watchingSessionCursorRequest
     ) {
-//        WatchingSessionCursorCommand watchingSessionCursorCommand =
-//                new WatchingSessionCursorCommand(
-//                        contentId,
-//                        watchingSessionCursorRequest.watcherNameLike(),
-//                        watchingSessionCursorRequest.cursor(),
-//                        watchingSessionCursorRequest.idAfter(),
-//                        watchingSessionCursorRequest.limit(),
-//                        watchingSessionCursorRequest.sortDirection(),
-//                        watchingSessionCursorRequest.sortBy()
-//                );
-
         CursorResponseWatchingSessionDto response = contentCompositeService.getWatchingSessions(contentId, watchingSessionCursorRequest);
         return ResponseEntity.ok(response);
     }

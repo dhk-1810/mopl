@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.watchingSession.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.content.infra.in.WatchingSessionCursorRequest;
+import org.codeit.sb06.team03.mopl.content.infra.in.CursorWatchingSessionRequest;
 import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionCommand;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionUseCase;
@@ -58,12 +58,12 @@ public class WatchingSessionCommandService implements
 
     @Override
     public Slice<WatchingSessionReadModel> get(UUID watcherId) {
-        List<WatchingSession> watchingSession = loadWatchingSessionPort.findByWatcherId(watcherId);
+        Slice<WatchingSession> watchingSession = loadWatchingSessionPort.findByWatcherId(watcherId);
         return WatchingSessionReadModel.from()
     }
 
     @Override
-    public Slice<WatchingSessionReadModel> get(UUID contentId, WatchingSessionCursorRequest request) {
+    public Slice<WatchingSessionReadModel> get(UUID contentId, CursorWatchingSessionRequest request) {
         List<WatchingSession> watchingSessions
         return List.of();
     }

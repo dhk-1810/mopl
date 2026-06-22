@@ -3,6 +3,7 @@ package org.codeit.sb06.team03.mopl.content;
 import org.codeit.sb06.team03.mopl.content.domain.entity.Tag;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -16,7 +17,8 @@ public record ContentReadModel (
         Set<String> tags,
         double averageRating,
         long reviewCount,
-        long watcherCount
+        long watcherCount,
+        Instant createdAt
 ) {
     public static ContentReadModel from(Content content){
         Set<String> tags = content.getTags().stream().map(Tag::getName).collect(Collectors.toSet());
@@ -29,7 +31,8 @@ public record ContentReadModel (
                 tags,
                 content.getAverageRating(),
                 content.getReviewCount(),
-                content.getWatcherCount()
+                content.getWatcherCount(),
+                content.getCreatedAt()
         );
     }
 }

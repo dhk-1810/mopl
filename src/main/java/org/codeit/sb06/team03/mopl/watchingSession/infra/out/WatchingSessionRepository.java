@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.watchingSession.infra.out;
 
 import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface WatchingSessionRepository extends JpaRepository<WatchingSession
 
     int countByLiveChatId(UUID liveChatId);
 
-    List<WatchingSession> findByWatcherId(UUID watcherId);
-
     long countByContentId(UUID contentId);
+
+    Slice<WatchingSession> findByWatcherId(UUID watcherId);
 }

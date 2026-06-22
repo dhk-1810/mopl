@@ -3,6 +3,7 @@ package org.codeit.sb06.team03.mopl.watchingSession.infra.out;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.watchingSession.application.out.LoadWatchingSessionPort;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class LoadWatchingSessionAdapter implements LoadWatchingSessionPort {
     }
 
     @Override
-    public List<WatchingSession> findByWatcherId(UUID watcherId) {
+    public Slice<WatchingSession> findByWatcherId(UUID watcherId) {
         return watchingSessionRepository.findByWatcherId(watcherId);
     }
 
