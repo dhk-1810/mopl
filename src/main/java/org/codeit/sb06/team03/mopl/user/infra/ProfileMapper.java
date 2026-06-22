@@ -11,9 +11,8 @@ import java.util.UUID;
 @Component
 public class ProfileMapper {
 
-    public UpdateProfileCommand toCommand(String userId, UserUpdateRequest request, @Nullable MultipartFile image) {
-        final UUID accountId = UUID.fromString(userId);
+    public UpdateProfileCommand toCommand(UUID userId, UserUpdateRequest request, @Nullable MultipartFile image) {
         final String name = request.name();
-        return new UpdateProfileCommand(accountId, name, image);
+        return new UpdateProfileCommand(userId, name, image);
     }
 }

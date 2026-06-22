@@ -45,7 +45,7 @@ public class UserCompositeService {
         return getAccountUseCase.get(newAccount.getId());
     }
 
-    public void updatePassword(String userId, PasswordUpdateRequest request) {
+    public void updatePassword(UUID userId, PasswordUpdateRequest request) {
         UpdatePasswordCommand command = accountMapper.toCommand(request);
         updatePasswordUseCase.updatePassword(userId, command);
     }
@@ -69,7 +69,7 @@ public class UserCompositeService {
         return getAccountUseCase.get(userId);
     }
 
-    public UserDto updateProfile(String userId, UserUpdateRequest request, @Nullable MultipartFile image) {
+    public UserDto updateProfile(UUID userId, UserUpdateRequest request, @Nullable MultipartFile image) {
         UpdateProfileCommand command = profileMapper.toCommand(userId, request, image);
         Profile updated = updateProfileUseCase.update(command);
         return getAccountUseCase.get(updated.getAccountId());

@@ -4,12 +4,13 @@ import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.content.SortContentBy;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public record CursorRequestContentDto (
         String typeEqual,
         String keywordLike,
-        List<Object> tagsIn, // TODO 확인 필요
+        Set<String> tagsIn, // TODO 확인 필요
         String cursor,
         UUID idAfter,
         int limit,

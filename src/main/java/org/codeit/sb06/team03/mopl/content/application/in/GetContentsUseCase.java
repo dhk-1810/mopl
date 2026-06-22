@@ -6,5 +6,5 @@ import org.springframework.data.domain.Slice;
 
 public interface GetContentsUseCase {
 
-    Slice<ContentReadModel> get(CursorRequestContentDto request);
+    Slice<ContentReadModel> getAll(CursorRequestContentDto request);
 }

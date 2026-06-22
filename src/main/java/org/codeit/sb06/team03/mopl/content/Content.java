@@ -11,6 +11,7 @@ import org.codeit.sb06.team03.mopl.content.domain.entity.Tag;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -73,4 +74,29 @@ public class Content {
     @NotNull
     @Column(name = "watcher_count", nullable = false)
     private long watcherCount;
+
+    private Content(ContentType type, String title, String description, Set<Tag> tags, String thumbnailUrl) {
+        this.type = type;
+        this.title = title;
+        this.description = description;
+        this.tags = tags;
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public static Content create(ContentType contentType, String title, String description, Set<Tag> tags, String thumbnailUrl) {
+        return new Content(
+                contentType,
+                title,
+                description,
+                tags,
+                thumbnailUrl
+        );
+    }
+
+    public void update(String title, String description, Set<Tag> tags, String thumbnailUrl) {
+        this.title = title;
+        this.description = description;
+        this.tags = tags;
+        this.thumbnailUrl = thumbnailUrl;
+    }
 }

@@ -4,7 +4,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.application.in.GetAccountUseCase;
 import org.codeit.sb06.team03.mopl.account.application.out.LoadAccountPort;
+import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.exception.AccountNotFoundException;
+import org.codeit.sb06.team03.mopl.user.application.out.LoadProfilePort;
+import org.codeit.sb06.team03.mopl.user.domain.Profile;
+import org.codeit.sb06.team03.mopl.user.domain.exception.ProfileNotFoundException;
 import org.codeit.sb06.team03.mopl.user.infra.in.CursorRequestUserDto;
 import org.codeit.sb06.team03.mopl.user.infra.in.CursorResponseUserDto;
 import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
@@ -22,6 +26,7 @@ import static org.codeit.sb06.team03.mopl.user.infra.in.CursorResponseUserDto.So
 public class AccountQueryService implements GetAccountUseCase {
 
     private final LoadAccountPort loadAccountPort;
+    private final LoadProfilePort loadProfilePort;
 
     @Override
     public CursorResponseUserDto get(CursorRequestUserDto request) {
@@ -92,7 +97,10 @@ public class AccountQueryService implements GetAccountUseCase {
 
     @Override
     public UserDto get(UUID accountId) {
-        return loadAccountPort.findById(accountId)
+        Account account = loadAccountPort.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
+        Profile profile = loadProfilePort.load(accountId) // TODO 이게 뭔 뻘짓인지..
+                .orElseThrow(() -> new ProfileNotFoundException(accountId));
+        return UserDto.from(account, profile);
     }
 }

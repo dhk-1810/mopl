@@ -68,19 +68,18 @@ public class AccountCommandService implements RegisterAccountUseCase, AssignRole
 
     @Override
     @Transactional
-    public void updatePassword(String accountId, UpdatePasswordCommand command) {
+    public void updatePassword(UUID accountId, UpdatePasswordCommand command) {
 
         // 불러오기
-        final UUID accountUUID = parseUUID(accountId);
-        Account account = loadAccountPort.findById(accountUUID)
-                .orElseThrow(() -> new AccountNotFoundException(accountUUID));
+        Account account = loadAccountPort.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
 
         // 새 비밀번호로 변경
         accountService.updatePassword(account, command.newPassword());
 
         // 저장, 임시 비밀번호 삭제
         saveAccountPort.save(account);
-        deletePasswordResetPort.deleteByAccountId(accountUUID);
+        deletePasswordResetPort.deleteByAccountId(accountId);
     }
 
     @Override

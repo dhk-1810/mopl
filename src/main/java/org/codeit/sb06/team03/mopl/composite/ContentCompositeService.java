@@ -84,7 +84,7 @@ public class ContentCompositeService {
 
     public ContentDto update(UUID contentId, ContentUpdateRequest request) {
 
-        ContentReadModel readModel = updateContentUseCase.update(request);
+        ContentReadModel readModel = updateContentUseCase.update(contentId, request);
 //        long watcherCount = getWatchingSessionUseCase.getByContentId();
         return ContentDto.from(readModel, 0);
     }

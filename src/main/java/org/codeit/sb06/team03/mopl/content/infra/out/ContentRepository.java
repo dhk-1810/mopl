@@ -9,6 +9,7 @@ import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.content.Content;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
+import org.codeit.sb06.team03.mopl.content.SortContentBy;
 import org.codeit.sb06.team03.mopl.content.domain.entity.Tag;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 import org.springframework.data.domain.*;
@@ -16,10 +17,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.lang.Nullable;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.codeit.sb06.team03.mopl.account.domain.QAccount.account;
 import static org.codeit.sb06.team03.mopl.content.QContent.content;
@@ -39,12 +37,12 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
     default Slice<ContentReadModel> findAll(
             String typeEqual,
             String keywordLike,
-            List<String> tagsIn,
+            Set<String> tagsIn,
             String cursor,
             UUID idAfter,
             int limit,
-            SortDirection sortDirection,
-            String sortBy
+            SortContentBy sortBy,
+            SortDirection sortDirection
     ) {
         Predicate[] predicates = {
                 keywordLikePredicate(keywordLike),

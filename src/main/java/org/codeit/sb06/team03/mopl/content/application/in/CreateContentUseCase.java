@@ -5,6 +5,6 @@ import org.codeit.sb06.team03.mopl.content.infra.in.ContentCreateRequest;
 
 public interface CreateContentUseCase {
 
-    ContentReadModel create(ContentCreateRequest request);
+    ContentReadModel create(ContentCreateRequest request, String thumbnailUrl);
 
 }

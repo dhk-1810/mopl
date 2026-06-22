@@ -90,7 +90,7 @@ public class UserController implements UserApi {
             @PathVariable UUID watcherId,
             @AuthenticationPrincipal MoplUserDetails userDetails
     ) {
-        WatchingSessionResponse sessionDetails = userCompositeService.getWatchingSession(watcherUuid, userDetails);
+        WatchingSessionResponse sessionDetails = userCompositeService.getWatchingSession(watcherId, userDetails);
         return ResponseEntity.ok(sessionDetails);
     }
 }
