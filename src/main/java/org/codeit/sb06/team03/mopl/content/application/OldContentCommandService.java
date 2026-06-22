@@ -3,6 +3,7 @@ package org.codeit.sb06.team03.mopl.content.application;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.SessionDetails;
 import org.codeit.sb06.team03.mopl.content.Content;
+import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.application.in.CursorResponseWatchingSessionDto;
 import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.content.application.in.WatchingSessionCursorCommand;
@@ -22,9 +23,10 @@ public class OldContentCommandService implements GetContentUseCase {
     private final LoadContentPort loadContentPort;
 
     @Override
-    public Content get(UUID contentId) {
-        return loadContentPort.findByIdWithTags(contentId)
+    public ContentReadModel get(UUID contentId) {
+        Content content = loadContentPort.findByIdWithTags(contentId)
                 .orElseThrow(() -> ContentNotFoundException.fromId(contentId));
+        return ContentReadModel.from(content);
     }
 
     @Override

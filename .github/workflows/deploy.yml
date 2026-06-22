@@ -69,7 +69,7 @@ jobs:
           task-definition-family: ${{ env.ECS_TASK_FAMILY }}
           container-name: ${{ env.ECS_CONTAINER_NAME }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
-            
+
       # 수정된 Task Definition 등록, ECS 서비스 재배포.
       - name: Deploy ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2

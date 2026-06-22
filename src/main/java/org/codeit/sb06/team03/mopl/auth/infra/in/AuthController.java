@@ -1,18 +1,12 @@
 package org.codeit.sb06.team03.mopl.auth.infra.in;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.composite.AuthCompositeService;
 import org.codeit.sb06.team03.mopl.common.security.jwt.*;
 import org.codeit.sb06.team03.mopl.common.security.jwt.exception.InvalidTokenException;
 import org.codeit.sb06.team03.mopl.common.security.jwt.registry.JwtRegistry;
 import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController

@@ -8,6 +8,7 @@ import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.content.application.in.WatchingSessionCursorCommand;
 import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
 import org.codeit.sb06.team03.mopl.content.infra.CursorRequestContentDto;
+import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
@@ -22,6 +23,7 @@ public class ContentController implements ContentApi {
 
     private final ContentCompositeService contentCompositeService;
     private final GetContentUseCase getContentUseCase;
+    private final GetWatchingSessionUseCase getWatchingSessionUseCase;
 
     @GetMapping
     public ResponseEntity<CursorResponseContentDto> getContents(@ModelAttribute CursorRequestContentDto request){
@@ -63,19 +65,18 @@ public class ContentController implements ContentApi {
             @PathVariable String contentId,
             @ModelAttribute WatchingSessionCursorRequest watchingSessionCursorRequest
     ) {
-        WatchingSessionCursorCommand watchingSessionCursorCommand =
-                new WatchingSessionCursorCommand(
-                        contentId,
-                        watchingSessionCursorRequest.watcherNameLike(),
-                        watchingSessionCursorRequest.cursor(),
-                        watchingSessionCursorRequest.idAfter(),
-                        watchingSessionCursorRequest.limit(),
-                        watchingSessionCursorRequest.sortDirection(),
-                        watchingSessionCursorRequest.sortBy()
-                );
+//        WatchingSessionCursorCommand watchingSessionCursorCommand =
+//                new WatchingSessionCursorCommand(
+//                        contentId,
+//                        watchingSessionCursorRequest.watcherNameLike(),
+//                        watchingSessionCursorRequest.cursor(),
+//                        watchingSessionCursorRequest.idAfter(),
+//                        watchingSessionCursorRequest.limit(),
+//                        watchingSessionCursorRequest.sortDirection(),
+//                        watchingSessionCursorRequest.sortBy()
+//                );
 
-        CursorResponseWatchingSessionDto response = getContentUseCase.get(watchingSessionCursorCommand);
-
+        CursorResponseWatchingSessionDto response = contentCompositeService.getWatchingSessions(contentId, watchingSessionCursorRequest);
         return ResponseEntity.ok(response);
     }
 }

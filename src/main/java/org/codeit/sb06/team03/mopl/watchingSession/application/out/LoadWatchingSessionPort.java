@@ -13,4 +13,6 @@ public interface LoadWatchingSessionPort {
     List<WatchingSession> findByWatcherId(UUID watcherId);
 
     Optional<WatchingSession> findByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId);
+
+    long countByContentId(UUID contentId);
 }

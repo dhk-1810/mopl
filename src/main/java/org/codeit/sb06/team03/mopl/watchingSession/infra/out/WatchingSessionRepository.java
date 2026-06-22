@@ -18,4 +18,6 @@ public interface WatchingSessionRepository extends JpaRepository<WatchingSession
     int countByLiveChatId(UUID liveChatId);
 
     List<WatchingSession> findByWatcherId(UUID watcherId);
+
+    long countByContentId(UUID contentId);
 }

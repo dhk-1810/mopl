@@ -29,4 +29,9 @@ public class LoadWatchingSessionAdapter implements LoadWatchingSessionPort {
     public Optional<WatchingSession> findByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId) {
         return watchingSessionRepository.findByLiveChatIdAndWatcherId(liveChatId, watcherId);
     }
+
+    @Override
+    public long countByContentId(UUID contentId) {
+        return watchingSessionRepository.countByContentId(contentId);
+    }
 }

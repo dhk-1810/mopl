@@ -64,5 +64,8 @@ public class WatchingSessionCommandService implements
                 .orElseThrow(() -> WatchingSessionNotFoundException.fromLiveChatIdAndWatcherId(liveChatId, watcherId));
     }
 
-
+    @Override
+    public long countByContentId(UUID contentId) {
+        return loadWatchingSessionPort.countByContentId(contentId);
+    }
 }
