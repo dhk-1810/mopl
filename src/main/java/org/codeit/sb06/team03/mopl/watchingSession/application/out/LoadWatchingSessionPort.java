@@ -11,7 +11,7 @@ public interface LoadWatchingSessionPort {
 
     boolean existsByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId);
 
-    Slice<WatchingSession> findByWatcherId(UUID watcherId);
+    WatchingSession findByWatcherId(UUID watcherId);
 
     Optional<WatchingSession> findByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId);
 

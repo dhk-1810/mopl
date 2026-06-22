@@ -20,5 +20,5 @@ public interface WatchingSessionRepository extends JpaRepository<WatchingSession
 
     long countByContentId(UUID contentId);
 
-    Slice<WatchingSession> findByWatcherId(UUID watcherId);
+    WatchingSession findByWatcherId(UUID watcherId);
 }

@@ -31,7 +31,7 @@ public class UserController implements UserApi {
 
     @Override
     @PatchMapping("/{userId}/password")
-    public ResponseEntity<Void> updatePassword(@PathVariable String userId, @RequestBody PasswordUpdateRequest request){
+    public ResponseEntity<Void> updatePassword(@PathVariable UUID userId, @RequestBody PasswordUpdateRequest request){
         userCompositeService.updatePassword(userId, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 
@@ -40,11 +40,10 @@ public class UserController implements UserApi {
     @PatchMapping("/{userId}/role")
     @RolesAllowed("ADMIN")
     public ResponseEntity<Void> patchUsersRole(
-            @PathVariable(name = "userId") String userId,
+            @PathVariable(name = "userId") UUID userId,
             @RequestBody UserRoleUpdateRequest request
     ) {
-        UUID userUuid = UUID.fromString(userId);
-        userCompositeService.assignUserRole(userUuid, request);
+        userCompositeService.assignUserRole(userId, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -52,11 +51,10 @@ public class UserController implements UserApi {
     @PatchMapping("/{userId}/locked")
     @RolesAllowed("ADMIN")
     public ResponseEntity<Void> patchUsersLockStatus(
-            @PathVariable(name = "userId") String userId,
+            @PathVariable(name = "userId") UUID userId,
             @RequestBody UserLockUpdateRequest request
     ) {
-        UUID userUuid = UUID.fromString(userId);
-        userCompositeService.updateUserLockStatus(userUuid, request);
+        userCompositeService.updateUserLockStatus(userId, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -70,7 +68,7 @@ public class UserController implements UserApi {
 
     @Override
     @GetMapping("/{userId}")
-    public ResponseEntity<UserDto> getUsersById(@PathVariable String userId) {
+    public ResponseEntity<UserDto> getUsersById(@PathVariable UUID userId) {
         UserDto response = userCompositeService.getUser(userId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -78,7 +76,7 @@ public class UserController implements UserApi {
     @Override
     @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserDto> patchUserProfile(
-            @PathVariable String userId,
+            @PathVariable UUID userId,
             @RequestPart UserUpdateRequest request,
             @Nullable @RequestPart(required = false) MultipartFile image
     ) {
@@ -89,13 +87,10 @@ public class UserController implements UserApi {
     @Override
     @GetMapping("/{watcherId}/watching-sessions")
     public ResponseEntity<WatchingSessionResponse> getSessionDetails(
-            @PathVariable String watcherId,
+            @PathVariable UUID watcherId,
             @AuthenticationPrincipal MoplUserDetails userDetails
     ) {
-        UUID watcherUuid = UUID.fromString(watcherId);
-
-        WatchingSessionResponse sessionDetails = userCompositeService.getSessionDetails(watcherUuid, userDetails);
-
+        WatchingSessionResponse sessionDetails = userCompositeService.getWatchingSession(watcherUuid, userDetails);
         return ResponseEntity.ok(sessionDetails);
     }
 }

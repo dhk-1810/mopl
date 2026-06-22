@@ -11,13 +11,14 @@ import jakarta.validation.Valid;
 import org.codeit.sb06.team03.mopl.common.WatchingSessionResponse;
 import org.codeit.sb06.team03.mopl.common.error.ErrorResponse;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
-import org.hibernate.validator.constraints.UUID;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.UUID;
 
 @Tag(name = "사용자 관리")
 @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -32,21 +33,21 @@ public interface UserApi {
 
     @Operation(summary = "사용자 비밀번호 수정")
     ResponseEntity<Void> updatePassword(
-            @PathVariable String userId,
+            @PathVariable UUID userId,
             @RequestBody(required = true) @Valid PasswordUpdateRequest request
     );
 
     @Operation(summary = "[어드민] 권한 수정")
     @ApiResponse(responseCode = "204", description = "성공")
     ResponseEntity<Void> patchUsersRole(
-            @UUID(message = "잘못된 UUID 형식입니다.") String userId,
+            UUID userId,
             @RequestBody(required = true) UserRoleUpdateRequest request
     );
 
     @Operation(summary = "[어드민] 계정 잠금 상태 변경")
     @ApiResponse(responseCode = "204", description = "성공")
     ResponseEntity<Void> patchUsersLockStatus(
-            @UUID(message = "잘못된 UUID 형식입니다.") String userId,
+            UUID userId,
             @RequestBody(required = true) UserLockUpdateRequest request
     );
 
@@ -57,12 +58,12 @@ public interface UserApi {
     @Operation(summary = "사용자 상세 조회")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "404", description = "해당 리소스 없음")
-    ResponseEntity<UserDto> getUsersById(@UUID String userId);
+    ResponseEntity<UserDto> getUsersById(UUID userId);
 
     @Operation(summary = "프로필 변경", description = "본인의 프로필만 변경할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     ResponseEntity<UserDto> patchUserProfile(
-            @UUID String userId,
+            UUID userId,
             @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @Valid UserUpdateRequest request,
             @Nullable MultipartFile image
     );
@@ -73,8 +74,7 @@ public interface UserApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<WatchingSessionResponse> getSessionDetails (
-            @UUID(message = "잘못된 UUID 형식입니다.")
-            String WatcherId,
+            UUID WatcherId,
             MoplUserDetails userDetails
     );
 }

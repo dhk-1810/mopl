@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.application.in.*;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.common.ContentMapper;
-import org.codeit.sb06.team03.mopl.common.ContentResult;
 import org.codeit.sb06.team03.mopl.common.WatchingSessionResponse;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
@@ -15,15 +14,12 @@ import org.codeit.sb06.team03.mopl.user.application.in.UpdateProfileUseCase;
 import org.codeit.sb06.team03.mopl.user.domain.Profile;
 import org.codeit.sb06.team03.mopl.user.infra.ProfileMapper;
 import org.codeit.sb06.team03.mopl.user.infra.in.*;
+import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
-import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
-import org.codeit.sb06.team03.mopl.watchingSession.domain.exception.WatchingSessionNotFoundException;
-import org.springframework.data.domain.Slice;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -46,7 +42,7 @@ public class UserCompositeService {
         RegisterAccountCommand command = accountMapper.toCommand(request);
         Account newAccount = registerAccountUseCase.register(command);
 
-        return getAccountUseCase.get(newAccount.getId().toString());
+        return getAccountUseCase.get(newAccount.getId());
     }
 
     public void updatePassword(String userId, PasswordUpdateRequest request) {
@@ -69,34 +65,26 @@ public class UserCompositeService {
         return getAccountUseCase.get(request);
     }
 
-    public UserDto getUser(String userId) {
+    public UserDto getUser(UUID userId) {
         return getAccountUseCase.get(userId);
     }
 
     public UserDto updateProfile(String userId, UserUpdateRequest request, @Nullable MultipartFile image) {
         UpdateProfileCommand command = profileMapper.toCommand(userId, request, image);
         Profile updated = updateProfileUseCase.update(command);
-        return getAccountUseCase.get(updated.getAccountId().toString());
+        return getAccountUseCase.get(updated.getAccountId());
     }
 
-    public WatchingSessionResponse getSessionDetails(UUID watcherId, MoplUserDetails userDetails) {
-        UserDto userDto = userDetails.getUserDto();
+    public WatchingSessionResponse getWatchingSession(UUID watcherId, MoplUserDetails userDetails) {
 
-        Slice<WatchingSession> slice = getWatchingSessionUseCase.get(watcherId);
-        List<WatchingSession> watchingSessions = getWatchingSessionUseCase.get(watcherId);
-        if  (watchingSessions.isEmpty()) {
-            throw WatchingSessionNotFoundException.fromWatcherId(watcherId);
-        }
-
-        WatchingSession watchingSession =  watchingSessions.getFirst();
-        // liveChatId == contentId 입니다.
-        ContentReadModel content = getContentUseCase.get(watchingSession.getLiveChatId());
-//        ContentResult contentResult = contentMapper.toContentResult(content);
-        UserSummaryDto watcher = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profileImageUrl());
+        // TODO 자발/강제 로그아웃 시 워칭세션 삭제
+        WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.get(watcherId);
+        ContentReadModel content = getContentUseCase.get(watchingSession.liveChatId());
+        UserSummaryDto watcher = UserSummaryDto.from(userDetails.getUserDto());
 
         return new WatchingSessionResponse(
-                watchingSession.getId(),
-                watchingSession.getCreatedAt(),
+                watchingSession.id(),
+                watchingSession.createdAt(),
                 watcher,
                 content
         );

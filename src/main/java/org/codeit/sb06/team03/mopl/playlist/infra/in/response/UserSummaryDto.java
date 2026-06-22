@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.playlist.infra.in.response;
 
 import org.codeit.sb06.team03.mopl.user.domain.Profile;
+import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 
 import java.util.UUID;
 
@@ -17,6 +18,12 @@ public record UserSummaryDto (
                 profile.getAccountId(),
                 profile.getName(),
                 profileImageUrl
+        );
+    }
+
+    public static UserSummaryDto from(UserDto userDto) {
+        return new UserSummaryDto(
+                userDto.id(), userDto.name(), userDto.profileImageUrl()
         );
     }
 }

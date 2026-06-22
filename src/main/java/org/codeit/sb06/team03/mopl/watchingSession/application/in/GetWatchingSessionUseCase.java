@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface GetWatchingSessionUseCase {
 
-    Slice<WatchingSessionReadModel> get(UUID watcherId);
+    WatchingSessionReadModel get(UUID watcherId);
 
     Slice<WatchingSessionReadModel> get(UUID contentId, CursorWatchingSessionRequest request);
 

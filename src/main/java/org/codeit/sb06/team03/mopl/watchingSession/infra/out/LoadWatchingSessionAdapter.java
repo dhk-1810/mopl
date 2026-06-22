@@ -22,7 +22,7 @@ public class LoadWatchingSessionAdapter implements LoadWatchingSessionPort {
     }
 
     @Override
-    public Slice<WatchingSession> findByWatcherId(UUID watcherId) {
+    public WatchingSession findByWatcherId(UUID watcherId) {
         return watchingSessionRepository.findByWatcherId(watcherId);
     }
 

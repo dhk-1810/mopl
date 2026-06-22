@@ -12,6 +12,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.codeit.sb06.team03.mopl.user.infra.in.CursorResponseUserDto.SortOrder;
 
@@ -90,7 +91,7 @@ public class AccountQueryService implements GetAccountUseCase {
     }
 
     @Override
-    public UserDto get(String accountId) {
+    public UserDto get(UUID accountId) {
         return loadAccountPort.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
     }
