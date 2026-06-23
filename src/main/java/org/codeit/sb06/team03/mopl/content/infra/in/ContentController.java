@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.content.infra.in;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.composite.ContentCompositeService;
-import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
+import org.codeit.sb06.team03.mopl.content.application.in.GetSingleContentUseCase;
 import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
 import org.codeit.sb06.team03.mopl.content.infra.CursorRequestContentDto;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
@@ -20,7 +20,7 @@ import java.util.UUID;
 public class ContentController {
 
     private final ContentCompositeService contentCompositeService;
-    private final GetContentUseCase getContentUseCase;
+    private final GetSingleContentUseCase getSingleContentUseCase;
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
 
     @GetMapping

@@ -43,7 +43,6 @@ public class PlaylistCompositeService {
 
     private final GetProfileUseCase getProfileUseCase;
     private final GetSubscriptionUseCase getSubscriptionUseCase;
-//    private final GetContentUseCase getContentUseCase;
 
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
 

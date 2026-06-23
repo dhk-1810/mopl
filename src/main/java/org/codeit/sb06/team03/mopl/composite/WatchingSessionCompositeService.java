@@ -6,7 +6,7 @@ import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.application.in.CursorResponseWatchingSessionDto;
-import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
+import org.codeit.sb06.team03.mopl.content.application.in.GetSingleContentUseCase;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorWatchingSessionRequest;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.codeit.sb06.team03.mopl.user.application.in.GetProfileUseCase;
@@ -24,14 +24,14 @@ import java.util.UUID;
 public class WatchingSessionCompositeService {
 
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
-    private final GetContentUseCase getContentUseCase;
+    private final GetSingleContentUseCase getSingleContentUseCase;
     private final GetProfileUseCase getProfileUseCase;
 
     public WatchingSessionDto getWatchingSession(UUID watcherId, MoplUserDetails userDetails) {
 
         // TODO 자발/강제 로그아웃 시 워칭세션 삭제
         WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.get(watcherId);
-        ContentReadModel content = getContentUseCase.get(watchingSession.liveChatId());
+        ContentReadModel content = getSingleContentUseCase.get(watchingSession.liveChatId());
         UserSummaryDto watcher = UserSummaryDto.from(userDetails.getUserDto());
 
         return new WatchingSessionDto(
@@ -50,7 +50,7 @@ public class WatchingSessionCompositeService {
         List<UUID> watcherIds = watchingSessions.stream().map(WatchingSessionReadModel::watcherId).toList();
         Map<UUID, UserSummaryDto> watchers = getProfileUseCase.getUserSummaries(watcherIds);
 
-        ContentReadModel content = getContentUseCase.get(contentId);
+        ContentReadModel content = getSingleContentUseCase.get(contentId);
 
         List<WatchingSessionDto> response = watchingSessions.stream()
                 .map(rm -> new WatchingSessionDto(

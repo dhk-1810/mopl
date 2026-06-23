@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 public class ContentCompositeService {
 
     private final GetContentsUseCase getContentsUseCase;
-    private final GetContentUseCase getContentUseCase;
     private final GetSingleContentUseCase getSingleContentUseCase;
     // 추가
     private final CreateContentUseCase createContentUseCase;
