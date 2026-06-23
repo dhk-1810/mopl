@@ -12,7 +12,10 @@ import org.codeit.sb06.team03.mopl.content.domain.entity.Tag;
 import org.codeit.sb06.team03.mopl.content.domain.exception.ContentNotFoundException;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentCreateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentUpdateRequest;
+import org.codeit.sb06.team03.mopl.s3.S3Service;
+import org.codeit.sb06.team03.mopl.user.domain.policy.ProfileImageKeyGenerationPolicy;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.Set;
@@ -24,17 +27,20 @@ public class ContentCommandService implements CreateContentUseCase, UpdateConten
 
     private final LoadContentPort loadContentPort;
     private final SaveContentPort saveContentPort;
+    private final S3Service s3Service;
 
     @Override
-    public ContentReadModel create(ContentCreateRequest request, String thumbnailUrl) {
+    public ContentReadModel create(ContentCreateRequest request, MultipartFile thumbnail) {
 
         Set<Tag> tags = Collections.emptySet(); // TODO
+        s3Service.uploadFile(, thumbnail);
+
         Content content = Content.create(
                 request.type(),
                 request.title(),
                 request.description(),
                 tags,
-                thumbnailUrl
+                key
         );
         saveContentPort.save(content);
         return ContentReadModel.from(content);

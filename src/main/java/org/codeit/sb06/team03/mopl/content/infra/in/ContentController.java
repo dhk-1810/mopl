@@ -3,7 +3,6 @@ package org.codeit.sb06.team03.mopl.content.infra.in;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.composite.ContentCompositeService;
-import org.codeit.sb06.team03.mopl.content.application.in.CursorResponseWatchingSessionDto;
 import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
 import org.codeit.sb06.team03.mopl.content.infra.CursorRequestContentDto;
@@ -17,7 +16,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/contents")
 @RequiredArgsConstructor
-public class ContentController implements ContentApi {
+public class ContentController {
 
     private final ContentCompositeService contentCompositeService;
     private final GetContentUseCase getContentUseCase;
@@ -54,16 +53,5 @@ public class ContentController implements ContentApi {
     public ResponseEntity<Void> delete(@PathVariable UUID contentId){
         contentCompositeService.delete(contentId);
         return ResponseEntity.noContent().build();
-    }
-
-
-    @Override
-    @GetMapping("/{contentId}/watching-sessions")
-    public ResponseEntity<CursorResponseWatchingSessionDto> getWatchingSessions(
-            @PathVariable UUID contentId,
-            @ModelAttribute CursorWatchingSessionRequest watchingSessionCursorRequest
-    ) {
-        CursorResponseWatchingSessionDto response = contentCompositeService.getWatchingSessions(contentId, watchingSessionCursorRequest);
-        return ResponseEntity.ok(response);
     }
 }

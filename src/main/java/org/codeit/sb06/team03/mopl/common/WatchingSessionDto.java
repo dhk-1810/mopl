@@ -6,8 +6,7 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import java.time.Instant;
 import java.util.UUID;
 
-// TODO 뭐여이건
-public record WatchingSessionResponse(
+public record WatchingSessionDto(
         UUID id,
         Instant createdAt,
         UserSummaryDto watcher,

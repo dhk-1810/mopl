@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.liveChat.infra.out;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.ContentResult;
-import org.codeit.sb06.team03.mopl.common.WatchingSessionResponse;
+import org.codeit.sb06.team03.mopl.common.WatchingSessionDto;
 import org.codeit.sb06.team03.mopl.liveChat.application.out.SendMessagePort;
 import org.codeit.sb06.team03.mopl.liveChat.application.out.query.SendLiveChatMessageQuery;
 import org.codeit.sb06.team03.mopl.liveChat.application.out.query.SendPresenceMessageQuery;
@@ -21,7 +21,7 @@ public class SendMessageAdapter implements SendMessagePort {
         UserSummaryDto userSummary = sendPresenceMessageQuery.userSummary();
         ContentResult contentResult = sendPresenceMessageQuery.contentResult();
 
-        WatchingSessionResponse sessionDetails = new WatchingSessionResponse(
+        WatchingSessionDto sessionDetails = new WatchingSessionDto(
                 sendPresenceMessageQuery.watchingSessionId(),
                 sendPresenceMessageQuery.watchingSessionCreatedAt(),
                 userSummary,

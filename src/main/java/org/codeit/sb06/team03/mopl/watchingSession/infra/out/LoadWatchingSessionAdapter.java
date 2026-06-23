@@ -1,6 +1,8 @@
 package org.codeit.sb06.team03.mopl.watchingSession.infra.out;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.common.WatchingSessionDto;
+import org.codeit.sb06.team03.mopl.content.application.out.WatchingSessionSearchCondition;
 import org.codeit.sb06.team03.mopl.watchingSession.application.out.LoadWatchingSessionPort;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
 import org.springframework.data.domain.Slice;
@@ -22,11 +24,6 @@ public class LoadWatchingSessionAdapter implements LoadWatchingSessionPort {
     }
 
     @Override
-    public WatchingSession findByWatcherId(UUID watcherId) {
-        return watchingSessionRepository.findByWatcherId(watcherId);
-    }
-
-    @Override
     public Optional<WatchingSession> findByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId) {
         return watchingSessionRepository.findByLiveChatIdAndWatcherId(liveChatId, watcherId);
     }
@@ -34,5 +31,15 @@ public class LoadWatchingSessionAdapter implements LoadWatchingSessionPort {
     @Override
     public long countByContentId(UUID contentId) {
         return watchingSessionRepository.countByContentId(contentId);
+    }
+
+    @Override
+    public Optional<WatchingSession> findByWatcherId(UUID watcherId) {
+        return watchingSessionRepository.findByWatcherId(watcherId);
+    }
+
+    @Override
+    public Slice<WatchingSession> findByContentId(WatchingSessionSearchCondition condition) {
+        return watchingSessionRepository.findByContentId(condition);
     }
 }

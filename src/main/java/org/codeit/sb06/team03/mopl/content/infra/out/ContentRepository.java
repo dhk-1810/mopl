@@ -75,7 +75,7 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
         return new SliceImpl<>(contents, PageRequest.ofSize(limit), hasNext);
     }
 
-//    default List<WatchingSessionResponse> findSessionsDetails(WatchingSessionCursorQuery query) {
+//    default List<WatchingSessionDto> findSessionsDetails(WatchingSessionSearchCondition query) {
 //        OrderSpecifier<Instant> primaryOrder = getPrimaryOrder(query.sortDirection());
 //        OrderSpecifier<UUID> secondaryOrder = getSecondaryOrder(query.sortDirection());
 //
@@ -251,12 +251,12 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
 //        return (double) ratingSum / reviewCount;
 //    }
 
-//    private WatchingSessionResponse combineSessionDetails(Tuple tuple, List<String> tags) {
+//    private WatchingSessionDto combineSessionDetails(Tuple tuple, List<String> tags) {
 //        UUID contentId = tuple.get(content.id);
 //        long ratingSum = tuple.get(reviewStats.ratingSum);
 //        int reviewCount = tuple.get(reviewStats.reviewCount);
 //
-//        return new WatchingSessionResponse(
+//        return new WatchingSessionDto(
 //                tuple.get(watchingSession.id),
 //                tuple.get(watchingSession.createdAt),
 //                new UserSummaryDto(

@@ -65,10 +65,10 @@ public class WatchingSessionCommandService implements
 
     @Override
     public Slice<WatchingSessionReadModel> get(UUID contentId, CursorWatchingSessionRequest request) {
-        List<WatchingSession> watchingSessions
-        return List.of();
-    }
+        Slice<WatchingSession> loadWatchingSessionPort.findByContentId();
 
+        return
+    }
     @Override
     public WatchingSession get(UUID liveChatId, UUID watcherId) {
         return loadWatchingSessionPort.findByLiveChatIdAndWatcherId(liveChatId, watcherId)

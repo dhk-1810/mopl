@@ -1,14 +1,16 @@
 package org.codeit.sb06.team03.mopl.watchingSession.infra.out;
 
+import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
+import org.codeit.sb06.team03.mopl.content.application.out.WatchingSessionSearchCondition;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface WatchingSessionRepository extends JpaRepository<WatchingSession, UUID> {
+public interface WatchingSessionRepository extends QuerydslJpaRepository<WatchingSession, UUID> {
 
     boolean existsByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId);
 
@@ -20,5 +22,12 @@ public interface WatchingSessionRepository extends JpaRepository<WatchingSession
 
     long countByContentId(UUID contentId);
 
-    WatchingSession findByWatcherId(UUID watcherId);
+    Optional<WatchingSession> findByWatcherId(UUID watcherId);
+
+    default Slice<WatchingSession> findByContentId(WatchingSessionSearchCondition condition) {
+        return select()
+                .from()
+                .where()
+
+    }
 }

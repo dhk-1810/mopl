@@ -11,7 +11,6 @@ import org.codeit.sb06.team03.mopl.content.domain.entity.Tag;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,8 +45,8 @@ public class Content {
     private String description;
 
     @NotNull
-    @Column(name = "thumbnail_url", nullable = false)
-    private String thumbnailUrl;
+    @Column(name = "thumbnail_key", nullable = false)
+    private String thumbnailKey;
 
     @ManyToMany
     @JoinTable(
@@ -75,12 +74,14 @@ public class Content {
     @Column(name = "watcher_count", nullable = false)
     private long watcherCount;
 
-    private Content(ContentType type, String title, String description, Set<Tag> tags, String thumbnailUrl) {
+    private Content(ContentType type, String title, String description, Set<Tag> tags, String thumbnailKey) {
         this.type = type;
         this.title = title;
         this.description = description;
         this.tags = tags;
-        this.thumbnailUrl = thumbnailUrl;
+        this.thumbnailKey = thumbnailKey;
+        this.watcherCount = 0;
+        this.reviewCount = 0;
     }
 
     public static Content create(ContentType contentType, String title, String description, Set<Tag> tags, String thumbnailUrl) {
@@ -97,6 +98,6 @@ public class Content {
         this.title = title;
         this.description = description;
         this.tags = tags;
-        this.thumbnailUrl = thumbnailUrl;
+        this.thumbnailKey = thumbnailKey;
     }
 }

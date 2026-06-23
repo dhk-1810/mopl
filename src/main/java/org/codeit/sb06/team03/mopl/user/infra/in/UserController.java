@@ -2,8 +2,8 @@ package org.codeit.sb06.team03.mopl.user.infra.in;
 
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.common.WatchingSessionDto;
 import org.codeit.sb06.team03.mopl.composite.UserCompositeService;
-import org.codeit.sb06.team03.mopl.common.WatchingSessionResponse;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -82,15 +82,5 @@ public class UserController implements UserApi {
     ) {
         UserDto response = userCompositeService.updateProfile(userId, request, image);
         return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @Override
-    @GetMapping("/{watcherId}/watching-sessions")
-    public ResponseEntity<WatchingSessionResponse> getSessionDetails(
-            @PathVariable UUID watcherId,
-            @AuthenticationPrincipal MoplUserDetails userDetails
-    ) {
-        WatchingSessionResponse sessionDetails = userCompositeService.getWatchingSession(watcherId, userDetails);
-        return ResponseEntity.ok(sessionDetails);
     }
 }

@@ -23,7 +23,7 @@ public record ContentDto (
                 readModel.type(),
                 readModel.title(),
                 readModel.description(),
-                readModel.thumbnailUrl(),
+                readModel.thumbnailKey(),
                 readModel.tags(),
                 readModel.averageRating(),
                 readModel.reviewCount(),

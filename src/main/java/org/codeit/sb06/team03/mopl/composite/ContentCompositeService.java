@@ -1,24 +1,18 @@
 package org.codeit.sb06.team03.mopl.composite;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.common.ContentResult;
-import org.codeit.sb06.team03.mopl.common.WatchingSessionResponse;
-import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
-import org.codeit.sb06.team03.mopl.content.SortContentBy;
 import org.codeit.sb06.team03.mopl.content.application.in.*;
 import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
 import org.codeit.sb06.team03.mopl.content.infra.CursorRequestContentDto;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentCreateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorResponseContentDto;
-import org.codeit.sb06.team03.mopl.content.infra.in.CursorWatchingSessionRequest;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.codeit.sb06.team03.mopl.user.application.in.GetProfileUseCase;
-import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -40,7 +34,7 @@ public class ContentCompositeService {
 
     public CursorResponseContentDto getContents(CursorRequestContentDto request) {
 
-        Slice<ContentReadModel> slice = getContentsUseCase.get(request);
+        Slice<ContentReadModel> slice = getContentsUseCase.getAll(request);
         List<ContentReadModel> readModels = slice.getContent();
 
         List<ContentDto> contents = readModels.stream()
@@ -71,63 +65,24 @@ public class ContentCompositeService {
     public ContentDto getSingleContent(UUID contentId) {
 
         ContentReadModel readModel = getSingleContentUseCase.get(contentId);
-        long watcherCount = getWatchingSessionUseCase.countByContentId(contentId);
-        return ContentDto.from(readModel, 0);
+        long watcherCount = getWatchingSessionUseCase.countByContentId(contentId); // TODO Content에 watcherCount 역정규화?
+        return ContentDto.from(readModel, watcherCount);
     }
 
-    public ContentDto create(ContentCreateRequest request) {
+    public ContentDto create(ContentCreateRequest request, MultipartFile image) {
 
-        ContentReadModel readModel = createContentUseCase.create(request);
-//        long watcherCount = getWatchingSessionUseCase.getByContentId();
+        ContentReadModel readModel = createContentUseCase.create(request, image);
         return ContentDto.from(readModel, 0);
     }
 
     public ContentDto update(UUID contentId, ContentUpdateRequest request) {
 
         ContentReadModel readModel = updateContentUseCase.update(contentId, request);
-//        long watcherCount = getWatchingSessionUseCase.getByContentId();
-        return ContentDto.from(readModel, 0);
+        long watcherCount = getWatchingSessionUseCase.countByContentId(contentId);
+        return ContentDto.from(readModel, watcherCount);
     }
 
     public void delete(UUID contentId) {
         deleteContentUseCase.delete(contentId);
-    }
-
-    public CursorResponseWatchingSessionDto getWatchingSessions(UUID contentId, CursorWatchingSessionRequest request) {
-
-        Slice<WatchingSessionReadModel> slice = getWatchingSessionUseCase.get(contentId, request);
-        List<WatchingSessionReadModel> watchingSessions = slice.getContent();
-
-        List<UUID> watcherIds = watchingSessions.stream().map(WatchingSessionReadModel::watcherId).toList();
-        Map<UUID, UserSummaryDto> watchers = getProfileUseCase.getUserSummaries(watcherIds);
-
-        ContentReadModel content = getContentUseCase.get(contentId);
-
-        List<WatchingSessionResponse> response = watchingSessions.stream()
-                .map(rm -> new WatchingSessionResponse(
-                        rm.id(),
-                        rm.createdAt(),
-                        watchers.get(rm.watcherId()),
-                        content
-                ))
-                .toList();
-
-        String nextCursor = null;
-        UUID nextIdAfter = null;
-        if (slice.hasNext()) {
-            WatchingSessionResponse lastItem = response.getLast();
-            nextCursor = lastItem.createdAt().toString();
-            nextIdAfter = lastItem.id();
-        }
-
-        return new CursorResponseWatchingSessionDto(
-                response,
-                nextCursor,
-                nextIdAfter,
-                slice.hasNext(),
-                0,
-                SortDirection.valueOf(request.sortDirection()),
-                request.sortBy()
-        );
     }
 }

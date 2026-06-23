@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.codeit.sb06.team03.mopl.common.WatchingSessionResponse;
+import org.codeit.sb06.team03.mopl.common.WatchingSessionDto;
 import org.codeit.sb06.team03.mopl.common.error.ErrorResponse;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.springdoc.core.annotations.ParameterObject;
@@ -68,13 +68,13 @@ public interface UserApi {
             @Nullable MultipartFile image
     );
 
-    @Operation(summary = "특정 사용자의 시청 세션 조회 (nullable)")
-    @ApiResponse(responseCode = "200", description = "성공")
-    @ApiResponse(responseCode = "400", description = "잘못된 요청")
-    @ApiResponse(responseCode = "401", description = "인증 오류")
-    @ApiResponse(responseCode = "500", description = "서버 오류")
-    ResponseEntity<WatchingSessionResponse> getSessionDetails (
-            UUID WatcherId,
-            MoplUserDetails userDetails
-    );
+//    @Operation(summary = "특정 사용자의 시청 세션 조회 (nullable)")
+//    @ApiResponse(responseCode = "200", description = "성공")
+//    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+//    @ApiResponse(responseCode = "401", description = "인증 오류")
+//    @ApiResponse(responseCode = "500", description = "서버 오류")
+//    ResponseEntity<WatchingSessionDto> getSessionDetails (
+//            UUID WatcherId,
+//            MoplUserDetails userDetails
+//    );
 }
