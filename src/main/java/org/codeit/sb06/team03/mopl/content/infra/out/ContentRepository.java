@@ -10,7 +10,7 @@ import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.content.Content;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.SortContentBy;
-import org.codeit.sb06.team03.mopl.content.domain.entity.Tag;
+import org.codeit.sb06.team03.mopl.tag.entity.Tag;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.Query;

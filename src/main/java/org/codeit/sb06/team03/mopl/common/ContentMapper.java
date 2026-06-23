@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.common;
 
 import org.codeit.sb06.team03.mopl.content.Content;
-import org.codeit.sb06.team03.mopl.content.domain.entity.Tag;
+import org.codeit.sb06.team03.mopl.tag.entity.Tag;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

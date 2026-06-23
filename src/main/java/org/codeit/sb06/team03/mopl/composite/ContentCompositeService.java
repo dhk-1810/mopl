@@ -8,15 +8,16 @@ import org.codeit.sb06.team03.mopl.content.infra.CursorRequestContentDto;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentCreateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorResponseContentDto;
+import org.codeit.sb06.team03.mopl.contentTag.ContentTagService;
+import org.codeit.sb06.team03.mopl.tag.entity.Tag;
 import org.codeit.sb06.team03.mopl.user.application.in.GetProfileUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -31,6 +32,7 @@ public class ContentCompositeService {
     private final DeleteContentUseCase deleteContentUseCase;
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
     private final GetProfileUseCase getProfileUseCase;
+    private final ContentTagService contentTagService;
 
     public CursorResponseContentDto getContents(CursorRequestContentDto request) {
 
@@ -85,4 +87,6 @@ public class ContentCompositeService {
     public void delete(UUID contentId) {
         deleteContentUseCase.delete(contentId);
     }
+
+
 }

@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.codeit.sb06.team03.mopl.content.domain.entity.Review;
 import org.codeit.sb06.team03.mopl.content.domain.entity.ReviewStats;
-import org.codeit.sb06.team03.mopl.content.domain.entity.Tag;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 
 import java.time.Instant;
@@ -47,14 +46,6 @@ public class Content {
     @NotNull
     @Column(name = "thumbnail_key", nullable = false)
     private String thumbnailKey;
-
-    @ManyToMany
-    @JoinTable(
-            name = "contents_tags",
-            joinColumns = @JoinColumn(name = "content_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
-    private Set<Tag> tags;
 
     @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Review> reviews;
