@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.watchingSession.application;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.content.application.out.WatchingSessionSearchCondition;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorWatchingSessionRequest;
 import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionCommand;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -66,9 +68,22 @@ public class WatchingSessionCommandService implements
 
     @Override
     public Slice<WatchingSessionReadModel> get(UUID contentId, CursorWatchingSessionRequest request) {
-        Slice<WatchingSession> slice = loadWatchingSessionPort.findByContentId();
+        Instant cursorInstant = request.cursor() != null ? Instant.parse(request.cursor()) : null;
+        UUID idAfterUuid = request.idAfter() != null ? UUID.fromString(request.idAfter()) : null;
 
-        return
+        WatchingSessionSearchCondition query = new WatchingSessionSearchCondition(
+                contentId,
+                request.watcherNameLike(),
+                cursorInstant,
+                idAfterUuid,
+                request.limit(),
+                request.sortDirection(),
+                request.sortBy()
+        );
+
+        Slice<WatchingSession> slice = loadWatchingSessionPort.findByContentId(query);
+
+        return slice.map(WatchingSessionReadModel::from);
     }
     @Override
     public WatchingSession get(UUID liveChatId, UUID watcherId) {

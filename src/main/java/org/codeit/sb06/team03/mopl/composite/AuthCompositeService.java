@@ -9,6 +9,8 @@ import org.codeit.sb06.team03.mopl.auth.infra.in.ResetPasswordRequest;
 import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @Service
 public class AuthCompositeService {
@@ -22,7 +24,7 @@ public class AuthCompositeService {
         resetPasswordUseCase.resetPassword(command);
     }
 
-    public UserDto getUserDto(String accountId) {
+    public UserDto getUserDto(UUID accountId) {
         return getAccountUseCase.get(accountId);
     }
 }

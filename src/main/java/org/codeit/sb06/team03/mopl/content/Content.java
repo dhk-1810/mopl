@@ -45,7 +45,7 @@ public class Content {
 
     @NotNull
     @Column(name = "thumbnail_key", nullable = false)
-    private String thumbnailKey;
+    private UUID thumbnailKey;
 
     @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Review> reviews;
@@ -65,7 +65,7 @@ public class Content {
     @Column(name = "watcher_count", nullable = false)
     private long watcherCount;
 
-    private Content(ContentType type, String title, String description, String thumbnailKey) {
+    private Content(ContentType type, String title, String description, UUID thumbnailKey) {
         this.type = type;
         this.title = title;
         this.description = description;
@@ -74,7 +74,7 @@ public class Content {
         this.reviewCount = 0;
     }
 
-    public static Content create(ContentType contentType, String title, String description, String thumbnailKey) {
+    public static Content create(ContentType contentType, String title, String description, UUID thumbnailKey) {
         return new Content(
                 contentType,
                 title,

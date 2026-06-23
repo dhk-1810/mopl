@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-public class BasicProfileImageKeyGenerationPolicy implements ProfileImageKeyGenerationPolicy {
+public class BasicProfileImageKeyGenerationPolicy implements ImageKeyGenerationPolicy {
     @Override
     public String generate() {
         return UUID.randomUUID().toString();

@@ -9,10 +9,12 @@ import org.codeit.sb06.team03.mopl.content.application.in.GetSingleContentUseCas
 import org.codeit.sb06.team03.mopl.content.application.out.LoadContentPort;
 import org.codeit.sb06.team03.mopl.content.domain.exception.ContentNotFoundException;
 import org.codeit.sb06.team03.mopl.content.infra.CursorRequestContentDto;
+import org.codeit.sb06.team03.mopl.contentTag.ContentTagService;
 import org.codeit.sb06.team03.mopl.watchingSession.application.out.LoadWatchingSessionPort;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ import java.util.UUID;
 public class ContentQueryService implements GetContentsUseCase, GetSingleContentUseCase {
 
     private final LoadContentPort loadContentPort;
+    private final ContentTagService contentTagService;
 
     @Override
     public Slice<ContentReadModel> getAll(CursorRequestContentDto request) {
@@ -42,6 +45,7 @@ public class ContentQueryService implements GetContentsUseCase, GetSingleContent
 
         Content content = loadContentPort.findByIdWithTags(contentId)
                 .orElseThrow(() -> ContentNotFoundException.fromId(contentId));
-        return ContentReadModel.from(content);
+        Set<String> tags = contentTagService.getByContentId(contentId);
+        return ContentReadModel.from(content, tags);
     }
 }

@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.playlist.infra.in.response;
 
-import org.codeit.sb06.team03.mopl.common.ContentResult;
+import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.playlist.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 
@@ -16,10 +16,10 @@ public record PlaylistDto(
         Instant updatedAt,
         long subscriberCount,
         boolean subscribedByMe,
-        List<ContentResult> contents // TODO
+        List<ContentReadModel> contents
 ) {
 
-    public static PlaylistDto toDto(Playlist playlist, UserSummaryDto owner, boolean subscribedByMe, List<ContentResult> contents) {
+    public static PlaylistDto toDto(Playlist playlist, UserSummaryDto owner, boolean subscribedByMe, List<ContentReadModel> contents) {
         return new PlaylistDto(
                 playlist.getId(),
                 owner,
@@ -32,7 +32,7 @@ public record PlaylistDto(
         );
     }
 
-    public static PlaylistDto toDto(PlaylistReadModel readModel, UserSummaryDto owner, boolean subscribedByMe, List<ContentResult> contents) {
+    public static PlaylistDto toDto(PlaylistReadModel readModel, UserSummaryDto owner, boolean subscribedByMe, List<ContentReadModel> contents) {
         return new PlaylistDto(
                 readModel.id(),
                 owner,

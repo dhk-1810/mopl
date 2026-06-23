@@ -2,6 +2,10 @@ package org.codeit.sb06.team03.mopl.liveChat.application;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.ContentResult;
+import org.codeit.sb06.team03.mopl.content.Content;
+import org.codeit.sb06.team03.mopl.content.ContentReadModel;
+import org.codeit.sb06.team03.mopl.content.application.out.LoadContentPort;
+import org.codeit.sb06.team03.mopl.content.domain.exception.ContentNotFoundException;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.CreateLiveChatUseCase;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.DeleteLiveChatUseCase;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.SendLiveChatMessageUseCase;
@@ -29,14 +33,16 @@ public class LiveChatCommandService implements
     private final SendMessagePort sendMessagePort;
     private final SaveLiveChatPort saveLiveChatPort;
     private final DeleteLiveChatPort deleteLiveChatPort;
-    private final LiveChatContentQueryPort liveChatContentQueryPort;
     private final LiveChatWatchingSessionQueryPort liveChatWatchingSessionQueryPort;
+    private final LoadContentPort loadContentPort;
 
     @Override
     public void sendPresenceMessage(UUID liveChatId, SendPresenceMessageCommand command) {
         UUID contentId = liveChatId; // LiveChat과 Content는 같은 ID를 쓰고 있음
 
-        ContentResult contentResult = liveChatContentQueryPort.findById(contentId);
+        Content content = loadContentPort.findByIdWithTags(contentId)
+                .orElseThrow(() -> ContentNotFoundException.fromId(contentId)); // TODO 윗계층에서 묶어야함
+        ContentReadModel readModel = ContentReadModel.from(content, null);
 
         UserSummaryDto userSummary = new UserSummaryDto(command.accountId(), command.name(), command.profileImageUrl());
 
@@ -50,7 +56,7 @@ public class LiveChatCommandService implements
                         watcherCount,
                         command.type(),
                         command.destination(),
-                        contentResult
+                        readModel
                 );
 
         sendMessagePort.broadcastPresenceMessage(sendPresenceMessageQuery);

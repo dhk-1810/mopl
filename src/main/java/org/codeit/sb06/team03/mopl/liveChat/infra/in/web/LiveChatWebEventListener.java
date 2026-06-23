@@ -5,6 +5,7 @@ import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.SendPresenceMessageUseCase;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.command.SendPresenceMessageCommand;
 import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionCommand;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.DeleteWatchingSessionUseCase;
@@ -144,7 +145,7 @@ public class LiveChatWebEventListener {
             return;
         }
 
-        List<WatchingSession> watchingSessions = getWatchingSessionUseCase.get(userDto.id());
+        WatchingSessionReadModel watchingSessions = getWatchingSessionUseCase.get(userDto.id()); // TODO
         deleteWatchingSessionUseCase.deleteByWatcherId(userDto.id());
 
         // FIXME: 보완 필요
@@ -152,7 +153,7 @@ public class LiveChatWebEventListener {
             UUID contentId = UUID.fromString(DestinationUtils.extractContentId(destination));
             UUID liveChatId = contentId;
 
-            WatchingSession watchingSession = getWatchingSession(watchingSessions, liveChatId, userDto.id());
+            WatchingSession watchingSession = getWatchingSession(List.of(), liveChatId, userDto.id()); // TODO
 
             if (watchingSession != null) {
                 SendPresenceMessageCommand sendPresenceMessageCommand =

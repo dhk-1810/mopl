@@ -15,9 +15,4 @@ public class TagService {
     public Tag create(String name) {
         return Tag.create(name);
     }
-
-    public Tag get(String name) {
-        return repository.findByName(name)
-                .orElseThrow(() -> TagNotFoundException.fromName(name));
-    }
 }

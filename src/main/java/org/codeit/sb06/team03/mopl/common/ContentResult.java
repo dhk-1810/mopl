@@ -3,6 +3,7 @@ package org.codeit.sb06.team03.mopl.common;
 import java.util.List;
 import java.util.UUID;
 
+// TODO 왜 필요하지?
 public record ContentResult(
         UUID id,
         String type,

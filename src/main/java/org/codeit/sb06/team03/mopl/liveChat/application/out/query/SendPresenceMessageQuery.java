@@ -1,7 +1,6 @@
 package org.codeit.sb06.team03.mopl.liveChat.application.out.query;
 
-import org.codeit.sb06.team03.mopl.common.ContentResult;
-import org.codeit.sb06.team03.mopl.common.UserSummary;
+import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 
 import java.time.Instant;
@@ -14,6 +13,6 @@ public record SendPresenceMessageQuery(
         int count,
         String type,
         String destination,
-        ContentResult contentResult
+        ContentReadModel contentResult
 ) {
 }

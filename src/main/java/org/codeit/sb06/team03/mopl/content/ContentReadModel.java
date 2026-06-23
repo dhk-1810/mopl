@@ -1,27 +1,24 @@
 package org.codeit.sb06.team03.mopl.content;
 
-import org.codeit.sb06.team03.mopl.tag.entity.Tag;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public record ContentReadModel (
         UUID id,
         ContentType type,
         String title,
         String description,
-        String thumbnailKey,
+        UUID thumbnailKey,
         Set<String> tags, // TODO
         double averageRating,
         long reviewCount,
         long watcherCount,
         Instant createdAt
 ) {
-    public static ContentReadModel from(Content content){
-        Set<String> tags = content.getTags().stream().map(Tag::getName).collect(Collectors.toSet());
+    public static ContentReadModel from(Content content, Set<String> tags){
         return new ContentReadModel(
                 content.getId(),
                 content.getType(),

@@ -3,7 +3,6 @@ package org.codeit.sb06.team03.mopl.composite;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.application.in.*;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
-import org.codeit.sb06.team03.mopl.common.ContentMapper;
 import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.user.application.in.UpdateProfileCommand;
 import org.codeit.sb06.team03.mopl.user.application.in.UpdateProfileUseCase;
@@ -30,7 +29,6 @@ public class UserCompositeService {
     private final GetAccountUseCase getAccountUseCase;
     private final UpdateProfileUseCase updateProfileUseCase;
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
-    private final ContentMapper contentMapper;
     private final GetContentUseCase getContentUseCase;
 
     public UserDto registerAccount(UserCreateRequest request) {

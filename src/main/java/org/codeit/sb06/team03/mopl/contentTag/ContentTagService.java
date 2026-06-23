@@ -43,5 +43,12 @@ public class ContentTagService {
         response.addAll(newTags.stream().map(Tag::getName).collect(Collectors.toSet()));
         return response;
     }
+
+    public Set<String> getByContentId(UUID contentId){
+        List<ContentTag> contentTags = contentTagRepository.findByContentId(contentId);
+        return contentTags.stream()
+                .map(contentTag -> contentTag.getTag().getName()) // FETCH JOIN
+                .collect(Collectors.toSet());
+    }
 }
 

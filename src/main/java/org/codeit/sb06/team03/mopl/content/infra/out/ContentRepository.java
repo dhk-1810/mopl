@@ -29,8 +29,8 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
     @Query("""
             SELECT c
             FROM Content c
-            LEFT JOIN FETCH c.tags
-            WHERE c.id = :id
+            LEFT JOIN FETCH ContentTag ct
+            WHERE ct.content.id = :id
             """)
     Optional<Content> findByIdWithTags(UUID id);
 
@@ -47,22 +47,21 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
         Predicate[] predicates = {
                 keywordLikePredicate(keywordLike),
                 typeEqualPredicate(typeEqual),
-                cursorExpressionPredicate(cursor, idAfter, sortDirection, sortBy)
+                cursorExpressionPredicate(cursor, idAfter, sortBy, sortDirection)
         };
 
         var contents = select(Projections.constructor(ContentReadModel.class,
                     content.id,
                     content.type,
                     content.description,
-                    content.thumbnailImage,
-                    content.tags,
+                    content.thumbnailKey,
                     content.averageRating,
                     content.reviewCount,
                     content.watcherCount
                 ))
                 .from(content)
                 .where(predicates)
-                .orderBy(orderByExpressions(sortDirection, sortBy))
+                .orderBy(orderByExpressions(sortBy, sortDirection))
                 .limit(limit + 1)
                 .fetch();
 
@@ -151,14 +150,14 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
     private static BooleanExpression cursorExpressionPredicate(
             String cursor,
             UUID idAfter,
-            SortDirection sortDirection,
-            String sortBy
+            SortContentBy sortBy,
+            SortDirection sortDirection
     ) {
         if (cursor == null || idAfter == null) {
             return null;
         }
         return switch (sortBy) {
-            case "createdAt" -> {
+            case SortContentBy.createdAt -> {
                 Instant createdAtCursor = Instant.parse(cursor);
                 if (SortDirection.ASCENDING == sortDirection) {
                     yield content.createdAt.gt(createdAtCursor)
@@ -167,7 +166,7 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
                 yield content.createdAt.lt(createdAtCursor)
                         .or(content.createdAt.eq(createdAtCursor).and(account.id.loe(idAfter)));
             }
-            case "averageRating" -> {
+            case SortContentBy.rate -> {
                 double averageRatingCursor = Double.parseDouble(cursor);
                 if (SortDirection.ASCENDING == sortDirection) {
                     yield content.averageRating.gt(averageRatingCursor)
@@ -233,17 +232,6 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
         }
     }
 
-    private List<String> getTags(UUID contentId) {
-        return select(content)
-                .from(content)
-                .leftJoin(content.tags).fetchJoin()
-                .where(content.id.eq(contentId))
-                .fetch()
-                .stream()
-                .flatMap(c -> c.getTags().stream().map(Tag::getName))
-                .toList();
-    }
-
 //    private double calculateReviewAverage(long ratingSum, int reviewCount) {
 //        if (reviewCount <= 0 || ratingSum <= 0) {
 //            return 0.0;
@@ -277,20 +265,20 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
 //        );
 //    }
 
-    private static OrderSpecifier<?>[] orderByExpressions(SortDirection sortDirection, String sortBy) {
+    private static OrderSpecifier<?>[] orderByExpressions(SortContentBy sortBy, SortDirection sortDirection) {
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
 
-        orderSpecifiers.add(orderByCursor(sortDirection, sortBy));
+        orderSpecifiers.add(orderByCursor(sortBy, sortDirection));
         final var orderById = new OrderSpecifier<>(Order.valueOf(sortDirection.toString()), content.id);
         orderSpecifiers.add(orderById);
 
         return orderSpecifiers.toArray(OrderSpecifier[]::new);
     }
 
-    private static OrderSpecifier<?> orderByCursor(SortDirection sortDirection, String sortBy) {
+    private static OrderSpecifier<?> orderByCursor(SortContentBy sortBy, SortDirection sortDirection) {
         return switch (sortBy) {
-            case "createdAt" -> new OrderSpecifier<>(Order.valueOf(sortDirection.toString()), content.createdAt);
-            case "averageRating" -> new OrderSpecifier<>(Order.valueOf(sortDirection.toString()), content.averageRating);
+            case SortContentBy.createdAt -> new OrderSpecifier<>(Order.valueOf(sortDirection.toString()), content.createdAt);
+            case SortContentBy.watcherCount -> new OrderSpecifier<>(Order.valueOf(sortDirection.toString()), content.averageRating);
             default -> new OrderSpecifier<>(Order.valueOf(sortDirection.toString()), content.watcherCount);
         };
     }

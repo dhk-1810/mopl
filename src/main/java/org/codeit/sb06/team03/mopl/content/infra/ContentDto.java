@@ -11,7 +11,7 @@ public record ContentDto (
         ContentType type,
         String title,
         String description,
-        String thumbnailUrl,
+        String thumbnailPresignedUrl,
         Set<String> tags, // TODO 확인필요
         double averageRating,
         long reviewCount,
@@ -23,7 +23,7 @@ public record ContentDto (
                 readModel.type(),
                 readModel.title(),
                 readModel.description(),
-                readModel.thumbnailKey(),
+                null, // TODO
                 readModel.tags(),
                 readModel.averageRating(),
                 readModel.reviewCount(),
