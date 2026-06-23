@@ -84,20 +84,17 @@ public class Content {
         this.reviewCount = 0;
     }
 
-    public static Content create(ContentType contentType, String title, String description, Set<Tag> tags, String thumbnailUrl) {
+    public static Content create(ContentType contentType, String title, String description, String thumbnailKey) {
         return new Content(
                 contentType,
                 title,
                 description,
-                tags,
-                thumbnailUrl
+                thumbnailKey
         );
     }
 
-    public void update(String title, String description, Set<Tag> tags, String thumbnailUrl) {
+    public void update(String title, String description) {
         this.title = title;
         this.description = description;
-        this.tags = tags;
-        this.thumbnailKey = thumbnailKey;
     }
 }

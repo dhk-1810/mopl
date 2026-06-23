@@ -59,13 +59,14 @@ public class WatchingSessionCommandService implements
     @Override
     public WatchingSessionReadModel get(UUID watcherId) {
 //        Slice<WatchingSession> watchingSession = loadWatchingSessionPort.findByWatcherId(watcherId);
-        WatchingSession watchingSession = loadWatchingSessionPort.findByWatcherId(watcherId);
+        WatchingSession watchingSession = loadWatchingSessionPort.findByWatcherId(watcherId)
+                .orElseThrow(() -> WatchingSessionNotFoundException.fromWatcherId(watcherId));
         return WatchingSessionReadModel.from(watchingSession);
     }
 
     @Override
     public Slice<WatchingSessionReadModel> get(UUID contentId, CursorWatchingSessionRequest request) {
-        Slice<WatchingSession> loadWatchingSessionPort.findByContentId();
+        Slice<WatchingSession> slice = loadWatchingSessionPort.findByContentId();
 
         return
     }

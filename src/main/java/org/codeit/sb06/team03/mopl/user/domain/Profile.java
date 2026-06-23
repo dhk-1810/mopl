@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.user.domain.event.UserEvent.UserProfileCreatedEvent;
 import org.codeit.sb06.team03.mopl.user.domain.event.UserEvent.UserProfileUpdatedEvent;
-import org.codeit.sb06.team03.mopl.user.domain.policy.ProfileImageRegistrationPolicy;
+import org.codeit.sb06.team03.mopl.user.domain.policy.ImageRegistrationPolicy;
 import org.codeit.sb06.team03.mopl.user.domain.vo.TimeoutImage;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.lang.Nullable;
@@ -54,7 +54,7 @@ public class Profile extends AbstractAggregateRoot<Profile> {
     public Profile update(
             String name,
             @Nullable MultipartFile image,
-            ProfileImageRegistrationPolicy profileImageRegistrationPolicy
+            ImageRegistrationPolicy profileImageRegistrationPolicy
     ) {
         this.name = name;
         if (image != null && !image.isEmpty()) {
