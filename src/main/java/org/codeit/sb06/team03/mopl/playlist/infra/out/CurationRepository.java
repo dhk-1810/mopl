@@ -40,7 +40,7 @@ public interface CurationRepository extends QuerydslJpaRepository<Curation, Cura
                 .execute();
     }
 
-    default Map<UUID, List<UUID>> findAllByPlaylistIdsIn(List<UUID> playlistIds) {
+    default Map<UUID, List<UUID>> findAllByPlaylistIdsIn(Set<UUID> playlistIds) {
         if (playlistIds == null || playlistIds.isEmpty()) {
             return Collections.emptyMap();
         }

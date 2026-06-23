@@ -17,7 +17,7 @@ public record ContentDto (
         long reviewCount,
         long watcherCount
 ) {
-    public static ContentDto from(ContentReadModel readModel, String presignedUrl, long watcherCount) {
+    public static ContentDto from(ContentReadModel readModel, String presignedUrl) {
         return new ContentDto(
                 readModel.id(),
                 readModel.type(),
@@ -27,7 +27,7 @@ public record ContentDto (
                 readModel.tags(),
                 readModel.averageRating(),
                 readModel.reviewCount(),
-                watcherCount
+                readModel.watcherCount()
         );
     }
 }

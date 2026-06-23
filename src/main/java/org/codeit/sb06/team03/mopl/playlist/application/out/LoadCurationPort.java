@@ -11,6 +11,6 @@ public interface LoadCurationPort {
 
     Optional<Curation> findById(CurationId id);
 
-    Map<UUID, List<UUID>> findAllByPlaylistIdsIn(List<UUID> playlistIds);
+    Map<UUID, List<UUID>> findAllByPlaylistIdsIn(Set<UUID> playlistIds);
 
 }

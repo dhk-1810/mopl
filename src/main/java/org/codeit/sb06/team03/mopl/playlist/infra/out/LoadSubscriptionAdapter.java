@@ -20,7 +20,7 @@ public class LoadSubscriptionAdapter implements LoadSubscriptionPort {
     }
 
     @Override
-    public Map<UUID, Boolean> existsByIdIn(List<UUID> ids, UUID userId) {
+    public Map<UUID, Boolean> existsByIdIn(Set<UUID> ids, UUID userId) {
         return repository.findAllSubscribedMap(ids, userId);
     }
 

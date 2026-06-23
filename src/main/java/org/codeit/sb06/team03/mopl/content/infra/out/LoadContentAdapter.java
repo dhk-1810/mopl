@@ -9,6 +9,7 @@ import org.codeit.sb06.team03.mopl.content.application.out.LoadContentPort;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LoadContentAdapter implements LoadContentPort {
 
-    private final ContentRepository contentRepository;
+    private final ContentRepository repository;
 
     @Override
     public Slice<ContentReadModel> findAll(
@@ -30,7 +31,7 @@ public class LoadContentAdapter implements LoadContentPort {
             SortContentBy sortBy,
             SortDirection sortDirection
     ) {
-        return contentRepository.findAll(
+        return repository.findAll(
                 typeEqual,
                 keywordLike,
                 tagsIn,
@@ -44,11 +45,16 @@ public class LoadContentAdapter implements LoadContentPort {
 
     @Override
     public Optional<Content> findByIdWithTags(UUID contentId) {
-        return contentRepository.findByIdWithTags(contentId);
+        return repository.findByIdWithTags(contentId);
+    }
+
+    @Override
+    public List<ContentReadModel> findByIdsIn(Set<UUID> contentIds) {
+        return repository.findByIdsIn(contentIds);
     }
 
     @Override
     public long countByContentIdAndWatcherNameLike(UUID contentId, String watcherName) {
-        return contentRepository.countByContentIdAndWatcherNameLike(contentId, watcherName);
+        return repository.countByContentIdAndWatcherNameLike(contentId, watcherName);
     }
 }

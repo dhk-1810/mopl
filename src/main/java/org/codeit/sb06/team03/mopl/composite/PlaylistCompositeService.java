@@ -4,11 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
-import org.codeit.sb06.team03.mopl.content.application.in.GetContentsUseCase;
+import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
 import org.codeit.sb06.team03.mopl.playlist.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
-import org.codeit.sb06.team03.mopl.playlist.domain.entity.Curation;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.*;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.CursorRequestPlaylistDto;
@@ -25,10 +24,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -51,7 +47,7 @@ public class PlaylistCompositeService {
     private final GetProfileUseCase getProfileUseCase;
     private final GetSubscriptionUseCase getSubscriptionUseCase;
 
-    private final GetContentsUseCase getContentsUseCase;
+    private final GetContentUseCase getContentUseCase;
     private final GetCurationUseCase getCurationUseCase;
 
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
@@ -85,25 +81,35 @@ public class PlaylistCompositeService {
                         (existing, replacement) -> existing // 중복 ID 발생 시 기존 값 유지
                 ));
 
-        List<UUID> playlistIds = readModels.stream().map(PlaylistReadModel::id).toList();
+        Set<UUID> playlistIds = readModels.stream().map(PlaylistReadModel::id).collect(Collectors.toSet());
         Map<UUID, Boolean> subscribedByMe = getSubscriptionUseCase.isSubscribed(playlistIds, viewerId);
 
         // 1. 플레이리스트별 컨텐츠 ID 가져옴
         Map<UUID, List<UUID>> contentIdsMap = getCurationUseCase.getContentIdsByPlaylistIds(playlistIds);
 
         // 2. 컨텐츠 전체를 한번에 조회
-        List<ContentReadModel> contentReadModels = getContentsUseCase.getByIds(playlistIds);
+        List<ContentReadModel> contentReadModels = getContentUseCase.getByIds(playlistIds);
 
         // TODO presignedURL 만들기
-        Map<UUID, Long> watcherCountMap = getWatchingSessionUseCase.
+        Map<UUID, Long> watcherCountMap = contentReadModels.stream()
+                .collect(Collectors.toMap(
+                        ContentReadModel::id,
+                        rm -> getWatchingSessionUseCase.countWatchersByContentId(rm.id())
+                ));
         List<ContentDto> contentDtos = contentReadModels.stream()
-                .map(rm -> ContentDto.from(rm, )).toList()
+                .map(rm -> ContentDto.from(rm, String.valueOf(watcherCountMap.getOrDefault(rm.id(), 0L))))
+                .toList();
 
         // 3. 플레이리스트별로 골라 담음
-        Map<UUID, List<ContentDto>> contentsMap = contentsInPlaylists.stream()
-                .collect(Collectors.groupingBy(
-                        readModels::id,
-                        Collectors.mapping(ContentDto::from, Collectors.toList())
+        Map<UUID, List<ContentDto>> contentsMap = playlistIds.stream()
+                .collect(Collectors.toMap(
+                        playlistId -> playlistId,
+                        playlistId -> {
+                            List<UUID> contentIds = contentIdsMap.getOrDefault(playlistId, Collections.emptyList());
+                            return contentDtos.stream()
+                                    .filter(dto -> contentIds.contains(dto.id()))
+                                    .toList();
+                        }
                 ));
 
         List<PlaylistDto> data = readModels.stream()

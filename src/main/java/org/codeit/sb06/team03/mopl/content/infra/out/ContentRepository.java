@@ -10,7 +10,6 @@ import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.content.Content;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.SortContentBy;
-import org.codeit.sb06.team03.mopl.tag.entity.Tag;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.Query;
@@ -21,8 +20,12 @@ import java.util.*;
 
 import static org.codeit.sb06.team03.mopl.account.domain.QAccount.account;
 import static org.codeit.sb06.team03.mopl.content.QContent.content;
+import static org.codeit.sb06.team03.mopl.contentTag.QContentTag.contentTag;
 import static org.codeit.sb06.team03.mopl.user.domain.QProfile.profile;
 import static org.codeit.sb06.team03.mopl.watchingSession.domain.QWatchingSession.watchingSession;
+import static org.codeit.sb06.team03.mopl.tag.entity.QTag.tag;
+import static com.querydsl.core.group.GroupBy.groupBy;
+import static com.querydsl.core.group.GroupBy.set;
 
 public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> {
 
@@ -72,6 +75,32 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
         }
 
         return new SliceImpl<>(contents, PageRequest.ofSize(limit), hasNext);
+    }
+
+    default List<ContentReadModel> findByIdsIn(Collection<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Map<UUID, ContentReadModel> resultMap = select(content)
+                .from(content)
+                .leftJoin(contentTag).on(content.id.eq(contentTag.id.contentId))
+                .leftJoin(tag).on(contentTag.id.tagId.eq(tag.id))
+                .where(content.id.in(ids))
+                .transform(groupBy(content.id).as(Projections.constructor(ContentReadModel.class,
+                        content.id,
+                        content.type,
+                        content.title,
+                        content.description,
+                        content.thumbnailKey,
+                        set(tag.name),
+                        content.averageRating,
+                        content.reviewCount,
+                        content.watcherCount,
+                        content.createdAt
+                )));
+
+        return new ArrayList<>(resultMap.values());
     }
 
 //    default List<WatchingSessionDto> findSessionsDetails(WatchingSessionSearchCondition query) {

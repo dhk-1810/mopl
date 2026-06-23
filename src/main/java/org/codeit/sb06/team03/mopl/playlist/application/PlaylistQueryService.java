@@ -74,12 +74,12 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
     };
 
     @Override
-    public Map<UUID, Boolean> isSubscribed(List<UUID> playlistIds, UUID viewerId) {
+    public Map<UUID, Boolean> isSubscribed(Set<UUID> playlistIds, UUID viewerId) {
         return loadSubscriptionPort.existsByIdIn(playlistIds, viewerId);
     }
 
     @Override
-    public Map<UUID, List<UUID>> getContentIdsByPlaylistIds(List<UUID> playlistIds) {
+    public Map<UUID, List<UUID>> getContentIdsByPlaylistIds(Set<UUID> playlistIds) {
         return loadCurationPort.findAllByPlaylistIdsIn(playlistIds);
     }
 
