@@ -9,7 +9,6 @@ import org.codeit.sb06.team03.mopl.content.infra.in.ContentCreateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorResponseContentDto;
 import org.codeit.sb06.team03.mopl.contentTag.ContentTagService;
-import org.codeit.sb06.team03.mopl.tag.entity.Tag;
 import org.codeit.sb06.team03.mopl.user.application.in.GetProfileUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.springframework.data.domain.Slice;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -66,7 +64,7 @@ public class ContentCompositeService {
     public ContentDto getSingleContent(UUID contentId) {
 
         ContentReadModel readModel = getSingleContentUseCase.get(contentId);
-        long watcherCount = getWatchingSessionUseCase.countByContentId(contentId); // TODO Content에 watcherCount 역정규화?
+        long watcherCount = getWatchingSessionUseCase.countWatchersByContentId(contentId); // TODO Content에 watcherCount 역정규화?
         return ContentDto.from(readModel, watcherCount);
     }
 
@@ -79,7 +77,7 @@ public class ContentCompositeService {
     public ContentDto update(UUID contentId, ContentUpdateRequest request) {
 
         ContentReadModel readModel = updateContentUseCase.update(contentId, request);
-        long watcherCount = getWatchingSessionUseCase.countByContentId(contentId);
+        long watcherCount = getWatchingSessionUseCase.countWatchersByContentId(contentId);
         return ContentDto.from(readModel, watcherCount);
     }
 

@@ -12,18 +12,18 @@ public record ContentDto (
         String title,
         String description,
         String thumbnailPresignedUrl,
-        Set<String> tags, // TODO 확인필요
+        Set<String> tags,
         double averageRating,
         long reviewCount,
         long watcherCount
 ) {
-    public static ContentDto from(ContentReadModel readModel, long watcherCount) {
+    public static ContentDto from(ContentReadModel readModel, String presignedUrl, long watcherCount) {
         return new ContentDto(
                 readModel.id(),
                 readModel.type(),
                 readModel.title(),
                 readModel.description(),
-                null, // TODO
+                presignedUrl, // TODO
                 readModel.tags(),
                 readModel.averageRating(),
                 readModel.reviewCount(),

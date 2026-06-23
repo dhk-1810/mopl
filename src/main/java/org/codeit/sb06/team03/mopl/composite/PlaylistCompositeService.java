@@ -3,8 +3,12 @@ package org.codeit.sb06.team03.mopl.composite;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.content.ContentReadModel;
+import org.codeit.sb06.team03.mopl.content.application.in.GetContentsUseCase;
+import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
 import org.codeit.sb06.team03.mopl.playlist.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
+import org.codeit.sb06.team03.mopl.playlist.domain.entity.Curation;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.*;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.CursorRequestPlaylistDto;
@@ -16,6 +20,7 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.codeit.sb06.team03.mopl.user.application.in.GetProfileUseCase;
 import org.codeit.sb06.team03.mopl.user.domain.Profile;
 import org.codeit.sb06.team03.mopl.user.domain.exception.ProfileNotFoundException;
+import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -36,13 +41,20 @@ public class PlaylistCompositeService {
     private final GetSinglePlaylistUseCase getPlaylistUseCase;
     private final UpdatePlaylistUseCase updatePlaylistUseCase;
     private final DeletePlaylistUseCase deletePlaylistUseCase;
+
     private final AddContentToCurationUseCase addContentToCurationUseCase;
     private final DeleteContentFromCurationUseCase deleteContentFromCurationUseCase;
+
     private final SubscribePlaylistUseCase subscribePlaylistUseCase;
     private final UnsubscribePlaylistUseCase unsubscribePlaylistUseCase;
 
     private final GetProfileUseCase getProfileUseCase;
     private final GetSubscriptionUseCase getSubscriptionUseCase;
+
+    private final GetContentsUseCase getContentsUseCase;
+    private final GetCurationUseCase getCurationUseCase;
+
+    private final GetWatchingSessionUseCase getWatchingSessionUseCase;
 
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
 
@@ -57,10 +69,10 @@ public class PlaylistCompositeService {
                 userDetails.getUserDto().name(),
                 userDetails.getUserDto().profileImageUrl());
 
-        return PlaylistDto.toDto(playlist, owner, false , Collections.emptyList()); // TODO
+        return PlaylistDto.toDto(playlist, owner, false , Collections.emptyList());
     }
 
-    public CursorResponsePlaylistDto getPlaylists(CursorRequestPlaylistDto request, UUID viewerId) {
+    public CursorResponsePlaylistDto getAll(CursorRequestPlaylistDto request, UUID viewerId) {
         Slice<PlaylistReadModel> slice = getPlaylistsUseCase.get(request, viewerId);
         List<PlaylistReadModel> readModels = slice.getContent();
 
@@ -76,12 +88,30 @@ public class PlaylistCompositeService {
         List<UUID> playlistIds = readModels.stream().map(PlaylistReadModel::id).toList();
         Map<UUID, Boolean> subscribedByMe = getSubscriptionUseCase.isSubscribed(playlistIds, viewerId);
 
+        // 1. 플레이리스트별 컨텐츠 ID 가져옴
+        Map<UUID, List<UUID>> contentIdsMap = getCurationUseCase.getContentIdsByPlaylistIds(playlistIds);
+
+        // 2. 컨텐츠 전체를 한번에 조회
+        List<ContentReadModel> contentReadModels = getContentsUseCase.getByIds(playlistIds);
+
+        // TODO presignedURL 만들기
+        Map<UUID, Long> watcherCountMap = getWatchingSessionUseCase.
+        List<ContentDto> contentDtos = contentReadModels.stream()
+                .map(rm -> ContentDto.from(rm, )).toList()
+
+        // 3. 플레이리스트별로 골라 담음
+        Map<UUID, List<ContentDto>> contentsMap = contentsInPlaylists.stream()
+                .collect(Collectors.groupingBy(
+                        readModels::id,
+                        Collectors.mapping(ContentDto::from, Collectors.toList())
+                ));
+
         List<PlaylistDto> data = readModels.stream()
                 .map(readModel -> PlaylistDto.toDto(
                         readModel,
                         owners.get(readModel.ownerId()),
                         subscribedByMe.getOrDefault(readModel.id(), false),
-                        Collections.emptyList() // TODO
+                        contentsMap.getOrDefault(readModel.id(), Collections.emptyList())
                 ))
                 .toList();
 
@@ -104,7 +134,7 @@ public class PlaylistCompositeService {
         );
     }
 
-    public PlaylistDto getPlaylist(String playlistId, UUID viewerId) {
+    public PlaylistDto get(String playlistId, UUID viewerId) {
         PlaylistReadModel readModel = getPlaylistUseCase.get(playlistId, viewerId);
 
         Profile profile = getProfileUseCase.load(readModel.ownerId())

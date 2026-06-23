@@ -40,7 +40,7 @@ public class PlaylistController implements PlaylistApi {
             @AuthenticationPrincipal MoplUserDetails user
     ) {
         UUID userId =  (user != null) ? user.getId() : null;
-        CursorResponsePlaylistDto response = playlistCompositeService.getPlaylists(request, userId);
+        CursorResponsePlaylistDto response = playlistCompositeService.getAll(request, userId);
         return ResponseEntity.ok(response);
     }
 
@@ -51,7 +51,7 @@ public class PlaylistController implements PlaylistApi {
             @AuthenticationPrincipal MoplUserDetails user
     ) {
         UUID userId =  (user != null) ? user.getId() : null;
-        PlaylistDto playlistDto = playlistCompositeService.getPlaylist(playlistId, user.getId()); // 조회자 ID
+        PlaylistDto playlistDto = playlistCompositeService.get(playlistId, user.getId()); // 조회자 ID
         return ResponseEntity.ok(playlistDto);
     }
 

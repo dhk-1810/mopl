@@ -27,7 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 @Transactional
-public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase, DeletePlaylistUseCase, AddContentToCurationUseCase, DeleteContentFromCurationUseCase,SubscribePlaylistUseCase, UnsubscribePlaylistUseCase {
+public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase, DeletePlaylistUseCase, AddContentToCurationUseCase, DeleteContentFromCurationUseCase, SubscribePlaylistUseCase, UnsubscribePlaylistUseCase {
 
     private final SavePlaylistPort savePlaylistPort;
     private final SaveSubscriptionPort saveSubscriptionPort;
@@ -194,12 +194,6 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
                 profileImageUrl
         );
     }
-
-//    private List<ContentDto> getContents(playlistUUID){
-//        List<UUID> contentIds = loadCurationPort.findAllByPlaylistId();
-//        return loadContentsPort.findAllByIdIn(contentIds)
-//                .stream().map(ContentDto::toDto).toList();
-//    }
 
     private UUID parseUUID(String id) {
         try {

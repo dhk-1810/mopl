@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -92,7 +93,12 @@ public class WatchingSessionCommandService implements
     }
 
     @Override
-    public long countByContentId(UUID contentId) {
+    public long countWatchersByContentId(UUID contentId) {
         return loadWatchingSessionPort.countByContentId(contentId);
+    }
+
+    @Override
+    public Map<UUID, Long> countWatchersByContentIds(List<UUID> contentIds) {
+        return Map.of();
     }
 }

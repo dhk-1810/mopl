@@ -5,6 +5,8 @@ import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
 import org.springframework.data.domain.Slice;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface GetWatchingSessionUseCase {
@@ -15,5 +17,7 @@ public interface GetWatchingSessionUseCase {
 
     WatchingSession get(UUID liveChatId, UUID watcherId);
 
-    long countByContentId(UUID contentId);
+    long countWatchersByContentId(UUID contentId);
+
+    Map<UUID, Long> countWatchersByContentIds(List<UUID> contentIds);
 }
