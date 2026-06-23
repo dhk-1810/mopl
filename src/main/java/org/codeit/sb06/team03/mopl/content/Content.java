@@ -74,11 +74,10 @@ public class Content {
     @Column(name = "watcher_count", nullable = false)
     private long watcherCount;
 
-    private Content(ContentType type, String title, String description, Set<Tag> tags, String thumbnailKey) {
+    private Content(ContentType type, String title, String description, String thumbnailKey) {
         this.type = type;
         this.title = title;
         this.description = description;
-        this.tags = tags;
         this.thumbnailKey = thumbnailKey;
         this.watcherCount = 0;
         this.reviewCount = 0;

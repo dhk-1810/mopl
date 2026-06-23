@@ -3,6 +3,7 @@ package org.codeit.sb06.team03.mopl.content.application;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.content.Content;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
+import org.codeit.sb06.team03.mopl.content.domain.TagService;
 import org.codeit.sb06.team03.mopl.content.application.in.CreateContentUseCase;
 import org.codeit.sb06.team03.mopl.content.application.in.DeleteContentUseCase;
 import org.codeit.sb06.team03.mopl.content.application.in.UpdateContentUseCase;
@@ -17,9 +18,9 @@ import org.codeit.sb06.team03.mopl.s3.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -28,13 +29,16 @@ public class ContentCommandService implements CreateContentUseCase, UpdateConten
     private final LoadContentPort loadContentPort;
     private final SaveContentPort saveContentPort;
     private final ContentService contentService; // 단방향 참조
+    private final TagService tagService;
     private final S3Service s3Service;
-
 
     @Override
     public ContentReadModel create(ContentCreateRequest request, MultipartFile thumbnail) {
 
-        Set<Tag> tags = Collections.emptySet(); // TODO
+        Set<Tag> tags = request.tags().stream()
+                .map(tagService::create)
+                .collect(Collectors.toSet());
+
 
         s3Service.uploadFile(, thumbnail);
         String key = UUID.randomUUID().toString(); // TODO

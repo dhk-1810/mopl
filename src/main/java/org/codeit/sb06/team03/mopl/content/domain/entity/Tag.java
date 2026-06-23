@@ -24,4 +24,13 @@ public class Tag {
     @NotNull
     @Column(name = "name", nullable = false)
     private String name;
+
+    private Tag(String name) {
+        this.id = UUID.randomUUID();
+        this.name = name;
+    }
+
+    public static Tag create(String name) {
+        return new Tag(name);
+    }
 }

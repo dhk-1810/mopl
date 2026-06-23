@@ -13,7 +13,6 @@ public class ContentService {
     private final ImageRegistrationPolicy imageRegistrationPolicy;
 
     public Content create(ContentType type, String title, String description, String thumbnailKey){
-
         return Content.create(type, title, description, thumbnailKey);
     }
 
