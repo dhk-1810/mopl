@@ -1,7 +1,6 @@
 package org.codeit.sb06.team03.mopl.content.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.content.Content;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.content.application.out.LoadContentPort;
@@ -40,11 +39,8 @@ public class ContentQueryService implements GetContentUseCase {
 
     @Override
     public ContentReadModel get(UUID contentId) {
-
-        Content content = loadContentPort.findByIdWithTags(contentId)
+        return loadContentPort.findByIdWithTags(contentId)
                 .orElseThrow(() -> ContentNotFoundException.fromId(contentId));
-        Set<String> tags = contentTagService.getByContentId(contentId);
-        return ContentReadModel.from(content, tags);
     }
 
     @Override
@@ -53,3 +49,4 @@ public class ContentQueryService implements GetContentUseCase {
     }
 
 }
+

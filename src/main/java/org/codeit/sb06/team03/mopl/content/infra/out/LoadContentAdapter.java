@@ -44,8 +44,13 @@ public class LoadContentAdapter implements LoadContentPort {
     }
 
     @Override
-    public Optional<Content> findByIdWithTags(UUID contentId) {
+    public Optional<ContentReadModel> findByIdWithTags(UUID contentId) {
         return repository.findByIdWithTags(contentId);
+    }
+
+    @Override
+    public Optional<Content> findById(UUID contentId) {
+        return repository.findById(contentId);
     }
 
     @Override

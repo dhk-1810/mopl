@@ -6,6 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface CreateContentUseCase {
 
-    ContentReadModel create(ContentCreateRequest request, MultipartFile thumbnailUrl);
+    ContentReadModel create(ContentCreateRequest request, String thumbnailKey);
 
 }

@@ -10,6 +10,7 @@ import org.codeit.sb06.team03.mopl.content.infra.in.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorResponseContentDto;
 import org.codeit.sb06.team03.mopl.contentTag.ContentTagService;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
+import org.codeit.sb06.team03.mopl.image.application.in.RegisterImageUseCase;
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.springframework.data.domain.Slice;
@@ -30,6 +31,7 @@ public class ContentCompositeService {
     private final GetProfileUseCase getProfileUseCase;
     private final ContentTagService contentTagService;
     private final GetPresignedUrlUseCase getPresignedUrlUseCase;
+    private final RegisterImageUseCase registerImageUseCase;
 
     public CursorResponseContentDto getContents(CursorRequestContentDto request) {
 
@@ -75,7 +77,8 @@ public class ContentCompositeService {
 
     public ContentDto create(ContentCreateRequest request, MultipartFile image) {
 
-        ContentReadModel readModel = createContentUseCase.create(request, image);
+        String thumbnailKey = registerImageUseCase.register(image);
+        ContentReadModel readModel = createContentUseCase.create(request, thumbnailKey);
         String presignedUrl = getPresignedUrlUseCase.getPresignedUrl(readModel.thumbnailKey());
         return ContentDto.from(readModel, presignedUrl);
     }

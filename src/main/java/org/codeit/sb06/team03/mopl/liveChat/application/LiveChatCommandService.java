@@ -1,8 +1,6 @@
 package org.codeit.sb06.team03.mopl.liveChat.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.common.ContentResult;
-import org.codeit.sb06.team03.mopl.content.Content;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.application.out.LoadContentPort;
 import org.codeit.sb06.team03.mopl.content.domain.exception.ContentNotFoundException;
@@ -40,9 +38,8 @@ public class LiveChatCommandService implements
     public void sendPresenceMessage(UUID liveChatId, SendPresenceMessageCommand command) {
         UUID contentId = liveChatId; // LiveChat과 Content는 같은 ID를 쓰고 있음
 
-        Content content = loadContentPort.findByIdWithTags(contentId)
-                .orElseThrow(() -> ContentNotFoundException.fromId(contentId)); // TODO 윗계층에서 묶어야함
-        ContentReadModel readModel = ContentReadModel.from(content, null);
+        ContentReadModel readModel = loadContentPort.findByIdWithTags(contentId)
+                .orElseThrow(() -> ContentNotFoundException.fromId(contentId));
 
         UserSummaryDto userSummary = new UserSummaryDto(command.accountId(), command.name(), command.profileImageUrl());
 

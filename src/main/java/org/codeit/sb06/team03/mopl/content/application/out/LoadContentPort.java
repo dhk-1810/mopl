@@ -24,7 +24,9 @@ public interface LoadContentPort {
             SortDirection sortDirection
     );
 
-    Optional<Content> findByIdWithTags(UUID contentId);
+    Optional<ContentReadModel> findByIdWithTags(UUID contentId);
+
+    Optional<Content> findById(UUID contentId);
 
     List<ContentReadModel> findByIdsIn(Set<UUID> contentIds);
 

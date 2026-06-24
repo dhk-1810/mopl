@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.content.Content;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.contentTag.ContentTagService;
-import org.codeit.sb06.team03.mopl.tag.service.TagService;
 import org.codeit.sb06.team03.mopl.content.application.in.CreateContentUseCase;
 import org.codeit.sb06.team03.mopl.content.application.in.DeleteContentUseCase;
 import org.codeit.sb06.team03.mopl.content.application.in.UpdateContentUseCase;
@@ -14,9 +13,7 @@ import org.codeit.sb06.team03.mopl.content.domain.ContentService;
 import org.codeit.sb06.team03.mopl.content.domain.exception.ContentNotFoundException;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentCreateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentUpdateRequest;
-import org.codeit.sb06.team03.mopl.image.application.in.RegisterImageUseCase;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 import java.util.UUID;
@@ -28,13 +25,10 @@ public class ContentCommandService implements CreateContentUseCase, UpdateConten
     private final LoadContentPort loadContentPort;
     private final SaveContentPort saveContentPort;
     private final ContentService contentService;
-    private final TagService tagService;
     private final ContentTagService contentTagService;
-    private final RegisterImageUseCase registerImageUseCase;
 
     @Override
-    public ContentReadModel create(ContentCreateRequest request, MultipartFile thumbnail) {
-        String thumbnailKey = registerImageUseCase.register(thumbnail);
+    public ContentReadModel create(ContentCreateRequest request, String thumbnailKey) {
         Content content = contentService.create(
                 request.type(), request.title(), request.description(), thumbnailKey);
         saveContentPort.save(content);
@@ -45,7 +39,7 @@ public class ContentCommandService implements CreateContentUseCase, UpdateConten
 
     @Override
     public ContentReadModel update(UUID contentId, ContentUpdateRequest request) {
-        Content content = loadContentPort.findByIdWithTags(contentId)
+        Content content = loadContentPort.findById(contentId)
                 .orElseThrow(() -> ContentNotFoundException.fromId(contentId));
         contentService.update(content, request.title(), request.description());
         saveContentPort.save(content);
@@ -56,6 +50,8 @@ public class ContentCommandService implements CreateContentUseCase, UpdateConten
 
     @Override
     public void delete(UUID id) {
+        Content content = loadContentPort.findById(id)
+                .orElseThrow(() -> ContentNotFoundException.fromId(id));
         saveContentPort.deleteById(id);
     }
 }

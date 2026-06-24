@@ -1,7 +1,6 @@
 package org.codeit.sb06.team03.mopl.liveChat.infra.out;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.common.ContentResult;
 import org.codeit.sb06.team03.mopl.common.WatchingSessionDto;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.liveChat.application.out.SendMessagePort;
