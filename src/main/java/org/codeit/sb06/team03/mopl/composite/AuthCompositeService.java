@@ -6,7 +6,7 @@ import org.codeit.sb06.team03.mopl.account.application.in.ResetPasswordCommand;
 import org.codeit.sb06.team03.mopl.account.application.in.ResetPasswordUseCase;
 import org.codeit.sb06.team03.mopl.auth.infra.in.AuthMapper;
 import org.codeit.sb06.team03.mopl.auth.infra.in.ResetPasswordRequest;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;

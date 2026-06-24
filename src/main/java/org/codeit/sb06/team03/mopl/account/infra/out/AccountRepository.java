@@ -6,9 +6,8 @@ import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.account.domain.vo.Role;
-import org.codeit.sb06.team03.mopl.user.domain.vo.TimeoutImage;
-import org.codeit.sb06.team03.mopl.user.infra.in.CursorRequestUserDto;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.CursorRequestUserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.springframework.lang.Nullable;
 
 import java.time.Instant;
@@ -25,38 +24,16 @@ public interface AccountRepository extends QuerydslJpaRepository<Account, UUID> 
 
     Optional<Account> findByEmailAddress(EmailAddress emailAddress);
 
-    default List<UserDto> findAll(CursorRequestUserDto query) {
-        final String emailLike = query.emailLike();
+    default List<Account> findAllAccounts(CursorRequestUserDto query) {
+        String emailLike = query.emailLike();
         final String roleEqual = query.roleEqual();
         final Boolean isLocked = query.isLocked();
         final String cursor = query.cursor();
         final String idAfter = query.idAfter();
         final int limit = query.limit();
-        final String sortDirection = query.sortDirection();
+        String sortDirection = query.sortDirection();
         final String sortBy = query.sortBy();
 
-        return findAll(
-                emailLike,
-                roleEqual,
-                isLocked,
-                cursor,
-                idAfter,
-                limit,
-                sortDirection,
-                sortBy
-        );
-    }
-
-    private List<UserDto> findAll(
-            String emailLike,
-            String roleEqual,
-            Boolean isLocked,
-            String cursor,
-            String idAfter,
-            int limit,
-            String sortDirection,
-            String sortBy
-    ) {
         Predicate[] predicates = {
                 emailLikePredicate(emailLike),
                 roleEqualPredicate(roleEqual),
@@ -66,53 +43,16 @@ public interface AccountRepository extends QuerydslJpaRepository<Account, UUID> 
 
         sortDirection = sortDirection.equalsIgnoreCase("ASCENDING") ? "ASC" : "DESC";
 
-        List<Account> result = select(account)
+        return select(account)
                 .from(account)
                 .innerJoin(account.profile).fetchJoin()
-                .leftJoin(account.profile.timeoutImage).fetchJoin()
                 .where(predicates)
                 .orderBy(orderByExpressions(sortDirection, sortBy))
                 .limit(1L + limit)
                 .fetch();
-
-        return result.stream()
-                .map(account -> {
-                    TimeoutImage timeoutImage = account.getProfile().getTimeoutImage();
-                    return new UserDto(
-                            account.getId(),
-                            account.getCreatedAt(),
-                            account.getEmailAddress().value(),
-                            account.getProfile().getName(),
-                            timeoutImage == null ? null : timeoutImage.getPresignedUrl(),
-                            account.getRole().name(),
-                            account.isLocked()
-                    );
-                })
-                .toList();
-
-//
-//        return select(accountDtoProjection())
-//                .from(account)
-//                .innerJoin(account.profile)
-//                .leftJoin(account.profile.timeoutImage)
-//                .where(predicates)
-//                .orderBy(orderByExpressions(sortDirection, sortBy))
-//                .limit(1L + limit)
-//                .fetch();
     }
 
-    private static Expression<UserDto> accountDtoProjection() {
-        return Projections.constructor(
-                UserDto.class,
-                account.id,
-                account.createdAt,
-                account.emailAddress.value,
-                account.profile.name,
-                account.profile.timeoutImage.presignedUrl,
-                account.role.stringValue(),
-                account.locked
-        );
-    }
+
 
     @Nullable
     private static BooleanExpression emailLikePredicate(@Nullable String emailLike) {
@@ -234,34 +174,13 @@ public interface AccountRepository extends QuerydslJpaRepository<Account, UUID> 
         return count == null ? 0 : count;
     }
 
-    default Optional<UserDto> findById(String accountId) {
+    default Optional<Account> findAccountById(String accountId) {
         final UUID accountIdUuid = UUID.fromString(accountId);
         Account result = select(account)
                 .from(account)
                 .innerJoin(account.profile).fetchJoin()
-                .leftJoin(account.profile.timeoutImage).fetchJoin()
                 .where(account.id.eq(accountIdUuid))
                 .fetchFirst();
-
-        TimeoutImage timeoutImage = result.getProfile().getTimeoutImage();
-        return Optional.of(new UserDto(
-                result.getId(),
-                result.getCreatedAt(),
-                result.getEmailAddress().value(),
-                result.getProfile().getName(),
-                timeoutImage == null ? null : timeoutImage.getPresignedUrl(),
-                result.getRole().name(),
-                result.isLocked()
-        ));
-
-
-//        UserDto userDto = select(accountDtoProjection())
-//                .from(account)
-//                .innerJoin(account.profile)
-//                .leftJoin(account.profile.timeoutImage)
-//                .where(account.id.eq(accountIdUuid))
-//                .fetchFirst();
-//
-//        return Optional.ofNullable(userDto);
+        return Optional.ofNullable(result);
     }
 }

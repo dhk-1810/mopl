@@ -2,8 +2,8 @@ package org.codeit.sb06.team03.mopl.account.application.out;
 
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
-import org.codeit.sb06.team03.mopl.user.infra.in.CursorRequestUserDto;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.CursorRequestUserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 
 import java.util.List;
 import java.util.Optional;

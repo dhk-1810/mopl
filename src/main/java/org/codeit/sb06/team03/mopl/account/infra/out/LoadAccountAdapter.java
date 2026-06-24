@@ -1,22 +1,28 @@
 package org.codeit.sb06.team03.mopl.account.infra.out;
 
-import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.application.out.LoadAccountPort;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
-import org.codeit.sb06.team03.mopl.user.infra.in.CursorRequestUserDto;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
+import org.codeit.sb06.team03.mopl.profile.infra.in.CursorRequestUserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-@RequiredArgsConstructor
 @Component
 public class LoadAccountAdapter implements LoadAccountPort {
 
     private final AccountRepository repository;
+    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
+
+    public LoadAccountAdapter(AccountRepository repository, GetPresignedUrlUseCase getPresignedUrlUseCase) {
+        this.repository = repository;
+        this.getPresignedUrlUseCase = getPresignedUrlUseCase;
+    }
 
     @Override
     public boolean existsByEmailAddress(EmailAddress emailAddress) {
@@ -35,7 +41,14 @@ public class LoadAccountAdapter implements LoadAccountPort {
 
     @Override
     public List<UserDto> findAll(CursorRequestUserDto query) {
-        return repository.findAll(query);
+        List<Account> accounts = repository.findAllAccounts(query);
+        List<String> imageKeys = accounts.stream()
+                .map(acc -> acc.getProfile().getImageKey())
+                .toList();
+        Map<String, String> urls = getPresignedUrlUseCase.getPresignedUrls(imageKeys);
+        return accounts.stream()
+                .map(account -> UserDto.from(account, account.getProfile(), urls.get(account.getProfile().getImageKey())))
+                .toList();
     }
 
     @Override
@@ -45,6 +58,11 @@ public class LoadAccountAdapter implements LoadAccountPort {
 
     @Override
     public Optional<UserDto> findById(String accountId) {
-        return repository.findById(accountId);
+        return repository.findAccountById(accountId)
+                .map(account -> {
+                    String url = getPresignedUrlUseCase.getPresignedUrl(account.getProfile().getImageKey());
+                    return UserDto.from(account, account.getProfile(), url);
+                });
     }
 }
+

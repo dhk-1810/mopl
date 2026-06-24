@@ -1,8 +1,8 @@
 package org.codeit.sb06.team03.mopl.account.application.in;
 
-import org.codeit.sb06.team03.mopl.user.infra.in.CursorRequestUserDto;
-import org.codeit.sb06.team03.mopl.user.infra.in.CursorResponseUserDto;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.CursorRequestUserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.CursorResponseUserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 
 import java.util.UUID;
 

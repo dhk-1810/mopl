@@ -9,7 +9,8 @@ import org.codeit.sb06.team03.mopl.content.infra.in.ContentCreateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorResponseContentDto;
 import org.codeit.sb06.team03.mopl.contentTag.ContentTagService;
-import org.codeit.sb06.team03.mopl.user.application.in.GetProfileUseCase;
+import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
+import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -21,23 +22,27 @@ import java.util.*;
 @Service
 public class ContentCompositeService {
 
-    private final GetContentsUseCase getContentsUseCase;
-    private final GetSingleContentUseCase getSingleContentUseCase;
-    // 추가
+    private final GetContentUseCase getContentUseCase;
     private final CreateContentUseCase createContentUseCase;
     private final UpdateContentUseCase updateContentUseCase;
     private final DeleteContentUseCase deleteContentUseCase;
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
     private final GetProfileUseCase getProfileUseCase;
     private final ContentTagService contentTagService;
+    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
     public CursorResponseContentDto getContents(CursorRequestContentDto request) {
 
-        Slice<ContentReadModel> slice = getContentsUseCase.getAll(request);
+        Slice<ContentReadModel> slice = getContentUseCase.getAll(request);
         List<ContentReadModel> readModels = slice.getContent();
 
+        List<String> thumbnailKeys = readModels.stream()
+                .map(ContentReadModel::thumbnailKey)
+                .toList();
+        Map<String, String> urls = getPresignedUrlUseCase.getPresignedUrls(thumbnailKeys);
+
         List<ContentDto> contents = readModels.stream()
-                .map(rm -> ContentDto.from(rm, rm.watcherCount()))
+                .map(rm -> ContentDto.from(rm, urls.get(rm.thumbnailKey())))
                 .toList();
 
         String nextCursor = null;
@@ -63,22 +68,23 @@ public class ContentCompositeService {
 
     public ContentDto getSingleContent(UUID contentId) {
 
-        ContentReadModel readModel = getSingleContentUseCase.get(contentId);
-        long watcherCount = getWatchingSessionUseCase.countWatchersByContentId(contentId); // TODO Content에 watcherCount 역정규화?
-        return ContentDto.from(readModel, watcherCount);
+        ContentReadModel readModel = getContentUseCase.get(contentId);
+        String presignedUrl = getPresignedUrlUseCase.getPresignedUrl(readModel.thumbnailKey());
+        return ContentDto.from(readModel, presignedUrl);
     }
 
     public ContentDto create(ContentCreateRequest request, MultipartFile image) {
 
         ContentReadModel readModel = createContentUseCase.create(request, image);
-        return ContentDto.from(readModel, 0);
+        String presignedUrl = getPresignedUrlUseCase.getPresignedUrl(readModel.thumbnailKey());
+        return ContentDto.from(readModel, presignedUrl);
     }
 
     public ContentDto update(UUID contentId, ContentUpdateRequest request) {
 
         ContentReadModel readModel = updateContentUseCase.update(contentId, request);
-        long watcherCount = getWatchingSessionUseCase.countWatchersByContentId(contentId);
-        return ContentDto.from(readModel, watcherCount);
+        String presignedUrl = getPresignedUrlUseCase.getPresignedUrl(readModel.thumbnailKey());
+        return ContentDto.from(readModel, presignedUrl);
     }
 
     public void delete(UUID contentId) {
@@ -87,3 +93,4 @@ public class ContentCompositeService {
 
 
 }
+

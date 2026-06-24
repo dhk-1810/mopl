@@ -6,19 +6,20 @@ import org.codeit.sb06.team03.mopl.account.application.in.GetAccountUseCase;
 import org.codeit.sb06.team03.mopl.account.application.out.LoadAccountPort;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.exception.AccountNotFoundException;
-import org.codeit.sb06.team03.mopl.user.application.out.LoadProfilePort;
-import org.codeit.sb06.team03.mopl.user.domain.Profile;
-import org.codeit.sb06.team03.mopl.user.domain.exception.ProfileNotFoundException;
-import org.codeit.sb06.team03.mopl.user.infra.in.CursorRequestUserDto;
-import org.codeit.sb06.team03.mopl.user.infra.in.CursorResponseUserDto;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
+import org.codeit.sb06.team03.mopl.profile.application.out.LoadProfilePort;
+import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.exception.ProfileNotFoundException;
+import org.codeit.sb06.team03.mopl.profile.infra.in.CursorRequestUserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.CursorResponseUserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
-import static org.codeit.sb06.team03.mopl.user.infra.in.CursorResponseUserDto.SortOrder;
+import static org.codeit.sb06.team03.mopl.profile.infra.in.CursorResponseUserDto.SortOrder;
 
 @RequiredArgsConstructor
 @Service
@@ -27,6 +28,7 @@ public class AccountQueryService implements GetAccountUseCase {
 
     private final LoadAccountPort loadAccountPort;
     private final LoadProfilePort loadProfilePort;
+    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
     @Override
     public CursorResponseUserDto get(CursorRequestUserDto request) {
@@ -99,8 +101,10 @@ public class AccountQueryService implements GetAccountUseCase {
     public UserDto get(UUID accountId) {
         Account account = loadAccountPort.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
-        Profile profile = loadProfilePort.load(accountId) // TODO 이게 뭔 뻘짓인지..
+        Profile profile = loadProfilePort.load(accountId)
                 .orElseThrow(() -> new ProfileNotFoundException(accountId));
-        return UserDto.from(account, profile);
+        String url = getPresignedUrlUseCase.getPresignedUrl(profile.getImageKey());
+        return UserDto.from(account, profile, url);
     }
 }
+

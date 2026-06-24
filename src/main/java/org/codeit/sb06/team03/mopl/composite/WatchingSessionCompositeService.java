@@ -6,10 +6,10 @@ import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.application.in.CursorResponseWatchingSessionDto;
-import org.codeit.sb06.team03.mopl.content.application.in.GetSingleContentUseCase;
+import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorWatchingSessionRequest;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
-import org.codeit.sb06.team03.mopl.user.application.in.GetProfileUseCase;
+import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.springframework.data.domain.Slice;
@@ -24,7 +24,7 @@ import java.util.UUID;
 public class WatchingSessionCompositeService {
 
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
-    private final GetSingleContentUseCase getSingleContentUseCase;
+    private final GetContentUseCase getSingleContentUseCase;
     private final GetProfileUseCase getProfileUseCase;
 
     public WatchingSessionDto getWatchingSession(UUID watcherId, MoplUserDetails userDetails) {

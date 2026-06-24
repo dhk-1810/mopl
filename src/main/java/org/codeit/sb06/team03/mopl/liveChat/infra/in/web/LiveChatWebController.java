@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.SendLiveChatMessageUseCase;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.command.SendLiveChatMessageCommand;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -34,7 +34,7 @@ public class LiveChatWebController implements LiveChatApi {
         SendLiveChatMessageCommand command = new SendLiveChatMessageCommand(
                 userDto.id(),
                 userDto.name(),
-                userDto.profileImageUrl(),
+                userDto.profilePresignedUrl(),
                 request.text(),
                 destination
         );

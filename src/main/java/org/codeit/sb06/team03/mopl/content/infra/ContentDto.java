@@ -17,13 +17,13 @@ public record ContentDto (
         long reviewCount,
         long watcherCount
 ) {
-    public static ContentDto from(ContentReadModel readModel, String presignedUrl) {
+    public static ContentDto from(ContentReadModel readModel, String thumbnailPresignedUrl) {
         return new ContentDto(
                 readModel.id(),
                 readModel.type(),
                 readModel.title(),
                 readModel.description(),
-                presignedUrl, // TODO
+                thumbnailPresignedUrl,
                 readModel.tags(),
                 readModel.averageRating(),
                 readModel.reviewCount(),

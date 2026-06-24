@@ -21,7 +21,7 @@ import java.util.*;
 import static org.codeit.sb06.team03.mopl.account.domain.QAccount.account;
 import static org.codeit.sb06.team03.mopl.content.QContent.content;
 import static org.codeit.sb06.team03.mopl.contentTag.QContentTag.contentTag;
-import static org.codeit.sb06.team03.mopl.user.domain.QProfile.profile;
+import static org.codeit.sb06.team03.mopl.profile.domain.QProfile.profile;
 import static org.codeit.sb06.team03.mopl.watchingSession.domain.QWatchingSession.watchingSession;
 import static org.codeit.sb06.team03.mopl.tag.entity.QTag.tag;
 import static com.querydsl.core.group.GroupBy.groupBy;

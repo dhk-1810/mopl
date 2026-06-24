@@ -6,6 +6,7 @@ import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
+import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
 import org.codeit.sb06.team03.mopl.playlist.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
@@ -16,9 +17,9 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistUpdateReque
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.CursorResponsePlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
-import org.codeit.sb06.team03.mopl.user.application.in.GetProfileUseCase;
-import org.codeit.sb06.team03.mopl.user.domain.Profile;
-import org.codeit.sb06.team03.mopl.user.domain.exception.ProfileNotFoundException;
+import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
+import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.exception.ProfileNotFoundException;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,6 +31,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class PlaylistCompositeService {
+
+    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
     private final PlaylistMapper playlistMapper;
     private final CreatePlaylistUseCase createPlaylistUseCase;
@@ -63,7 +66,7 @@ public class PlaylistCompositeService {
         UserSummaryDto owner = new UserSummaryDto(
                 userDetails.getId(),
                 userDetails.getUserDto().name(),
-                userDetails.getUserDto().profileImageUrl());
+                userDetails.getUserDto().profilePresignedUrl());
 
         return PlaylistDto.toDto(playlist, owner, false , Collections.emptyList());
     }
@@ -77,7 +80,7 @@ public class PlaylistCompositeService {
         Map<UUID, UserSummaryDto> owners = profileList.stream()
                 .collect(Collectors.toMap(
                         Profile::getAccountId,
-                        UserSummaryDto::from,
+                        profile -> UserSummaryDto.from(profile, getPresignedUrlUseCase),
                         (existing, replacement) -> existing // 중복 ID 발생 시 기존 값 유지
                 ));
 
@@ -97,7 +100,7 @@ public class PlaylistCompositeService {
                         rm -> getWatchingSessionUseCase.countWatchersByContentId(rm.id())
                 ));
         List<ContentDto> contentDtos = contentReadModels.stream()
-                .map(rm -> ContentDto.from(rm, String.valueOf(watcherCountMap.getOrDefault(rm.id(), 0L))))
+                .map(rm -> ContentDto.from(rm, getPresignedUrlUseCase.getPresignedUrl(rm.thumbnailKey())))
                 .toList();
 
         // 3. 플레이리스트별로 골라 담음
@@ -145,7 +148,7 @@ public class PlaylistCompositeService {
 
         Profile profile = getProfileUseCase.load(readModel.ownerId())
                 .orElseThrow(() -> new ProfileNotFoundException(readModel.ownerId()));
-        UserSummaryDto owner = UserSummaryDto.from(profile);
+        UserSummaryDto owner = UserSummaryDto.from(profile, getPresignedUrlUseCase);
 
         boolean subscribedByMe = getSubscriptionUseCase.isSubscribed(playlistId, viewerId);
         // TODO contents
@@ -163,7 +166,7 @@ public class PlaylistCompositeService {
         UserSummaryDto owner = new UserSummaryDto(
                 userDetails.getId(),
                 userDetails.getUserDto().name(),
-                userDetails.getUserDto().profileImageUrl());
+                userDetails.getUserDto().profilePresignedUrl());
         // TODO contents
         return PlaylistDto.toDto(playlist, owner, false , Collections.emptyList());
     }

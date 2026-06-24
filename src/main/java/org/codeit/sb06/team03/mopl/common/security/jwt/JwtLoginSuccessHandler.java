@@ -10,7 +10,7 @@ import org.codeit.sb06.team03.mopl.common.error.ErrorResponse;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.common.security.jwt.exception.TokenGenerationFailedException;
 import org.codeit.sb06.team03.mopl.common.security.jwt.registry.JwtRegistry;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -80,7 +80,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
                 userDto.id(),
                 userDto.email(),
                 userDto.name(),
-                userDto.profileImageUrl(),
+                userDto.profilePresignedUrl(),
                 userDto.role()
         );
     }

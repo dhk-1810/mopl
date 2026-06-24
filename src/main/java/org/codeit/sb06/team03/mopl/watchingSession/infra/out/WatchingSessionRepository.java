@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.codeit.sb06.team03.mopl.user.domain.QProfile.profile;
+import static org.codeit.sb06.team03.mopl.profile.domain.QProfile.profile;
 import static org.codeit.sb06.team03.mopl.watchingSession.domain.QWatchingSession.watchingSession;
 
 public interface WatchingSessionRepository extends QuerydslJpaRepository<WatchingSession, UUID> {

@@ -5,9 +5,9 @@ import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.exception.AccountNotFoundException;
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.account.infra.out.AccountRepository;
-import org.codeit.sb06.team03.mopl.user.domain.Profile;
-import org.codeit.sb06.team03.mopl.user.domain.vo.TimeoutImage;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
+import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +21,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class MoplUserDetailsService implements UserDetailsService {
     private final AccountRepository accountRepository;
+    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -33,12 +34,11 @@ public class MoplUserDetailsService implements UserDetailsService {
         return new MoplUserDetails(userDto, account.getPassword().value());
     }
 
-    private static UserDto getUserDto(Account account) {
+    private UserDto getUserDto(Account account) {
         UUID accountId = account.getId();
 
         Profile profile = account.getProfile();
-        TimeoutImage timeoutImage = profile.getTimeoutImage();
-        String profileImageUrl = timeoutImage != null ? timeoutImage.getPresignedUrl() : null;
+        String profileImageUrl = getPresignedUrlUseCase.getPresignedUrl(profile.getImageKey());
 
         UserDto userDto = new UserDto(
                 accountId,
@@ -52,3 +52,4 @@ public class MoplUserDetailsService implements UserDetailsService {
         return userDto;
     }
 }
+

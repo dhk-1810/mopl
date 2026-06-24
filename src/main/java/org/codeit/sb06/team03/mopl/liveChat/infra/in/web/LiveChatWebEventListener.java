@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.SendPresenceMessageUseCase;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.command.SendPresenceMessageCommand;
-import org.codeit.sb06.team03.mopl.user.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionCommand;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionUseCase;
@@ -68,7 +68,7 @@ public class LiveChatWebEventListener {
                         watchingSession.getCreatedAt(),
                         userDto.id(),
                         userDto.name(),
-                        userDto.profileImageUrl(),
+                        userDto.profilePresignedUrl(),
                         WatchType.JOIN.name(),
                         destination
                 );
@@ -110,7 +110,7 @@ public class LiveChatWebEventListener {
                         watchingSession.getCreatedAt(),
                         userDto.id(),
                         userDto.name(),
-                        userDto.profileImageUrl(),
+                        userDto.profilePresignedUrl(),
                         WatchType.LEAVE.name(),
                         destination
                 );
@@ -162,7 +162,7 @@ public class LiveChatWebEventListener {
                                 watchingSession.getCreatedAt(),
                                 userDto.id(),
                                 userDto.name(),
-                                userDto.profileImageUrl(),
+                                userDto.profilePresignedUrl(),
                                 WatchType.LEAVE.name(),
                                 destination
                         );

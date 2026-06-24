@@ -1,8 +1,8 @@
 package org.codeit.sb06.team03.mopl.playlist.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierException;
+import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
 import org.codeit.sb06.team03.mopl.playlist.application.out.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.CurationService;
@@ -11,11 +11,10 @@ import org.codeit.sb06.team03.mopl.playlist.domain.entity.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.PlaylistService;
 import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.*;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
-import org.codeit.sb06.team03.mopl.user.application.out.LoadProfilePort;
-import org.codeit.sb06.team03.mopl.user.domain.Profile;
-import org.codeit.sb06.team03.mopl.user.domain.exception.ProfileNotFoundException;
+import org.codeit.sb06.team03.mopl.profile.application.out.LoadProfilePort;
+import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.exception.ProfileNotFoundException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +35,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     private final LoadCurationPort loadCurationPort;
     private final LoadSubscriptionPort loadSubscriptionPort;
     private final LoadProfilePort loadProfilePort;
+    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
     private final PlaylistService playlistService;
     private final CurationService curationService;
@@ -186,7 +186,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     private UserSummaryDto getUserSummaryDto(UUID ownerId){
         Profile profile = loadProfilePort.load(ownerId)
                 .orElseThrow(() -> new ProfileNotFoundException(ownerId));
-        String profileImageUrl = (profile.getTimeoutImage() != null) ? profile.getTimeoutImage().getPresignedUrl() : null;
+        String profileImageUrl = getPresignedUrlUseCase.getPresignedUrl(profile.getImageKey());
 
         return new UserSummaryDto(
                 ownerId,
