@@ -90,17 +90,23 @@ public class PlaylistCompositeService {
         // 1. 플레이리스트별 컨텐츠 ID 가져옴
         Map<UUID, List<UUID>> contentIdsMap = getCurationUseCase.getContentIdsByPlaylistIds(playlistIds);
 
-        // 2. 컨텐츠 전체를 한번에 조회
-        List<ContentReadModel> contentReadModels = getContentUseCase.getByIds(playlistIds);
+        // 2. 컨텐츠 전체를 한번에 조회 및 presigned URL 일괄 생성
+        Set<UUID> allContentIds = contentIdsMap.values().stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
 
-        // TODO presignedURL 만들기
-        Map<UUID, Long> watcherCountMap = contentReadModels.stream()
-                .collect(Collectors.toMap(
-                        ContentReadModel::id,
-                        rm -> getWatchingSessionUseCase.countWatchersByContentId(rm.id())
-                ));
+        List<ContentReadModel> contentReadModels = allContentIds.isEmpty()
+                ? Collections.emptyList()
+                : getContentUseCase.getByIds(allContentIds);
+
+        List<String> thumbnailKeys = contentReadModels.stream()
+                .map(ContentReadModel::thumbnailKey)
+                .filter(Objects::nonNull)
+                .toList();
+        Map<String, String> urls = getPresignedUrlUseCase.getPresignedUrls(thumbnailKeys);
+
         List<ContentDto> contentDtos = contentReadModels.stream()
-                .map(rm -> ContentDto.from(rm, getPresignedUrlUseCase.getPresignedUrl(rm.thumbnailKey())))
+                .map(rm -> ContentDto.from(rm, urls.get(rm.thumbnailKey())))
                 .toList();
 
         // 3. 플레이리스트별로 골라 담음
@@ -137,7 +143,7 @@ public class PlaylistCompositeService {
                 nextCursor,
                 nextIdAfter,
                 slice.hasNext(),
-                0, // TODO
+                0,
                 request.sortBy(),
                 SortDirection.valueOf(request.sortDirection())
         );
@@ -151,8 +157,8 @@ public class PlaylistCompositeService {
         UserSummaryDto owner = UserSummaryDto.from(profile, getPresignedUrlUseCase);
 
         boolean subscribedByMe = getSubscriptionUseCase.isSubscribed(playlistId, viewerId);
-        // TODO contents
-        return PlaylistDto.toDto(readModel, owner, subscribedByMe, Collections.emptyList());
+        List<ContentDto> contentDtos = getContentDtos(readModel.id());
+        return PlaylistDto.toDto(readModel, owner, subscribedByMe, contentDtos);
     }
 
     public PlaylistDto updatePlayList(String playlistId, PlaylistUpdateRequest request, UUID ownerId) {
@@ -167,8 +173,27 @@ public class PlaylistCompositeService {
                 userDetails.getId(),
                 userDetails.getUserDto().name(),
                 userDetails.getUserDto().profilePresignedUrl());
-        // TODO contents
-        return PlaylistDto.toDto(playlist, owner, false , Collections.emptyList());
+        List<ContentDto> contentDtos = getContentDtos(playlist.getId());
+        return PlaylistDto.toDto(playlist, owner, false , contentDtos);
+    }
+
+    private List<ContentDto> getContentDtos(UUID playlistId) {
+        Map<UUID, List<UUID>> contentIdsMap = getCurationUseCase.getContentIdsByPlaylistIds(Set.of(playlistId));
+        List<UUID> contentIds = contentIdsMap.getOrDefault(playlistId, Collections.emptyList());
+        if (contentIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<ContentReadModel> contentReadModels = getContentUseCase.getByIds(new HashSet<>(contentIds));
+        List<String> thumbnailKeys = contentReadModels.stream()
+                .map(ContentReadModel::thumbnailKey)
+                .filter(Objects::nonNull)
+                .toList();
+        Map<String, String> urls = getPresignedUrlUseCase.getPresignedUrls(thumbnailKeys);
+
+        return contentReadModels.stream()
+                .map(rm -> ContentDto.from(rm, urls.get(rm.thumbnailKey())))
+                .toList();
     }
 
     public void deletePlaylist(String playlistId, UUID ownerId) {

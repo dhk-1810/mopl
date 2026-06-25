@@ -8,11 +8,8 @@ import org.codeit.sb06.team03.mopl.content.infra.CursorRequestContentDto;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentCreateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorResponseContentDto;
-import org.codeit.sb06.team03.mopl.contentTag.ContentTagService;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
 import org.codeit.sb06.team03.mopl.image.application.in.RegisterImageUseCase;
-import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
-import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,9 +24,6 @@ public class ContentCompositeService {
     private final CreateContentUseCase createContentUseCase;
     private final UpdateContentUseCase updateContentUseCase;
     private final DeleteContentUseCase deleteContentUseCase;
-    private final GetWatchingSessionUseCase getWatchingSessionUseCase;
-    private final GetProfileUseCase getProfileUseCase;
-    private final ContentTagService contentTagService;
     private final GetPresignedUrlUseCase getPresignedUrlUseCase;
     private final RegisterImageUseCase registerImageUseCase;
 

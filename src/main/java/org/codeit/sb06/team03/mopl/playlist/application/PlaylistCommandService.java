@@ -25,7 +25,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
+@Transactional // TODO 삭제
 public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase, DeletePlaylistUseCase, AddContentToCurationUseCase, DeleteContentFromCurationUseCase, SubscribePlaylistUseCase, UnsubscribePlaylistUseCase {
 
     private final SavePlaylistPort savePlaylistPort;
@@ -35,7 +35,6 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     private final LoadCurationPort loadCurationPort;
     private final LoadSubscriptionPort loadSubscriptionPort;
     private final LoadProfilePort loadProfilePort;
-    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
     private final PlaylistService playlistService;
     private final CurationService curationService;
@@ -181,18 +180,6 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
 
         playlist.decreaseSubscriberCount();
         savePlaylistPort.save(playlist);
-    }
-
-    private UserSummaryDto getUserSummaryDto(UUID ownerId){
-        Profile profile = loadProfilePort.load(ownerId)
-                .orElseThrow(() -> new ProfileNotFoundException(ownerId));
-        String profileImageUrl = getPresignedUrlUseCase.getPresignedUrl(profile.getImageKey());
-
-        return new UserSummaryDto(
-                ownerId,
-                profile.getName(),
-                profileImageUrl
-        );
     }
 
     private UUID parseUUID(String id) {
