@@ -10,7 +10,7 @@ public record SendPresenceMessageQuery(
         UserSummaryDto userSummary,
         UUID watchingSessionId,
         Instant watchingSessionCreatedAt,
-        int count,
+        long count,
         String type,
         String destination,
         ContentReadModel contentResult

@@ -30,7 +30,7 @@ public class LoadWatchingSessionAdapter implements LoadWatchingSessionPort {
 
     @Override
     public long countByContentId(UUID contentId) {
-        return watchingSessionRepository.countByContentId(contentId);
+        return watchingSessionRepository.countByLiveChatId(contentId);
     }
 
     @Override

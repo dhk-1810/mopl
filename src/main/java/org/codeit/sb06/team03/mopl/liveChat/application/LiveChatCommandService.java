@@ -43,7 +43,7 @@ public class LiveChatCommandService implements
 
         UserSummaryDto userSummary = new UserSummaryDto(command.accountId(), command.name(), command.profileImageUrl());
 
-        int watcherCount = liveChatWatchingSessionQueryPort.countByLiveChatId(liveChatId);
+        long watcherCount = liveChatWatchingSessionQueryPort.countByLiveChatId(liveChatId);
 
         SendPresenceMessageQuery sendPresenceMessageQuery =
                 new SendPresenceMessageQuery(

@@ -4,5 +4,5 @@ import java.util.UUID;
 
 public interface LiveChatWatchingSessionQueryPort {
 
-    int countByLiveChatId(UUID liveChatId);
+    long countByLiveChatId(UUID liveChatId);
 }

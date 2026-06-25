@@ -10,10 +10,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class WatchingSessionQueryAdapter implements LiveChatWatchingSessionQueryPort {
 
-    private final WatchingSessionRepository watchingSessionRepository;
+    private final WatchingSessionRepository repository;
 
     @Override
-    public int countByLiveChatId(UUID liveChatId) {
-        return watchingSessionRepository.countByLiveChatId(liveChatId);
+    public long countByLiveChatId(UUID liveChatId) {
+        return repository.countByLiveChatId(liveChatId);
     }
 }

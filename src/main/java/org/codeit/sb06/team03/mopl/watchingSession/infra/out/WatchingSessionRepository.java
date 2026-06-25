@@ -8,6 +8,7 @@ import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.Instant;
 import java.util.List;
@@ -25,9 +26,7 @@ public interface WatchingSessionRepository extends QuerydslJpaRepository<Watchin
 
     Optional<WatchingSession> findByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId);
 
-    int countByLiveChatId(UUID liveChatId);
-
-    long countByContentId(UUID contentId);
+    long countByLiveChatId(UUID liveChatId);
 
     Optional<WatchingSession> findByWatcherId(UUID watcherId);
 
