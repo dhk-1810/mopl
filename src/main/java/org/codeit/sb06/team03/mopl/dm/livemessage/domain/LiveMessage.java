@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.codeit.sb06.team03.mopl.dm.conversation.domain.vo.DMUser;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.codeit.sb06.team03.mopl.dm.livemessage.domain.event.LiveMessageEvent;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.AbstractAggregateRoot;
@@ -52,7 +52,7 @@ public class LiveMessage extends AbstractAggregateRoot<LiveMessage> {
     @Column(name = "has_unread", nullable = false)
     private boolean hasUnread;
 
-    public static LiveMessage create(UUID conversationId, UUID senderId, UUID receiverId, String content, DMUser sender, DMUser receiver) {
+    public static LiveMessage create(UUID conversationId, UUID senderId, UUID receiverId, String content, UserSummaryDto sender, UserSummaryDto receiver) {
         var liveMessage = new LiveMessage();
         liveMessage.id = UUID.randomUUID();
         liveMessage.createdAt = Instant.now();
@@ -77,3 +77,5 @@ public class LiveMessage extends AbstractAggregateRoot<LiveMessage> {
         this.registerEvent(new LiveMessageEvent.MessagePassedEvent(this.id, this.conversationId, this.receiverId, this.content));
     }
 }
+
+

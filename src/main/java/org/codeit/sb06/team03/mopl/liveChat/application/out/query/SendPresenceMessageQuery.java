@@ -16,3 +16,5 @@ public record SendPresenceMessageQuery(
         ContentReadModel contentResult
 ) {
 }
+
+

@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.dm.livemessage.application;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.dm.livemessage.application.out.LoadLiveDMUserPort;
-import org.codeit.sb06.team03.mopl.dm.conversation.domain.vo.DMUser;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.codeit.sb06.team03.mopl.dm.livemessage.application.in.MessageSendCommand;
 import org.codeit.sb06.team03.mopl.dm.livemessage.application.in.MessageSendUseCase;
 import org.codeit.sb06.team03.mopl.dm.livemessage.application.out.MarkAsUnreadPort;
@@ -24,8 +24,8 @@ public class LiveMessageCommandService implements MessageSendUseCase {
 
     @Override
     public LiveMessage send(MessageSendCommand command) {
-        DMUser sender = loadDMUserPort.findByUserId(command.senderId());
-        DMUser receiver = loadDMUserPort.findByUserId(command.receiverId());
+        UserSummaryDto sender = loadDMUserPort.findByUserId(command.senderId());
+        UserSummaryDto receiver = loadDMUserPort.findByUserId(command.receiverId());
 
         LiveMessage message = liveMessageService.create(
                 command.conversationId(), command.senderId(),

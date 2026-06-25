@@ -1,10 +1,9 @@
 package org.codeit.sb06.team03.mopl.dm.livemessage.infra.out;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.dm.conversation.domain.vo.DMUser;
-import org.codeit.sb06.team03.mopl.dm.conversation.infra.in.DMUserDto;
 import org.codeit.sb06.team03.mopl.dm.conversation.infra.in.DirectMessageDto;
 import org.codeit.sb06.team03.mopl.dm.livemessage.application.out.MessagePassPort;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
 
@@ -18,13 +17,13 @@ public class MessagePassAdapter implements MessagePassPort{
     private final SimpMessageSendingOperations messagingTemplate;
 
     @Override
-    public void pass(UUID conversationId, UUID messageId, String content, Instant createdAt, DMUser sender, DMUser receiver) {
+    public void pass(UUID conversationId, UUID messageId, String content, Instant createdAt, UserSummaryDto sender, UserSummaryDto receiver) {
         DirectMessageDto dto = new DirectMessageDto(
                 messageId.toString(),
                 conversationId.toString(),
                 createdAt.toString(),
-                DMUserDto.from(sender),
-                DMUserDto.from(receiver),
+                sender,
+                receiver,
                 content
         );
         String destination = "/sub/conversations/" + conversationId + "/direct-messages";

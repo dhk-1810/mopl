@@ -48,3 +48,5 @@ public class SendMessageAdapter implements SendMessagePort {
         messagingTemplate.convertAndSend(destination, response);
     }
 }
+
+

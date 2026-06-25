@@ -8,7 +8,9 @@ import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.application.in.CursorResponseWatchingSessionDto;
 import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorWatchingSessionRequest;
+import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -26,13 +29,15 @@ public class WatchingSessionCompositeService {
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
     private final GetContentUseCase getSingleContentUseCase;
     private final GetProfileUseCase getProfileUseCase;
+    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
     public WatchingSessionDto getWatchingSession(UUID watcherId, MoplUserDetails userDetails) {
 
         // TODO 자발/강제 로그아웃 시 워칭세션 삭제
         WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.get(watcherId);
         ContentReadModel content = getSingleContentUseCase.get(watchingSession.liveChatId());
-        UserSummaryDto watcher = UserSummaryDto.from(userDetails.getUserDto());
+        var userDto = userDetails.getUserDto();
+        UserSummaryDto watcher = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profilePresignedUrl());
 
         return new WatchingSessionDto(
                 watchingSession.id(),
@@ -48,7 +53,16 @@ public class WatchingSessionCompositeService {
         List<WatchingSessionReadModel> watchingSessions = slice.getContent();
 
         List<UUID> watcherIds = watchingSessions.stream().map(WatchingSessionReadModel::watcherId).toList();
-        Map<UUID, UserSummaryDto> watchers = getProfileUseCase.getUserSummaries(watcherIds);
+        Map<UUID, ProfileReadModel> profilesMap = getProfileUseCase.getProfileReadModels(watcherIds);
+        Map<UUID, UserSummaryDto> watchers = profilesMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> {
+                            ProfileReadModel profile = entry.getValue();
+                            String url = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
+                            return new UserSummaryDto(profile.userId(), profile.name(), url);
+                        }
+                ));
 
         ContentReadModel content = getSingleContentUseCase.get(contentId);
 
@@ -80,3 +94,6 @@ public class WatchingSessionCompositeService {
         );
     }
 }
+
+
+

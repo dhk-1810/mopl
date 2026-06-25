@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
-import static org.codeit.sb06.team03.mopl.profile.infra.in.CursorResponseUserDto.SortOrder;
+import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 
 @RequiredArgsConstructor
 @Service
@@ -40,7 +40,7 @@ public class AccountQueryService implements GetAccountUseCase {
         final Boolean hasNext = obtainHasNext(userDtos, limit);
         final Long totalCount = loadAccountPort.count(request);
         final String sortBy = request.sortBy();
-        final SortOrder sortOrder = SortOrder.parse(request.sortDirection());
+        final SortDirection sortDirection = SortDirection.parse(request.sortDirection());
 
         return new CursorResponseUserDto(
                 data,
@@ -49,7 +49,7 @@ public class AccountQueryService implements GetAccountUseCase {
                 hasNext,
                 totalCount,
                 sortBy,
-                sortOrder
+                sortDirection
         );
     }
 

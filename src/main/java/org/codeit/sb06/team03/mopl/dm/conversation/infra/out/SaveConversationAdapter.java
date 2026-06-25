@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class SaveConversationAdapter implements SaveConversationPort {
 
-    private final ConversationRepository conversationRepository;
+    private final ConversationRepository repository;
 
     @Override
     public Conversation save(Conversation conversation) {
-        return conversationRepository.save(conversation);
+        return repository.save(conversation);
     }
 }

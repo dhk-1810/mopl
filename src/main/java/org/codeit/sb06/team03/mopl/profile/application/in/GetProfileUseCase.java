@@ -1,11 +1,10 @@
 package org.codeit.sb06.team03.mopl.profile.application.in;
 
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.domain.Profile;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -19,10 +18,8 @@ public interface GetProfileUseCase {
 
     List<Profile> load(List<UUID> accountIds);
 
-    UserSummaryDto getUserSummary(UUID id);
+    ProfileReadModel getProfileReadModel(UUID id);
 
-    Map<UUID, UserSummaryDto> getUserSummaries(List<UUID> ids);
-
-    Profile getDMUserProfile(UUID userId);
+    Map<UUID, ProfileReadModel> getProfileReadModels(List<UUID> ids);
 
 }

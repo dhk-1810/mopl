@@ -8,3 +8,5 @@ public record SendLiveChatMessageQuery(
         String destination
 ) {
 }
+
+

@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.dm.conversation.infra.in;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.composite.DMCompositeService;
-import org.codeit.sb06.team03.mopl.dm.conversation.infra.in.request.ConversationCreateRequest;
+import org.codeit.sb06.team03.mopl.dm.conversation.infra.in.request.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

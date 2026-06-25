@@ -3,7 +3,6 @@ package org.codeit.sb06.team03.mopl.dm.conversation.infra.out;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.dm.conversation.application.out.LoadConversationPort;
 import org.codeit.sb06.team03.mopl.dm.conversation.domain.Conversation;
-import org.codeit.sb06.team03.mopl.dm.conversation.infra.in.CursorRequestConversationDto;
 import org.springframework.stereotype.Component;
 
 import java.util.*;

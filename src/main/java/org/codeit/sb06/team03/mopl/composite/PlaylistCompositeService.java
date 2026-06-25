@@ -17,10 +17,10 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistUpdateReque
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.CursorResponsePlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
+
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
-import org.codeit.sb06.team03.mopl.profile.domain.Profile;
-import org.codeit.sb06.team03.mopl.profile.domain.exception.ProfileNotFoundException;
-import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
+
 import org.springframework.data.domain.Slice;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -61,25 +61,27 @@ public class PlaylistCompositeService {
         MoplUserDetails userDetails = (MoplUserDetails) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
-        UserSummaryDto owner = new UserSummaryDto(
-                userDetails.getId(),
-                userDetails.getUserDto().name(),
-                userDetails.getUserDto().profilePresignedUrl());
+        var userDto = userDetails.getUserDto();
+        UserSummaryDto owner = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profilePresignedUrl());
 
         return PlaylistDto.toDto(playlist, owner, false , Collections.emptyList());
     }
+
 
     public CursorResponsePlaylistDto getAll(CursorRequestPlaylistDto request, UUID viewerId) {
         Slice<PlaylistReadModel> slice = getPlaylistsUseCase.get(request, viewerId);
         List<PlaylistReadModel> readModels = slice.getContent();
 
         List<UUID> ownerIds = readModels.stream().map(PlaylistReadModel::ownerId).toList();
-        List<Profile> profileList = getProfileUseCase.load(ownerIds);
-        Map<UUID, UserSummaryDto> owners = profileList.stream()
+        Map<UUID, ProfileReadModel> ownersMap = getProfileUseCase.getProfileReadModels(ownerIds);
+        Map<UUID, UserSummaryDto> owners = ownersMap.entrySet().stream()
                 .collect(Collectors.toMap(
-                        Profile::getAccountId,
-                        profile -> UserSummaryDto.from(profile, getPresignedUrlUseCase),
-                        (existing, replacement) -> existing // 중복 ID 발생 시 기존 값 유지
+                        Map.Entry::getKey,
+                        entry -> {
+                            ProfileReadModel profile = entry.getValue();
+                            String url = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
+                            return new UserSummaryDto(profile.userId(), profile.name(), url);
+                        }
                 ));
 
         Set<UUID> playlistIds = readModels.stream().map(PlaylistReadModel::id).collect(Collectors.toSet());
@@ -150,13 +152,16 @@ public class PlaylistCompositeService {
     public PlaylistDto get(UUID playlistId, UUID viewerId) {
         PlaylistReadModel readModel = getPlaylistUseCase.get(playlistId, viewerId);
 
-        Profile profile = getProfileUseCase.load(readModel.ownerId());
-        UserSummaryDto owner = UserSummaryDto.from(profile, getPresignedUrlUseCase);
+        ProfileReadModel ownerProfile = getProfileUseCase.getProfileReadModel(readModel.ownerId());
+        String url = getPresignedUrlUseCase.getPresignedUrl(ownerProfile.imageKey());
+        UserSummaryDto owner = new UserSummaryDto(ownerProfile.userId(), ownerProfile.name(), url);
 
         boolean subscribedByMe = getSubscriptionUseCase.isSubscribed(playlistId, viewerId);
         List<ContentDto> contentDtos = getContentDtos(readModel.id());
         return PlaylistDto.toDto(readModel, owner, subscribedByMe, contentDtos);
     }
+
+
 
     public PlaylistDto updatePlayList(UUID playlistId, PlaylistUpdateRequest request, UUID ownerId) {
 
@@ -166,13 +171,12 @@ public class PlaylistCompositeService {
         MoplUserDetails userDetails = (MoplUserDetails) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
-        UserSummaryDto owner = new UserSummaryDto(
-                userDetails.getId(),
-                userDetails.getUserDto().name(),
-                userDetails.getUserDto().profilePresignedUrl());
+        var userDto = userDetails.getUserDto();
+        UserSummaryDto owner = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profilePresignedUrl());
         List<ContentDto> contentDtos = getContentDtos(playlist.getId());
         return PlaylistDto.toDto(playlist, owner, false , contentDtos);
     }
+
 
     private List<ContentDto> getContentDtos(UUID playlistId) {
         Map<UUID, List<UUID>> contentIdsMap = getCurationUseCase.getContentIdsByPlaylistIds(Set.of(playlistId));

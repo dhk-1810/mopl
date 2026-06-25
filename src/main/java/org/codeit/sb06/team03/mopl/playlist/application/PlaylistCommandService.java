@@ -11,8 +11,8 @@ import org.codeit.sb06.team03.mopl.playlist.domain.entity.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.PlaylistService;
 import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.*;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.codeit.sb06.team03.mopl.profile.application.out.LoadProfilePort;
+
 import org.codeit.sb06.team03.mopl.profile.domain.Profile;
 import org.codeit.sb06.team03.mopl.profile.domain.exception.ProfileNotFoundException;
 import org.springframework.context.ApplicationEventPublisher;

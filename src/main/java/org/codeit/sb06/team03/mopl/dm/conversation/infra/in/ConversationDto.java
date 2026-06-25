@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.dm.conversation.infra.in;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.springframework.lang.Nullable;
 
 public record ConversationDto(
@@ -8,7 +9,7 @@ public record ConversationDto(
         String id,
 
         @Schema(description = "대화 상대 정보")
-        DMUserDto with,
+        UserSummaryDto with,
 
         @Nullable
         @Schema(description = "마지막 메시지 내용")

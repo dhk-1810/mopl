@@ -1,13 +1,15 @@
-package org.codeit.sb06.team03.mopl.dm.conversation.infra.in;
+package org.codeit.sb06.team03.mopl.dm.conversation.infra.in.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
+import org.codeit.sb06.team03.mopl.dm.conversation.infra.in.ConversationDto;
 import org.springframework.lang.Nullable;
 
 import java.util.List;
 
-public record CursorResponseDirectMessageDto(
+public record CursorResponseConversationDto(
         @Schema(description = "데이터 목록")
-        List<DirectMessageDto> data,
+        List<ConversationDto> data,
 
         @Nullable
         @Schema(description = "다음 커서")
@@ -27,6 +29,6 @@ public record CursorResponseDirectMessageDto(
         String sortBy,
 
         @Schema(description = "정렬 방향")
-        SortOrder sortOrder
-        ) {
+        SortDirection sortDirection
+) {
 }

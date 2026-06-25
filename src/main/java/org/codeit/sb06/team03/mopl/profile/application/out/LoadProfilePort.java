@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.profile.application.out;
 
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.domain.Profile;
 
 import java.util.List;
@@ -14,7 +14,7 @@ public interface LoadProfilePort {
 
     List<Profile> load(List<UUID> accountIds);
 
-    Optional<UserSummaryDto> getUserSummary(UUID id);
+    Optional<ProfileReadModel> getProfileReadModel(UUID id);
 
-    Map<UUID, UserSummaryDto> getUserSummaries(List<UUID> ids);
+    Map<UUID, ProfileReadModel> getProfileReadModels(List<UUID> ids);
 }

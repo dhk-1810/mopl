@@ -3,13 +3,13 @@ package org.codeit.sb06.team03.mopl.dm.livemessage.infra.in;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.dm.conversation.application.in.GetConversationUseCase;
-import org.codeit.sb06.team03.mopl.dm.conversation.infra.in.DMUserDto;
 import org.codeit.sb06.team03.mopl.dm.conversation.infra.in.DirectMessageDto;
 import org.codeit.sb06.team03.mopl.dm.livemessage.application.in.MessagePassUseCase;
 import org.codeit.sb06.team03.mopl.dm.livemessage.domain.event.LiveMessageEvent;
 import org.codeit.sb06.team03.mopl.notification.application.in.CreateNotificationUseCase;
 import org.codeit.sb06.team03.mopl.notification.domain.NotificationLevel;
 import org.codeit.sb06.team03.mopl.notification.infra.in.NotificationDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.codeit.sb06.team03.mopl.sse.application.SseUseCase;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -42,13 +42,13 @@ public class LiveMessageEventListener {
                     event.getReceiver()
             );
             if (!getConversationUseCase.isParticipantActive(event.getReceiverId(), event.getConversationId())) {
-                DMUserDto sender = DMUserDto.from(event.getSender());
+                UserSummaryDto sender = event.getSender();
                 DirectMessageDto dto = new DirectMessageDto(
                         event.getMessageId().toString(),
                         event.getConversationId().toString(),
                         event.getCreatedAt().toString(),
                         sender,
-                        DMUserDto.from(event.getReceiver()),
+                        event.getReceiver(),
                         event.getContent()
                 );
                 sseUseCase.send(dto, EVENT_NAME_DM, event.getReceiverId());

@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.profile.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.codeit.sb06.team03.mopl.profile.application.out.LoadProfilePort;
 import org.codeit.sb06.team03.mopl.profile.domain.Profile;
@@ -31,19 +31,14 @@ public class ProfileQueryService implements GetProfileUseCase {
     }
 
     @Override
-    public UserSummaryDto getUserSummary(UUID id) {
-        return loadProfilePort.getUserSummary(id)
+    public ProfileReadModel getProfileReadModel(UUID id) {
+        return loadProfilePort.getProfileReadModel(id)
                 .orElseThrow(() -> new ProfileNotFoundException(id));
     }
 
     @Override
-    public Map<UUID, UserSummaryDto> getUserSummaries(List<UUID> ids) {
-        return loadProfilePort.getUserSummaries(ids);
+    public Map<UUID, ProfileReadModel> getProfileReadModels(List<UUID> ids) {
+        return loadProfilePort.getProfileReadModels(ids);
     }
 
-    @Override
-    public Profile getDMUserProfile(UUID userId) {
-        return loadProfilePort.load(userId)
-                .orElseThrow(() -> new ProfileNotFoundException(userId));
-    }
 }

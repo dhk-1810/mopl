@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.profile.infra.in;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.springframework.lang.Nullable;
 
 import java.util.List;
@@ -28,14 +29,6 @@ public record CursorResponseUserDto(
         String sortBy,
 
         @Schema(description = "정렬 방향")
-        SortOrder sortOrder
+        SortDirection sortDirection
         ) {
-
-    public enum SortOrder {
-        ASCENDING, DESCENDING;
-
-        public static SortOrder parse(String name) {
-            return SortOrder.valueOf(name.toUpperCase());
-        }
-    }
 }

@@ -1,22 +1,23 @@
 package org.codeit.sb06.team03.mopl.profile.application.out;
 
-import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.domain.Profile;
 import org.codeit.sb06.team03.mopl.profile.infra.out.ProfileRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 public class LoadProfileAdapter implements LoadProfilePort {
 
     private final ProfileRepository repository;
-    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
-    public LoadProfileAdapter(ProfileRepository repository, GetPresignedUrlUseCase getPresignedUrlUseCase) {
+    public LoadProfileAdapter(ProfileRepository repository) {
         this.repository = repository;
-        this.getPresignedUrlUseCase = getPresignedUrlUseCase;
     }
 
     @Override
@@ -30,27 +31,19 @@ public class LoadProfileAdapter implements LoadProfilePort {
     }
 
     @Override
-    public Optional<UserSummaryDto> getUserSummary(UUID id) {
-        return repository.findById(id)
-                .map(profile -> {
-                    String url = getPresignedUrlUseCase.getPresignedUrl(profile.getImageKey());
-                    return new UserSummaryDto(profile.getAccountId(), profile.getName(), url);
-                });
+    public Optional<ProfileReadModel> getProfileReadModel(UUID id) {
+        return repository.findReadModelById(id);
     }
 
     @Override
-    public Map<UUID, UserSummaryDto> getUserSummaries(List<UUID> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        List<Profile> profiles = repository.findByAccountIdIn(ids);
-        Map<UUID, UserSummaryDto> result = new HashMap<>();
-        for (Profile profile : profiles) {
-            String url = getPresignedUrlUseCase.getPresignedUrl(profile.getImageKey());
-            result.put(profile.getAccountId(), new UserSummaryDto(profile.getAccountId(), profile.getName(), url));
-        }
-        return result;
+    public Map<UUID, ProfileReadModel> getProfileReadModels(List<UUID> ids) {
+        List<ProfileReadModel> list = repository.findReadModelsByIds(ids);
+        return list.stream()
+                .collect(Collectors.toMap(
+                        ProfileReadModel::userId,
+                        rm -> rm,
+                        (existing, replacement) -> existing
+                ));
     }
-}
 
+}
