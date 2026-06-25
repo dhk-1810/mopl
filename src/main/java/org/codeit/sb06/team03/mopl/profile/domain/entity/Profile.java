@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.profile.domain;
+package org.codeit.sb06.team03.mopl.profile.domain.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

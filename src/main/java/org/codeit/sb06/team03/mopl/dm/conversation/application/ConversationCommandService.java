@@ -16,7 +16,6 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional // TODO 트랜잭션
 public class ConversationCommandService implements CreateConversationUseCase, ReadMessageUseCase, JoinLiveMessageUseCase, LeaveLiveMessageUseCase {
 
     private final ConversationService conversationService;

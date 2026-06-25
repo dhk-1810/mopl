@@ -8,7 +8,7 @@ import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.exception.AccountNotFoundException;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
 import org.codeit.sb06.team03.mopl.profile.application.out.LoadProfilePort;
-import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.domain.exception.ProfileNotFoundException;
 import org.codeit.sb06.team03.mopl.profile.infra.in.CursorRequestUserDto;
 import org.codeit.sb06.team03.mopl.profile.infra.in.CursorResponseUserDto;

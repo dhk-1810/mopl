@@ -1,8 +1,6 @@
 package org.codeit.sb06.team03.mopl.playlist.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierException;
-import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
 import org.codeit.sb06.team03.mopl.playlist.application.out.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.CurationService;
@@ -13,15 +11,14 @@ import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.playlist.domain.exception.*;
 import org.codeit.sb06.team03.mopl.profile.application.out.LoadProfilePort;
 
-import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.domain.exception.ProfileNotFoundException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-// TODO 사용자 삭제되면 구독 삭제, 컨텐츠 삭제되면 큐레이션 삭제
+// TODO 사용자 삭제되면 구독, 플리 삭제, 컨텐츠 삭제되면 큐레이션 삭제
 @RequiredArgsConstructor
 @Service
 public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase, DeletePlaylistUseCase, AddContentToCurationUseCase, DeleteContentFromCurationUseCase, SubscribePlaylistUseCase, UnsubscribePlaylistUseCase {
@@ -77,6 +74,7 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
             throw new PlaylistAccessDeniedException(playlistId, ownerId);
         }
         savePlaylistPort.delete(playlistId);
+
         eventPublisher.publishEvent(new PlaylistEvent.PlaylistDeletedEvent(playlistId));
     }
 

@@ -1,5 +1,6 @@
 package org.codeit.sb06.team03.mopl.profile.domain;
 
+import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 

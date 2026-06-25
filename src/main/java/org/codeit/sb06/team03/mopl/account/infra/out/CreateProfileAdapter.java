@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.account.infra.out;
 import org.codeit.sb06.team03.mopl.account.application.out.CreateProfilePort;
 import org.codeit.sb06.team03.mopl.profile.application.in.CreateProfileCommand;
 import org.codeit.sb06.team03.mopl.profile.application.in.CreateProfileUseCase;
-import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;

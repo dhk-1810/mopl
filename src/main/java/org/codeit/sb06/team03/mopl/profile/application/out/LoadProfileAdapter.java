@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.profile.application.out;
 
 import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
-import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.infra.out.ProfileRepository;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +44,11 @@ public class LoadProfileAdapter implements LoadProfilePort {
                         rm -> rm,
                         (existing, replacement) -> existing
                 ));
+    }
+
+    @Override
+    public List<Profile> loadByNameContaining(String name) {
+        return repository.findByNameContaining(name);
     }
 
 }

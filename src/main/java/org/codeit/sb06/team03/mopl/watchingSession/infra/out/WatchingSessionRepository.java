@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.codeit.sb06.team03.mopl.profile.domain.QProfile.profile;
 import static org.codeit.sb06.team03.mopl.watchingSession.domain.QWatchingSession.watchingSession;
 
 public interface WatchingSessionRepository extends QuerydslJpaRepository<WatchingSession, UUID> {
@@ -37,15 +36,14 @@ public interface WatchingSessionRepository extends QuerydslJpaRepository<Watchin
         BooleanExpression cursorAndAssistanceCursorCondition =
                 getCursorAndAssistanceCursorCondition(condition.cursor(), condition.idAfter(), condition.sortDirection());
 
-        BooleanExpression watcherNameLikeCondition = getWatcherNameLikeCondition(condition.watcherNameLike());
+        BooleanExpression watcherIdInCondition = getWatcherIdInCondition(condition.watcherIds());
 
         List<WatchingSession> sessions = select(watchingSession)
                 .from(watchingSession)
-                .innerJoin(profile).on(watchingSession.watcherId.eq(profile.accountId)) // TODO CQRS
                 .where(
                         watchingSession.liveChatId.eq(condition.contentId()),
                         cursorAndAssistanceCursorCondition,
-                        watcherNameLikeCondition
+                        watcherIdInCondition
                 )
                 .limit(condition.limit() + 1)
                 .orderBy(primaryOrder, secondaryOrder)
@@ -60,11 +58,14 @@ public interface WatchingSessionRepository extends QuerydslJpaRepository<Watchin
         return new SliceImpl<>(sessions, PageRequest.ofSize(condition.limit()), hasNext);
     }
 
-    private BooleanExpression getWatcherNameLikeCondition(String watcherName) {
-        if (watcherName == null || watcherName.isBlank()) {
+    private BooleanExpression getWatcherIdInCondition(List<UUID> watcherIds) {
+        if (watcherIds == null) {
             return null;
         }
-        return profile.name.like("%" + watcherName + "%");
+        if (watcherIds.isEmpty()) {
+            return watchingSession.id.isNull();
+        }
+        return watchingSession.watcherId.in(watcherIds);
     }
 
     private BooleanExpression getCursorAndAssistanceCursorCondition(

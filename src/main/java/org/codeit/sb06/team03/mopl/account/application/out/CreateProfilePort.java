@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.account.application.out;
 
-import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;

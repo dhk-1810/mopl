@@ -13,7 +13,7 @@ import org.codeit.sb06.team03.mopl.account.domain.policy.TempPasswordResetTimeou
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.account.domain.vo.Password;
 import org.codeit.sb06.team03.mopl.account.domain.vo.Role;
-import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

@@ -7,7 +7,7 @@ import org.codeit.sb06.team03.mopl.profile.application.in.UpdateProfileCommand;
 import org.codeit.sb06.team03.mopl.profile.application.in.UpdateProfileUseCase;
 import org.codeit.sb06.team03.mopl.profile.application.out.LoadProfilePort;
 import org.codeit.sb06.team03.mopl.profile.application.out.SaveProfilePort;
-import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.domain.ProfileService;
 import org.codeit.sb06.team03.mopl.profile.domain.exception.ProfileNotFoundException;
 import org.springframework.stereotype.Service;

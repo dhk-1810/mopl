@@ -10,6 +10,7 @@ import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorWatchingSessionRequest;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
@@ -49,7 +50,15 @@ public class WatchingSessionCompositeService {
 
     public CursorResponseWatchingSessionDto getWatchingSessions(UUID contentId, CursorWatchingSessionRequest request) {
 
-        Slice<WatchingSessionReadModel> slice = getWatchingSessionUseCase.get(contentId, request);
+        List<UUID> filteredWatcherIds = null;
+        if (request.watcherNameLike() != null && !request.watcherNameLike().isBlank()) {
+            filteredWatcherIds = getProfileUseCase.loadByNameContaining(request.watcherNameLike())
+                    .stream()
+                    .map(Profile::getAccountId)
+                    .toList();
+        }
+
+        Slice<WatchingSessionReadModel> slice = getWatchingSessionUseCase.get(contentId, filteredWatcherIds, request);
         List<WatchingSessionReadModel> watchingSessions = slice.getContent();
 
         List<UUID> watcherIds = watchingSessions.stream().map(WatchingSessionReadModel::watcherId).toList();

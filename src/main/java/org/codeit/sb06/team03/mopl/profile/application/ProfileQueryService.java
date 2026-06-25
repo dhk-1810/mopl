@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.codeit.sb06.team03.mopl.profile.application.out.LoadProfilePort;
-import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.domain.exception.ProfileNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -39,6 +38,11 @@ public class ProfileQueryService implements GetProfileUseCase {
     @Override
     public Map<UUID, ProfileReadModel> getProfileReadModels(List<UUID> ids) {
         return loadProfilePort.getProfileReadModels(ids);
+    }
+
+    @Override
+    public List<Profile> loadByNameContaining(String name) {
+        return loadProfilePort.loadByNameContaining(name);
     }
 
 }

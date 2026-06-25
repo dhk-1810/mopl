@@ -11,13 +11,14 @@ import org.codeit.sb06.team03.mopl.content.infra.in.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorResponseContentDto;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
 import org.codeit.sb06.team03.mopl.image.application.in.RegisterImageUseCase;
+import org.codeit.sb06.team03.mopl.liveChat.application.in.CreateLiveChatUseCase;
+import org.codeit.sb06.team03.mopl.liveChat.application.in.DeleteLiveChatUseCase;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
-// TODO 트랜잭션
 @RequiredArgsConstructor
 @Service
 public class ContentCompositeService {
@@ -27,6 +28,10 @@ public class ContentCompositeService {
     private final CreateContentUseCase createContentUseCase;
     private final UpdateContentUseCase updateContentUseCase;
     private final DeleteContentUseCase deleteContentUseCase;
+
+    private final CreateLiveChatUseCase createLiveChatUseCase;
+    private final DeleteLiveChatUseCase deleteLiveChatUseCase;
+
     private final GetPresignedUrlUseCase getPresignedUrlUseCase;
     private final RegisterImageUseCase registerImageUseCase;
 
@@ -75,6 +80,7 @@ public class ContentCompositeService {
         String thumbnailKey = registerImageUseCase.register(image);
         CreateContentCommand command = contentMapper.toCommand(request);
         ContentReadModel readModel = createContentUseCase.create(command, thumbnailKey);
+        createLiveChatUseCase.create(readModel.id());
         return ContentDto.from(readModel, getPresignedUrl(thumbnailKey));
     }
 
@@ -86,6 +92,7 @@ public class ContentCompositeService {
 
     public void delete(UUID contentId) {
         deleteContentUseCase.delete(contentId);
+        deleteLiveChatUseCase.delete(contentId);
     }
 
     private String getPresignedUrl(String thumbnailKey) {

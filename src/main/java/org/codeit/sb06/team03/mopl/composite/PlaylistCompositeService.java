@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-// TODO 트랜잭션
 @RequiredArgsConstructor
 @Service
 public class PlaylistCompositeService {

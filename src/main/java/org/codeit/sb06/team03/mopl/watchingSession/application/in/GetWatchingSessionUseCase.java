@@ -13,7 +13,7 @@ public interface GetWatchingSessionUseCase {
 
     WatchingSessionReadModel get(UUID watcherId);
 
-    Slice<WatchingSessionReadModel> get(UUID contentId, CursorWatchingSessionRequest request);
+    Slice<WatchingSessionReadModel> get(UUID contentId, List<UUID> watcherIds, CursorWatchingSessionRequest request);
 
     WatchingSession get(UUID liveChatId, UUID watcherId);
 

@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.profile.infra.in;
 
 import org.codeit.sb06.team03.mopl.account.domain.Account;
-import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 
 import java.time.Instant;
 import java.util.UUID;

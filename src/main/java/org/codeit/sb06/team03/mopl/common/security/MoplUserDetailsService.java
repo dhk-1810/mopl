@@ -6,7 +6,7 @@ import org.codeit.sb06.team03.mopl.account.domain.exception.AccountNotFoundExcep
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.account.infra.out.AccountRepository;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
-import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

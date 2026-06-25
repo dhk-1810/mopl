@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.AbstractAggregateRoot;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -15,7 +16,7 @@ import java.util.UUID;
         name = "playlists",
         indexes = { @Index(name = "idx_updatedAt_cursor", columnList = "updatedAt, id") }
 )
-public class Playlist {
+public class Playlist extends AbstractAggregateRoot<Playlist> {
 
     @Id
     @Column(name = "id", nullable = false)

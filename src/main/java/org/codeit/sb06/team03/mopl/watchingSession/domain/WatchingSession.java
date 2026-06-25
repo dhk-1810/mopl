@@ -12,7 +12,15 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "watching_sessions")
+@Table(
+        name = "watching_sessions",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uq_watcher_id_live_chat_id",
+                        columnNames = {"watcher_id", "live_chat_id"} // 한 유저가 같은 liveCHat에 참여 불가하게 제한.
+                )
+        }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WatchingSession extends AbstractAggregateRoot<WatchingSession> {
@@ -24,7 +32,6 @@ public class WatchingSession extends AbstractAggregateRoot<WatchingSession> {
     @Column(name = "watcher_id", nullable = false)
     private UUID watcherId;
 
-    // TODO: 한 유저가 같은 liveChat에 참여하지 못하게 하려면 watcherId + liveChatId 복합 유니크 조건 필요
     @NotNull
     @Column(name = "live_chat_id", nullable = false)
     private UUID liveChatId;

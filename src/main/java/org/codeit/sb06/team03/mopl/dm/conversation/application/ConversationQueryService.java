@@ -14,7 +14,6 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true) // TODO 제거
 public class ConversationQueryService implements GetConversationUseCase {
 
     private final LoadConversationPort loadConversationPort;

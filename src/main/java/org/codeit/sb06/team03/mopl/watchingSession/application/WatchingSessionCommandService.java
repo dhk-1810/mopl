@@ -68,13 +68,13 @@ public class WatchingSessionCommandService implements
     }
 
     @Override
-    public Slice<WatchingSessionReadModel> get(UUID contentId, CursorWatchingSessionRequest request) {
+    public Slice<WatchingSessionReadModel> get(UUID contentId, List<UUID> watcherIds, CursorWatchingSessionRequest request) {
         Instant cursorInstant = request.cursor() != null ? Instant.parse(request.cursor()) : null;
         UUID idAfterUuid = request.idAfter() != null ? UUID.fromString(request.idAfter()) : null;
 
         WatchingSessionSearchCondition query = new WatchingSessionSearchCondition(
                 contentId,
-                request.watcherNameLike(),
+                watcherIds,
                 cursorInstant,
                 idAfterUuid,
                 request.limit(),
