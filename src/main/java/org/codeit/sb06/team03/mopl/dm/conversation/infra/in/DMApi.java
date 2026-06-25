@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.UUID;
+
 @Tag(name = "다이렉트 메시지")
 public interface DMApi {
 
@@ -27,16 +29,16 @@ public interface DMApi {
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
-    ResponseEntity<ConversationDto> postConversation(@RequestBody(required = true) @Valid ConversationCreateRequest request);
+    ResponseEntity<ConversationDto> createConversation(@RequestBody(required = true) @Valid ConversationCreateRequest request);
 
     @Operation(summary = "DM 읽음 처리")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
-    ResponseEntity<Void> postReadDirectMessage(
-            @PathVariable String conversationId,
-            @PathVariable String directMessageId
+    ResponseEntity<Void> readDirectMessage(
+            @PathVariable UUID conversationId,
+            @PathVariable UUID directMessageId
     );
 
     @Operation(summary = "대화 조회")
@@ -45,7 +47,7 @@ public interface DMApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "404", description = "해당 리소스 없음")
     @ApiResponse(responseCode = "500", description = "서버 오류")
-    ResponseEntity<ConversationDto> getConversation(@PathVariable String conversationId);
+    ResponseEntity<ConversationDto> getConversation(@PathVariable UUID conversationId);
 
     @Operation(summary = "DM 목록 조회 (커서 페이지네이션)")
     @ApiResponse(responseCode = "200", description = "성공")
@@ -53,7 +55,7 @@ public interface DMApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<CursorResponseDirectMessageDto> getDirectMessages(
-            @PathVariable String conversationId,
+            @PathVariable UUID conversationId,
             @ModelAttribute CursorRequestDirectMessageDto request
     );
 
@@ -63,5 +65,5 @@ public interface DMApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "404", description = "해당 리소스 없음")
     @ApiResponse(responseCode = "500", description = "서버 오류")
-    ResponseEntity<ConversationDto> getConversationWith(@Parameter(required = true) @RequestParam String userId);
+    ResponseEntity<ConversationDto> getConversationWith(@Parameter(required = true) @RequestParam UUID userId);
 }

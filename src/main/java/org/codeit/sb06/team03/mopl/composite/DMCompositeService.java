@@ -8,7 +8,7 @@ import org.codeit.sb06.team03.mopl.dm.conversation.domain.entity.LiveMessageStat
 import org.codeit.sb06.team03.mopl.dm.conversation.domain.vo.DMUser;
 import org.codeit.sb06.team03.mopl.dm.conversation.infra.in.*;
 import org.codeit.sb06.team03.mopl.dm.conversation.infra.in.request.ConversationCreateRequest;
-import org.codeit.sb06.team03.mopl.dm.livemessage.application.in.GetDirectMessageUseCase;
+import org.codeit.sb06.team03.mopl.dm.livemessage.application.in.GetDMUseCase;
 import org.codeit.sb06.team03.mopl.dm.livemessage.application.in.MessageSendCommand;
 import org.codeit.sb06.team03.mopl.dm.livemessage.application.in.MessageSendUseCase;
 import org.codeit.sb06.team03.mopl.dm.livemessage.domain.LiveMessage;
@@ -20,15 +20,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// TODO 트랜잭션
 @RequiredArgsConstructor
 @Service
 public class DMCompositeService {
 
     private final CreateConversationUseCase createConversationUseCase;
     private final GetConversationUseCase getConversationUseCase;
-    private final MessageReadUseCase messageReadUseCase;
+    private final ReadMessageUseCase messageReadUseCase;
     private final MessageSendUseCase messageSendUseCase;
-    private final GetDirectMessageUseCase getDirectMessageUseCase;
+    private final GetDMUseCase getDirectMessageUseCase;
     private final GetDMUserUseCase getDMUserUseCase;
     private final DMMapper dmMapper;
 
@@ -90,36 +91,34 @@ public class DMCompositeService {
         );
     }
 
-    public ConversationDto postConversation(ConversationCreateRequest request) {
+    public ConversationDto createConversation(ConversationCreateRequest request) {
         UUID userId = getCurrentUserId();
         CreateConversationCommand command = dmMapper.toCommand(request.withUserId());
         Conversation conversation = createConversationUseCase.create(userId, command);
         return toConversationDto(conversation, userId, Optional.empty());
     }
 
-    public void postReadDirectMessage(String conversationId, String directMessageId) {
+    public void readDirectMessage(UUID conversationId, UUID directMessageId) {
         UUID userId = getCurrentUserId();
-        messageReadUseCase.read(new MessageReadCommand(
-                UUID.fromString(conversationId),
-                UUID.fromString(directMessageId),
+        messageReadUseCase.read(new ReadMessageCommand(
+                conversationId,
+                directMessageId,
                 userId
         ));
     }
 
-    public ConversationDto getConversation(String conversationId) {
+    public ConversationDto getConversation(UUID conversationId) {
         UUID userId = getCurrentUserId();
-        UUID convId = UUID.fromString(conversationId);
-        Conversation conversation = getConversationUseCase.findById(userId, convId);
-        Optional<LiveMessage> liveMessage = getDirectMessageUseCase.findLatestByConversationId(convId);
+        Conversation conversation = getConversationUseCase.findById(userId, conversationId);
+        Optional<LiveMessage> liveMessage = getDirectMessageUseCase.findLatestByConversationId(conversationId);
         return toConversationDto(conversation, userId, liveMessage);
     }
 
-    public CursorResponseDirectMessageDto getDirectMessages(String conversationId, CursorRequestDirectMessageDto request) {
-        UUID convId = UUID.fromString(conversationId);
+    public CursorResponseDirectMessageDto getDirectMessages(UUID conversationId, CursorRequestDirectMessageDto request) {
         int limit = request.limit();
 
         List<LiveMessage> items = getDirectMessageUseCase.findAll(
-                convId,
+                conversationId,
                 request.cursor(),
                 request.idAfter(),
                 limit,
@@ -138,7 +137,7 @@ public class DMCompositeService {
             nextIdAfter = last.getId().toString();
         }
 
-        long totalCount = getDirectMessageUseCase.countAll(convId);
+        long totalCount = getDirectMessageUseCase.countAll(conversationId);
 
         Set<UUID> userIds = page.stream()
                 .flatMap(msg -> Stream.of(msg.getSenderId(), msg.getReceiverId()))
@@ -160,21 +159,21 @@ public class DMCompositeService {
         );
     }
 
-    public ConversationDto getConversationWith(String withUserId) {
+    public ConversationDto getConversationWith(UUID partnerId) {
         UUID userId = getCurrentUserId();
-        Conversation conversation = getConversationUseCase.findByWith(userId, UUID.fromString(withUserId));
+        Conversation conversation = getConversationUseCase.findByWith(userId, partnerId);
         return toConversationDto(conversation, userId, Optional.empty());
     }
 
-    public void sendMessage(String conversationId, String senderId, MessageSendRequest request) {
-        UUID convId = UUID.fromString(conversationId);
-        UUID senderUuid = UUID.fromString(senderId);
-
-        Conversation conversation = getConversationUseCase.findById(senderUuid, convId);
-        UUID receiverId = conversation.getOtherParticipant(senderUuid);
-
-        messageSendUseCase.send(new MessageSendCommand(convId, senderUuid, receiverId, request.content()));
+    public void sendMessage(UUID conversationId, UUID senderId, MessageSendRequest request) {
+        Conversation conversation = getConversationUseCase.findById(senderId, conversationId);
+        UUID receiverId = conversation.getOtherParticipant(senderId);
+        messageSendUseCase.send(new MessageSendCommand(conversationId, senderId, receiverId, request.content()));
     }
+
+    /**
+     * 헬퍼 메서드들
+     */
 
     private ConversationDto toConversationDto(Conversation conversation, UUID userId, Optional<LiveMessage> liveMessage) {
         UUID withUserId = conversation.getOtherParticipant(userId);

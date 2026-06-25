@@ -6,6 +6,7 @@ import org.codeit.sb06.team03.mopl.content.application.in.*;
 import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
 import org.codeit.sb06.team03.mopl.content.infra.CursorRequestContentDto;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentCreateRequest;
+import org.codeit.sb06.team03.mopl.content.infra.in.ContentMapper;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorResponseContentDto;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
@@ -21,6 +22,7 @@ import java.util.*;
 @Service
 public class ContentCompositeService {
 
+    private final ContentMapper contentMapper;
     private final GetContentUseCase getContentUseCase;
     private final CreateContentUseCase createContentUseCase;
     private final UpdateContentUseCase updateContentUseCase;
@@ -30,6 +32,7 @@ public class ContentCompositeService {
 
     public CursorResponseContentDto getContents(CursorRequestContentDto request) {
 
+        // 개발 편의를 위해 slice를 composite 계층까지 가져옴.
         Slice<ContentReadModel> slice = getContentUseCase.getAll(request);
         List<ContentReadModel> readModels = slice.getContent();
 
@@ -70,12 +73,14 @@ public class ContentCompositeService {
 
     public ContentDto create(ContentCreateRequest request, MultipartFile image) {
         String thumbnailKey = registerImageUseCase.register(image);
-        ContentReadModel readModel = createContentUseCase.create(request, thumbnailKey);
+        CreateContentCommand command = contentMapper.toCommand(request);
+        ContentReadModel readModel = createContentUseCase.create(command, thumbnailKey);
         return ContentDto.from(readModel, getPresignedUrl(thumbnailKey));
     }
 
     public ContentDto update(UUID contentId, ContentUpdateRequest request) {
-        ContentReadModel readModel = updateContentUseCase.update(contentId, request);
+        UpdateContentCommand command = contentMapper.toCommand(request);
+        ContentReadModel readModel = updateContentUseCase.update(contentId, command);
         return ContentDto.from(readModel, getPresignedUrl(readModel.thumbnailKey()));
     }
 

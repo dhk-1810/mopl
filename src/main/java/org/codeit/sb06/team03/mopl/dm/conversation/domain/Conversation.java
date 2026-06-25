@@ -60,7 +60,7 @@ public class Conversation extends AbstractAggregateRoot<Conversation> {
         LiveMessageStat stat = this.liveMessageStats.get(userId);
         if (stat != null) {
             stat.updateActivity(false);
-            registerEvent(new ConversationEvent.LiveMessageLeavedEvent(this.id, userId));
+            registerEvent(new ConversationEvent.LiveMessageLeftEvent(this.id, userId));
         }
     }
 

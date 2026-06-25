@@ -4,7 +4,7 @@ import org.codeit.sb06.team03.mopl.dm.livemessage.domain.LiveMessage;
 
 import java.util.*;
 
-public interface GetDirectMessageUseCase {
+public interface GetDMUseCase {
 
     List<LiveMessage> findAll(
             UUID conversationId,

@@ -11,7 +11,8 @@ public class CursorUtils {
     public static BooleanExpression buildCursorCondition(
             DateTimePath<Instant> createdAt,
             ComparablePath<UUID> id,
-            String cursor, String idAfter, boolean isAsc) {
+            String cursor, String idAfter, boolean isAsc
+    ) {
         if (cursor == null) return null;
         Instant cursorTime = Instant.parse(cursor);
         UUID idAfterUuid = idAfter == null ? null : UUID.fromString(idAfter);

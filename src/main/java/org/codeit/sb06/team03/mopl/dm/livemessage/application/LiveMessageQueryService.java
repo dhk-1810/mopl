@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.dm.livemessage.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.dm.livemessage.application.in.GetDirectMessageUseCase;
+import org.codeit.sb06.team03.mopl.dm.livemessage.application.in.GetDMUseCase;
 import org.codeit.sb06.team03.mopl.dm.livemessage.application.out.LoadLiveMessagePort;
 import org.codeit.sb06.team03.mopl.dm.livemessage.domain.LiveMessage;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
-public class LiveMessageQueryService implements GetDirectMessageUseCase {
+public class LiveMessageQueryService implements GetDMUseCase {
 
     private final LoadLiveMessagePort loadLiveMessagePort;
 

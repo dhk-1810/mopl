@@ -8,8 +8,7 @@ import java.util.UUID;
 @Component
 public class DMMapper {
 
-    public CreateConversationCommand toCommand(String request) {
-        final UUID withUserId = UUID.fromString(request);
-        return new CreateConversationCommand(withUserId);
+    public CreateConversationCommand toCommand(UUID request) {
+        return new CreateConversationCommand(request);
     }
 }

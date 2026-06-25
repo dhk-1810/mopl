@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
+import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ public class DMWebSocketController {
 
     @MessageMapping("/conversations/{conversationId}/direct-messages")
     public void sendMessage(
-            @DestinationVariable String conversationId,
+            @DestinationVariable UUID conversationId,
             @Payload MessageSendRequest request,
             Principal principal
     ) {
@@ -29,6 +30,6 @@ public class DMWebSocketController {
         MoplUserDetails userDetails = (MoplUserDetails) authentication.getPrincipal();
         UserDto userDto = userDetails.getUserDto();
 
-        dmCompositeService.sendMessage(conversationId, userDto.id().toString(), request);
+        dmCompositeService.sendMessage(conversationId, userDto.id(), request);
     }
 }

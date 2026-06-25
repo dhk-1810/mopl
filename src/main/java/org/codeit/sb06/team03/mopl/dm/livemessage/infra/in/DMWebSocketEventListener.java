@@ -2,10 +2,10 @@ package org.codeit.sb06.team03.mopl.dm.livemessage.infra.in;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
-import org.codeit.sb06.team03.mopl.dm.conversation.application.in.LiveMessageJoinCommand;
-import org.codeit.sb06.team03.mopl.dm.conversation.application.in.LiveMessageJoinUseCase;
-import org.codeit.sb06.team03.mopl.dm.conversation.application.in.LiveMessageLeaveCommand;
-import org.codeit.sb06.team03.mopl.dm.conversation.application.in.LiveMessageLeaveUseCase;
+import org.codeit.sb06.team03.mopl.dm.conversation.application.in.JoinLiveMessageCommand;
+import org.codeit.sb06.team03.mopl.dm.conversation.application.in.JoinLiveMessageUseCase;
+import org.codeit.sb06.team03.mopl.dm.conversation.application.in.LeaveLiveMessageCommand;
+import org.codeit.sb06.team03.mopl.dm.conversation.application.in.LeaveLiveMessageUseCase;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
@@ -26,8 +26,8 @@ public class DMWebSocketEventListener {
 
     private static final Pattern DM_SUB_PATTERN = Pattern.compile("^/sub/conversations/[0-9a-fA-F-]+/direct-messages$");
 
-    private final LiveMessageJoinUseCase liveMessageJoinUseCase;
-    private final LiveMessageLeaveUseCase liveMessageLeaveUseCase;
+    private final JoinLiveMessageUseCase joinliveMessageUseCase;
+    private final LeaveLiveMessageUseCase leaveLiveMessageUseCase;
 
     @EventListener
     void onSubscribe(SessionSubscribeEvent event) {
@@ -41,7 +41,7 @@ public class DMWebSocketEventListener {
         UUID conversationId = extractConversationId(destination);
         UUID userId = getUserId(event.getUser());
 
-        liveMessageJoinUseCase.join(new LiveMessageJoinCommand(conversationId, userId));
+        joinliveMessageUseCase.join(new JoinLiveMessageCommand(conversationId, userId));
     }
 
     @EventListener
@@ -59,7 +59,7 @@ public class DMWebSocketEventListener {
         UUID conversationId = extractConversationId(destination);
         UUID userId = getUserId(event.getUser());
 
-        liveMessageLeaveUseCase.leave(new LiveMessageLeaveCommand(conversationId, userId));
+        leaveLiveMessageUseCase.leave(new LeaveLiveMessageCommand(conversationId, userId));
     }
 
     @EventListener
@@ -79,7 +79,7 @@ public class DMWebSocketEventListener {
 
         dmDestinations.forEach(destination -> {
             UUID conversationId = extractConversationId(destination);
-            liveMessageLeaveUseCase.leave(new LiveMessageLeaveCommand(conversationId, userId));
+            leaveLiveMessageUseCase.leave(new LeaveLiveMessageCommand(conversationId, userId));
         });
     }
 

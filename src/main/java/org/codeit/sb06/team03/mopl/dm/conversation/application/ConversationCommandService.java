@@ -16,8 +16,8 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
-public class ConversationCommandService implements CreateConversationUseCase, MessageReadUseCase, LiveMessageJoinUseCase, LiveMessageLeaveUseCase {
+@Transactional // TODO 트랜잭션
+public class ConversationCommandService implements CreateConversationUseCase, ReadMessageUseCase, JoinLiveMessageUseCase, LeaveLiveMessageUseCase {
 
     private final ConversationService conversationService;
     private final LoadConversationPort loadConversationPort;
@@ -35,7 +35,7 @@ public class ConversationCommandService implements CreateConversationUseCase, Me
     }
 
     @Override
-    public void read(MessageReadCommand command) {
+    public void read(ReadMessageCommand command) {
         Conversation conversation = loadConversationPort.findById(command.conversationId())
                 .orElseThrow(() -> new ConversationNotFoundException(command.conversationId()));
 
@@ -55,7 +55,7 @@ public class ConversationCommandService implements CreateConversationUseCase, Me
     }
 
     @Override
-    public void join(LiveMessageJoinCommand command) {
+    public void join(JoinLiveMessageCommand command) {
         Conversation conversation = loadConversationPort.findById(command.conversationId())
                 .orElseThrow(() -> new ConversationNotFoundException(command.conversationId()));
 
@@ -64,7 +64,7 @@ public class ConversationCommandService implements CreateConversationUseCase, Me
     }
 
     @Override
-    public void leave(LiveMessageLeaveCommand command) {
+    public void leave(LeaveLiveMessageCommand command) {
         Conversation conversation = loadConversationPort.findById(command.conversationId())
                 .orElseThrow(() -> new ConversationNotFoundException(command.conversationId()));
 

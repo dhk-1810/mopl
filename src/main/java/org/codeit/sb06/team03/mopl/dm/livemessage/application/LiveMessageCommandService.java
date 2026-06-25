@@ -5,7 +5,7 @@ import org.codeit.sb06.team03.mopl.dm.livemessage.application.out.LoadLiveDMUser
 import org.codeit.sb06.team03.mopl.dm.conversation.domain.vo.DMUser;
 import org.codeit.sb06.team03.mopl.dm.livemessage.application.in.MessageSendCommand;
 import org.codeit.sb06.team03.mopl.dm.livemessage.application.in.MessageSendUseCase;
-import org.codeit.sb06.team03.mopl.dm.livemessage.application.out.MarkUnreadPort;
+import org.codeit.sb06.team03.mopl.dm.livemessage.application.out.MarkAsUnreadPort;
 import org.codeit.sb06.team03.mopl.dm.livemessage.application.out.SaveLiveMessagePort;
 import org.codeit.sb06.team03.mopl.dm.livemessage.domain.LiveMessage;
 import org.codeit.sb06.team03.mopl.dm.livemessage.domain.LiveMessageService;
@@ -20,7 +20,7 @@ public class LiveMessageCommandService implements MessageSendUseCase {
     private final LiveMessageService liveMessageService;
     private final SaveLiveMessagePort saveLiveMessagePort;
     private final LoadLiveDMUserPort loadDMUserPort;
-    private final MarkUnreadPort markUnreadPort;
+    private final MarkAsUnreadPort markAsUnreadPort;
 
     @Override
     public LiveMessage send(MessageSendCommand command) {
@@ -34,7 +34,7 @@ public class LiveMessageCommandService implements MessageSendUseCase {
         );
         LiveMessage savedMessage = saveLiveMessagePort.save(message);
 
-        markUnreadPort.markAsUnread(command.conversationId(), command.receiverId());
+        markAsUnreadPort.markAsUnread(command.conversationId(), command.receiverId());
 
         return savedMessage;
     }

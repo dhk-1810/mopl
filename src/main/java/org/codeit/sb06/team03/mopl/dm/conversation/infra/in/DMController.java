@@ -8,10 +8,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/conversations")
-public class DMController implements DMApi{
+public class DMController implements DMApi {
 
     private final DMCompositeService dmCompositeService;
 
@@ -24,23 +26,24 @@ public class DMController implements DMApi{
 
     @Override
     @PostMapping
-    public ResponseEntity<ConversationDto> postConversation(@RequestBody(required = true) @Valid ConversationCreateRequest request) {
-        ConversationDto response = dmCompositeService.postConversation(request);
+    public ResponseEntity<ConversationDto> createConversation(@RequestBody(required = true) @Valid ConversationCreateRequest request) {
+        ConversationDto response = dmCompositeService.createConversation(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Override
     @PostMapping("/{conversationId}/direct-messages/{directMessageId}/read")
-    public ResponseEntity<Void> postReadDirectMessage(
-            @PathVariable String conversationId,
-            @PathVariable String directMessageId) {
-        dmCompositeService.postReadDirectMessage(conversationId, directMessageId);
+    public ResponseEntity<Void> readDirectMessage(
+            @PathVariable UUID conversationId,
+            @PathVariable UUID directMessageId
+    ) {
+        dmCompositeService.readDirectMessage(conversationId, directMessageId);
         return ResponseEntity.noContent().build();
     }
 
     @Override
     @GetMapping("/{conversationId}")
-    public ResponseEntity<ConversationDto> getConversation(@PathVariable String conversationId) {
+    public ResponseEntity<ConversationDto> getConversation(@PathVariable UUID conversationId) {
         ConversationDto response = dmCompositeService.getConversation(conversationId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -48,16 +51,17 @@ public class DMController implements DMApi{
     @Override
     @GetMapping("/{conversationId}/direct-messages")
     public ResponseEntity<CursorResponseDirectMessageDto> getDirectMessages(
-            @PathVariable String conversationId,
-            @ModelAttribute CursorRequestDirectMessageDto request) {
+            @PathVariable UUID conversationId,
+            @ModelAttribute CursorRequestDirectMessageDto request
+    ) {
         CursorResponseDirectMessageDto response = dmCompositeService.getDirectMessages(conversationId, request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Override
     @GetMapping("/with")
-    public ResponseEntity<ConversationDto> getConversationWith(@RequestParam String userId) {
-        ConversationDto response = dmCompositeService.getConversationWith(userId);
+    public ResponseEntity<ConversationDto> getConversationWith(@RequestParam UUID partnerId) {
+        ConversationDto response = dmCompositeService.getConversationWith(partnerId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

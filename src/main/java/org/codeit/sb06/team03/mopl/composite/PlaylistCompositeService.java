@@ -150,8 +150,7 @@ public class PlaylistCompositeService {
     public PlaylistDto get(UUID playlistId, UUID viewerId) {
         PlaylistReadModel readModel = getPlaylistUseCase.get(playlistId, viewerId);
 
-        Profile profile = getProfileUseCase.load(readModel.ownerId())
-                .orElseThrow(() -> new ProfileNotFoundException(readModel.ownerId()));
+        Profile profile = getProfileUseCase.load(readModel.ownerId());
         UserSummaryDto owner = UserSummaryDto.from(profile, getPresignedUrlUseCase);
 
         boolean subscribedByMe = getSubscriptionUseCase.isSubscribed(playlistId, viewerId);

@@ -27,7 +27,7 @@ public abstract sealed class ConversationEvent {
 
     @Getter
     @RequiredArgsConstructor
-    public static final class LiveMessageLeavedEvent extends ConversationEvent {
+    public static final class LiveMessageLeftEvent extends ConversationEvent {
         private final UUID conversationId;
         private final UUID userId;
     }
