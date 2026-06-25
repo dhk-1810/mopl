@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface GetSubscriptionUseCase {
 
-    boolean isSubscribed(String playlistId, UUID viewerId);
+    boolean isSubscribed(UUID playlistId, UUID viewerId);
 
     Map<UUID, Boolean> isSubscribed(Set<UUID> playlistIds, UUID viewerId);
 

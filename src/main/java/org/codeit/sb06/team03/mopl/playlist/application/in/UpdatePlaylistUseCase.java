@@ -6,6 +6,6 @@ import java.util.UUID;
 
 public interface UpdatePlaylistUseCase {
 
-    Playlist update(String playlistId, UpdatePlaylistCommand command, UUID ownerId);
+    Playlist update(UUID playlistId, UpdatePlaylistCommand command, UUID ownerId);
 
 }

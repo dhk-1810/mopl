@@ -11,6 +11,7 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.response.CursorResponsePlay
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
+import java.util.UUID;
 
 @Tag(name = "플레이리스트 관리")
 public interface PlaylistApi {
@@ -41,7 +42,7 @@ public interface PlaylistApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<PlaylistDto> getPlaylist(
-            String playlistId,
+            UUID playlistId,
             MoplUserDetails user
     );
 
@@ -51,7 +52,7 @@ public interface PlaylistApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<PlaylistDto> patchPlaylist(
-            String playlistId,
+            UUID playlistId,
             PlaylistUpdateRequest request,
             MoplUserDetails user
     );
@@ -62,7 +63,7 @@ public interface PlaylistApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<Void> deletePlaylist(
-            String playlistId,
+            UUID playlistId,
             MoplUserDetails user
     );
 
@@ -72,8 +73,8 @@ public interface PlaylistApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<Void> postCuration(
-            String playlistId,
-            String contentId,
+            UUID playlistId,
+            UUID contentId,
             MoplUserDetails user
     );
 
@@ -83,8 +84,8 @@ public interface PlaylistApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<Void> deleteCuration(
-            String playlistId,
-            String contentId,
+            UUID playlistId,
+            UUID contentId,
             MoplUserDetails user
     );
 
@@ -94,7 +95,7 @@ public interface PlaylistApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<Void> postSubscription(
-            String playlistId,
+            UUID playlistId,
             MoplUserDetails user
     );
 
@@ -104,7 +105,7 @@ public interface PlaylistApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<Void> deleteSubscription(
-            String playlistId,
+            UUID playlistId,
             MoplUserDetails user
     );
 

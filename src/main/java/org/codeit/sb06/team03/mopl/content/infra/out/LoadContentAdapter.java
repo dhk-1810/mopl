@@ -14,8 +14,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-@Component
 @RequiredArgsConstructor
+@Component
 public class LoadContentAdapter implements LoadContentPort {
 
     private final ContentRepository repository;
@@ -24,7 +24,7 @@ public class LoadContentAdapter implements LoadContentPort {
     public Slice<ContentReadModel> findAll(
             String typeEqual,
             String keywordLike,
-            Set<String> tagsIn,
+            Set<String> tagsIn, // 미사용
             String cursor,
             UUID idAfter,
             int limit,

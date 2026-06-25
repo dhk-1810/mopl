@@ -16,7 +16,7 @@ public interface LoadContentPort {
     Slice<ContentReadModel> findAll(
             String typeEqual,
             String keywordLike,
-            Set<String> tagsIn, // TODO 확인 필요
+            Set<String> tagsIn, // 미사용
             String cursor,
             UUID idAfter,
             int limit,

@@ -27,7 +27,7 @@ public class ContentQueryService implements GetContentUseCase {
         return loadContentPort.findAll(
                 request.typeEqual(),
                 request.keywordLike(),
-                request.tagsIn(),
+                request.tagsIn(), // 미사용
                 request.cursor(),
                 request.idAfter(),
                 request.limit(),

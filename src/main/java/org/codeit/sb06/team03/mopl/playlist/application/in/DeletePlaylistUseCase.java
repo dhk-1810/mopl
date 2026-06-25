@@ -4,5 +4,5 @@ import java.util.UUID;
 
 public interface DeletePlaylistUseCase {
 
-    void delete(String playlistId, UUID ownerId);
+    void delete(UUID playlistId, UUID ownerId);
 }

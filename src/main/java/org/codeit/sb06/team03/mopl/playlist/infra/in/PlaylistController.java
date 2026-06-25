@@ -47,7 +47,7 @@ public class PlaylistController implements PlaylistApi {
     @Override
     @GetMapping("/{playlistId}")
     public ResponseEntity<PlaylistDto> getPlaylist(
-            @PathVariable String playlistId,
+            @PathVariable UUID playlistId,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
         UUID userId =  (user != null) ? user.getId() : null;
@@ -58,7 +58,7 @@ public class PlaylistController implements PlaylistApi {
     @Override
     @PatchMapping("/{playlistId}")
     public ResponseEntity<PlaylistDto> patchPlaylist(
-            @PathVariable String playlistId,
+            @PathVariable UUID playlistId,
             @RequestBody PlaylistUpdateRequest request,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
@@ -69,7 +69,7 @@ public class PlaylistController implements PlaylistApi {
     @Override
     @DeleteMapping("/{playlistId}")
     public ResponseEntity<Void> deletePlaylist(
-            @PathVariable String playlistId,
+            @PathVariable UUID playlistId,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
         playlistCompositeService.deletePlaylist(playlistId, user.getId());
@@ -79,8 +79,8 @@ public class PlaylistController implements PlaylistApi {
     @Override
     @PostMapping("/{playlistId}/contents/{contentId}")
     public ResponseEntity<Void> postCuration(
-            @PathVariable String playlistId,
-            @PathVariable String contentId,
+            @PathVariable UUID playlistId,
+            @PathVariable UUID contentId,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
         playlistCompositeService.addContentToPlaylist(playlistId, contentId, user.getId());
@@ -90,8 +90,8 @@ public class PlaylistController implements PlaylistApi {
     @Override
     @DeleteMapping("/{playlistId}/contents/{contentId}")
     public ResponseEntity<Void> deleteCuration(
-            @PathVariable String playlistId,
-            @PathVariable String contentId,
+            @PathVariable UUID playlistId,
+            @PathVariable UUID contentId,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
         playlistCompositeService.deleteContentFromPlaylist(playlistId, contentId, user.getId());
@@ -101,7 +101,7 @@ public class PlaylistController implements PlaylistApi {
     @Override
     @PostMapping("/{playlistId}/subscription")
     public ResponseEntity<Void> postSubscription(
-            @PathVariable String playlistId,
+            @PathVariable UUID playlistId,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
         playlistCompositeService.subscribePlaylist(playlistId, user.getId());
@@ -111,7 +111,7 @@ public class PlaylistController implements PlaylistApi {
     @Override
     @DeleteMapping("/{playlistId}/subscription")
     public ResponseEntity<Void> deleteSubscription(
-            @PathVariable String playlistId,
+            @PathVariable UUID playlistId,
             @AuthenticationPrincipal MoplUserDetails user
     ) {
         playlistCompositeService.unsubscribePlaylist(playlistId, user.getId());

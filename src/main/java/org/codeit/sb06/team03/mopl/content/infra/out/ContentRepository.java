@@ -12,11 +12,11 @@ import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.SortContentBy;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 import org.springframework.data.domain.*;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.lang.Nullable;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.codeit.sb06.team03.mopl.account.domain.QAccount.account;
 import static org.codeit.sb06.team03.mopl.content.QContent.content;
@@ -30,6 +30,8 @@ import static com.querydsl.core.group.GroupBy.set;
 public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> {
 
     default Optional<ContentReadModel> findByIdWithTags(UUID id) {
+
+        // transform()은 Map을 반환하므로 단건이더라도 Map 사용. Key-Value는 한 쌍만 담김.
         Map<UUID, ContentReadModel> resultMap = select(content)
                 .from(content)
                 .leftJoin(contentTag).on(content.id.eq(contentTag.id.contentId))
@@ -54,7 +56,7 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
     default Slice<ContentReadModel> findAll(
             String typeEqual,
             String keywordLike,
-            Set<String> tagsIn,
+            Set<String> tagsIn, // 미사용
             String cursor,
             UUID idAfter,
             int limit,
@@ -67,15 +69,7 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
                 cursorExpressionPredicate(cursor, idAfter, sortBy, sortDirection)
         };
 
-        var contents = select(Projections.constructor(ContentReadModel.class,
-                    content.id,
-                    content.type,
-                    content.description,
-                    content.thumbnailKey,
-                    content.averageRating,
-                    content.reviewCount,
-                    content.watcherCount
-                ))
+        List<UUID> contentIds = select(content.id)
                 .from(content)
                 .where(predicates)
                 .orderBy(orderByExpressions(sortBy, sortDirection))
@@ -83,12 +77,24 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
                 .fetch();
 
         boolean hasNext = false;
-        if (contents.size() > limit) {
-            contents.remove(limit);
+        if (contentIds.size() > limit) {
+            contentIds.remove(limit);
             hasNext = true;
         }
 
-        return new SliceImpl<>(contents, PageRequest.ofSize(limit), hasNext);
+        // ReadModel 추출
+        List<ContentReadModel> fetchedContents = findByIdsIn(contentIds);
+
+        Map<UUID, ContentReadModel> contentMap = fetchedContents.stream()
+                .collect(Collectors.toMap(ContentReadModel::id, c -> c));
+
+        // 원래 순서로 정렬
+        List<ContentReadModel> orderedContents = contentIds.stream()
+                .map(contentMap::get)
+                .filter(Objects::nonNull)
+                .toList();
+
+        return new SliceImpl<>(orderedContents, PageRequest.ofSize(limit), hasNext);
     }
 
     default List<ContentReadModel> findByIdsIn(Collection<UUID> ids) {

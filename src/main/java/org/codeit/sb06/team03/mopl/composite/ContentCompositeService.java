@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
+// TODO 트랜잭션
 @RequiredArgsConstructor
 @Service
 public class ContentCompositeService {
@@ -63,29 +64,27 @@ public class ContentCompositeService {
     }
 
     public ContentDto getSingleContent(UUID contentId) {
-
         ContentReadModel readModel = getContentUseCase.get(contentId);
-        String presignedUrl = getPresignedUrlUseCase.getPresignedUrl(readModel.thumbnailKey());
-        return ContentDto.from(readModel, presignedUrl);
+        return ContentDto.from(readModel, getPresignedUrl(readModel.thumbnailKey()));
     }
 
     public ContentDto create(ContentCreateRequest request, MultipartFile image) {
-
         String thumbnailKey = registerImageUseCase.register(image);
         ContentReadModel readModel = createContentUseCase.create(request, thumbnailKey);
-        String presignedUrl = getPresignedUrlUseCase.getPresignedUrl(readModel.thumbnailKey());
-        return ContentDto.from(readModel, presignedUrl);
+        return ContentDto.from(readModel, getPresignedUrl(thumbnailKey));
     }
 
     public ContentDto update(UUID contentId, ContentUpdateRequest request) {
-
         ContentReadModel readModel = updateContentUseCase.update(contentId, request);
-        String presignedUrl = getPresignedUrlUseCase.getPresignedUrl(readModel.thumbnailKey());
-        return ContentDto.from(readModel, presignedUrl);
+        return ContentDto.from(readModel, getPresignedUrl(readModel.thumbnailKey()));
     }
 
     public void delete(UUID contentId) {
         deleteContentUseCase.delete(contentId);
+    }
+
+    private String getPresignedUrl(String thumbnailKey) {
+        return getPresignedUrlUseCase.getPresignedUrl(thumbnailKey);
     }
 
 

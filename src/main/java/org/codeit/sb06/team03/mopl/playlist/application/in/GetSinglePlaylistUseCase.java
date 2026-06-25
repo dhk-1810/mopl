@@ -6,6 +6,6 @@ import java.util.UUID;
 
 public interface GetSinglePlaylistUseCase {
 
-    PlaylistReadModel get(String playlistId, UUID viewerId);
+    PlaylistReadModel get(UUID playlistId, UUID viewerId);
 
 }

@@ -3,6 +3,7 @@ package org.codeit.sb06.team03.mopl.playlist.infra.in.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import java.util.UUID;
 
 public record CursorRequestPlaylistDto (
 
@@ -10,16 +11,16 @@ public record CursorRequestPlaylistDto (
         String keywordLike,
 
         @Schema(description = "소유자 ID")
-        String ownerIdEqual,
+        UUID ownerIdEqual,
 
         @Schema(description = "구독자 ID")
-        String subscriberIdEqual,
+        UUID subscriberIdEqual,
 
         @Schema(description = "커서")
         String cursor,
 
         @Schema(description = "보조 커서")
-        String idAfter,
+        UUID idAfter,
 
         @Schema(
                 requiredMode = Schema.RequiredMode.REQUIRED,

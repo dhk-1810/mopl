@@ -28,11 +28,10 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+// TODO 트랜잭션
 @RequiredArgsConstructor
 @Service
 public class PlaylistCompositeService {
-
-    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
     private final PlaylistMapper playlistMapper;
     private final CreatePlaylistUseCase createPlaylistUseCase;
@@ -52,8 +51,7 @@ public class PlaylistCompositeService {
 
     private final GetContentUseCase getContentUseCase;
     private final GetCurationUseCase getCurationUseCase;
-
-    private final GetWatchingSessionUseCase getWatchingSessionUseCase;
+    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
 
@@ -149,7 +147,7 @@ public class PlaylistCompositeService {
         );
     }
 
-    public PlaylistDto get(String playlistId, UUID viewerId) {
+    public PlaylistDto get(UUID playlistId, UUID viewerId) {
         PlaylistReadModel readModel = getPlaylistUseCase.get(playlistId, viewerId);
 
         Profile profile = getProfileUseCase.load(readModel.ownerId())
@@ -161,7 +159,7 @@ public class PlaylistCompositeService {
         return PlaylistDto.toDto(readModel, owner, subscribedByMe, contentDtos);
     }
 
-    public PlaylistDto updatePlayList(String playlistId, PlaylistUpdateRequest request, UUID ownerId) {
+    public PlaylistDto updatePlayList(UUID playlistId, PlaylistUpdateRequest request, UUID ownerId) {
 
         UpdatePlaylistCommand command = playlistMapper.toCommand(request);
         Playlist playlist = updatePlaylistUseCase.update(playlistId, command, ownerId);
@@ -196,23 +194,23 @@ public class PlaylistCompositeService {
                 .toList();
     }
 
-    public void deletePlaylist(String playlistId, UUID ownerId) {
+    public void deletePlaylist(UUID playlistId, UUID ownerId) {
         deletePlaylistUseCase.delete(playlistId, ownerId);
     }
 
-    public void addContentToPlaylist(String playlistId, String contentId, UUID ownerId) {
+    public void addContentToPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
         addContentToCurationUseCase.addContentToPlaylist(playlistId, contentId, ownerId);
     }
 
-    public void deleteContentFromPlaylist(String playlistId, String contentId, UUID ownerId) {
+    public void deleteContentFromPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
         deleteContentFromCurationUseCase.deleteContentFromPlaylist(playlistId, contentId, ownerId);
     }
 
-    public void subscribePlaylist(String playlistId, UUID userId) {
+    public void subscribePlaylist(UUID playlistId, UUID userId) {
         subscribePlaylistUseCase.subscribe(playlistId, userId);
     }
 
-    public void unsubscribePlaylist(String playlistId, UUID userId) {
+    public void unsubscribePlaylist(UUID playlistId, UUID userId) {
         unsubscribePlaylistUseCase.unsubscribe(playlistId, userId);
     }
 }

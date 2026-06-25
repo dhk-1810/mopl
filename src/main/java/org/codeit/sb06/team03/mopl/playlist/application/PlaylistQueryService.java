@@ -36,10 +36,10 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
     public Slice<PlaylistReadModel> get(CursorRequestPlaylistDto request, UUID viewerId) {
 
         String keywordLike = request.keywordLike();
-        UUID ownerIdEqual = parseUUID(request.ownerIdEqual());
-        UUID subscriberIdEqual = parseUUID(request.subscriberIdEqual());
+        UUID ownerIdEqual = request.ownerIdEqual();
+        UUID subscriberIdEqual = request.subscriberIdEqual();
         String cursor = StringUtils.hasText(request.cursor()) ? request.cursor() : null;
-        UUID idAfter = parseUUID(request.idAfter());
+        UUID idAfter = request.idAfter();
         int limit = request.limit();
         String sortDirection = request.sortDirection();
         String sortBy = request.sortBy();
@@ -57,21 +57,19 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
     }
 
     @Override
-    public PlaylistReadModel get(String playlistId, UUID viewerId) {
+    public PlaylistReadModel get(UUID playlistId, UUID viewerId) {
 
-        UUID playlistUUID = parseUUID(playlistId);
-        Playlist playlist = loadSinglePlaylistPort.findById(playlistUUID)
-                .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+        Playlist playlist = loadSinglePlaylistPort.findById(playlistId)
+                .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
         return PlaylistReadModel.from(playlist);
     }
 
     @Override
-    public boolean isSubscribed(String playlistId, UUID viewerId) {
+    public boolean isSubscribed(UUID playlistId, UUID viewerId) {
 
-        UUID playlistUUID = parseUUID(playlistId);
-        SubscriptionId id = new SubscriptionId(playlistUUID, viewerId);
+        SubscriptionId id = new SubscriptionId(playlistId, viewerId);
         return loadSubscriptionPort.existsById(id);
-    };
+    }
 
     @Override
     public Map<UUID, Boolean> isSubscribed(Set<UUID> playlistIds, UUID viewerId) {
@@ -81,17 +79,6 @@ public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlayl
     @Override
     public Map<UUID, List<UUID>> getContentIdsByPlaylistIds(Set<UUID> playlistIds) {
         return loadCurationPort.findAllByPlaylistIdsIn(playlistIds);
-    }
-
-    private UUID parseUUID(String id) {
-        if (!StringUtils.hasText(id)) {
-            return null;
-        }
-        try {
-            return UUID.fromString(id);
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new InvalidIdentifierException(id);
-        }
     }
 
 

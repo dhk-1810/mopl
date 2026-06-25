@@ -22,10 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 // TODO 사용자 삭제되면 구독 삭제, 컨텐츠 삭제되면 큐레이션 삭제
-
 @RequiredArgsConstructor
 @Service
-@Transactional // TODO 삭제
 public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase, DeletePlaylistUseCase, AddContentToCurationUseCase, DeleteContentFromCurationUseCase, SubscribePlaylistUseCase, UnsubscribePlaylistUseCase {
 
     private final SavePlaylistPort savePlaylistPort;
@@ -54,16 +52,15 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     @Override
-    public Playlist update(String playlistId, UpdatePlaylistCommand command, UUID ownerId) {
+    public Playlist update(UUID playlistId, UpdatePlaylistCommand command, UUID ownerId) {
 
-        UUID playlistUUID = parseUUID(playlistId);
         final String title = command.title();
         final String description = command.description();
 
-        Playlist playlist = loadPlaylistPort.findById(playlistUUID)
-                        .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+        Playlist playlist = loadPlaylistPort.findById(playlistId)
+                        .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
         if (!playlist.getOwnerId().equals(ownerId)) {
-            throw new PlaylistAccessDeniedException(playlistUUID, ownerId);
+            throw new PlaylistAccessDeniedException(playlistId, ownerId);
         }
 
         playlist = playlistService.update(playlist, title, description);
@@ -73,35 +70,31 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     @Override
-    public void delete(String playlistId, UUID ownerId) {
-        UUID playlistUUID = parseUUID(playlistId);
-        Playlist playlist = loadPlaylistPort.findById(playlistUUID)
-                .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+    public void delete(UUID playlistId, UUID ownerId) {
+        Playlist playlist = loadPlaylistPort.findById(playlistId)
+                .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
         if (!playlist.getOwnerId().equals(ownerId)) {
-            throw new PlaylistAccessDeniedException(playlistUUID, ownerId);
+            throw new PlaylistAccessDeniedException(playlistId, ownerId);
         }
-        savePlaylistPort.delete(playlistUUID);
-        eventPublisher.publishEvent(new PlaylistEvent.PlaylistDeletedEvent(playlistUUID));
+        savePlaylistPort.delete(playlistId);
+        eventPublisher.publishEvent(new PlaylistEvent.PlaylistDeletedEvent(playlistId));
     }
 
     @Override
-    public void addContentToPlaylist(String playlistId, String contentId, UUID ownerId) {
+    public void addContentToPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
 
-        UUID playlistUUID = parseUUID(playlistId);
-        UUID contentUUID = parseUUID(contentId);
-
-        Playlist playlist = loadPlaylistPort.findById(playlistUUID)
-                .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+        Playlist playlist = loadPlaylistPort.findById(playlistId)
+                .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
         if (!playlist.getOwnerId().equals(ownerId)) {
-            throw new PlaylistAccessDeniedException(playlistUUID, ownerId);
+            throw new PlaylistAccessDeniedException(playlistId, ownerId);
         }
         // TODO loadContentPort.existsById()
 
-        if (loadCurationPort.existsById(new CurationId(playlistUUID, contentUUID))) {
-            throw new ContentAlreadyBeenCuratedException(playlistUUID, contentUUID);
+        if (loadCurationPort.existsById(new CurationId(playlistId, contentId))) {
+            throw new ContentAlreadyBeenCuratedException(playlistId, contentId);
         }
 
-        Curation curation = curationService.create(playlistUUID, contentUUID);
+        Curation curation = curationService.create(playlistId, contentId);
         saveCurationPort.save(curation);
 
         playlist.increaseContentCount();
@@ -112,52 +105,48 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     @Override
-    public void deleteContentFromPlaylist(String playlistId, String contentId, UUID ownerId) {
+    public void deleteContentFromPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
 
-        UUID playlistUUID = parseUUID(playlistId);
-        UUID contentUUID = parseUUID(contentId);
-
-        Playlist playlist = loadPlaylistPort.findById(playlistUUID)
-                        .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+        Playlist playlist = loadPlaylistPort.findById(playlistId)
+                        .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
         if (!playlist.getOwnerId().equals(ownerId)) {
-            throw new PlaylistAccessDeniedException(playlistUUID, ownerId);
+            throw new PlaylistAccessDeniedException(playlistId, ownerId);
         }
 
-        CurationId id = new CurationId(playlistUUID, contentUUID);
+        CurationId id = new CurationId(playlistId, contentId);
         loadCurationPort.findById(id)
-                .orElseThrow(() -> new CurationNotFoundException(playlistUUID, contentUUID));
+                .orElseThrow(() -> new CurationNotFoundException(playlistId, contentId));
 
         saveCurationPort.delete(id);
 
         playlist.decreaseContentCount();
-        savePlaylistPort.delete(playlistUUID);
+        savePlaylistPort.delete(playlistId);
     }
 
     @Override
-    public void subscribe(String playlistId, UUID userId) {
+    public void subscribe(UUID playlistId, UUID userId) {
 
-        UUID playlistUUID = parseUUID(playlistId);
-        Playlist playlist = loadPlaylistPort.findById(playlistUUID)
-                .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+        Playlist playlist = loadPlaylistPort.findById(playlistId)
+                .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
         Profile subscriber = loadProfilePort.load(userId)
                 .orElseThrow(() -> new ProfileNotFoundException(userId));
 
-        SubscriptionId id = new SubscriptionId(playlistUUID, userId);
+        SubscriptionId id = new SubscriptionId(playlistId, userId);
         if (loadSubscriptionPort.existsById(id)){
-            throw new SubscriptionAlreadyExistsException(playlistUUID, userId);
+            throw new SubscriptionAlreadyExistsException(playlistId, userId);
         }
         if (playlist.getOwnerId().equals(userId)){
-            throw new SelfSubscriptionNotAllowedException(playlistUUID, userId);
+            throw new SelfSubscriptionNotAllowedException(playlistId, userId);
         }
 
-        Subscription subscription = subscriptionService.create(playlistUUID, userId);
+        Subscription subscription = subscriptionService.create(playlistId, userId);
         saveSubscriptionPort.save(subscription);
 
         playlist.increaseSubscriberCount();
         savePlaylistPort.save(playlist);
 
         eventPublisher.publishEvent(new PlaylistEvent.SubscriptionCreatedEvent(
-                playlistUUID,
+                playlistId,
                 playlist.getTitle(),
                 userId,
                 subscriber.getName(),
@@ -166,27 +155,18 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     @Override
-    public void unsubscribe(String playlistId, UUID userId) {
+    public void unsubscribe(UUID playlistId, UUID userId) {
 
-        UUID playlistUUID = parseUUID(playlistId);
-        Playlist playlist = loadPlaylistPort.findById(playlistUUID)
-                .orElseThrow(() -> new PlaylistNotFoundException(playlistUUID));
+        Playlist playlist = loadPlaylistPort.findById(playlistId)
+                .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
 
-        SubscriptionId id = new SubscriptionId(playlistUUID, userId);
+        SubscriptionId id = new SubscriptionId(playlistId, userId);
         if (!loadSubscriptionPort.existsById(id)){
-                throw new SubscriptionNotFoundException(playlistUUID, userId);
+                throw new SubscriptionNotFoundException(playlistId, userId);
         }
         saveSubscriptionPort.delete(id);
 
         playlist.decreaseSubscriberCount();
         savePlaylistPort.save(playlist);
-    }
-
-    private UUID parseUUID(String id) {
-        try {
-            return UUID.fromString(id);
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new InvalidIdentifierException(id);
-        }
     }
 }
