@@ -2,7 +2,6 @@ package org.codeit.sb06.team03.mopl.playlist.infra.in;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.follow.application.in.GetFolloweeUseCase;
-import org.codeit.sb06.team03.mopl.follow.application.out.LoadFolloweePort;
 import org.codeit.sb06.team03.mopl.follow.domain.Followee;
 import org.codeit.sb06.team03.mopl.follow.domain.exception.FolloweeNotFoundException;
 import org.codeit.sb06.team03.mopl.notification.application.in.CreateNotificationUseCase;
@@ -84,10 +83,11 @@ public class PlaylistEventListener {
 
         final String notificationTitle = "%s 플레이리스트에 컨텐츠가 추가되었어요."
                 .formatted(event.getPlaylistTitle());
+
         List<NotificationDto> notifications = createNotificationUseCase.createAll(
                         subscriberIds,
                         notificationTitle,
-                        null, // TODO 컨텐츠명
+                        event.getContentTitle(),
                         NotificationLevel.INFO
         );
         Map<UUID, Object> data = notifications.stream()

@@ -199,7 +199,8 @@ public class PlaylistCompositeService {
     }
 
     public void addContentToPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
-        addContentToCurationUseCase.addContentToPlaylist(playlistId, contentId, ownerId);
+        ContentReadModel content = getContentUseCase.get(contentId);
+        addContentToCurationUseCase.addContentToPlaylist(playlistId, contentId, content.title(), ownerId);
     }
 
     public void deleteContentFromPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {

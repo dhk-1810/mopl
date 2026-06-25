@@ -8,8 +8,8 @@ import java.util.UUID;
 @Service
 public class CurationService {
 
-    public Curation create(UUID playlistId, UUID subscriptionId) {
-        return Curation.create(playlistId, subscriptionId);
+    public Curation create(UUID playlistId, UUID subscriptionId, String contentTitle) {
+        return Curation.create(playlistId, subscriptionId, contentTitle);
     }
 
 }

@@ -81,27 +81,24 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
     }
 
     @Override
-    public void addContentToPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
+    public void addContentToPlaylist(UUID playlistId, UUID contentId, String contentTitle, UUID ownerId) {
 
         Playlist playlist = loadPlaylistPort.findById(playlistId)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
         if (!playlist.getOwnerId().equals(ownerId)) {
             throw new PlaylistAccessDeniedException(playlistId, ownerId);
         }
-        // TODO loadContentPort.existsById()
-
         if (loadCurationPort.existsById(new CurationId(playlistId, contentId))) {
             throw new ContentAlreadyBeenCuratedException(playlistId, contentId);
         }
 
-        Curation curation = curationService.create(playlistId, contentId);
+        Curation curation = curationService.create(playlistId, contentId, contentTitle);
         saveCurationPort.save(curation);
 
         playlist.increaseContentCount();
         savePlaylistPort.save(playlist);
 
-        eventPublisher.publishEvent(new PlaylistEvent.CurationAddedEvent(playlist.getId(), playlist.getTitle()));
-        // TODO 컨텐츠 이름도 전달?
+        eventPublisher.publishEvent(new PlaylistEvent.CurationAddedEvent(playlist.getId(), playlist.getTitle(), curation.getContentTitle()));
     }
 
     @Override

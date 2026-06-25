@@ -5,6 +5,7 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.codeit.sb06.team03.mopl.profile.application.out.LoadProfilePort;
 import org.codeit.sb06.team03.mopl.profile.domain.Profile;
+import org.codeit.sb06.team03.mopl.profile.domain.exception.ProfileNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,8 +20,9 @@ public class ProfileQueryService implements GetProfileUseCase {
     private final LoadProfilePort loadProfilePort;
 
     @Override
-    public Optional<Profile> load(UUID accountId) {
-        return loadProfilePort.load(accountId);
+    public Profile load(UUID accountId) {
+        return loadProfilePort.load(accountId)
+                .orElseThrow(() -> new ProfileNotFoundException(accountId));
     }
 
     @Override
@@ -29,8 +31,9 @@ public class ProfileQueryService implements GetProfileUseCase {
     }
 
     @Override
-    public Optional<UserSummaryDto> getUserSummary(UUID id) {
-        return loadProfilePort.getUserSummary(id);
+    public UserSummaryDto getUserSummary(UUID id) {
+        return loadProfilePort.getUserSummary(id)
+                .orElseThrow(() -> new ProfileNotFoundException(id));
     }
 
     @Override
@@ -39,7 +42,8 @@ public class ProfileQueryService implements GetProfileUseCase {
     }
 
     @Override
-    public Optional<Profile> getDMUserProfile(UUID userId) {
-        return loadProfilePort.load(userId);
+    public Profile getDMUserProfile(UUID userId) {
+        return loadProfilePort.load(userId)
+                .orElseThrow(() -> new ProfileNotFoundException(userId));
     }
 }

@@ -15,14 +15,14 @@ import java.util.UUID;
 
 public interface GetProfileUseCase {
 
-    Optional<Profile> load(UUID accountId);
+    Profile load(UUID accountId);
 
     List<Profile> load(List<UUID> accountIds);
 
-    Optional<UserSummaryDto> getUserSummary(UUID id);
+    UserSummaryDto getUserSummary(UUID id);
 
     Map<UUID, UserSummaryDto> getUserSummaries(List<UUID> ids);
 
-    Optional<Profile> getDMUserProfile(UUID userId);
+    Profile getDMUserProfile(UUID userId);
 
 }

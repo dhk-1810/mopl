@@ -27,7 +27,7 @@ public class LoadDMUserAdapter implements LoadDMUserPort {
     @Override
     @Transactional(readOnly = true)
     public DMUser findByUserId(UUID userId) {
-        Profile profile = getProfileUseCase.getDMUserProfile(userId).orElseThrow();
+        Profile profile = getProfileUseCase.getDMUserProfile(userId); // TODO composite로 빼내야함.
         String url = getPresignedUrlUseCase.getPresignedUrl(profile.getImageKey());
         return new DMUser(userId, profile.getName(), url);
     }

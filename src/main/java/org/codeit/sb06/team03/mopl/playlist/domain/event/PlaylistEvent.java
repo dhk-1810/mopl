@@ -34,6 +34,7 @@ public abstract sealed class PlaylistEvent {
     public static final class CurationAddedEvent extends PlaylistEvent {
         private final UUID playlistId;
         private final String playlistTitle;
+        private final String contentTitle;
     }
 
     @Getter
