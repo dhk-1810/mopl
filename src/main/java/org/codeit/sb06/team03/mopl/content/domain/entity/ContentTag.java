@@ -1,13 +1,10 @@
-package org.codeit.sb06.team03.mopl.contentTag;
+package org.codeit.sb06.team03.mopl.content.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.codeit.sb06.team03.mopl.content.Content;
 import org.codeit.sb06.team03.mopl.tag.entity.Tag;
-
-import java.util.UUID;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;

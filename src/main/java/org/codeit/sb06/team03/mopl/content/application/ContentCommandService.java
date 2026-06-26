@@ -1,9 +1,9 @@
 package org.codeit.sb06.team03.mopl.content.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.content.Content;
+import org.codeit.sb06.team03.mopl.content.domain.entity.Content;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
-import org.codeit.sb06.team03.mopl.contentTag.ContentTagService;
+import org.codeit.sb06.team03.mopl.content.domain.ContentTagService;
 import org.codeit.sb06.team03.mopl.content.application.in.CreateContentCommand;
 import org.codeit.sb06.team03.mopl.content.application.in.CreateContentUseCase;
 import org.codeit.sb06.team03.mopl.content.application.in.DeleteContentUseCase;

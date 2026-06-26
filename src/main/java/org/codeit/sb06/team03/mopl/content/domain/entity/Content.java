@@ -1,12 +1,10 @@
-package org.codeit.sb06.team03.mopl.content;
+package org.codeit.sb06.team03.mopl.content.domain.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.codeit.sb06.team03.mopl.content.domain.entity.Review;
-import org.codeit.sb06.team03.mopl.content.domain.entity.ReviewStats;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 
 import org.hibernate.annotations.SQLDelete;

@@ -11,11 +11,9 @@ import java.util.UUID;
 
 public interface GetWatchingSessionUseCase {
 
-    WatchingSessionReadModel get(UUID watcherId);
+    WatchingSessionReadModel getByWatcherId(UUID watcherId);
 
-    Slice<WatchingSessionReadModel> get(UUID contentId, List<UUID> watcherIds, CursorWatchingSessionRequest request);
-
-    WatchingSession get(UUID liveChatId, UUID watcherId);
+    Slice<WatchingSessionReadModel> getByWatcherId(UUID contentId, List<UUID> watcherIds, CursorWatchingSessionRequest request);
 
     long countWatchersByContentId(UUID contentId);
 

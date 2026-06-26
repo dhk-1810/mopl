@@ -60,7 +60,7 @@ public class WatchingSessionCommandService implements
     }
 
     @Override
-    public WatchingSessionReadModel get(UUID watcherId) {
+    public WatchingSessionReadModel getByWatcherId(UUID watcherId) {
 //        Slice<WatchingSession> watchingSession = loadWatchingSessionPort.findByWatcherId(watcherId);
         WatchingSession watchingSession = loadWatchingSessionPort.findByWatcherId(watcherId)
                 .orElseThrow(() -> WatchingSessionNotFoundException.fromWatcherId(watcherId));
@@ -68,7 +68,7 @@ public class WatchingSessionCommandService implements
     }
 
     @Override
-    public Slice<WatchingSessionReadModel> get(UUID contentId, List<UUID> watcherIds, CursorWatchingSessionRequest request) {
+    public Slice<WatchingSessionReadModel> getByWatcherId(UUID contentId, List<UUID> watcherIds, CursorWatchingSessionRequest request) {
         Instant cursorInstant = request.cursor() != null ? Instant.parse(request.cursor()) : null;
         UUID idAfterUuid = request.idAfter() != null ? UUID.fromString(request.idAfter()) : null;
 
@@ -85,11 +85,6 @@ public class WatchingSessionCommandService implements
         Slice<WatchingSession> slice = loadWatchingSessionPort.findByContentId(query);
 
         return slice.map(WatchingSessionReadModel::from);
-    }
-    @Override
-    public WatchingSession get(UUID liveChatId, UUID watcherId) {
-        return loadWatchingSessionPort.findByLiveChatIdAndWatcherId(liveChatId, watcherId)
-                .orElseThrow(() -> WatchingSessionNotFoundException.fromLiveChatIdAndWatcherId(liveChatId, watcherId));
     }
 
     @Override

@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.content.application.out;
 
 
-import org.codeit.sb06.team03.mopl.content.Content;
+import org.codeit.sb06.team03.mopl.content.domain.entity.Content;
 
 import java.util.UUID;
 

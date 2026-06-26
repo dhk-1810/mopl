@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.contentTag;
+package org.codeit.sb06.team03.mopl.content.domain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

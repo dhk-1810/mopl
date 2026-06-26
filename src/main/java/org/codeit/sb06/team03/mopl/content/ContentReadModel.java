@@ -1,5 +1,6 @@
 package org.codeit.sb06.team03.mopl.content;
 
+import org.codeit.sb06.team03.mopl.content.domain.entity.Content;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 
 import java.time.Instant;

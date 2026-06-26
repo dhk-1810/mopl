@@ -60,12 +60,12 @@ public class LiveChatWebEventListener {
 
         createWatchingSessionUseCase.create(createWatchingSessionCommand);
 
-        WatchingSession watchingSession = getWatchingSessionUseCase.get(liveChatId, userDto.id());
+        WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByWatcherId(userDto.id());
 
         SendPresenceMessageCommand sendPresenceMessageCommand =
                 new SendPresenceMessageCommand(
-                        watchingSession.getId(),
-                        watchingSession.getCreatedAt(),
+                        watchingSession.id(),
+                        watchingSession.createdAt(),
                         userDto.id(),
                         userDto.name(),
                         userDto.profilePresignedUrl(),
@@ -100,14 +100,14 @@ public class LiveChatWebEventListener {
         UUID contentId = UUID.fromString(DestinationUtils.extractContentId(destination));
         UUID liveChatId = contentId; // LiveChat은 Content와 같은 ID를 쓰고 있음.
 
-        WatchingSession watchingSession = getWatchingSessionUseCase.get(liveChatId, userDto.id());
+        WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByWatcherId(userDto.id());
 
-        deleteWatchingSessionUseCase.delete(watchingSession.getId());
+        deleteWatchingSessionUseCase.delete(watchingSession.id());
 
         SendPresenceMessageCommand sendPresenceMessageCommand =
                 new SendPresenceMessageCommand(
-                        watchingSession.getId(),
-                        watchingSession.getCreatedAt(),
+                        watchingSession.id(),
+                        watchingSession.createdAt(),
                         userDto.id(),
                         userDto.name(),
                         userDto.profilePresignedUrl(),
@@ -145,21 +145,19 @@ public class LiveChatWebEventListener {
             return;
         }
 
-        WatchingSessionReadModel watchingSessions = getWatchingSessionUseCase.get(userDto.id()); // TODO
         deleteWatchingSessionUseCase.deleteByWatcherId(userDto.id());
 
-        // FIXME: 보완 필요
         destinations.forEach(destination -> {
             UUID contentId = UUID.fromString(DestinationUtils.extractContentId(destination));
             UUID liveChatId = contentId;
 
-            WatchingSession watchingSession = getWatchingSession(List.of(), liveChatId, userDto.id()); // TODO
+            WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByWatcherId(userDto.id());
 
             if (watchingSession != null) {
                 SendPresenceMessageCommand sendPresenceMessageCommand =
                         new SendPresenceMessageCommand(
-                                watchingSession.getId(),
-                                watchingSession.getCreatedAt(),
+                                watchingSession.id(),
+                                watchingSession.createdAt(),
                                 userDto.id(),
                                 userDto.name(),
                                 userDto.profilePresignedUrl(),
@@ -176,12 +174,4 @@ public class LiveChatWebEventListener {
         return (MoplUserDetails) authentication.getPrincipal();
     }
 
-    private WatchingSession getWatchingSession(List<WatchingSession> watchingSessions, UUID liveChatId, UUID watcherId) {
-        return watchingSessions.stream()
-                .filter(watchingSession ->
-                        watchingSession.getLiveChatId().equals(liveChatId) &&
-                                watchingSession.getWatcherId().equals(watcherId))
-                .findFirst()
-                .orElse(null);
-    }
 }

@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.batch.client.TmdbClient;
 import org.codeit.sb06.team03.mopl.batch.client.SportsDbClient;
 import org.codeit.sb06.team03.mopl.batch.dto.CollectedContentDto;
-import org.codeit.sb06.team03.mopl.content.Content;
+import org.codeit.sb06.team03.mopl.content.domain.entity.Content;
 import org.codeit.sb06.team03.mopl.content.infra.out.ContentRepository;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;

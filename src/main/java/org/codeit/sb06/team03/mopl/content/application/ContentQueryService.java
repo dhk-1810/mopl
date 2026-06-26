@@ -6,7 +6,7 @@ import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.content.application.out.LoadContentPort;
 import org.codeit.sb06.team03.mopl.content.domain.exception.ContentNotFoundException;
 import org.codeit.sb06.team03.mopl.content.infra.CursorRequestContentDto;
-import org.codeit.sb06.team03.mopl.contentTag.ContentTagService;
+import org.codeit.sb06.team03.mopl.content.domain.ContentTagService;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 

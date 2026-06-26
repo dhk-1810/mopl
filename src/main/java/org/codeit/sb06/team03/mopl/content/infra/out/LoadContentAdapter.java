@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.content.infra.out;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
-import org.codeit.sb06.team03.mopl.content.Content;
+import org.codeit.sb06.team03.mopl.content.domain.entity.Content;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.SortContentBy;
 import org.codeit.sb06.team03.mopl.content.application.out.LoadContentPort;

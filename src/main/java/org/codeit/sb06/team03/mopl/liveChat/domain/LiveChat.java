@@ -14,11 +14,19 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "live_chats")
+@Table(
+        name = "live_chats",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "_id_live_chat_id",
+                        columnNames = {"watcher_id", "live_chat_id"} // 한 유저가 같은 liveCHat에 참여 불가하게 제한.
+                )
+        }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE live_chats SET is_deleted = true WHERE content_id = ?")
-@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE live_chats SET is_deleted = true WHERE content_id = ?") // delete 대신 플래그만 세움.
+@SQLRestriction("is_deleted = false") // WHERE is_deleted = false와 같은 역할.
 public class LiveChat extends AbstractAggregateRoot<LiveChat> {
 
     @Id

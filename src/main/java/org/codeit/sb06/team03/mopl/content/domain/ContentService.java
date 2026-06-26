@@ -1,10 +1,8 @@
 package org.codeit.sb06.team03.mopl.content.domain;
 
-import org.codeit.sb06.team03.mopl.content.Content;
+import org.codeit.sb06.team03.mopl.content.domain.entity.Content;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class ContentService {
