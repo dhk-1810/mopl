@@ -5,6 +5,7 @@ import org.codeit.sb06.team03.mopl.content.Content;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.SortContentBy;
 import org.springframework.data.domain.Slice;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,11 +15,11 @@ import java.util.UUID;
 public interface LoadContentPort {
 
     Slice<ContentReadModel> findAll(
-            String typeEqual,
-            String keywordLike,
-            Set<String> tagsIn, // 미사용
-            String cursor,
-            UUID idAfter,
+            @Nullable String typeEqual,
+            @Nullable String keywordLike,
+            @Nullable Set<String> tagsIn, // 미사용
+            @Nullable String cursor,
+            @Nullable UUID idAfter,
             int limit,
             SortContentBy sortBy,
             SortDirection sortDirection
@@ -30,5 +31,5 @@ public interface LoadContentPort {
 
     List<ContentReadModel> findByIdsIn(Set<UUID> contentIds);
 
-    long countByContentIdAndWatcherNameLike(UUID contentId, String watcherName);
+    long countByContentIdAndWatcherNameLike(UUID contentId, @Nullable String watcherName);
 }

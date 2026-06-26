@@ -13,6 +13,7 @@ import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
 import org.codeit.sb06.team03.mopl.image.application.in.RegisterImageUseCase;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.CreateLiveChatUseCase;
 import org.codeit.sb06.team03.mopl.liveChat.application.in.DeleteLiveChatUseCase;
+import org.codeit.sb06.team03.mopl.playlist.application.in.DeleteCurationUseCase;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +35,7 @@ public class ContentCompositeService {
 
     private final GetPresignedUrlUseCase getPresignedUrlUseCase;
     private final RegisterImageUseCase registerImageUseCase;
+    private final DeleteCurationUseCase deleteCurationUseCase;
 
     public CursorResponseContentDto getContents(CursorRequestContentDto request) {
 
@@ -93,6 +95,7 @@ public class ContentCompositeService {
     public void delete(UUID contentId) {
         deleteContentUseCase.delete(contentId);
         deleteLiveChatUseCase.delete(contentId);
+        deleteCurationUseCase.deleteCurationByContentId(contentId); // TODO 오래걸리면 비동기?
     }
 
     private String getPresignedUrl(String thumbnailKey) {

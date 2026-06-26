@@ -9,6 +9,9 @@ import org.codeit.sb06.team03.mopl.dm.conversation.domain.Conversation;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -17,11 +20,16 @@ import java.util.UUID;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "live_message_stats", uniqueConstraints = @UniqueConstraint(columnNames = {"conversation_id", "account_id"}))
+@SQLDelete(sql = "UPDATE live_message_stats SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class LiveMessageStat {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conversation_id", nullable = false)

@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.event.WatchingSessionEvent.WatchingSessionCreateEvent;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -23,10 +26,15 @@ import java.util.UUID;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE watching_sessions SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class WatchingSession extends AbstractAggregateRoot<WatchingSession> {
 
     @Id
     private UUID id;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     @NotNull
     @Column(name = "watcher_id", nullable = false)

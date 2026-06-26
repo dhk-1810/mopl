@@ -9,6 +9,9 @@ import org.codeit.sb06.team03.mopl.follow.domain.event.FollowEvent.FollowedEvent
 import org.codeit.sb06.team03.mopl.follow.domain.event.FollowEvent.FolloweeCreatedEvent;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -19,11 +22,16 @@ import static org.codeit.sb06.team03.mopl.follow.domain.event.FollowEvent.Unfoll
 @Setter
 @Entity
 @Table(name = "followees")
+@SQLDelete(sql = "UPDATE followees SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Followee extends AbstractAggregateRoot<Followee> {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     @Column(name = "followee_count", nullable = false)
     private long followeeCount;

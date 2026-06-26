@@ -40,7 +40,7 @@ public class PlaylistCompositeService {
     private final DeletePlaylistUseCase deletePlaylistUseCase;
 
     private final AddContentToCurationUseCase addContentToCurationUseCase;
-    private final DeleteContentFromCurationUseCase deleteContentFromCurationUseCase;
+    private final DeleteCurationUseCase deleteContentFromCurationUseCase;
 
     private final SubscribePlaylistUseCase subscribePlaylistUseCase;
     private final UnsubscribePlaylistUseCase unsubscribePlaylistUseCase;

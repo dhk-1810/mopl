@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import static org.codeit.sb06.team03.mopl.account.domain.QAccount.account;
 import static org.codeit.sb06.team03.mopl.content.QContent.content;
 import static org.codeit.sb06.team03.mopl.contentTag.QContentTag.contentTag;
-import static org.codeit.sb06.team03.mopl.profile.domain.QProfile.profile;
+import static org.codeit.sb06.team03.mopl.profile.domain.entity.QProfile.profile;
 import static org.codeit.sb06.team03.mopl.watchingSession.domain.QWatchingSession.watchingSession;
 import static org.codeit.sb06.team03.mopl.tag.entity.QTag.tag;
 import static com.querydsl.core.group.GroupBy.groupBy;
@@ -54,11 +54,11 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
     }
 
     default Slice<ContentReadModel> findAll(
-            String typeEqual,
-            String keywordLike,
-            Set<String> tagsIn, // 미사용
-            String cursor,
-            UUID idAfter,
+            @Nullable String typeEqual,
+            @Nullable String keywordLike,
+            @Nullable Set<String> tagsIn, // 미사용
+            @Nullable String cursor,
+            @Nullable UUID idAfter,
             int limit,
             SortContentBy sortBy,
             SortDirection sortDirection
@@ -138,15 +138,15 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
         return count !=  null ? count : 0;
     }
 
-    private static BooleanExpression keywordLikePredicate(String keywordLike){
-        if (keywordLike.isEmpty()) {
+    private static BooleanExpression keywordLikePredicate(@Nullable String keywordLike){
+        if (keywordLike == null || keywordLike.isEmpty()) {
             return null;
         }
         return content.title.containsIgnoreCase(keywordLike);
     }
 
-    private static BooleanExpression typeEqualPredicate(String typeEqual){
-        if (typeEqual.isEmpty()) {
+    private static BooleanExpression typeEqualPredicate(@Nullable String typeEqual){
+        if (typeEqual == null || typeEqual.isEmpty()) {
             return null;
         }
         return content.type.eq(ContentType.valueOf(typeEqual));

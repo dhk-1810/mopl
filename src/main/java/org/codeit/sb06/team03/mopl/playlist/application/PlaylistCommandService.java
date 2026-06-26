@@ -18,10 +18,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-// TODO 사용자 삭제되면 구독, 플리 삭제, 컨텐츠 삭제되면 큐레이션 삭제
 @RequiredArgsConstructor
 @Service
-public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase, DeletePlaylistUseCase, AddContentToCurationUseCase, DeleteContentFromCurationUseCase, SubscribePlaylistUseCase, UnsubscribePlaylistUseCase {
+public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlaylistUseCase, DeletePlaylistUseCase, AddContentToCurationUseCase, DeleteCurationUseCase, SubscribePlaylistUseCase, UnsubscribePlaylistUseCase {
 
     private final SavePlaylistPort savePlaylistPort;
     private final SaveSubscriptionPort saveSubscriptionPort;
@@ -116,6 +115,11 @@ public class PlaylistCommandService implements CreatePlaylistUseCase, UpdatePlay
 
         playlist.decreaseContentCount();
         savePlaylistPort.delete(playlistId);
+    }
+
+    @Override
+    public void deleteCurationByContentId(UUID contentId) {
+        saveCurationPort.deleteAllByContentId(contentId);
     }
 
     @Override

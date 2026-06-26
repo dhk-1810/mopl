@@ -5,6 +5,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -12,11 +15,16 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "notifications")
+@SQLDelete(sql = "UPDATE notifications SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Notification {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     @Column(name = "receiver_id", nullable = false)
     private UUID receiverId;

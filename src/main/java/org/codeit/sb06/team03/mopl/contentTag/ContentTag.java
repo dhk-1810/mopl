@@ -9,11 +9,19 @@ import org.codeit.sb06.team03.mopl.tag.entity.Tag;
 
 import java.util.UUID;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "contents_tags")
+@SQLDelete(sql = "UPDATE contents_tags SET is_deleted = true WHERE content_id = ? AND tag_id = ?")
+@SQLRestriction("is_deleted = false")
 public class ContentTag {
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     @EmbeddedId
     private ContentTagId id;

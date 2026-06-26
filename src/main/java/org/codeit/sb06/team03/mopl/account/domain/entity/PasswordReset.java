@@ -10,6 +10,9 @@ import org.codeit.sb06.team03.mopl.account.domain.vo.Password;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -18,11 +21,16 @@ import java.util.UUID;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "password_resets")
+@SQLDelete(sql = "UPDATE password_resets SET is_deleted = true WHERE account_id = ?")
+@SQLRestriction("is_deleted = false")
 public class PasswordReset {
 
     @Id
     @Column(name = "account_id", nullable = false)
     private UUID id;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)

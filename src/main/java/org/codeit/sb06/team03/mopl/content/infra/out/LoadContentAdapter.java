@@ -7,6 +7,7 @@ import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.SortContentBy;
 import org.codeit.sb06.team03.mopl.content.application.out.LoadContentPort;
 import org.springframework.data.domain.Slice;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,11 +23,11 @@ public class LoadContentAdapter implements LoadContentPort {
 
     @Override
     public Slice<ContentReadModel> findAll(
-            String typeEqual,
-            String keywordLike,
-            Set<String> tagsIn, // 미사용
-            String cursor,
-            UUID idAfter,
+            @Nullable String typeEqual,
+            @Nullable String keywordLike,
+            @Nullable Set<String> tagsIn, // 미사용
+            @Nullable String cursor,
+            @Nullable UUID idAfter,
             int limit,
             SortContentBy sortBy,
             SortDirection sortDirection
@@ -59,7 +60,7 @@ public class LoadContentAdapter implements LoadContentPort {
     }
 
     @Override
-    public long countByContentIdAndWatcherNameLike(UUID contentId, String watcherName) {
+    public long countByContentIdAndWatcherNameLike(UUID contentId, @Nullable String watcherName) {
         return repository.countByContentIdAndWatcherNameLike(contentId, watcherName);
     }
 }

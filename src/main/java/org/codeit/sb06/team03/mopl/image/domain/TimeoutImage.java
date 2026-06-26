@@ -7,6 +7,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.codeit.sb06.team03.mopl.image.infra.out.PresignedUrlUpdateListener;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -17,11 +20,16 @@ import java.util.UUID;
 @Entity
 @EntityListeners(PresignedUrlUpdateListener.class)
 @Table(name = "timeout_images")
+@SQLDelete(sql = "UPDATE timeout_images SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class TimeoutImage {
 
     @Id
     @Column(name = "id")
     private UUID id;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     @Column(name = "image_key", unique = true)
     private String key;

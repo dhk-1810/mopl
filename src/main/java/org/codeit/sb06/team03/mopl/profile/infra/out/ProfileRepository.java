@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.codeit.sb06.team03.mopl.account.domain.QAccount.account;
-import static org.codeit.sb06.team03.mopl.profile.domain.QProfile.profile;
+import static org.codeit.sb06.team03.mopl.profile.domain.entity.QProfile.profile;
 
 public interface ProfileRepository extends QuerydslJpaRepository<Profile, UUID> {
 

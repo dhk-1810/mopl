@@ -18,6 +18,9 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -28,11 +31,16 @@ import static org.codeit.sb06.team03.mopl.account.domain.event.AccountEvent.*;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "accounts")
+@SQLDelete(sql = "UPDATE accounts SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Account extends AbstractAggregateRoot<Account> {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     @NotNull
     @CreatedDate

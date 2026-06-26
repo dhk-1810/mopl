@@ -11,17 +11,25 @@ import org.codeit.sb06.team03.mopl.profile.domain.event.UserEvent.UserProfileUpd
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.lang.Nullable;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
 @Table(name = "profiles")
+@SQLDelete(sql = "UPDATE profiles SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Profile extends AbstractAggregateRoot<Profile> {
 
     @Id
     @Column(name = "id")
     private UUID accountId;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     @Version
     @Column(name = "version")

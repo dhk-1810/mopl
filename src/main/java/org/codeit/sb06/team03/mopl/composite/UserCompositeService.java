@@ -43,7 +43,6 @@ public class UserCompositeService {
         updatePasswordUseCase.updatePassword(userId, command);
     }
 
-
     public void assignUserRole(UUID userId, UserRoleUpdateRequest request) {
         AssignRoleCommand command = accountMapper.toCommand(request);
         assignRoleUseCase.assignRole(userId, command);

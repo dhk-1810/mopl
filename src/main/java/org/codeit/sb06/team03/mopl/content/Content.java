@@ -9,6 +9,9 @@ import org.codeit.sb06.team03.mopl.content.domain.entity.Review;
 import org.codeit.sb06.team03.mopl.content.domain.entity.ReviewStats;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
@@ -17,11 +20,16 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "contents")
+@SQLDelete(sql = "UPDATE contents SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Content {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     @NotNull
     @Column(name = "created_at", nullable = false)

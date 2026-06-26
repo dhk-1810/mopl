@@ -5,6 +5,8 @@ import org.codeit.sb06.team03.mopl.email.application.in.SendEmailCommand;
 import org.codeit.sb06.team03.mopl.email.application.in.SendEmailUseCase;
 import org.codeit.sb06.team03.mopl.email.domain.Email;
 import org.codeit.sb06.team03.mopl.email.domain.EmailService;
+import org.codeit.sb06.team03.mopl.email.domain.event.EmailEvent;
+import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +18,7 @@ import java.time.Instant;
 @Transactional(readOnly = true)
 public class EmailAppService implements SendEmailUseCase {
 
-    private final ApplicationEventPublisher applicationEventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private final EmailService emailService;
 
     @Override
@@ -27,6 +29,8 @@ public class EmailAppService implements SendEmailUseCase {
         final Instant expireDate = command.expireDate();
 
         Email email = emailService.send(emailAddress, rawTempPassword, expireDate);
+
+//        eventPublisher.publishEvent(new EmailEvent.EmailSentEvent());
         // TODO : 이벤트
         // 이메일은 applicaion out이 없음
     }
