@@ -225,17 +225,21 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
 
         orderSpecifiers.add(orderByCursor(sortBy, sortDirection));
-        final var orderById = new OrderSpecifier<>(Order.valueOf(sortDirection.toString()), content.id);
+        Order order = Order.DESC;
+        if (sortDirection == SortDirection.ASCENDING) { order =  Order.ASC; }
+        final var orderById = new OrderSpecifier<>(order, content.id);
         orderSpecifiers.add(orderById);
 
         return orderSpecifiers.toArray(OrderSpecifier[]::new);
     }
 
     private static OrderSpecifier<?> orderByCursor(SortContentBy sortBy, SortDirection sortDirection) {
+        Order order = Order.DESC;
+        if (sortDirection == SortDirection.ASCENDING) { order =  Order.ASC; }
         return switch (sortBy) {
-            case SortContentBy.createdAt -> new OrderSpecifier<>(Order.valueOf(sortDirection.toString()), content.createdAt);
-            case SortContentBy.watcherCount -> new OrderSpecifier<>(Order.valueOf(sortDirection.toString()), content.averageRating);
-            default -> new OrderSpecifier<>(Order.valueOf(sortDirection.toString()), content.watcherCount);
+            case SortContentBy.createdAt -> new OrderSpecifier<>(order, content.createdAt);
+            case SortContentBy.watcherCount -> new OrderSpecifier<>(order, content.averageRating);
+            default -> new OrderSpecifier<>(order, content.watcherCount);
         };
     }
 }
