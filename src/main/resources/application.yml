@@ -3,6 +3,9 @@ spring:
     name: mopl
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  batch:
+    jdbc:
+      initialize-schema: always
   jpa:
     open-in-view: false
   mail:
@@ -36,7 +39,7 @@ mopl:
   storage:
     aws-s3:
       region: "ap-northeast-2"
-      bucket-name: "sb06-part3-team3-post-image"
+      bucket-name: ${AWS_S3_BUCKET}
       access-key: ${AWS_ACCESS_KEY}
       secret-key: ${AWS_SECRET_KEY}
       signature-duration-in-hours: 1
@@ -48,3 +51,21 @@ mopl:
       secret: ${JWT_REFRESH_TOKEN_SECRET:sb06-mopl-team03-jwt-temporary-secret}
       expiration-ms: ${REFRESH_TOKEN_EXPIRATION_MS:604800000}
     max-session: ${JWT_MAX_SESSION:1}
+  api:
+    tmdb:
+      key: ${TMDB_API_KEY}
+      url: ${TMDB_API_URL}
+    sportsdb:
+      key: ${SPORTSDB_API_KEY}
+      url: ${SPORTSDB_API_URL}
+  batch:
+    cron: ${BATCH_CRON_SCHEDULE}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics,prometheus"
+  endpoint:
+    metrics:
+      enabled: true

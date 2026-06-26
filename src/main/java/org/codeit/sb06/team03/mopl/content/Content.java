@@ -74,6 +74,8 @@ public class Content {
     private long watcherCount;
 
     private Content(ContentType type, String title, String description, String thumbnailKey) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
         this.type = type;
         this.title = title;
         this.description = description;
