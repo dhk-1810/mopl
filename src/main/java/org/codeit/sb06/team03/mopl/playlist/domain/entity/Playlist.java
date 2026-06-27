@@ -6,8 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
+
 
 import java.time.Instant;
 import java.util.UUID;
@@ -19,16 +18,13 @@ import java.util.UUID;
         name = "playlists",
         indexes = { @Index(name = "idx_updatedAt_cursor", columnList = "updatedAt, id") }
 )
-@SQLDelete(sql = "UPDATE playlists SET is_deleted = true WHERE id = ?")
-@SQLRestriction("is_deleted = false")
 public class Playlist extends AbstractAggregateRoot<Playlist> {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+
 
     @Column(name = "owner_id", nullable = false)
     private UUID ownerId;

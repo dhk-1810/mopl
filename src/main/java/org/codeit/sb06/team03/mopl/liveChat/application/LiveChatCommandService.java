@@ -15,7 +15,7 @@ import org.codeit.sb06.team03.mopl.liveChat.application.out.query.SendLiveChatMe
 import org.codeit.sb06.team03.mopl.liveChat.application.out.query.SendPresenceMessageQuery;
 import org.codeit.sb06.team03.mopl.liveChat.domain.LiveChat;
 import org.codeit.sb06.team03.mopl.liveChat.domain.exception.LiveChatDuplicateException;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +41,7 @@ public class LiveChatCommandService implements
         ContentReadModel readModel = loadContentPort.findByIdWithTags(contentId)
                 .orElseThrow(() -> ContentNotFoundException.fromId(contentId));
 
-        UserSummaryDto userSummary = new UserSummaryDto(command.accountId(), command.name(), command.profileImageUrl());
+        UserSummary userSummary = new UserSummary(command.accountId(), command.name(), command.profileImageUrl());
 
         long watcherCount = liveChatWatchingSessionQueryPort.countByLiveChatId(liveChatId);
 
@@ -61,7 +61,7 @@ public class LiveChatCommandService implements
 
     @Override
     public void sendLiveChatMessage(SendLiveChatMessageCommand command) {
-        UserSummaryDto userSummary = new UserSummaryDto(command.accountId(), command.name(), command.profileImageUrl());
+        UserSummary userSummary = new UserSummary(command.accountId(), command.name(), command.profileImageUrl());
         String text = command.text();
         SendLiveChatMessageQuery sendLiveChatMessageQuery = new SendLiveChatMessageQuery(userSummary, text, command.destination());
         sendMessagePort.broadcastLiveChatMessage(sendLiveChatMessageQuery);

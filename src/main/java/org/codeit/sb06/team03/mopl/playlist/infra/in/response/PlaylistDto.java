@@ -10,16 +10,16 @@ import java.util.UUID;
 
 public record PlaylistDto(
         UUID id,
-        UserSummaryDto owner,
+        UserSummary owner,
         String title,
         String description,
         Instant updatedAt,
         long subscriberCount,
         boolean subscribedByMe,
-        List<ContentDto> contentDto
+        List<ContentDto> contents
 ) {
 
-    public static PlaylistDto toDto(Playlist playlist, UserSummaryDto owner, boolean subscribedByMe, List<ContentDto> contentDto) {
+    public static PlaylistDto toDto(Playlist playlist, UserSummary owner, boolean subscribedByMe, List<ContentDto> contents) {
         return new PlaylistDto(
                 playlist.getId(),
                 owner,
@@ -28,11 +28,11 @@ public record PlaylistDto(
                 playlist.getUpdatedAt(),
                 playlist.getSubscriberCount(),
                 subscribedByMe,
-                contentDto
+                contents
         );
     }
 
-    public static PlaylistDto toDto(PlaylistReadModel readModel, UserSummaryDto owner, boolean subscribedByMe, List<ContentDto> contentDto) {
+    public static PlaylistDto toDto(PlaylistReadModel readModel, UserSummary owner, boolean subscribedByMe, List<ContentDto> contents) {
         return new PlaylistDto(
                 readModel.id(),
                 owner,
@@ -41,7 +41,7 @@ public record PlaylistDto(
                 readModel.updatedAt(),
                 readModel.subscriberCount(),
                 subscribedByMe,
-                contentDto
+                contents
         );
     }
 }

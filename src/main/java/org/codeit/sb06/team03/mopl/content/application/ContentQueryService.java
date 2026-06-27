@@ -19,7 +19,7 @@ import java.util.UUID;
 public class ContentQueryService implements GetContentUseCase {
 
     private final LoadContentPort loadContentPort;
-    private final ContentTagService contentTagService;
+//    private final ContentTagService contentTagService;
 
     @Override
     public Slice<ContentReadModel> getAll(CursorRequestContentDto request) {

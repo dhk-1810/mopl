@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.dm.livemessage.infra.out;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.dm.conversation.infra.in.DirectMessageDto;
 import org.codeit.sb06.team03.mopl.dm.livemessage.application.out.MessagePassPort;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ public class MessagePassAdapter implements MessagePassPort{
     private final SimpMessageSendingOperations messagingTemplate;
 
     @Override
-    public void pass(UUID conversationId, UUID messageId, String content, Instant createdAt, UserSummaryDto sender, UserSummaryDto receiver) {
+    public void pass(UUID conversationId, UUID messageId, String content, Instant createdAt, UserSummary sender, UserSummary receiver) {
         DirectMessageDto dto = new DirectMessageDto(
                 messageId.toString(),
                 conversationId.toString(),

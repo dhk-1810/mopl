@@ -14,7 +14,7 @@ import org.codeit.sb06.team03.mopl.dm.livemessage.domain.LiveMessage;
 import org.codeit.sb06.team03.mopl.dm.livemessage.infra.in.request.MessageSendRequest;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -80,13 +80,13 @@ public class DMCompositeService {
         });
 
         Map<UUID, ProfileReadModel> profilesMap = getProfileUseCase.getProfileReadModels(new ArrayList<>(userIds));
-        Map<UUID, UserSummaryDto> userMap = profilesMap.entrySet().stream()
+        Map<UUID, UserSummary> userMap = profilesMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> {
                             ProfileReadModel profile = entry.getValue();
                             String url = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
-                            return new UserSummaryDto(profile.userId(), profile.name(), url);
+                            return new UserSummary(profile.userId(), profile.name(), url);
                         }
                 ));
 
@@ -157,13 +157,13 @@ public class DMCompositeService {
                 .flatMap(msg -> Stream.of(msg.getSenderId(), msg.getReceiverId()))
                 .collect(Collectors.toSet());
         Map<UUID, ProfileReadModel> profilesMap = getProfileUseCase.getProfileReadModels(new ArrayList<>(userIds));
-        Map<UUID, UserSummaryDto> userMap = profilesMap.entrySet().stream()
+        Map<UUID, UserSummary> userMap = profilesMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> {
                             ProfileReadModel profile = entry.getValue();
                             String url = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
-                            return new UserSummaryDto(profile.userId(), profile.name(), url);
+                            return new UserSummary(profile.userId(), profile.name(), url);
                         }
                 ));
 
@@ -202,12 +202,12 @@ public class DMCompositeService {
         UUID withUserId = conversation.getOtherParticipant(userId);
         ProfileReadModel withProfile = getProfileUseCase.getProfileReadModel(withUserId);
         String withUrl = getPresignedUrlUseCase.getPresignedUrl(withProfile.imageKey());
-        UserSummaryDto with = new UserSummaryDto(withProfile.userId(), withProfile.name(), withUrl);
+        UserSummary with = new UserSummary(withProfile.userId(), withProfile.name(), withUrl);
         DirectMessageDto latestMessage = liveMessage
                 .map(msg -> {
                     ProfileReadModel myProfile = getProfileUseCase.getProfileReadModel(userId);
                     String myUrl = getPresignedUrlUseCase.getPresignedUrl(myProfile.imageKey());
-                    UserSummaryDto me = new UserSummaryDto(myProfile.userId(), myProfile.name(), myUrl);
+                    UserSummary me = new UserSummary(myProfile.userId(), myProfile.name(), myUrl);
                     return toDirectMessageDto(msg, Map.of(withUserId, with, userId, me));
                 })
                 .orElse(null);
@@ -223,11 +223,11 @@ public class DMCompositeService {
     private ConversationDto toCursorConversationDto(
             Conversation conversation,
             UUID userId,
-            Map<UUID, UserSummaryDto> userMap,
+            Map<UUID, UserSummary> userMap,
             Map<UUID, LiveMessage> latestMessages
     ) {
         UUID withUserId = conversation.getOtherParticipant(userId);
-        UserSummaryDto with = userMap.get(withUserId);
+        UserSummary with = userMap.get(withUserId);
 
         LiveMessageStat stat = conversation.getLiveMessageStats().get(userId);
         boolean hasUnread = stat != null && stat.isHasUnread();
@@ -245,9 +245,9 @@ public class DMCompositeService {
         );
     }
 
-    private DirectMessageDto toDirectMessageDto(LiveMessage msg, Map<UUID, UserSummaryDto> userMap) {
-        UserSummaryDto sender = userMap.get(msg.getSenderId());
-        UserSummaryDto receiver = userMap.get(msg.getReceiverId());
+    private DirectMessageDto toDirectMessageDto(LiveMessage msg, Map<UUID, UserSummary> userMap) {
+        UserSummary sender = userMap.get(msg.getSenderId());
+        UserSummary receiver = userMap.get(msg.getReceiverId());
         return new DirectMessageDto(
                 msg.getId().toString(),
                 msg.getConversationId().toString(),

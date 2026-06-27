@@ -9,7 +9,7 @@ import org.codeit.sb06.team03.mopl.dm.livemessage.domain.event.LiveMessageEvent;
 import org.codeit.sb06.team03.mopl.notification.application.in.CreateNotificationUseCase;
 import org.codeit.sb06.team03.mopl.notification.domain.NotificationLevel;
 import org.codeit.sb06.team03.mopl.notification.infra.in.NotificationDto;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 import org.codeit.sb06.team03.mopl.sse.application.SseUseCase;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -42,7 +42,7 @@ public class LiveMessageEventListener {
                     event.getReceiver()
             );
             if (!getConversationUseCase.isParticipantActive(event.getReceiverId(), event.getConversationId())) {
-                UserSummaryDto sender = event.getSender();
+                UserSummary sender = event.getSender();
                 DirectMessageDto dto = new DirectMessageDto(
                         event.getMessageId().toString(),
                         event.getConversationId().toString(),

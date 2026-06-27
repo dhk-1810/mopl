@@ -168,28 +168,28 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
                 Instant createdAtCursor = Instant.parse(cursor);
                 if (SortDirection.ASCENDING == sortDirection) {
                     yield content.createdAt.gt(createdAtCursor)
-                            .or(content.createdAt.eq(createdAtCursor).and(account.id.goe(idAfter)));
+                            .or(content.createdAt.eq(createdAtCursor).and(content.id.gt(idAfter)));
                 }
                 yield content.createdAt.lt(createdAtCursor)
-                        .or(content.createdAt.eq(createdAtCursor).and(account.id.loe(idAfter)));
+                        .or(content.createdAt.eq(createdAtCursor).and(content.id.lt(idAfter)));
             }
             case SortContentBy.rate -> {
                 double averageRatingCursor = Double.parseDouble(cursor);
                 if (SortDirection.ASCENDING == sortDirection) {
                     yield content.averageRating.gt(averageRatingCursor)
-                            .or(content.averageRating.eq(averageRatingCursor).and(account.id.goe(idAfter)));
+                            .or(content.averageRating.eq(averageRatingCursor).and(content.id.gt(idAfter)));
                 }
                 yield content.averageRating.lt(averageRatingCursor)
-                        .or(content.averageRating.eq(averageRatingCursor).and(account.id.loe(idAfter)));
+                        .or(content.averageRating.eq(averageRatingCursor).and(content.id.lt(idAfter)));
             }
             default -> { // watcherCount : 인기순
                 long watcherCountCursor = Long.parseLong(cursor);
                 if (SortDirection.ASCENDING == sortDirection) {
                     yield content.watcherCount.gt(watcherCountCursor)
-                            .or(content.watcherCount.eq(watcherCountCursor).and(content.id.goe(idAfter)));
+                            .or(content.watcherCount.eq(watcherCountCursor).and(content.id.gt(idAfter)));
                 }
                 yield content.watcherCount.lt(watcherCountCursor)
-                        .or(content.watcherCount.eq(watcherCountCursor).and(content.id.loe(idAfter)));
+                        .or(content.watcherCount.eq(watcherCountCursor).and(content.id.lt(idAfter)));
             }
         };
     }

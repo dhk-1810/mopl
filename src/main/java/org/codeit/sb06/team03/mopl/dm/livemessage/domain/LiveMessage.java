@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 import org.codeit.sb06.team03.mopl.dm.livemessage.domain.event.LiveMessageEvent;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.AbstractAggregateRoot;
@@ -16,7 +16,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-import jakarta.persistence.Column;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -61,7 +60,7 @@ public class LiveMessage extends AbstractAggregateRoot<LiveMessage> {
     @Column(name = "has_unread", nullable = false)
     private boolean hasUnread;
 
-    public static LiveMessage create(UUID conversationId, UUID senderId, UUID receiverId, String content, UserSummaryDto sender, UserSummaryDto receiver) {
+    public static LiveMessage create(UUID conversationId, UUID senderId, UUID receiverId, String content, UserSummary sender, UserSummary receiver) {
         var liveMessage = new LiveMessage();
         liveMessage.id = UUID.randomUUID();
         liveMessage.createdAt = Instant.now();

@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.dm.conversation.infra.in;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 
 public record DirectMessageDto(
         @Schema(description = "메시지 ID", format = "uuid")
@@ -15,10 +15,10 @@ public record DirectMessageDto(
         String createdAt,
 
         @Schema(description = "발신자 정보")
-        UserSummaryDto sender,
+        UserSummary sender,
 
         @Schema(description = "수신자 정보")
-        UserSummaryDto receiver,
+        UserSummary receiver,
 
         @Schema(description = "메시지 내용")
         String content

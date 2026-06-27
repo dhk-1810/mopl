@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -22,8 +22,8 @@ public abstract sealed class LiveMessageEvent {
         private final UUID receiverId;
         private final String content;
         private final Instant createdAt;
-        private final UserSummaryDto sender;
-        private final UserSummaryDto receiver;
+        private final UserSummary sender;
+        private final UserSummary receiver;
     }
 
     @Getter

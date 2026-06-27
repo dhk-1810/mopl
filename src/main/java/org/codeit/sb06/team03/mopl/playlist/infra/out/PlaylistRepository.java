@@ -97,22 +97,21 @@ public interface PlaylistRepository extends QuerydslJpaRepository<Playlist, UUID
                 final long subscribeCountCursor = Long.parseLong(cursor);
                 if ("ASCENDING".equalsIgnoreCase(sortDirection)) {
                     yield playlist.subscriberCount.gt(subscribeCountCursor)
-                            .or(playlist.subscriberCount.eq(subscribeCountCursor).and(account.id.goe(idAfter)));
+                            .or(playlist.subscriberCount.eq(subscribeCountCursor).and(playlist.id.gt(idAfter)));
                 }
                 yield playlist.subscriberCount.lt(subscribeCountCursor)
-                        .or(playlist.subscriberCount.eq(subscribeCountCursor).and(account.id.loe(idAfter)));
+                        .or(playlist.subscriberCount.eq(subscribeCountCursor).and(playlist.id.lt(idAfter)));
             }
             default -> {
                 final Instant updatedAtCursor = Instant.parse(cursor);
                 if ("ASCENDING".equalsIgnoreCase(sortDirection)) {
                     yield playlist.updatedAt.gt(updatedAtCursor)
-                            .or(playlist.updatedAt.eq(updatedAtCursor).and(account.id.goe(idAfter)));
+                            .or(playlist.updatedAt.eq(updatedAtCursor).and(playlist.id.gt(idAfter)));
                 }
                 yield playlist.updatedAt.lt(updatedAtCursor)
-                        .or(playlist.updatedAt.eq(updatedAtCursor).and(account.id.loe(idAfter)));
+                        .or(playlist.updatedAt.eq(updatedAtCursor).and(playlist.id.lt(idAfter)));
             }
         };
-
     }
 
     private static OrderSpecifier<?>[] orderByExpressions(String sortDirection, String sortBy) {

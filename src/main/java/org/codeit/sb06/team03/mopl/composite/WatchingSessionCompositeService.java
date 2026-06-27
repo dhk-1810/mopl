@@ -9,7 +9,7 @@ import org.codeit.sb06.team03.mopl.content.application.in.CursorResponseWatching
 import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorWatchingSessionRequest;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
@@ -40,7 +40,7 @@ public class WatchingSessionCompositeService {
 
         ContentReadModel content = getSingleContentUseCase.get(watchingSession.liveChatId());
         var userDto = userDetails.getUserDto();
-        UserSummaryDto watcher = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profileImageUrl());
+        UserSummary watcher = new UserSummary(userDto.id(), userDto.name(), userDto.profileImageUrl());
 
         return new WatchingSessionDto(
                 watchingSession.id(),
@@ -65,13 +65,13 @@ public class WatchingSessionCompositeService {
 
         List<UUID> watcherIds = watchingSessions.stream().map(WatchingSessionReadModel::watcherId).toList();
         Map<UUID, ProfileReadModel> profilesMap = getProfileUseCase.getProfileReadModels(watcherIds);
-        Map<UUID, UserSummaryDto> watchers = profilesMap.entrySet().stream()
+        Map<UUID, UserSummary> watchers = profilesMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> {
                             ProfileReadModel profile = entry.getValue();
                             String url = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
-                            return new UserSummaryDto(profile.userId(), profile.name(), url);
+                            return new UserSummary(profile.userId(), profile.name(), url);
                         }
                 ));
 

@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.common;
 
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -9,7 +9,7 @@ import java.util.UUID;
 public record WatchingSessionDto(
         UUID id,
         Instant createdAt,
-        UserSummaryDto watcher,
+        UserSummary watcher,
         ContentReadModel content
 ) {
 

@@ -87,6 +87,8 @@ public class LiveChatWebEventListener {
         UUID liveChatId = contentId; // LiveChat은 Content와 같은 ID를 쓰고 있음.
 
         WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByContentId(userDto.id());
+        if (watchingSession == null) return;
+
         deleteWatchingSessionUseCase.delete(watchingSession.id());
 
         SendPresenceMessageCommand sendPresenceMessageCommand =

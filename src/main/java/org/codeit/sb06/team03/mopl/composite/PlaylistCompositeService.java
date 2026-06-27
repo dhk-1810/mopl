@@ -16,7 +16,7 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistCreateReque
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistUpdateRequest;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.CursorResponsePlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummaryDto;
+import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
@@ -61,7 +61,7 @@ public class PlaylistCompositeService {
                 .getAuthentication()
                 .getPrincipal();
         var userDto = userDetails.getUserDto();
-        UserSummaryDto owner = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profileImageUrl());
+        UserSummary owner = new UserSummary(userDto.id(), userDto.name(), userDto.profileImageUrl());
 
         return PlaylistDto.toDto(playlist, owner, false , Collections.emptyList());
     }
@@ -73,13 +73,13 @@ public class PlaylistCompositeService {
 
         List<UUID> ownerIds = readModels.stream().map(PlaylistReadModel::ownerId).toList();
         Map<UUID, ProfileReadModel> ownersMap = getProfileUseCase.getProfileReadModels(ownerIds);
-        Map<UUID, UserSummaryDto> owners = ownersMap.entrySet().stream()
+        Map<UUID, UserSummary> owners = ownersMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> {
                             ProfileReadModel profile = entry.getValue();
                             String url = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
-                            return new UserSummaryDto(profile.userId(), profile.name(), url);
+                            return new UserSummary(profile.userId(), profile.name(), url);
                         }
                 ));
 
@@ -153,7 +153,7 @@ public class PlaylistCompositeService {
 
         ProfileReadModel ownerProfile = getProfileUseCase.getProfileReadModel(readModel.ownerId());
         String url = getPresignedUrlUseCase.getPresignedUrl(ownerProfile.imageKey());
-        UserSummaryDto owner = new UserSummaryDto(ownerProfile.userId(), ownerProfile.name(), url);
+        UserSummary owner = new UserSummary(ownerProfile.userId(), ownerProfile.name(), url);
 
         boolean subscribedByMe = getSubscriptionUseCase.isSubscribed(playlistId, viewerId);
         List<ContentDto> contentDtos = getContentDtos(readModel.id());
@@ -171,7 +171,7 @@ public class PlaylistCompositeService {
                 .getAuthentication()
                 .getPrincipal();
         var userDto = userDetails.getUserDto();
-        UserSummaryDto owner = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profileImageUrl());
+        UserSummary owner = new UserSummary(userDto.id(), userDto.name(), userDto.profileImageUrl());
         List<ContentDto> contentDtos = getContentDtos(playlist.getId());
         return PlaylistDto.toDto(playlist, owner, false , contentDtos);
     }
