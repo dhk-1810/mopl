@@ -32,10 +32,10 @@ public class WatchingSessionCompositeService {
     private final GetProfileUseCase getProfileUseCase;
     private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
-    public WatchingSessionDto getWatchingSession(UUID watcherId, MoplUserDetails userDetails) {
+    public WatchingSessionDto getByWatcherId(UUID watcherId, MoplUserDetails userDetails) {
 
         // TODO 자발/강제 로그아웃 시 워칭세션 삭제
-        WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByWatcherId(watcherId);
+        WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByContentId(watcherId);
         ContentReadModel content = getSingleContentUseCase.get(watchingSession.liveChatId());
         var userDto = userDetails.getUserDto();
         UserSummaryDto watcher = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profilePresignedUrl());
@@ -48,7 +48,7 @@ public class WatchingSessionCompositeService {
         );
     }
 
-    public CursorResponseWatchingSessionDto getWatchingSessions(UUID contentId, CursorWatchingSessionRequest request) {
+    public CursorResponseWatchingSessionDto getByContentId(UUID contentId, CursorWatchingSessionRequest request) {
 
         List<UUID> filteredWatcherIds = null;
         if (request.watcherNameLike() != null && !request.watcherNameLike().isBlank()) {
@@ -58,7 +58,7 @@ public class WatchingSessionCompositeService {
                     .toList();
         }
 
-        Slice<WatchingSessionReadModel> slice = getWatchingSessionUseCase.getByWatcherId(contentId, filteredWatcherIds, request);
+        Slice<WatchingSessionReadModel> slice = getWatchingSessionUseCase.getByContentId(contentId, filteredWatcherIds, request);
         List<WatchingSessionReadModel> watchingSessions = slice.getContent();
 
         List<UUID> watcherIds = watchingSessions.stream().map(WatchingSessionReadModel::watcherId).toList();

@@ -1,9 +1,11 @@
 package org.codeit.sb06.team03.mopl.watchingSession.infra.out;
 
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
 import org.codeit.sb06.team03.mopl.content.application.out.WatchingSessionSearchCondition;
+import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -104,5 +106,68 @@ public interface WatchingSessionRepository extends QuerydslJpaRepository<Watchin
         } else {
             return watchingSession.id.desc();
         }
+    }
+
+    default Optional<WatchingSessionReadModel> findReadModelByWatcherId(UUID watcherId) {
+        WatchingSessionReadModel result = select(Projections.constructor(WatchingSessionReadModel.class,
+                watchingSession.id,
+                watchingSession.watcherId,
+                watchingSession.liveChatId,
+                watchingSession.createdAt
+        ))
+        .from(watchingSession)
+        .where(watchingSession.watcherId.eq(watcherId))
+        .fetchOne();
+        return Optional.ofNullable(result);
+    }
+
+    default Optional<WatchingSessionReadModel> findReadModelByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId) {
+        WatchingSessionReadModel result = select(Projections.constructor(WatchingSessionReadModel.class,
+                watchingSession.id,
+                watchingSession.watcherId,
+                watchingSession.liveChatId,
+                watchingSession.createdAt
+        ))
+        .from(watchingSession)
+        .where(
+                watchingSession.liveChatId.eq(liveChatId),
+                watchingSession.watcherId.eq(watcherId)
+        )
+        .fetchOne();
+        return Optional.ofNullable(result);
+    }
+
+    default Slice<WatchingSessionReadModel> findReadModelByContentId(WatchingSessionSearchCondition condition) {
+        OrderSpecifier<Instant> primaryOrder = getPrimaryOrder(condition.sortDirection());
+        OrderSpecifier<UUID> secondaryOrder = getSecondaryOrder(condition.sortDirection());
+
+        BooleanExpression cursorAndAssistanceCursorCondition =
+                getCursorAndAssistanceCursorCondition(condition.cursor(), condition.idAfter(), condition.sortDirection());
+
+        BooleanExpression watcherIdInCondition = getWatcherIdInCondition(condition.watcherIds());
+
+        List<WatchingSessionReadModel> sessions = select(Projections.constructor(WatchingSessionReadModel.class,
+                watchingSession.id,
+                watchingSession.watcherId,
+                watchingSession.liveChatId,
+                watchingSession.createdAt
+        ))
+                .from(watchingSession)
+                .where(
+                        watchingSession.liveChatId.eq(condition.contentId()),
+                        cursorAndAssistanceCursorCondition,
+                        watcherIdInCondition
+                )
+                .limit(condition.limit() + 1)
+                .orderBy(primaryOrder, secondaryOrder)
+                .fetch();
+
+        boolean hasNext = false;
+        if (sessions.size() > condition.limit()) {
+            sessions.remove(condition.limit());
+            hasNext = true;
+        }
+
+        return new SliceImpl<>(sessions, PageRequest.ofSize(condition.limit()), hasNext);
     }
 }

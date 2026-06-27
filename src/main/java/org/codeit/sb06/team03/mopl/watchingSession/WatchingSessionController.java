@@ -14,28 +14,28 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api")
 public class WatchingSessionController {
 
     private final WatchingSessionCompositeService watchingSessionCompositeService;
 
-    @GetMapping("/{watcherId}/watching-sessions")
-    public ResponseEntity<WatchingSessionDto> getSessionDetails(
+    @GetMapping("/users/{watcherId}/watching-sessions")
+    public ResponseEntity<WatchingSessionDto> getByWatcherId(
             @PathVariable UUID watcherId,
             @AuthenticationPrincipal MoplUserDetails userDetails
     ) {
         WatchingSessionDto sessionDetails = watchingSessionCompositeService
-                .getWatchingSession(watcherId, userDetails);
+                .getByWatcherId(watcherId, userDetails);
         return ResponseEntity.ok(sessionDetails);
     }
 
-    @GetMapping("/{contentId}/watching-sessions")
-    public ResponseEntity<CursorResponseWatchingSessionDto> getByWatchingSessionId(
+    @GetMapping("/contents/{contentId}/watching-sessions")
+    public ResponseEntity<CursorResponseWatchingSessionDto> getByContentId(
             @PathVariable UUID contentId,
             @ModelAttribute CursorWatchingSessionRequest watchingSessionCursorRequest
     ){
         CursorResponseWatchingSessionDto response = watchingSessionCompositeService
-                .getWatchingSessions(contentId, watchingSessionCursorRequest);
+                .getByContentId(contentId, watchingSessionCursorRequest);
         return ResponseEntity.ok(response);
     }
 }

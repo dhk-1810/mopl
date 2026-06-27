@@ -53,13 +53,13 @@ mopl:
     max-session: ${JWT_MAX_SESSION:1}
   api:
     tmdb:
-      key: ${TMDB_API_KEY}
-      url: ${TMDB_API_URL}
+      key: ${TMDB_API_KEY:mock}
+      url: ${TMDB_API_URL:https://api.themoviedb.org/3}
     sportsdb:
-      key: ${SPORTSDB_API_KEY}
-      url: ${SPORTSDB_API_URL}
+      key: ${SPORTSDB_API_KEY:mock}
+      url: ${SPORTSDB_API_URL:https://www.thesportsdb.com/api/v1/json}
   batch:
-    cron: ${BATCH_CRON_SCHEDULE}
+    cron: ${BATCH_CRON_SCHEDULE:0 0 3 * * ?}
 
 management:
   endpoints:

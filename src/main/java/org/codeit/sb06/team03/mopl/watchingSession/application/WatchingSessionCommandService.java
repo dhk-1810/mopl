@@ -1,33 +1,23 @@
 package org.codeit.sb06.team03.mopl.watchingSession.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.content.application.out.WatchingSessionSearchCondition;
-import org.codeit.sb06.team03.mopl.content.infra.in.CursorWatchingSessionRequest;
-import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionCommand;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.DeleteWatchingSessionUseCase;
-import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.out.DeleteWatchingSessionPort;
 import org.codeit.sb06.team03.mopl.watchingSession.application.out.LoadWatchingSessionPort;
 import org.codeit.sb06.team03.mopl.watchingSession.application.out.SaveWatchingSessionPort;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.exception.WatchingSessionDuplicateException;
-import org.codeit.sb06.team03.mopl.watchingSession.domain.exception.WatchingSessionNotFoundException;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-@Service
-@Transactional(readOnly=true)
 @RequiredArgsConstructor
+@Service
 public class WatchingSessionCommandService implements
-        CreateWatchingSessionUseCase, DeleteWatchingSessionUseCase, GetWatchingSessionUseCase {
+        CreateWatchingSessionUseCase, DeleteWatchingSessionUseCase {
 
     private final SaveWatchingSessionPort saveWatchingSessionPort;
     private final LoadWatchingSessionPort loadWatchingSessionPort;
@@ -59,41 +49,4 @@ public class WatchingSessionCommandService implements
         deleteWatchingSessionPort.deleteById(id);
     }
 
-    @Override
-    public WatchingSessionReadModel getByWatcherId(UUID watcherId) {
-//        Slice<WatchingSession> watchingSession = loadWatchingSessionPort.findByWatcherId(watcherId);
-        WatchingSession watchingSession = loadWatchingSessionPort.findByWatcherId(watcherId)
-                .orElseThrow(() -> WatchingSessionNotFoundException.fromWatcherId(watcherId));
-        return WatchingSessionReadModel.from(watchingSession);
-    }
-
-    @Override
-    public Slice<WatchingSessionReadModel> getByWatcherId(UUID contentId, List<UUID> watcherIds, CursorWatchingSessionRequest request) {
-        Instant cursorInstant = request.cursor() != null ? Instant.parse(request.cursor()) : null;
-        UUID idAfterUuid = request.idAfter() != null ? UUID.fromString(request.idAfter()) : null;
-
-        WatchingSessionSearchCondition query = new WatchingSessionSearchCondition(
-                contentId,
-                watcherIds,
-                cursorInstant,
-                idAfterUuid,
-                request.limit(),
-                request.sortDirection(),
-                request.sortBy()
-        );
-
-        Slice<WatchingSession> slice = loadWatchingSessionPort.findByContentId(query);
-
-        return slice.map(WatchingSessionReadModel::from);
-    }
-
-    @Override
-    public long countWatchersByContentId(UUID contentId) {
-        return loadWatchingSessionPort.countByContentId(contentId);
-    }
-
-    @Override
-    public Map<UUID, Long> countWatchersByContentIds(List<UUID> contentIds) {
-        return Map.of();
-    }
 }

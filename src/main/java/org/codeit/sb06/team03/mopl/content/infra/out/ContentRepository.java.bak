@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.codeit.sb06.team03.mopl.account.domain.QAccount.account;
-import static org.codeit.sb06.team03.mopl.content.domain.entity.QContent.content;
+import static org.codeit.sb06.team03.mopl.content.QContent.content;
 import static org.codeit.sb06.team03.mopl.content.domain.entity.QContentTag.contentTag;
 import static org.codeit.sb06.team03.mopl.profile.domain.entity.QProfile.profile;
 import static org.codeit.sb06.team03.mopl.watchingSession.domain.QWatchingSession.watchingSession;

@@ -1,8 +1,8 @@
 package org.codeit.sb06.team03.mopl.watchingSession.application.in;
 
+import jakarta.annotation.Nullable;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorWatchingSessionRequest;
 import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
-import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
@@ -11,11 +11,14 @@ import java.util.UUID;
 
 public interface GetWatchingSessionUseCase {
 
-    WatchingSessionReadModel getByWatcherId(UUID watcherId);
+    @Nullable
+    WatchingSessionReadModel getByContentId(UUID watcherId);
 
-    Slice<WatchingSessionReadModel> getByWatcherId(UUID contentId, List<UUID> watcherIds, CursorWatchingSessionRequest request);
+    WatchingSessionReadModel get(UUID liveChatId, UUID watcherId);
 
-    long countWatchersByContentId(UUID contentId);
+    Slice<WatchingSessionReadModel> getByContentId(UUID contentId, List<UUID> watcherIds, CursorWatchingSessionRequest request);
 
-    Map<UUID, Long> countWatchersByContentIds(List<UUID> contentIds);
+    long countWatchersByContentId(UUID contentId); // 엔터티 필드로 대체됨.
+
+    Map<UUID, Long> countWatchersByContentIds(List<UUID> contentIds); // 엔터티 필드로 대체됨.
 }

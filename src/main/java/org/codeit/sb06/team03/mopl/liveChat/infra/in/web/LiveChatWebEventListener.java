@@ -10,7 +10,6 @@ import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatching
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.DeleteWatchingSessionUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
-import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
@@ -36,19 +35,14 @@ public class LiveChatWebEventListener {
     // 같은 채널을 구독하지 못하게 하는 로직 필요
     @EventListener
     void onLiveChatSubscribedEvent(SessionSubscribeEvent event) {
+
+        if (event.getUser() == null) return;
+
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(event.getMessage(), StompHeaderAccessor.class);
-        if (accessor == null) {
-            return; // null 가능성 없음
-        }
+        if (accessor == null) return;
 
         String destination = accessor.getDestination();
-        if (destination == null || !DestinationUtils.matchWatchSubDestination(destination)) {
-            return; // null 가능성 없음
-        }
-
-        if (event.getUser() == null) {
-            return; // null 가능성 없음
-        }
+        if (destination == null || !DestinationUtils.matchWatchSubDestination(destination)) return;
 
         UUID contentId = UUID.fromString(DestinationUtils.extractContentId(destination));
         UUID liveChatId = contentId; // LiveChat은 Content와 같은 ID를 쓰고 있음.
@@ -57,11 +51,9 @@ public class LiveChatWebEventListener {
         UserDto userDto = userDetails.getUserDto();
 
         CreateWatchingSessionCommand createWatchingSessionCommand = new CreateWatchingSessionCommand(liveChatId, userDto.id());
-
         createWatchingSessionUseCase.create(createWatchingSessionCommand);
 
-        WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByWatcherId(userDto.id());
-
+        WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByContentId(userDto.id());
         SendPresenceMessageCommand sendPresenceMessageCommand =
                 new SendPresenceMessageCommand(
                         watchingSession.id(),
@@ -77,22 +69,16 @@ public class LiveChatWebEventListener {
 
     @EventListener
     void onLiveChatUnSubscribedEvent(SessionUnsubscribeEvent event) {
+
+        if (event.getUser() == null) return;
+
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(event.getMessage(), StompHeaderAccessor.class);
-        if (accessor == null) {
-            return; // null 가능성 없음
-        }
+        if (accessor == null) return;
 
         String destination = (String) accessor.getSessionAttributes().get(accessor.getSubscriptionId());
-
-        if (destination == null || !DestinationUtils.matchWatchSubDestination(destination)) {
-            return;
-        }
+        if (destination == null || !DestinationUtils.matchWatchSubDestination(destination)) return;
 
         accessor.getSessionAttributes().remove(accessor.getSubscriptionId());
-
-        if (event.getUser() == null) {
-            return; // null 가능성 없음
-        }
 
         MoplUserDetails userDetails = getUserDetails(event.getUser());
         UserDto userDto = userDetails.getUserDto();
@@ -100,8 +86,7 @@ public class LiveChatWebEventListener {
         UUID contentId = UUID.fromString(DestinationUtils.extractContentId(destination));
         UUID liveChatId = contentId; // LiveChat은 Content와 같은 ID를 쓰고 있음.
 
-        WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByWatcherId(userDto.id());
-
+        WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByContentId(userDto.id());
         deleteWatchingSessionUseCase.delete(watchingSession.id());
 
         SendPresenceMessageCommand sendPresenceMessageCommand =
@@ -120,18 +105,12 @@ public class LiveChatWebEventListener {
 
     @EventListener
     void onLiveChatDisconnectedEvent(SessionDisconnectEvent event) {
+
+        if (event.getUser() == null) return; // user가 null인 경우는 connect에서 setUser를 하기 전에 종료되었을 때 뿐임, 그러므로 데이터베이스 작업은 불필요함
+
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(event.getMessage(), StompHeaderAccessor.class);
-        if (accessor == null) {
-            return; // null 가능성 없음
-        }
-
-        if (event.getUser() == null) {
-            return; // user가 null인 경우는 connect에서 setUser를 하기 전에 종료되었을 때 뿐임, 그러므로 데이터베이스 작업은 불필요함
-        }
-
-        if (accessor.getSessionAttributes() == null || accessor.getSessionAttributes().isEmpty()) {
-            return;
-        }
+        if (accessor == null) return;
+        if (accessor.getSessionAttributes() == null || accessor.getSessionAttributes().isEmpty()) return;
 
         MoplUserDetails userDetails = getUserDetails(event.getUser());
         UserDto userDto = userDetails.getUserDto();
@@ -141,23 +120,27 @@ public class LiveChatWebEventListener {
                 .filter(DestinationUtils::matchWatchSubDestination)
                 .toList();
 
-        if (destinations.isEmpty()) {
-            return;
+        if (destinations.isEmpty()) return;
+
+        WatchingSessionReadModel watchingSession = null;
+        try {
+            watchingSession = getWatchingSessionUseCase.getByContentId(userDto.id());
+        } catch (org.codeit.sb06.team03.mopl.watchingSession.domain.exception.WatchingSessionNotFoundException e) {
+            // 이미 삭제된 경우 예외 무시
         }
 
         deleteWatchingSessionUseCase.deleteByWatcherId(userDto.id());
 
-        destinations.forEach(destination -> {
-            UUID contentId = UUID.fromString(DestinationUtils.extractContentId(destination));
-            UUID liveChatId = contentId;
+        if (watchingSession != null) {
+            WatchingSessionReadModel finalWatchingSession = watchingSession;
+            destinations.forEach(destination -> {
+                UUID contentId = UUID.fromString(DestinationUtils.extractContentId(destination));
+                UUID liveChatId = contentId;
 
-            WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByWatcherId(userDto.id());
-
-            if (watchingSession != null) {
                 SendPresenceMessageCommand sendPresenceMessageCommand =
                         new SendPresenceMessageCommand(
-                                watchingSession.id(),
-                                watchingSession.createdAt(),
+                                finalWatchingSession.id(),
+                                finalWatchingSession.createdAt(),
                                 userDto.id(),
                                 userDto.name(),
                                 userDto.profilePresignedUrl(),
@@ -165,8 +148,8 @@ public class LiveChatWebEventListener {
                                 destination
                         );
                 sendPresenceMessageUseCase.sendPresenceMessage(liveChatId, sendPresenceMessageCommand);
-            }
-        });
+            });
+        }
     }
 
     private MoplUserDetails getUserDetails(Principal principal) {

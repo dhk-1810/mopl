@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.watchingSession.application.out;
 
 import org.codeit.sb06.team03.mopl.content.application.out.WatchingSessionSearchCondition;
+import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
 import org.springframework.data.domain.Slice;
 
@@ -15,7 +16,9 @@ public interface LoadWatchingSessionPort {
 
     long countByContentId(UUID contentId);
 
-    Optional<WatchingSession> findByWatcherId(UUID watcherId);
+    Optional<WatchingSessionReadModel> findReadModelByWatcherId(UUID watcherId);
 
-    Slice<WatchingSession> findByContentId(WatchingSessionSearchCondition query);
+    Optional<WatchingSessionReadModel> findReadModelByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId);
+
+    Slice<WatchingSessionReadModel> findReadModelByContentId(WatchingSessionSearchCondition query);
 }
