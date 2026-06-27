@@ -50,7 +50,7 @@ public class ContentController {
         return ResponseEntity.ok(contentCompositeService.update(contentId, request));
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{contentId}")
     @RolesAllowed("ADMIN")
     public ResponseEntity<Void> delete(@PathVariable UUID contentId){
         contentCompositeService.delete(contentId);

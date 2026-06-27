@@ -39,7 +39,7 @@ public class SendMessageAdapter implements SendMessagePort {
 
     @Override
     public void broadcastLiveChatMessage(SendLiveChatMessageQuery sendLiveChatMessageQuery) {
-        UserSummary userSummary = sendLiveChatMessageQuery.userSummaryDto();
+        UserSummary userSummary = sendLiveChatMessageQuery.userSummary();
         String text = sendLiveChatMessageQuery.text();
         String destination = sendLiveChatMessageQuery.destination();
 

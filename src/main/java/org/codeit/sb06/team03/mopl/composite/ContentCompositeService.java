@@ -16,12 +16,14 @@ import org.codeit.sb06.team03.mopl.liveChat.application.in.DeleteLiveChatUseCase
 import org.codeit.sb06.team03.mopl.playlist.application.in.DeleteCurationUseCase;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class ContentCompositeService {
 
     private final ContentMapper contentMapper;

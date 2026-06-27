@@ -63,6 +63,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/sse").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login

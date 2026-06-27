@@ -24,12 +24,14 @@ import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class PlaylistCompositeService {
 
     private final PlaylistMapper playlistMapper;

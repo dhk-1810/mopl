@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -42,6 +43,30 @@ public class Review {
     @Column(name = "text", nullable = false)
     private String text;
 
+    @NotNull
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+
     @Column(name = "rating", nullable = false)
     private int rating;
+
+    public static Review create(Content content, UUID authorId, String text, int rating) {
+        Review review = new Review();
+        review.id = UUID.randomUUID();
+        review.content = content;
+        review.authorId = authorId;
+        review.text = text;
+        review.rating = rating;
+        review.createdAt = Instant.now();
+        return review;
+    }
+
+    public void update(String text, Integer rating) {
+        if (text != null && !text.isBlank()) {
+            this.text = text;
+        }
+        if (rating != null) {
+            this.rating = rating;
+        }
+    }
 }

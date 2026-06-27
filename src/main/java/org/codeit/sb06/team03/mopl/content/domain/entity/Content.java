@@ -95,4 +95,31 @@ public class Content {
         this.title = title;
         this.description = description;
     }
+
+    public void addReview(int rating) {
+        double totalRating = this.averageRating * this.reviewCount;
+        this.reviewCount++;
+        totalRating += rating;
+        this.averageRating = Math.round((totalRating / this.reviewCount) * 10.0) / 10.0;
+    }
+
+    public void removeReview(int rating) {
+        if (this.reviewCount <= 1) {
+            this.reviewCount = 0;
+            this.averageRating = 0.0;
+        } else {
+            double totalRating = this.averageRating * this.reviewCount;
+            this.reviewCount--;
+            totalRating -= rating;
+            this.averageRating = Math.round((totalRating / this.reviewCount) * 10.0) / 10.0;
+        }
+    }
+
+    public void updateReview(int oldRating, int newRating) {
+        if (this.reviewCount > 0) {
+            double totalRating = this.averageRating * this.reviewCount;
+            totalRating = totalRating - oldRating + newRating;
+            this.averageRating = Math.round((totalRating / this.reviewCount) * 10.0) / 10.0;
+        }
+    }
 }
