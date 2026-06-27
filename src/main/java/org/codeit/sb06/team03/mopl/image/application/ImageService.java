@@ -66,6 +66,9 @@ public class ImageService implements RegisterImageUseCase, GetPresignedUrlUseCas
         if (key == null || key.isBlank()) {
             return null;
         }
+        if (key.startsWith("http://") || key.startsWith("https://")) {
+            return key;
+        }
         TimeoutImage timeoutImage = loadImagePort.findByKey(key)
                 .orElseGet(() -> {
                     // 키는 존재하지만 DB에 캐싱이 안 된 비정상 상태 대비
@@ -100,13 +103,22 @@ public class ImageService implements RegisterImageUseCase, GetPresignedUrlUseCas
                 .distinct()
                 .toList();
 
-        List<TimeoutImage> timeoutImages = loadImagePort.findByKeys(distinctKeys);
+        // 외부 URL을 제외한 순수 S3 key들만 DB 및 S3 조회 대상으로 필터링
+        List<String> s3Keys = distinctKeys.stream()
+                .filter(k -> !k.startsWith("http://") && !k.startsWith("https://"))
+                .toList();
+
+        List<TimeoutImage> timeoutImages = loadImagePort.findByKeys(s3Keys);
         Map<String, TimeoutImage> imageMap = timeoutImages.stream()
                 .collect(Collectors.toMap(TimeoutImage::getKey, img -> img));
 
         Map<String, String> result = new HashMap<>();
 
         for (String key : distinctKeys) {
+            if (key.startsWith("http://") || key.startsWith("https://")) {
+                result.put(key, key);
+                continue;
+            }
             TimeoutImage timeoutImage = imageMap.get(key);
             if (timeoutImage == null) {
                 // 키는 존재하지만 DB 캐시가 없는 상태 대비

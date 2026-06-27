@@ -60,7 +60,7 @@ public class LiveChatWebEventListener {
                         watchingSession.createdAt(),
                         userDto.id(),
                         userDto.name(),
-                        userDto.profilePresignedUrl(),
+                        userDto.profileImageUrl(),
                         WatchType.JOIN.name(),
                         destination
                 );
@@ -95,7 +95,7 @@ public class LiveChatWebEventListener {
                         watchingSession.createdAt(),
                         userDto.id(),
                         userDto.name(),
-                        userDto.profilePresignedUrl(),
+                        userDto.profileImageUrl(),
                         WatchType.LEAVE.name(),
                         destination
                 );
@@ -143,7 +143,7 @@ public class LiveChatWebEventListener {
                                 finalWatchingSession.createdAt(),
                                 userDto.id(),
                                 userDto.name(),
-                                userDto.profilePresignedUrl(),
+                                userDto.profileImageUrl(),
                                 WatchType.LEAVE.name(),
                                 destination
                         );

@@ -61,7 +61,7 @@ public class PlaylistCompositeService {
                 .getAuthentication()
                 .getPrincipal();
         var userDto = userDetails.getUserDto();
-        UserSummaryDto owner = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profilePresignedUrl());
+        UserSummaryDto owner = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profileImageUrl());
 
         return PlaylistDto.toDto(playlist, owner, false , Collections.emptyList());
     }
@@ -171,7 +171,7 @@ public class PlaylistCompositeService {
                 .getAuthentication()
                 .getPrincipal();
         var userDto = userDetails.getUserDto();
-        UserSummaryDto owner = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profilePresignedUrl());
+        UserSummaryDto owner = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profileImageUrl());
         List<ContentDto> contentDtos = getContentDtos(playlist.getId());
         return PlaylistDto.toDto(playlist, owner, false , contentDtos);
     }

@@ -11,19 +11,19 @@ public record ContentDto (
         ContentType type,
         String title,
         String description,
-        String thumbnailPresignedUrl,
+        String thumbnailUrl,
         Set<String> tags,
         double averageRating,
         long reviewCount,
         long watcherCount
 ) {
-    public static ContentDto from(ContentReadModel readModel, String thumbnailPresignedUrl) {
+    public static ContentDto from(ContentReadModel readModel, String thumbnailUrl) {
         return new ContentDto(
                 readModel.id(),
                 readModel.type(),
                 readModel.title(),
                 readModel.description(),
-                thumbnailPresignedUrl,
+                thumbnailUrl,
                 readModel.tags(),
                 readModel.averageRating(),
                 readModel.reviewCount(),

@@ -19,8 +19,7 @@ public class BatchScheduler {
     private final JobLauncher jobLauncher;
     private final Job contentCollectionJob;
 
-    // Default: Runs at 3 AM every day
-    @Scheduled(cron = "${mopl.batch.cron:0 0 3 * * ?}")
+    @Scheduled(cron = "0 * * * * *")
     public void runContentCollectionJob() {
         try {
             log.info("Starting scheduled Content Collection Job...");

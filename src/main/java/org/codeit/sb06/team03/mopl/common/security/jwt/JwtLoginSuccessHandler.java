@@ -80,7 +80,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
                 userDto.id(),
                 userDto.email(),
                 userDto.name(),
-                userDto.profilePresignedUrl(),
+                userDto.profileImageUrl(),
                 userDto.role()
         );
     }

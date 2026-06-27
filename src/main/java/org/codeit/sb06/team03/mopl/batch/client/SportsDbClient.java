@@ -17,27 +17,21 @@ public class SportsDbClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // Use '3' as the free development key for TheSportsDB API
-    @Value("${mopl.api.sportsdb.key:3}")
+    @Value("${mopl.api.sportsdb.key}")
     private String apiKey;
 
     @Value("${mopl.api.sportsdb.url:https://www.thesportsdb.com/api/v1/json}")
     private String apiUrl;
 
     public List<CollectedContentDto> fetchSports() {
-        if ("mock".equalsIgnoreCase(apiKey) || apiKey.isBlank()) {
-            log.info("Using mock Sports DB content");
-            return getMockSports();
-        }
-
         try {
             // Fetch English Premier League events (League ID: 4328)
             String url = String.format("%s/%s/eventsseason.php?id=4328", apiUrl, apiKey);
             Map<String, Object> response = restTemplate.getForObject(url, Map.class);
             return parseSportsDbResponse(response);
         } catch (Exception e) {
-            log.error("Failed to fetch sports events from TheSportsDB API, falling back to mock data: {}", e.getMessage());
-            return getMockSports();
+            log.error("Failed to fetch sports events from TheSportsDB API: {}", e.getMessage(), e);
+            return List.of();
         }
     }
 
@@ -73,34 +67,5 @@ public class SportsDbClient {
         }
 
         return results;
-    }
-
-    private List<CollectedContentDto> getMockSports() {
-        return List.of(
-                new CollectedContentDto(
-                        ContentType.sport,
-                        "아스널 vs 첼시 (Arsenal vs Chelsea)",
-                        "[English Premier League] 프리미어리그의 대표적인 런던 더비 매치. 우승 도약을 위한 두 팀의 중요한 일전.",
-                        "arsenal-chelsea-thumbnail"
-                ),
-                new CollectedContentDto(
-                        ContentType.sport,
-                        "맨체스터 유나이티드 vs 리버풀 (Man United vs Liverpool)",
-                        "[English Premier League] 역사 깊은 노스웨스트 더비 라이벌 매치. 자존심을 건 치열한 격돌을 감상해 보세요.",
-                        "united-liverpool-thumbnail"
-                ),
-                new CollectedContentDto(
-                        ContentType.sport,
-                        "레알 마드리드 vs 바르셀로나 (Real Madrid vs Barcelona)",
-                        "[La Liga] 전 세계가 주목하는 스페인 최고의 라이벌 전, 엘 클라시코(El Clásico). 최고의 스타들이 격돌합니다.",
-                        "el-clasico-thumbnail"
-                ),
-                new CollectedContentDto(
-                        ContentType.sport,
-                        "골든스테이트 워리어스 vs LA 레이커스 (Warriors vs Lakers)",
-                        "[NBA] 미국 프로농구 최고의 스타 플레이어들이 펼치는 명승부. 서부 컨퍼런스의 최강자를 가립니다.",
-                        "nba-warriors-lakers-thumbnail"
-                )
-        );
     }
 }

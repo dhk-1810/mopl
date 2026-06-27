@@ -34,7 +34,7 @@ public class LiveChatWebController implements LiveChatApi {
         SendLiveChatMessageCommand command = new SendLiveChatMessageCommand(
                 userDto.id(),
                 userDto.name(),
-                userDto.profilePresignedUrl(),
+                userDto.profileImageUrl(),
                 request.text(),
                 destination
         );

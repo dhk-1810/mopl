@@ -11,7 +11,7 @@ public record UserDto(
         Instant createdAt,
         String email,
         String name,
-        String profilePresignedUrl,
+        String profileImageUrl,
         String role,
         Boolean locked
 ) {

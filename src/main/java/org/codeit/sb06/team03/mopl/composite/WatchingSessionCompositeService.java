@@ -36,9 +36,11 @@ public class WatchingSessionCompositeService {
 
         // TODO 자발/강제 로그아웃 시 워칭세션 삭제
         WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByContentId(watcherId);
+        if (watchingSession == null) return null;
+
         ContentReadModel content = getSingleContentUseCase.get(watchingSession.liveChatId());
         var userDto = userDetails.getUserDto();
-        UserSummaryDto watcher = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profilePresignedUrl());
+        UserSummaryDto watcher = new UserSummaryDto(userDto.id(), userDto.name(), userDto.profileImageUrl());
 
         return new WatchingSessionDto(
                 watchingSession.id(),
