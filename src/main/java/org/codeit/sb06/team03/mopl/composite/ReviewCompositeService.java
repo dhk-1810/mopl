@@ -1,105 +1,71 @@
-package org.codeit.sb06.team03.mopl.content.application;
+package org.codeit.sb06.team03.mopl.composite;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.content.SortReviewBy;
-import org.codeit.sb06.team03.mopl.content.domain.entity.Content;
+import org.codeit.sb06.team03.mopl.content.application.in.*;
 import org.codeit.sb06.team03.mopl.content.domain.entity.Review;
-import org.codeit.sb06.team03.mopl.content.infra.in.*;
-import org.codeit.sb06.team03.mopl.content.infra.out.ContentRepository;
-import org.codeit.sb06.team03.mopl.content.infra.out.ReviewRepository;
+import org.codeit.sb06.team03.mopl.content.infra.in.CursorRequestReviewDto;
+import org.codeit.sb06.team03.mopl.content.infra.in.CursorResponseReviewDto;
+import org.codeit.sb06.team03.mopl.content.infra.in.ReviewCreateRequest;
+import org.codeit.sb06.team03.mopl.content.infra.in.ReviewDto;
+import org.codeit.sb06.team03.mopl.content.infra.in.ReviewUpdateRequest;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.springframework.data.domain.Slice;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
-public class ReviewService {
+public class ReviewCompositeService {
 
-    private final ReviewRepository reviewRepository;
-    private final ContentRepository contentRepository;
+    private final CreateReviewUseCase createReviewUseCase;
+    private final UpdateReviewUseCase updateReviewUseCase;
+    private final DeleteReviewUseCase deleteReviewUseCase;
+    private final GetReviewUseCase getReviewUseCase;
     private final GetProfileUseCase getProfileUseCase;
     private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
-    @Transactional
     public ReviewDto createReview(ReviewCreateRequest request, UUID authorId) {
-        Content content = contentRepository.findById(request.contentId())
-                .orElseThrow(() -> new NoSuchElementException("Content not found: " + request.contentId()));
+        Review review = createReviewUseCase.create(new CreateReviewCommand(
+                request.contentId(),
+                authorId,
+                request.text(),
+                request.rating()
+        ));
 
-        int ratingInt = (int) request.rating();
-        content.addReview(ratingInt);
-        contentRepository.save(content);
-
-        Review review = Review.create(content, authorId, request.text(), ratingInt);
-        reviewRepository.save(review);
-
-        ProfileReadModel profile = getProfileUseCase.getProfileReadModel(authorId);
-        String profileUrl = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
-        UserSummary author = new UserSummary(profile.userId(), profile.name(), profileUrl);
-
-        return new ReviewDto(review.getId(), content.getId(), author, review.getText(), review.getRating());
+        return getReviewDto(authorId, review);
     }
 
-    @Transactional
     public ReviewDto updateReview(UUID reviewId, ReviewUpdateRequest request, UUID authorId) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new NoSuchElementException("Review not found: " + reviewId));
+        Review review = updateReviewUseCase.update(new UpdateReviewCommand(
+                reviewId,
+                authorId,
+                request.text(),
+                request.rating()
+        ));
 
-        if (!review.getAuthorId().equals(authorId)) {
-            throw new AccessDeniedException("You are not the author of this review");
-        }
-
-        if (request.rating() != null) {
-            int newRating = (int) (double) request.rating();
-            if (newRating != review.getRating()) {
-                Content content = review.getContent();
-                content.updateReview(review.getRating(), newRating);
-                contentRepository.save(content);
-            }
-        }
-
-        review.update(request.text(), request.rating() != null ? (int) (double) request.rating() : null);
-        reviewRepository.save(review);
-
-        ProfileReadModel profile = getProfileUseCase.getProfileReadModel(authorId);
-        String profileUrl = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
-        UserSummary author = new UserSummary(profile.userId(), profile.name(), profileUrl);
-
-        return new ReviewDto(review.getId(), review.getContent().getId(), author, review.getText(), review.getRating());
+        return getReviewDto(authorId, review);
     }
 
-    @Transactional
     public void deleteReview(UUID reviewId, UUID authorId) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new NoSuchElementException("Review not found: " + reviewId));
-
-        if (!review.getAuthorId().equals(authorId)) {
-            throw new AccessDeniedException("You are not the author of this review");
-        }
-
-        Content content = review.getContent();
-        content.removeReview(review.getRating());
-        contentRepository.save(content);
-
-        reviewRepository.deleteById(reviewId);
+        deleteReviewUseCase.delete(new DeleteReviewCommand(
+                reviewId,
+                authorId
+        ));
     }
 
     public CursorResponseReviewDto getReviews(CursorRequestReviewDto request) {
         UUID contentId = request.contentId();
-        if (contentId == null) {
-            return new CursorResponseReviewDto(List.of(), null, null, false, 0, request.sortReviewBy(), request.sortDirection());
-        }
 
-        Slice<Review> slice = reviewRepository.findByContentId(
+        Slice<Review> slice = getReviewUseCase.getReviews(
                 contentId,
                 request.cursor(),
                 request.idAfter(),
@@ -141,7 +107,7 @@ public class ReviewService {
         String nextCursor = null;
         UUID nextIdAfter = null;
         if (slice.hasNext() && !reviews.isEmpty()) {
-            Review lastReview = reviews.get(reviews.size() - 1);
+            Review lastReview = reviews.getLast();
             nextIdAfter = lastReview.getId();
             if (request.sortReviewBy() == SortReviewBy.createdAt) {
                 nextCursor = lastReview.getCreatedAt().toString();
@@ -150,7 +116,7 @@ public class ReviewService {
             }
         }
 
-        long totalCount = reviewRepository.countByContentId(contentId);
+        long totalCount = getReviewUseCase.countReviews(contentId);
 
         return new CursorResponseReviewDto(
                 data,
@@ -160,6 +126,20 @@ public class ReviewService {
                 totalCount,
                 request.sortReviewBy(),
                 request.sortDirection()
+        );
+    }
+
+    private ReviewDto getReviewDto(UUID authorId, Review review) {
+        ProfileReadModel profile = getProfileUseCase.getProfileReadModel(authorId);
+        String profileUrl = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
+        UserSummary author = new UserSummary(profile.userId(), profile.name(), profileUrl);
+
+        return new ReviewDto(
+                review.getId(),
+                review.getContent().getId(),
+                author,
+                review.getText(),
+                review.getRating()
         );
     }
 }

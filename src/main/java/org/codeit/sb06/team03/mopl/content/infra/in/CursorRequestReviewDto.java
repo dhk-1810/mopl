@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public record CursorRequestReviewDto(
 
-        @Nullable
+        @NotNull
         UUID contentId,
 
         @Nullable

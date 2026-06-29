@@ -1,4 +1,10 @@
 package org.codeit.sb06.team03.mopl.content.application.in;
 
-public record UpdateReviewCommand() {
-}
+import java.util.UUID;
+
+public record UpdateReviewCommand(
+        UUID reviewId,
+        UUID authorId,
+        String text,
+        Double rating
+) {}
