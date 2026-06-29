@@ -19,13 +19,11 @@ public class SendMessageAdapter implements SendMessagePort {
     @Override
     public void broadcastPresenceMessage(SendPresenceMessageQuery sendPresenceMessageQuery) {
         UserSummary userSummary = sendPresenceMessageQuery.userSummary();
-        ContentReadModel contentResult = sendPresenceMessageQuery.contentResult();
 
         WatchingSessionDto sessionDetails = new WatchingSessionDto(
                 sendPresenceMessageQuery.watchingSessionId(),
                 sendPresenceMessageQuery.watchingSessionCreatedAt(),
-                userSummary,
-                contentResult
+                userSummary
         );
 
         LiveChatPresenceResponse response = new LiveChatPresenceResponse(

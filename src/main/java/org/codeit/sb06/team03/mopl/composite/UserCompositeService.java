@@ -10,6 +10,7 @@ import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.infra.ProfileMapper;
 import org.codeit.sb06.team03.mopl.profile.infra.in.*;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
+import org.codeit.sb06.team03.mopl.common.cache.ProfileImageCache;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +31,7 @@ public class UserCompositeService {
     private final UpdateProfileUseCase updateProfileUseCase;
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
     private final GetContentUseCase getContentUseCase;
+    private final ProfileImageCache profileImageCache;
 
     public UserDto registerAccount(UserCreateRequest request) {
         RegisterAccountCommand command = accountMapper.toCommand(request);
@@ -64,6 +66,7 @@ public class UserCompositeService {
     public UserDto updateProfile(UUID userId, UserUpdateRequest request, @Nullable MultipartFile image) {
         UpdateProfileCommand command = profileMapper.toCommand(userId, request, image);
         Profile updated = updateProfileUseCase.update(command);
+        profileImageCache.evictProfileImageUrl(userId);
         return getAccountUseCase.get(updated.getAccountId());
     }
 }

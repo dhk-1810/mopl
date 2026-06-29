@@ -38,15 +38,13 @@ public class WatchingSessionCompositeService {
         WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByContentId(watcherId);
         if (watchingSession == null) return null;
 
-        ContentReadModel content = getSingleContentUseCase.get(watchingSession.liveChatId());
         var userDto = userDetails.getUserDto();
         UserSummary watcher = new UserSummary(userDto.id(), userDto.name(), userDto.profileImageUrl());
 
         return new WatchingSessionDto(
                 watchingSession.id(),
                 watchingSession.createdAt(),
-                watcher,
-                content
+                watcher
         );
     }
 
@@ -75,14 +73,12 @@ public class WatchingSessionCompositeService {
                         }
                 ));
 
-        ContentReadModel content = getSingleContentUseCase.get(contentId);
 
         List<WatchingSessionDto> response = watchingSessions.stream()
                 .map(rm -> new WatchingSessionDto(
                         rm.id(),
                         rm.createdAt(),
-                        watchers.get(rm.watcherId()),
-                        content
+                        watchers.get(rm.watcherId())
                 ))
                 .toList();
 

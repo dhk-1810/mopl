@@ -10,6 +10,7 @@ import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatching
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.DeleteWatchingSessionUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
+import org.codeit.sb06.team03.mopl.common.cache.ProfileImageCache;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
@@ -31,6 +32,7 @@ public class LiveChatWebEventListener {
     private final SendPresenceMessageUseCase sendPresenceMessageUseCase;
     private final DeleteWatchingSessionUseCase deleteWatchingSessionUseCase;
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
+    private final ProfileImageCache profileImageCache;
 
     // 같은 채널을 구독하지 못하게 하는 로직 필요
     @EventListener
@@ -54,13 +56,14 @@ public class LiveChatWebEventListener {
         createWatchingSessionUseCase.create(createWatchingSessionCommand);
 
         WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByContentId(userDto.id());
+        String profileImageUrl = profileImageCache.getProfileImageUrl(userDto.id());
         SendPresenceMessageCommand sendPresenceMessageCommand =
                 new SendPresenceMessageCommand(
                         watchingSession.id(),
                         watchingSession.createdAt(),
                         userDto.id(),
                         userDto.name(),
-                        userDto.profileImageUrl(),
+                        profileImageUrl,
                         WatchType.JOIN.name(),
                         destination
                 );
@@ -91,13 +94,14 @@ public class LiveChatWebEventListener {
 
         deleteWatchingSessionUseCase.delete(watchingSession.id());
 
+        String profileImageUrl = profileImageCache.getProfileImageUrl(userDto.id());
         SendPresenceMessageCommand sendPresenceMessageCommand =
                 new SendPresenceMessageCommand(
                         watchingSession.id(),
                         watchingSession.createdAt(),
                         userDto.id(),
                         userDto.name(),
-                        userDto.profileImageUrl(),
+                        profileImageUrl,
                         WatchType.LEAVE.name(),
                         destination
                 );
@@ -135,6 +139,7 @@ public class LiveChatWebEventListener {
 
         if (watchingSession != null) {
             WatchingSessionReadModel finalWatchingSession = watchingSession;
+            String profileImageUrl = profileImageCache.getProfileImageUrl(userDto.id());
             destinations.forEach(destination -> {
                 UUID contentId = UUID.fromString(DestinationUtils.extractContentId(destination));
                 UUID liveChatId = contentId;
@@ -145,7 +150,7 @@ public class LiveChatWebEventListener {
                                 finalWatchingSession.createdAt(),
                                 userDto.id(),
                                 userDto.name(),
-                                userDto.profileImageUrl(),
+                                profileImageUrl,
                                 WatchType.LEAVE.name(),
                                 destination
                         );
