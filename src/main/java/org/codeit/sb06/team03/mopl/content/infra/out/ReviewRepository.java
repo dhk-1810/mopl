@@ -10,6 +10,7 @@ import org.codeit.sb06.team03.mopl.content.domain.entity.Review;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.lang.Nullable;
 
 import java.time.Instant;
 import java.util.List;
@@ -21,6 +22,8 @@ public interface ReviewRepository extends QuerydslJpaRepository<Review, UUID> {
 
     long countByContentId(UUID contentId);
 
+    boolean existsByContentIdAndAuthorId(UUID contentId, UUID authorId);
+
     default Slice<Review> findByContentId(
             UUID contentId,
             String cursor,
@@ -29,39 +32,13 @@ public interface ReviewRepository extends QuerydslJpaRepository<Review, UUID> {
             SortReviewBy sortBy,
             SortDirection sortDirection
     ) {
-        boolean isDesc = sortDirection == SortDirection.DESCENDING;
-        BooleanExpression cursorCondition = null;
-
-        if (cursor != null && idAfter != null) {
-            if (sortBy == SortReviewBy.createdAt) {
-                Instant cursorInstant = Instant.parse(cursor);
-                BooleanExpression valueCompare = isDesc ? review.createdAt.lt(cursorInstant) : review.createdAt.gt(cursorInstant);
-                BooleanExpression idCompare = isDesc ? review.id.lt(idAfter) : review.id.gt(idAfter);
-                cursorCondition = valueCompare.or(review.createdAt.eq(cursorInstant).and(idCompare));
-            } else if (sortBy == SortReviewBy.rating) {
-                double cursorRating = Double.parseDouble(cursor);
-                BooleanExpression valueCompare = isDesc ? review.rating.lt(cursorRating) : review.rating.gt(cursorRating);
-                BooleanExpression idCompare = isDesc ? review.id.lt(idAfter) : review.id.gt(idAfter);
-                cursorCondition = valueCompare.or(review.rating.eq((int) cursorRating).and(idCompare));
-            }
-        }
-
-        OrderSpecifier<?> primaryOrder;
-        if (sortBy == SortReviewBy.createdAt) {
-            primaryOrder = new OrderSpecifier<>(isDesc ? Order.DESC : Order.ASC, review.createdAt);
-        } else {
-            primaryOrder = new OrderSpecifier<>(isDesc ? Order.DESC : Order.ASC, review.rating);
-        }
-
-        OrderSpecifier<UUID> secondaryOrder = new OrderSpecifier<>(isDesc ? Order.DESC : Order.ASC, review.id);
-
         List<Review> reviews = select(review)
                 .from(review)
                 .where(
                         review.content.id.eq(contentId),
-                        cursorCondition
+                        cursorPredicate(cursor, idAfter, sortBy, sortDirection)
                 )
-                .orderBy(primaryOrder, secondaryOrder)
+                .orderBy(orderByExpressions(sortBy, sortDirection))
                 .limit(limit + 1)
                 .fetch();
 
@@ -72,5 +49,45 @@ public interface ReviewRepository extends QuerydslJpaRepository<Review, UUID> {
         }
 
         return new SliceImpl<>(reviews, PageRequest.ofSize(limit), hasNext);
+    }
+
+    private static BooleanExpression cursorPredicate(
+            String cursor,
+            UUID idAfter,
+            SortReviewBy sortBy,
+            SortDirection sortDirection
+    ) {
+        if (cursor == null || idAfter == null) {
+            return null;
+        }
+
+        boolean isDesc = sortDirection == SortDirection.DESCENDING;
+        if (sortBy == SortReviewBy.createdAt) {
+            Instant cursorInstant = Instant.parse(cursor);
+            BooleanExpression valueCompare = isDesc ? review.createdAt.lt(cursorInstant) : review.createdAt.gt(cursorInstant);
+            BooleanExpression idCompare = isDesc ? review.id.lt(idAfter) : review.id.gt(idAfter);
+            return valueCompare.or(review.createdAt.eq(cursorInstant).and(idCompare));
+        } else { // sortBy == SortReviewBy.rating
+            double cursorRating = Double.parseDouble(cursor);
+            BooleanExpression valueCompare = isDesc ? review.rating.lt(cursorRating) : review.rating.gt(cursorRating);
+            BooleanExpression idCompare = isDesc ? review.id.lt(idAfter) : review.id.gt(idAfter);
+            return valueCompare.or(review.rating.eq((int) cursorRating).and(idCompare));
+        }
+    }
+
+    private static OrderSpecifier<?>[] orderByExpressions(SortReviewBy sortBy, SortDirection sortDirection) {
+        boolean isDesc = sortDirection == SortDirection.DESCENDING;
+        Order order = isDesc ? Order.DESC : Order.ASC;
+
+        OrderSpecifier<?> primaryOrder;
+        if (sortBy == SortReviewBy.createdAt) {
+            primaryOrder = new OrderSpecifier<>(order, review.createdAt);
+        } else {
+            primaryOrder = new OrderSpecifier<>(order, review.rating);
+        }
+
+        OrderSpecifier<UUID> secondaryOrder = new OrderSpecifier<>(order, review.id);
+
+        return new OrderSpecifier<?>[]{primaryOrder, secondaryOrder};
     }
 }

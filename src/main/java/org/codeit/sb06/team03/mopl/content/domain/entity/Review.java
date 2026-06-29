@@ -15,7 +15,15 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-@Table(name = "reviews")
+@Table(
+        name = "reviews",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uq_content_id_author_id",
+                        columnNames = {"content_id", "author_id"}
+                )
+        }
+)
 @SQLDelete(sql = "UPDATE reviews SET is_deleted = true WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class Review {

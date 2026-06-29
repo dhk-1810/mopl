@@ -18,9 +18,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -75,33 +73,8 @@ public class ReviewCompositeService {
         );
 
         List<Review> reviews = slice.getContent();
-        List<UUID> authorIds = reviews.stream().map(Review::getAuthorId).distinct().toList();
-        Map<UUID, ProfileReadModel> profilesMap = getProfileUseCase.getProfileReadModels(authorIds);
-
-        Map<UUID, UserSummary> authorsMap = profilesMap.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> {
-                            ProfileReadModel profile = entry.getValue();
-                            String url = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
-                            return new UserSummary(profile.userId(), profile.name(), url);
-                        }
-                ));
-
         List<ReviewDto> data = reviews.stream()
-                .map(review -> {
-                    UserSummary author = authorsMap.get(review.getAuthorId());
-                    if (author == null) {
-                        author = new UserSummary(review.getAuthorId(), "Unknown", null);
-                    }
-                    return new ReviewDto(
-                            review.getId(),
-                            review.getContent().getId(),
-                            author,
-                            review.getText(),
-                            review.getRating()
-                    );
-                })
+                .map(review -> getReviewDto(review.getAuthorId(), review))
                 .toList();
 
         String nextCursor = null;

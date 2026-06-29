@@ -38,5 +38,10 @@ public class LoadReviewAdapter implements LoadReviewPort {
     public long countByContentId(UUID contentId) {
         return repository.countByContentId(contentId);
     }
+
+    @Override
+    public boolean existsByContentIdAndAuthorId(UUID contentId, UUID authorId) {
+        return repository.existsByContentIdAndAuthorId(contentId, authorId);
+    }
 }
 

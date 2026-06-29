@@ -22,4 +22,6 @@ public interface LoadReviewPort {
     );
 
     long countByContentId(UUID contentId);
+
+    boolean existsByContentIdAndAuthorId(UUID contentId, UUID authorId);
 }
