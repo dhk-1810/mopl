@@ -60,11 +60,6 @@ public class LoadContentAdapter implements LoadContentPort {
     }
 
     @Override
-    public long countByContentIdAndWatcherNameLike(UUID contentId, @Nullable String watcherName) {
-        return repository.countByContentIdAndWatcherNameLike(contentId, watcherName);
-    }
-
-    @Override
     public boolean existsById(UUID contentId) {
         return repository.existsById(contentId);
     }

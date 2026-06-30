@@ -31,7 +31,5 @@ public interface LoadContentPort {
 
     List<ContentReadModel> findByIdsIn(Set<UUID> contentIds);
 
-    long countByContentIdAndWatcherNameLike(UUID contentId, @Nullable String watcherName);
-
     boolean existsById(UUID contentId);
 }

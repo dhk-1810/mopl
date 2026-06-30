@@ -16,6 +16,6 @@ public record ConversationDto(
         DirectMessageDto lastestMessage,
 
         @Schema(description = "읽지 않은 메시지 존재 여부")
-        Boolean hasUnread
+        boolean hasUnread
 ) {
 }

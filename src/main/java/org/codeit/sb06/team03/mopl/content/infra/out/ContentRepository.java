@@ -125,20 +125,6 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
         return new ArrayList<>(resultMap.values());
     }
 
-    default long countByContentIdAndWatcherNameLike(UUID contentId, @Nullable String watcherNameLike) {
-        BooleanExpression watcherNameLikeCondition = getWatcherNameLikeCondition(watcherNameLike);
-
-        Long count = select(watchingSession.count())
-                .from(watchingSession)
-                .innerJoin(profile).on(watchingSession.watcherId.eq(profile.accountId))
-                .where(
-                        watchingSession.liveChatId.eq(contentId),
-                        watcherNameLikeCondition
-                )
-                .fetchOne();
-
-        return count !=  null ? count : 0;
-    }
 
     private static BooleanExpression keywordLikePredicate(@Nullable String keywordLike){
         if (keywordLike == null || keywordLike.isEmpty()) {
