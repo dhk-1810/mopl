@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.content.infra.in;
 import org.codeit.sb06.team03.mopl.common.error.ErrorResponse;
 import org.codeit.sb06.team03.mopl.content.domain.exception.InvalidCursorFormatException;
 import org.codeit.sb06.team03.mopl.content.domain.exception.ContentNotFoundException;
-import org.codeit.sb06.team03.mopl.content.domain.exception.ReviewDuplicateException;
+import org.codeit.sb06.team03.mopl.content.domain.exception.ReviewAlreadyExistsException;
 import org.codeit.sb06.team03.mopl.content.domain.exception.ReviewNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +36,8 @@ public class ContentControllerAdvice {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
-    @ExceptionHandler(ReviewDuplicateException.class)
-    public ResponseEntity<ErrorResponse> handleReviewDuplicateException(ReviewDuplicateException e) {
+    @ExceptionHandler(ReviewAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleReviewAlreadyExistsException(ReviewAlreadyExistsException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.getClass().getSimpleName(), e.getMessage(), List.of());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);

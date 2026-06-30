@@ -8,6 +8,7 @@ spring:
       initialize-schema: always
   jpa:
     open-in-view: false
+    defer-datasource-initialization: true # 테이블 생성된 후 schema.sql 실행
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST:localhost}

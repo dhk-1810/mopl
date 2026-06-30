@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.batch.dto;
+package org.codeit.sb06.team03.mopl.batch;
 
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 

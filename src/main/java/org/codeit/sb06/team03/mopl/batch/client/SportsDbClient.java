@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.batch.client;
 
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.batch.dto.CollectedContentDto;
+import org.codeit.sb06.team03.mopl.batch.CollectedContentDto;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

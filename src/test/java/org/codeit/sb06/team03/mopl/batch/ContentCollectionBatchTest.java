@@ -2,7 +2,6 @@ package org.codeit.sb06.team03.mopl.batch;
 
 import org.codeit.sb06.team03.mopl.batch.client.TmdbClient;
 import org.codeit.sb06.team03.mopl.batch.client.SportsDbClient;
-import org.codeit.sb06.team03.mopl.batch.dto.CollectedContentDto;
 import org.codeit.sb06.team03.mopl.content.infra.out.ContentRepository;
 import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
 import org.junit.jupiter.api.BeforeEach;

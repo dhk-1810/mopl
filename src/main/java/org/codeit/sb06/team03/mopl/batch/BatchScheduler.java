@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.batch.scheduler;
+package org.codeit.sb06.team03.mopl.batch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

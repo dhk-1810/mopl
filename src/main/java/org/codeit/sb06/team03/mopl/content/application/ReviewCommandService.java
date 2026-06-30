@@ -9,7 +9,7 @@ import org.codeit.sb06.team03.mopl.content.application.out.SaveReviewPort;
 import org.codeit.sb06.team03.mopl.content.domain.entity.Content;
 import org.codeit.sb06.team03.mopl.content.domain.entity.Review;
 import org.codeit.sb06.team03.mopl.content.domain.exception.ContentNotFoundException;
-import org.codeit.sb06.team03.mopl.content.domain.exception.ReviewDuplicateException;
+import org.codeit.sb06.team03.mopl.content.domain.exception.ReviewAlreadyExistsException;
 import org.codeit.sb06.team03.mopl.content.domain.exception.ReviewNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ public class ReviewCommandService implements CreateReviewUseCase, UpdateReviewUs
     @Transactional
     public Review create(CreateReviewCommand command) {
         if (loadReviewPort.existsByContentIdAndAuthorId(command.contentId(), command.authorId())) {
-            throw ReviewDuplicateException.fromContentIdAndAuthorId(command.contentId(), command.authorId());
+            throw ReviewAlreadyExistsException.fromContentIdAndAuthorId(command.contentId(), command.authorId());
         }
 
         Content content = loadContentPort.findById(command.contentId())

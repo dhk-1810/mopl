@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.batch.in;
+package org.codeit.sb06.team03.mopl.batch;
 
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
