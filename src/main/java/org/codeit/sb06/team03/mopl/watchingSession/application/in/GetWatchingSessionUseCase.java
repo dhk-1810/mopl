@@ -14,7 +14,7 @@ public interface GetWatchingSessionUseCase {
     @Nullable
     WatchingSessionReadModel getByContentId(UUID watcherId);
 
-    WatchingSessionReadModel get(UUID liveChatId, UUID watcherId);
+    WatchingSessionReadModel get(UUID liveChatRoomId, UUID watcherId);
 
     Slice<WatchingSessionReadModel> getByContentId(UUID contentId, List<UUID> watcherIds, CursorWatchingSessionRequest request);
 

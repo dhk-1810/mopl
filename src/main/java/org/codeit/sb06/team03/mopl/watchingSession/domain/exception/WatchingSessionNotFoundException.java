@@ -4,8 +4,8 @@ import java.util.UUID;
 
 public class WatchingSessionNotFoundException extends WatchingSessionException {
 
-    private static final String fromLiveChatIdAndWatcherIdFormat =
-            "Watching Session을 찾을 수 없습니다. liveChatId: '%s', watcherId: '%s'";
+    private static final String fromLiveChatRoomIdAndWatcherIdFormat =
+            "Watching Session을 찾을 수 없습니다. liveChatRoomId: '%s', watcherId: '%s'";
 
     private static final String fromWatcherIdFormat
             = "Watching Session을 찾을 수 없습니다. watcherId: '%s'";
@@ -14,9 +14,9 @@ public class WatchingSessionNotFoundException extends WatchingSessionException {
         super(message);
     }
 
-    public static WatchingSessionNotFoundException fromLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId) {
+    public static WatchingSessionNotFoundException fromLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId) {
         return new WatchingSessionNotFoundException(
-                fromLiveChatIdAndWatcherIdFormat.formatted(liveChatId, watcherId)
+                fromLiveChatRoomIdAndWatcherIdFormat.formatted(liveChatRoomId, watcherId)
         );
     }
 

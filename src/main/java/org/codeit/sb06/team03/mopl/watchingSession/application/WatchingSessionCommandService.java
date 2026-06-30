@@ -26,14 +26,14 @@ public class WatchingSessionCommandService implements
     @Override
     @Transactional
     public void create(CreateWatchingSessionCommand command) {
-        UUID liveChatId = command.liveChatId();
+        UUID liveChatRoomId = command.liveChatRoomId();
         UUID watcherId = command.watcherId();
 
-        if (loadWatchingSessionPort.existsByLiveChatIdAndWatcherId(liveChatId, watcherId)) {
-            throw WatchingSessionDuplicateException.fromLiveChatIdAndAccountId(liveChatId, watcherId);
+        if (loadWatchingSessionPort.existsByLiveChatRoomIdAndWatcherId(liveChatRoomId, watcherId)) {
+            throw WatchingSessionDuplicateException.fromLiveChatRoomIdAndAccountId(liveChatRoomId, watcherId);
         }
 
-        WatchingSession watchingSession = WatchingSession.create(watcherId, liveChatId);
+        WatchingSession watchingSession = WatchingSession.create(watcherId, liveChatRoomId);
         saveWatchingSessionPort.save(watchingSession);
     }
 

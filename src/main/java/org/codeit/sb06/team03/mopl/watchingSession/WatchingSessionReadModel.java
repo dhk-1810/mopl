@@ -8,14 +8,14 @@ import java.util.UUID;
 public record WatchingSessionReadModel (
         UUID id,
         UUID watcherId,
-        UUID liveChatId,
+        UUID liveChatRoomId,
         Instant createdAt
 ) {
     public static WatchingSessionReadModel from(WatchingSession watchingSession) {
         return new WatchingSessionReadModel(
                 watchingSession.getId(),
                 watchingSession.getWatcherId(),
-                watchingSession.getLiveChatId(),
+                watchingSession.getLiveChatRoomId(),
                 watchingSession.getCreatedAt()
         );
     }

@@ -10,15 +10,15 @@ import java.util.UUID;
 
 public interface LoadWatchingSessionPort {
 
-    boolean existsByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId);
+    boolean existsByLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId);
 
-    Optional<WatchingSession> findByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId);
+    Optional<WatchingSession> findByLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId);
 
     long countByContentId(UUID contentId);
 
     Optional<WatchingSessionReadModel> findReadModelByWatcherId(UUID watcherId);
 
-    Optional<WatchingSessionReadModel> findReadModelByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId);
+    Optional<WatchingSessionReadModel> findReadModelByLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId);
 
     Slice<WatchingSessionReadModel> findReadModelByContentId(WatchingSessionSearchCondition query);
 }

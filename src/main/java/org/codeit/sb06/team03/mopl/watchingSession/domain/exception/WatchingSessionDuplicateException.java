@@ -4,16 +4,16 @@ import java.util.UUID;
 
 public class WatchingSessionDuplicateException extends WatchingSessionException {
 
-    private static final String fromLiveChatIdAndAccountIdFormat
-            = "중복된 WatchingSession입니다. liveChatId: '%s', accountId: '%s'";
+    private static final String fromLiveChatRoomIdAndAccountIdFormat
+            = "중복된 WatchingSession입니다. liveChatRoomId: '%s', accountId: '%s'";
 
     public WatchingSessionDuplicateException(String message) {
         super(message);
     }
 
-    public static WatchingSessionDuplicateException fromLiveChatIdAndAccountId(UUID liveChatId, UUID accountId) {
+    public static WatchingSessionDuplicateException fromLiveChatRoomIdAndAccountId(UUID liveChatRoomId, UUID accountId) {
         return new WatchingSessionDuplicateException(
-                fromLiveChatIdAndAccountIdFormat.formatted(liveChatId, accountId)
+                fromLiveChatRoomIdAndAccountIdFormat.formatted(liveChatRoomId, accountId)
         );
     }
 }

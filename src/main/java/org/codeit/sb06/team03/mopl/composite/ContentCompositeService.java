@@ -11,8 +11,8 @@ import org.codeit.sb06.team03.mopl.content.infra.in.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorResponseContentDto;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
 import org.codeit.sb06.team03.mopl.image.application.in.RegisterImageUseCase;
-import org.codeit.sb06.team03.mopl.liveChat.application.in.CreateLiveChatUseCase;
-import org.codeit.sb06.team03.mopl.liveChat.application.in.DeleteLiveChatUseCase;
+import org.codeit.sb06.team03.mopl.liveChatRoom.application.in.CreateLiveChatRoomUseCase;
+import org.codeit.sb06.team03.mopl.liveChatRoom.application.in.DeleteLiveChatRoomUseCase;
 import org.codeit.sb06.team03.mopl.playlist.application.in.DeleteCurationUseCase;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -32,8 +32,8 @@ public class ContentCompositeService {
     private final UpdateContentUseCase updateContentUseCase;
     private final DeleteContentUseCase deleteContentUseCase;
 
-    private final CreateLiveChatUseCase createLiveChatUseCase;
-    private final DeleteLiveChatUseCase deleteLiveChatUseCase;
+    private final CreateLiveChatRoomUseCase createLiveChatRoomUseCase;
+    private final DeleteLiveChatRoomUseCase deleteLiveChatRoomUseCase;
 
     private final GetPresignedUrlUseCase getPresignedUrlUseCase;
     private final RegisterImageUseCase registerImageUseCase;
@@ -84,7 +84,7 @@ public class ContentCompositeService {
         String thumbnailKey = registerImageUseCase.register(image);
         CreateContentCommand command = contentMapper.toCommand(request);
         ContentReadModel readModel = createContentUseCase.create(command, thumbnailKey);
-        createLiveChatUseCase.create(readModel.id());
+        createLiveChatRoomUseCase.create(readModel.id());
         return ContentDto.from(readModel, getPresignedUrl(thumbnailKey));
     }
 
@@ -96,7 +96,7 @@ public class ContentCompositeService {
 
     public void delete(UUID contentId) {
         deleteContentUseCase.delete(contentId);
-        deleteLiveChatUseCase.delete(contentId);
+        deleteLiveChatRoomUseCase.delete(contentId);
         deleteCurationUseCase.deleteCurationByContentId(contentId); // TODO 오래걸리면 비동기?
     }
 

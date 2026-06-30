@@ -33,8 +33,8 @@ public class Followee extends AbstractAggregateRoot<Followee> {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-    @Column(name = "followee_count", nullable = false)
-    private long followeeCount;
+    @Column(name = "follower_count", nullable = false)
+    private long followerCount;
 
     @OneToMany(mappedBy = "followee", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Follower> followers = new HashSet<>();
@@ -42,7 +42,7 @@ public class Followee extends AbstractAggregateRoot<Followee> {
     public static Followee create(UUID id) {
         var followee = new Followee();
         followee.id = id;
-        followee.followeeCount = 0;
+        followee.followerCount = 0;
         followee.registerEvent(new FolloweeCreatedEvent());
         return followee;
     }
@@ -58,14 +58,14 @@ public class Followee extends AbstractAggregateRoot<Followee> {
         follower.setId(new FollowerId(this.id, followerId));
         follower.setFollowee(this);
         followers.add(follower);
-        followeeCount++;
+        followerCount++;
         super.registerEvent(new FollowedEvent(follower.getFollowee().getId(), followerId));
     }
 
     public void removeFollower(UUID followerId) {
         boolean removed = followers.removeIf(follower -> follower.getId().getFollowerId().equals(followerId));
         if (removed) {
-            followeeCount--;
+            followerCount--;
             super.registerEvent(new UnfollowedEvent());
         }
     }

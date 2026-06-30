@@ -42,7 +42,7 @@ public class FollowCommandService implements CreateFollowUseCase, ToggleFollowUs
     public long count(String followeeId) {
         final UUID followeeUUID = UUID.fromString(followeeId);
         return loadFolloweePort.findById(followeeUUID)
-                .map(Followee::getFolloweeCount)
+                .map(Followee::getFollowerCount)
                 .orElse(0L);
     }
 

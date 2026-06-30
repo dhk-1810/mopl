@@ -30,9 +30,9 @@ public class WatchingSessionQueryService implements GetWatchingSessionUseCase {
     }
 
     @Override
-    public WatchingSessionReadModel get(UUID liveChatId, UUID watcherId) {
-        return loadWatchingSessionPort.findReadModelByLiveChatIdAndWatcherId(liveChatId, watcherId)
-                .orElseThrow(() -> WatchingSessionNotFoundException.fromLiveChatIdAndWatcherId(liveChatId, watcherId));
+    public WatchingSessionReadModel get(UUID liveChatRoomId, UUID watcherId) {
+        return loadWatchingSessionPort.findReadModelByLiveChatRoomIdAndWatcherId(liveChatRoomId, watcherId)
+                .orElseThrow(() -> WatchingSessionNotFoundException.fromLiveChatRoomIdAndWatcherId(liveChatRoomId, watcherId));
     }
 
     @Override

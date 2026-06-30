@@ -21,13 +21,13 @@ import static org.codeit.sb06.team03.mopl.watchingSession.domain.QWatchingSessio
 
 public interface WatchingSessionRepository extends QuerydslJpaRepository<WatchingSession, UUID> {
 
-    boolean existsByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId);
+    boolean existsByLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId);
 
     void deleteByWatcherId(UUID watcherId);
 
-    Optional<WatchingSession> findByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId);
+    Optional<WatchingSession> findByLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId);
 
-    long countByLiveChatId(UUID liveChatId);
+    long countByLiveChatRoomId(UUID liveChatRoomId);
 
     Optional<WatchingSession> findByWatcherId(UUID watcherId);
 
@@ -43,7 +43,7 @@ public interface WatchingSessionRepository extends QuerydslJpaRepository<Watchin
         List<WatchingSession> sessions = select(watchingSession)
                 .from(watchingSession)
                 .where(
-                        watchingSession.liveChatId.eq(condition.contentId()),
+                        watchingSession.liveChatRoomId.eq(condition.contentId()),
                         cursorAndAssistanceCursorCondition,
                         watcherIdInCondition
                 )
@@ -112,7 +112,7 @@ public interface WatchingSessionRepository extends QuerydslJpaRepository<Watchin
         WatchingSessionReadModel result = select(Projections.constructor(WatchingSessionReadModel.class,
                 watchingSession.id,
                 watchingSession.watcherId,
-                watchingSession.liveChatId,
+                watchingSession.liveChatRoomId,
                 watchingSession.createdAt
         ))
         .from(watchingSession)
@@ -121,16 +121,16 @@ public interface WatchingSessionRepository extends QuerydslJpaRepository<Watchin
         return Optional.ofNullable(result);
     }
 
-    default Optional<WatchingSessionReadModel> findReadModelByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId) {
+    default Optional<WatchingSessionReadModel> findReadModelByLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId) {
         WatchingSessionReadModel result = select(Projections.constructor(WatchingSessionReadModel.class,
                 watchingSession.id,
                 watchingSession.watcherId,
-                watchingSession.liveChatId,
+                watchingSession.liveChatRoomId,
                 watchingSession.createdAt
         ))
         .from(watchingSession)
         .where(
-                watchingSession.liveChatId.eq(liveChatId),
+                watchingSession.liveChatRoomId.eq(liveChatRoomId),
                 watchingSession.watcherId.eq(watcherId)
         )
         .fetchOne();
@@ -149,12 +149,12 @@ public interface WatchingSessionRepository extends QuerydslJpaRepository<Watchin
         List<WatchingSessionReadModel> sessions = select(Projections.constructor(WatchingSessionReadModel.class,
                 watchingSession.id,
                 watchingSession.watcherId,
-                watchingSession.liveChatId,
+                watchingSession.liveChatRoomId,
                 watchingSession.createdAt
         ))
                 .from(watchingSession)
                 .where(
-                        watchingSession.liveChatId.eq(condition.contentId()),
+                        watchingSession.liveChatRoomId.eq(condition.contentId()),
                         cursorAndAssistanceCursorCondition,
                         watcherIdInCondition
                 )

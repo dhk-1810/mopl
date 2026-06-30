@@ -18,18 +18,18 @@ public class LoadWatchingSessionAdapter implements LoadWatchingSessionPort {
     private final WatchingSessionRepository repository;
 
     @Override
-    public boolean existsByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId) {
-        return repository.existsByLiveChatIdAndWatcherId(liveChatId, watcherId);
+    public boolean existsByLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId) {
+        return repository.existsByLiveChatRoomIdAndWatcherId(liveChatRoomId, watcherId);
     }
 
     @Override
-    public Optional<WatchingSession> findByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId) {
-        return repository.findByLiveChatIdAndWatcherId(liveChatId, watcherId);
+    public Optional<WatchingSession> findByLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId) {
+        return repository.findByLiveChatRoomIdAndWatcherId(liveChatRoomId, watcherId);
     }
 
     @Override
     public long countByContentId(UUID contentId) {
-        return repository.countByLiveChatId(contentId);
+        return repository.countByLiveChatRoomId(contentId);
     }
 
     @Override
@@ -38,8 +38,8 @@ public class LoadWatchingSessionAdapter implements LoadWatchingSessionPort {
     }
 
     @Override
-    public Optional<WatchingSessionReadModel> findReadModelByLiveChatIdAndWatcherId(UUID liveChatId, UUID watcherId) {
-        return repository.findReadModelByLiveChatIdAndWatcherId(liveChatId, watcherId);
+    public Optional<WatchingSessionReadModel> findReadModelByLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId) {
+        return repository.findReadModelByLiveChatRoomIdAndWatcherId(liveChatRoomId, watcherId);
     }
 
     @Override

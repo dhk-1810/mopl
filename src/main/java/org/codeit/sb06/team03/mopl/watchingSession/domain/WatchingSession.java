@@ -36,7 +36,7 @@ public class WatchingSession extends AbstractAggregateRoot<WatchingSession> {
 
     @NotNull
     @Column(name = "live_chat_id", nullable = false)
-    private UUID liveChatId;
+    private UUID liveChatRoomId;
 
     @NotNull
     @Column(name = "created_at", nullable = false)
@@ -46,11 +46,11 @@ public class WatchingSession extends AbstractAggregateRoot<WatchingSession> {
     @Column(name = "version", nullable = false)
     private short version;
 
-    public static WatchingSession create(UUID watcherId, UUID liveChatId) {
+    public static WatchingSession create(UUID watcherId, UUID liveChatRoomId) {
         WatchingSession watchingSession = new WatchingSession();
         watchingSession.id = UUID.randomUUID();
         watchingSession.watcherId = watcherId;
-        watchingSession.liveChatId = liveChatId;
+        watchingSession.liveChatRoomId = liveChatRoomId;
         watchingSession.createdAt = Instant.now();
         watchingSession.registerEvent(new WatchingSessionCreateEvent(watcherId, watchingSession.id));
 
