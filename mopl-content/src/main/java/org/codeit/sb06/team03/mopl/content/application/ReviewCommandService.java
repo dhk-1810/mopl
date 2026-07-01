@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
+@Transactional(value = "contentTransactionManager", readOnly = true)
 public class ReviewCommandService implements CreateReviewUseCase, UpdateReviewUseCase, DeleteReviewUseCase {
 
     private final LoadReviewPort loadReviewPort;
@@ -28,7 +28,7 @@ public class ReviewCommandService implements CreateReviewUseCase, UpdateReviewUs
     private final SaveContentPort saveContentPort;
 
     @Override
-    @Transactional
+    @Transactional("contentTransactionManager")
     public Review create(CreateReviewCommand command) {
         if (loadReviewPort.existsByContentIdAndAuthorId(command.contentId(), command.authorId())) {
             throw ReviewAlreadyExistsException.fromContentIdAndAuthorId(command.contentId(), command.authorId());
@@ -46,7 +46,7 @@ public class ReviewCommandService implements CreateReviewUseCase, UpdateReviewUs
     }
 
     @Override
-    @Transactional
+    @Transactional("contentTransactionManager")
     public Review update(UpdateReviewCommand command) {
         Review review = loadReviewPort.findById(command.reviewId())
                 .orElseThrow(() -> ReviewNotFoundException.fromId(command.reviewId()));
@@ -69,7 +69,7 @@ public class ReviewCommandService implements CreateReviewUseCase, UpdateReviewUs
     }
 
     @Override
-    @Transactional
+    @Transactional("contentTransactionManager")
     public void delete(DeleteReviewCommand command) {
         Review review = loadReviewPort.findById(command.reviewId())
                 .orElseThrow(() -> ReviewNotFoundException.fromId(command.reviewId()));

@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.common.error;
 
-import org.codeit.sb06.team03.mopl.common.security.jwt.exception.InvalidTokenException;
+import org.codeit.sb06.team03.mopl.security.jwt.exception.InvalidTokenException;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

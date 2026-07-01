@@ -1,13 +1,15 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_ENDPOINT}:5432/${DB_NAME_CONTENT}
-    username: ${DB_USERNAME_CONTENT}
-    password: ${DB_PASSWORD_CONTENT}
-    driver-class-name: org.postgresql.Driver
+    content:
+      url: jdbc:postgresql://${DB_ENDPOINT}:5432/${DB_NAME_CONTENT}
+      username: ${DB_USERNAME_CONTENT}
+      password: ${DB_PASSWORD_CONTENT}
+      driver-class-name: org.postgresql.Driver
   jpa:
+    content:
+      hibernate:
+        ddl-auto: update
     open-in-view: false
-    hibernate:
-      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect

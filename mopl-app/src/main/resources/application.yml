@@ -8,6 +8,15 @@ spring:
       host: ${SPRING_DATA_REDIS_HOST:localhost}
       port: ${SPRING_DATA_REDIS_PORT:6379}
 
+mopl:
+  storage:
+    aws:
+      region: ${AWS_REGION:ap-northeast-2}
+      bucket-name: ${AWS_S3_BUCKET}
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+      signature-duration-in-hours: 1 # Presigned URL 유효기간
+
 management:
   endpoints:
     web:

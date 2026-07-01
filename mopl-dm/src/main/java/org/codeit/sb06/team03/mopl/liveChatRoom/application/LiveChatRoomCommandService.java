@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 @Component
-@Transactional(readOnly = true)
+@Transactional(value = "dmTransactionManager", readOnly = true)
 @RequiredArgsConstructor
 public class LiveChatRoomCommandService implements
         SendPresenceMessageUseCase,  CreateLiveChatRoomUseCase, DeleteLiveChatRoomUseCase, SendLiveChatRoomMessageUseCase {
@@ -68,7 +68,7 @@ public class LiveChatRoomCommandService implements
     }
 
     @Override
-    @Transactional
+    @Transactional("dmTransactionManager")
     public void create(UUID contentId) {
         if (loadLiveChatRoomPort.existsById(contentId)) {
             throw LiveChatRoomDuplicateException.fromId(contentId);
@@ -79,7 +79,7 @@ public class LiveChatRoomCommandService implements
     }
 
     @Override
-    @Transactional
+    @Transactional("dmTransactionManager")
     public void delete(UUID contentId) {
         deleteLiveChatRoomPort.deleteById(contentId);
     }

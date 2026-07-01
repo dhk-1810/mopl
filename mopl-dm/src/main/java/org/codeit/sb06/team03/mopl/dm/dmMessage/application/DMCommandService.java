@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
+@Transactional("dmTransactionManager")
 public class DMCommandService implements SendDMUseCase {
 
     private final DMService dmMessageService;

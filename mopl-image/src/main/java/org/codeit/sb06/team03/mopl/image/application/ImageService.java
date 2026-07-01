@@ -42,7 +42,7 @@ public class ImageService implements RegisterImageUseCase, GetPresignedUrlUseCas
     }
 
     @Override
-    @Transactional
+    @Transactional("imageTransactionManager")
     public String register(MultipartFile image) {
         if (image == null || image.isEmpty()) {
             return null;
@@ -61,7 +61,7 @@ public class ImageService implements RegisterImageUseCase, GetPresignedUrlUseCas
     }
 
     @Override
-    @Transactional
+    @Transactional("imageTransactionManager")
     public String getPresignedUrl(String key) {
         if (key == null || key.isBlank()) {
             return null;
@@ -91,7 +91,7 @@ public class ImageService implements RegisterImageUseCase, GetPresignedUrlUseCas
     }
 
     @Override
-    @Transactional
+    @Transactional("imageTransactionManager")
     public Map<String, String> getPresignedUrls(List<String> keys) {
         if (keys == null || keys.isEmpty()) {
             return Collections.emptyMap();

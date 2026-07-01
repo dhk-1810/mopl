@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
+@Transactional(value = "contentTransactionManager", readOnly = true)
 public class ContentQueryService implements GetContentUseCase {
 
     private final LoadContentPort loadContentPort;

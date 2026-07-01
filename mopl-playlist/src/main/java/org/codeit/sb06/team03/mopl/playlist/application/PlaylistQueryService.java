@@ -22,7 +22,7 @@ import java.util.*;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
+@Transactional(value = "playlistTransactionManager", readOnly = true)
 public class PlaylistQueryService implements GetPlaylistUseCase, GetSubscriptionUseCase, GetCurationUseCase {
 
     private final LoadPlaylistsPort loadPlaylistsPort;

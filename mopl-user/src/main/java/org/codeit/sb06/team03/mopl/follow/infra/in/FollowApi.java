@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.codeit.sb06.team03.mopl.common.error.ErrorResponse;
-import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.ResponseEntity;
 

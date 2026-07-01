@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.follow.infra.in;
 
-import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.follow.application.in.*;
 import org.codeit.sb06.team03.mopl.follow.infra.FollowMapper;
 import org.springframework.http.HttpStatus;

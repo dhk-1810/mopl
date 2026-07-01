@@ -13,13 +13,13 @@ public class SaveImageAdapter implements SaveImagePort {
     private final ImageRepository imageRepository;
 
     @Override
-    @Transactional
+    @Transactional("imageTransactionManager")
     public void save(TimeoutImage timeoutImage) {
         imageRepository.save(timeoutImage);
     }
 
     @Override
-    @Transactional
+    @Transactional("imageTransactionManager")
     public void deleteByKey(String key) {
         imageRepository.findByKey(key).ifPresent(imageRepository::delete);
     }

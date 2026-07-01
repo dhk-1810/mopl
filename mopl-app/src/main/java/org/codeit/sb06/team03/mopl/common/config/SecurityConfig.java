@@ -1,13 +1,13 @@
 package org.codeit.sb06.team03.mopl.common.config;
 
 import org.codeit.sb06.team03.mopl.account.domain.vo.Role;
-import org.codeit.sb06.team03.mopl.common.security.LoginFailureHandler;
-import org.codeit.sb06.team03.mopl.common.security.MoplAccessDeniedHandler;
-import org.codeit.sb06.team03.mopl.common.security.MoplAuthenticationEntryPoint;
-import org.codeit.sb06.team03.mopl.common.security.SpaCsrfTokenRequestHandler;
-import org.codeit.sb06.team03.mopl.common.security.jwt.JwtAuthenticationFilter;
-import org.codeit.sb06.team03.mopl.common.security.jwt.JwtLoginSuccessHandler;
-import org.codeit.sb06.team03.mopl.common.security.jwt.JwtLogoutHandler;
+import org.codeit.sb06.team03.mopl.security.LoginFailureHandler;
+import org.codeit.sb06.team03.mopl.security.MoplAccessDeniedHandler;
+import org.codeit.sb06.team03.mopl.security.MoplAuthenticationEntryPoint;
+import org.codeit.sb06.team03.mopl.security.SpaCsrfTokenRequestHandler;
+import org.codeit.sb06.team03.mopl.security.jwt.JwtAuthenticationFilter;
+import org.codeit.sb06.team03.mopl.security.jwt.JwtLoginSuccessHandler;
+import org.codeit.sb06.team03.mopl.security.jwt.JwtLogoutHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

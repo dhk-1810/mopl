@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.dm.dmMessage.infra.in;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.composite.DMCompositeService;
-import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.infra.in.request.MessageSendRequest;
 import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.springframework.messaging.handler.annotation.DestinationVariable;

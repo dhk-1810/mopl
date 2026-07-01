@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.playlist.infra.in;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.CursorRequestPlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistCreateRequest;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistUpdateRequest;

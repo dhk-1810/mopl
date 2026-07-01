@@ -22,7 +22,7 @@ public class NotificationQueryService implements GetNotificationsUseCase {
     private final LoadNotificationsPort loadNotificationsPort;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(value = "notificationTransactionManager", readOnly = true)
     public CursorResponseNotificationDto get(CursorRequestNotificationDto request, UUID receiverId) {
 
         final UUID idAfter = request.idAfter() != null ? parseUUID(request.idAfter()): null;

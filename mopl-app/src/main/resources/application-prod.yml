@@ -2,8 +2,11 @@ spring:
   config:
     import:
       - optional:classpath:/application-user-prod.yml
+      - optional:classpath:/application-user.yml
       - optional:classpath:/application-content-prod.yml
       - optional:classpath:/application-playlist-prod.yml
+      - optional:classpath:/application-batch.yml
       - optional:classpath:/application-batch-prod.yml
+      - optional:classpath:/application-dm-prod.yml
       - optional:classpath:/application-notification-prod.yml
       - optional:classpath:/application-image-prod.yml

@@ -16,6 +16,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.Nullable;
@@ -30,7 +31,8 @@ import java.util.List;
 public class ContentCollectionBatchConfig {
 
     private final JobRepository jobRepository;
-    private final PlatformTransactionManager transactionManager;
+    @Qualifier("contentTransactionManager")
+    private final PlatformTransactionManager contentTransactionManager;
     private final ContentRepository contentRepository;
     private final TmdbClient tmdbClient;
     private final SportsDbClient sportsDbClient;
@@ -47,7 +49,7 @@ public class ContentCollectionBatchConfig {
     @Bean
     public Step collectTmdbStep() {
         return new StepBuilder("collectTmdbStep", jobRepository)
-                .<CollectedContentDto, Content>chunk(10, transactionManager)
+                .<CollectedContentDto, Content>chunk(10, contentTransactionManager)
                 .reader(tmdbReader())
                 .processor(contentProcessor())
                 .writer(contentWriter("TMDB"))
@@ -57,7 +59,7 @@ public class ContentCollectionBatchConfig {
     @Bean
     public Step collectSportsStep() {
         return new StepBuilder("collectSportsStep", jobRepository)
-                .<CollectedContentDto, Content>chunk(10, transactionManager)
+                .<CollectedContentDto, Content>chunk(10, contentTransactionManager)
                 .reader(sportsDbReader())
                 .processor(contentProcessor())
                 .writer(contentWriter("SportsDB"))

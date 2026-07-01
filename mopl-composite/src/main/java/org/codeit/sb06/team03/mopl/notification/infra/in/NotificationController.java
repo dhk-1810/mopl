@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.notification.infra.in;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.composite.NotificationCompositeService;
-import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;

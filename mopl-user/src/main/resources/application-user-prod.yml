@@ -1,7 +1,12 @@
 spring:
   # 데이터베이스 설정 (RDB)
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${DB_ENDPOINT_USER}:5432/${DB_NAME_USER}
-    username: ${DB_USERNAME_USER}
-    password: ${DB_PASSWORD_USER}
+    user:
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://${DB_ENDPOINT_USER}:5432/${DB_NAME_USER}
+      username: ${DB_USERNAME_USER}
+      password: ${DB_PASSWORD_USER}
+  jpa:
+    user:
+      hibernate:
+        ddl-auto: none

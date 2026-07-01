@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.liveChatRoom.infra.in.web;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.liveChatRoom.application.in.SendPresenceMessageUseCase;
 import org.codeit.sb06.team03.mopl.liveChatRoom.application.in.command.SendPresenceMessageCommand;
 import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
@@ -10,7 +10,7 @@ import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatching
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.DeleteWatchingSessionUseCase;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
-import org.codeit.sb06.team03.mopl.common.cache.ProfileImageCache;
+import org.codeit.sb06.team03.mopl.cache.ProfileImageCache;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageHeaderAccessor;

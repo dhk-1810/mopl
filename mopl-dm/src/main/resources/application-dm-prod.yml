@@ -1,6 +1,16 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_ENDPOINT_DM}:5432/${DB_NAME_DM}
-    username: ${DB_USERNAME_DM}
-    password: ${DB_PASSWORD_DM}
-    driver-class-name: org.postgresql.Driver
+    dm:
+      url: jdbc:postgresql://${DB_ENDPOINT_DM}:5432/${DB_NAME_DM}
+      username: ${DB_USERNAME_DM}
+      password: ${DB_PASSWORD_DM}
+      driver-class-name: org.postgresql.Driver
+  jpa:
+    dm:
+      hibernate:
+        ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+      show-sql: true

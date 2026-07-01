@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.watchingSession;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.WatchingSessionDto;
-import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.composite.WatchingSessionCompositeService;
 import org.codeit.sb06.team03.mopl.content.application.in.CursorResponseWatchingSessionDto;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorWatchingSessionRequest;

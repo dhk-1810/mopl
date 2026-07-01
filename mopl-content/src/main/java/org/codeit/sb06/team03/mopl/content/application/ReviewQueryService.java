@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
+@Transactional(value = "contentTransactionManager", readOnly = true)
 public class ReviewQueryService implements GetReviewUseCase {
 
     private final LoadReviewPort loadReviewPort;

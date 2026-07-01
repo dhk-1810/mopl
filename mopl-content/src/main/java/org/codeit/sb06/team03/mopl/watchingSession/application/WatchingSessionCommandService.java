@@ -24,7 +24,7 @@ public class WatchingSessionCommandService implements
     private final DeleteWatchingSessionPort deleteWatchingSessionPort;
 
     @Override
-    @Transactional
+    @Transactional("contentTransactionManager")
     public void create(CreateWatchingSessionCommand command) {
         UUID liveChatRoomId = command.liveChatRoomId();
         UUID watcherId = command.watcherId();
@@ -38,13 +38,13 @@ public class WatchingSessionCommandService implements
     }
 
     @Override
-    @Transactional
+    @Transactional("contentTransactionManager")
     public void deleteByWatcherId(UUID watcherId) {
         deleteWatchingSessionPort.deleteByWatcherId(watcherId);
     }
 
     @Override
-    @Transactional
+    @Transactional("contentTransactionManager")
     public void delete(UUID id) {
         deleteWatchingSessionPort.deleteById(id);
     }

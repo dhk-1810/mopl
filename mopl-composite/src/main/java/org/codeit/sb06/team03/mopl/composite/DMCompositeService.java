@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.composite;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.UserSummary;
-import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.*;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain.DMChatRoom;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain.entity.DMChatRoomStat;

@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.sse.infra.in;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.sse.application.SseService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

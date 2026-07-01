@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
+@Transactional("contentTransactionManager")
 public class ContentCommandService implements CreateContentUseCase, UpdateContentUseCase, DeleteContentUseCase {
 
     private final LoadContentPort loadContentPort;

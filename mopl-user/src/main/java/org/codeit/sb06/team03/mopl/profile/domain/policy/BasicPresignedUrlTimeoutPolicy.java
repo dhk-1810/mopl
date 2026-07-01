@@ -11,7 +11,7 @@ public class BasicPresignedUrlTimeoutPolicy implements PresignedUrlTimeoutPolicy
 
     private final Duration timeout;
 
-    public BasicPresignedUrlTimeoutPolicy(@Value("${mopl.storage.aws-s3.signature-duration-in-hours}") long timeout) {
+    public BasicPresignedUrlTimeoutPolicy(@Value("${mopl.storage.aws.signature-duration-in-hours}") long timeout) {
         this.timeout = Duration.ofHours(timeout);
     }
 

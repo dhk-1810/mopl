@@ -1,4 +1,10 @@
 spring:
+  datasource:
+    batch:
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://localhost:5432/${DB_NAME_BATCH}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
   batch:
     jdbc:
       initialize-schema: always

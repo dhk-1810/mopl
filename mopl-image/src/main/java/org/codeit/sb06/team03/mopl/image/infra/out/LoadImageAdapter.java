@@ -16,13 +16,13 @@ public class LoadImageAdapter implements LoadImagePort {
     private final ImageRepository imageRepository;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(value = "imageTransactionManager", readOnly = true)
     public Optional<TimeoutImage> findByKey(String key) {
         return imageRepository.findByKey(key);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(value = "imageTransactionManager", readOnly = true)
     public List<TimeoutImage> findByKeys(List<String> keys) {
         return imageRepository.findByKeyIn(keys);
     }

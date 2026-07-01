@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
+@Transactional("notificationTransactionManager")
 public class NotificationCommandService implements CreateNotificationUseCase, DeleteNotificationUseCase {
 
     private final SaveNotificationPort saveNotificationPort;

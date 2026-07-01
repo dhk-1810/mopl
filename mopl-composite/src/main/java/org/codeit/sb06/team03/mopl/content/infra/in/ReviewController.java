@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.content.infra.in;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.composite.ReviewCompositeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

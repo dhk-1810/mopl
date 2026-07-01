@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.composite;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.UserSummary;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
-import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
@@ -24,7 +24,6 @@ import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;

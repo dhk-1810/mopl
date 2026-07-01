@@ -14,14 +14,14 @@ import java.time.Instant;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
+@Transactional(value = "notificationTransactionManager", readOnly = true)
 public class EmailAppService implements SendEmailUseCase {
 
     private final ApplicationEventPublisher eventPublisher;
     private final EmailService emailService;
 
     @Override
-    @Transactional
+    @Transactional("notificationTransactionManager")
     public void sendEmail(SendEmailCommand command) {
         final String emailAddress = command.emailAddress();
         final String rawTempPassword = command.rawTempPassword();

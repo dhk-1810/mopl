@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.dm.dmMessage.infra.in;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.JoinDMMessageCommand;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.JoinDMMessageUseCase;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.LeaveDMMessageCommand;
