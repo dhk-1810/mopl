@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.composite;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.UserSummary;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.*;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain.DMChatRoom;
@@ -14,7 +15,6 @@ import org.codeit.sb06.team03.mopl.dm.dmMessage.domain.DMMessage;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.infra.in.request.MessageSendRequest;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.springframework.security.core.context.SecurityContextHolder;

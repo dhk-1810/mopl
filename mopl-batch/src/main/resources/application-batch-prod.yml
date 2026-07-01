@@ -1,0 +1,4 @@
+spring:
+  batch:
+    jdbc:
+      initialize-schema: never # TODO DB Migration 사용

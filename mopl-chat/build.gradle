@@ -1,6 +1,0 @@
-dependencies {
-    implementation project(':mopl-common')
-    implementation project(':mopl-content')
-    implementation project(':mopl-notification')
-    implementation project(':mopl-user')
-}

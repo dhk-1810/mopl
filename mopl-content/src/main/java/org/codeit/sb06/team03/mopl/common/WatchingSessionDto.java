@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.common;
 
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
+import org.codeit.sb06.team03.mopl.UserSummary;
 
 import java.time.Instant;
 import java.util.UUID;

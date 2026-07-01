@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    # 로컬에서만 사용하므로 평문 사용.
+    url: jdbc:postgresql://localhost:5432/${DB_NAME_DM}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver

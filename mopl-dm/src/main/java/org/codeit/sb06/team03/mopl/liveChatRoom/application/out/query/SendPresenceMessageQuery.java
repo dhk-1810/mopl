@@ -1,0 +1,20 @@
+package org.codeit.sb06.team03.mopl.liveChatRoom.application.out.query;
+
+import org.codeit.sb06.team03.mopl.content.ContentReadModel;
+import org.codeit.sb06.team03.mopl.UserSummary;
+
+import java.time.Instant;
+import java.util.UUID;
+
+public record SendPresenceMessageQuery(
+        UserSummary userSummary,
+        UUID watchingSessionId,
+        Instant watchingSessionCreatedAt,
+        long count,
+        String type,
+        String destination,
+        ContentReadModel contentResult
+) {
+}
+
+

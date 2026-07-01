@@ -1,15 +1,9 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://${DB_ENDPOINT}:5432/${DB_NAME};
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-      show-sql: true
+  config:
+    import:
+      - optional:classpath:/application-user-prod.yml
+      - optional:classpath:/application-content-prod.yml
+      - optional:classpath:/application-playlist-prod.yml
+      - optional:classpath:/application-batch-prod.yml
+      - optional:classpath:/application-notification-prod.yml
+      - optional:classpath:/application-image-prod.yml

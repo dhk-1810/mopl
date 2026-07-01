@@ -3,68 +3,10 @@ spring:
     name: mopl
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
-  batch:
-    jdbc:
-      initialize-schema: always
-  jpa:
-    open-in-view: false
-    defer-datasource-initialization: true # 테이블 생성된 후 schema.sql 실행
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST:localhost}
       port: ${SPRING_DATA_REDIS_PORT:6379}
-  mail:
-    host: ${mopl.mail.host}
-    port: ${mopl.mail.port}
-    username: ${mopl.mail.username}
-    password: ${mopl.mail.password}
-    properties:
-      mail:
-        smtp:
-          auth: ${mopl.mail.properties.mail.smtp.auth}
-          starttls:
-            enable: ${mopl.mail.properties.mail.smtp.starttls.enable}
-
-mopl:
-  account:
-    password-policy: "no"
-    temp-password-policy: "fixed"
-    temp-password-reset-timeout-policy-in-minutes: 3
-  mail:
-    host: "smtp.gmail.com"
-    port: 587
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-  storage:
-    aws-s3:
-      region: "ap-northeast-2"
-      bucket-name: ${AWS_S3_BUCKET}
-      access-key: ${AWS_ACCESS_KEY}
-      secret-key: ${AWS_SECRET_KEY}
-      signature-duration-in-hours: 1
-  jwt:
-    access-token:
-      secret: ${JWT_ACCESS_TOKEN_SECRET:sb06-mopl-team03-jwt-temporary-secret}
-      expiration-ms: ${ACCESS_TOKEN_EXPIRATION_MS:300000}
-    refresh-token:
-      secret: ${JWT_REFRESH_TOKEN_SECRET:sb06-mopl-team03-jwt-temporary-secret}
-      expiration-ms: ${REFRESH_TOKEN_EXPIRATION_MS:604800000}
-    max-session: ${JWT_MAX_SESSION:1}
-  api:
-    tmdb:
-      key: ${TMDB_API_KEY:mock}
-      url: ${TMDB_API_URL:https://api.themoviedb.org/3}
-    sportsdb:
-      key: ${SPORTSDB_API_KEY:mock}
-      url: ${SPORTSDB_API_URL:https://www.thesportsdb.com/api/v1/json}
-  batch:
-    cron: ${BATCH_CRON_SCHEDULE:0 0 3 * * ?}
 
 management:
   endpoints:

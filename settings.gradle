@@ -1,10 +1,10 @@
 rootProject.name = 'mopl'
 
-include 'mopl-common'
+include 'mopl-image'
 include 'mopl-user'
 include 'mopl-content'
 include 'mopl-playlist'
-include 'mopl-chat'
+include 'mopl-dm'
 include 'mopl-notification'
 include 'mopl-composite'
 include 'mopl-batch'

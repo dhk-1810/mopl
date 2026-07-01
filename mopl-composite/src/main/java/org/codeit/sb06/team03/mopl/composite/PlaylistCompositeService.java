@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.composite;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.UserSummary;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
@@ -16,7 +17,6 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistCreateReque
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistUpdateRequest;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.CursorResponsePlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;

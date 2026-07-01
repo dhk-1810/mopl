@@ -1,4 +1,4 @@
 dependencies {
-    implementation project(':mopl-common')
+    implementation project(':mopl-image')
     implementation project(':mopl-user')
 }

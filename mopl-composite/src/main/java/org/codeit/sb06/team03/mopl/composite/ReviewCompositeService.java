@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.composite;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
+import org.codeit.sb06.team03.mopl.UserSummary;
 import org.codeit.sb06.team03.mopl.content.SortReviewBy;
 import org.codeit.sb06.team03.mopl.content.application.in.*;
 import org.codeit.sb06.team03.mopl.content.domain.entity.Review;
@@ -11,7 +11,6 @@ import org.codeit.sb06.team03.mopl.content.infra.in.ReviewCreateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.ReviewDto;
 import org.codeit.sb06.team03.mopl.content.infra.in.ReviewUpdateRequest;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
-import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.springframework.data.domain.Slice;

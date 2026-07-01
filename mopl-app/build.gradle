@@ -6,11 +6,11 @@ jar {
 }
 
 dependencies {
-    implementation project(':mopl-common')
+    implementation project(':mopl-image')
     implementation project(':mopl-user')
     implementation project(':mopl-content')
     implementation project(':mopl-playlist')
-    implementation project(':mopl-chat')
+    implementation project(':mopl-dm')
     implementation project(':mopl-notification')
     implementation project(':mopl-composite')
     implementation project(':mopl-batch')

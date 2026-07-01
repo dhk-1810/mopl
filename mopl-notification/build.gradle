@@ -1,4 +1,4 @@
 dependencies {
-    implementation project(':mopl-common')
+    implementation project(':mopl-image')
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 }

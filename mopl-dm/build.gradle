@@ -1,0 +1,6 @@
+dependencies {
+    implementation project(':mopl-image')
+    implementation project(':mopl-content')
+    implementation project(':mopl-notification')
+    implementation project(':mopl-user')
+}

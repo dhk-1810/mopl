@@ -1,5 +1,6 @@
 package org.codeit.sb06.team03.mopl.playlist.infra.in.response;
 
+import org.codeit.sb06.team03.mopl.UserSummary;
 import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
 import org.codeit.sb06.team03.mopl.playlist.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
