@@ -1,0 +1,6 @@
+dependencies {
+    implementation project(':mopl-common')
+    implementation project(':mopl-content')
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    testImplementation 'org.springframework.batch:spring-batch-test'
+}

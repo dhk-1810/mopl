@@ -1,0 +1,8 @@
+dependencies {
+    implementation project(':mopl-common')
+    implementation project(':mopl-user')
+    implementation project(':mopl-content')
+    implementation project(':mopl-playlist')
+    implementation project(':mopl-chat')
+    implementation project(':mopl-notification')
+}

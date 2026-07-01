@@ -1,0 +1,20 @@
+bootJar {
+    enabled = true
+}
+jar {
+    enabled = false
+}
+
+dependencies {
+    implementation project(':mopl-common')
+    implementation project(':mopl-user')
+    implementation project(':mopl-content')
+    implementation project(':mopl-playlist')
+    implementation project(':mopl-chat')
+    implementation project(':mopl-notification')
+    implementation project(':mopl-composite')
+    implementation project(':mopl-batch')
+    
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    testImplementation 'org.springframework.security:spring-security-test'
+}
