@@ -61,7 +61,7 @@ public class Content {
 
     @NotNull
     @Column(name = "average_rating", nullable = false)
-    private double averageRating; // TODO 여기 두는게 맞는것인가.
+    private double averageRating;
 
     @NotNull
     @Column(name = "review_count", nullable = false)
@@ -69,7 +69,7 @@ public class Content {
 
     @NotNull
     @Column(name = "watcher_count", nullable = false)
-    private long watcherCount;
+    private long watcherCount; // TODO
 
     private Content(ContentType type, String title, String description, String thumbnailKey) {
         this.id = UUID.randomUUID();

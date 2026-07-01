@@ -9,7 +9,7 @@ import org.codeit.sb06.team03.mopl.dm.dmChatRoom.infra.in.*;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.infra.in.request.*;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.application.in.GetDMUseCase;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.application.in.MessageSendCommand;
-import org.codeit.sb06.team03.mopl.dm.dmMessage.application.in.MessageSendUseCase;
+import org.codeit.sb06.team03.mopl.dm.dmMessage.application.in.SendDMUseCase;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.domain.DMMessage;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.infra.in.request.MessageSendRequest;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
@@ -24,19 +24,26 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// TODO 트랜잭션
 @RequiredArgsConstructor
 @Service
 public class DMCompositeService {
 
     private final CreateDMChatRoomUseCase createDMChatRoomUseCase;
     private final GetDMChatRoomUseCase getDMChatRoomUseCase;
-    private final ReadMessageUseCase messageReadUseCase;
-    private final MessageSendUseCase messageSendUseCase;
-    private final GetDMUseCase getDirectMessageUseCase;
+
+    private final ReadDMUseCase readDMUseCase;
+    private final SendDMUseCase sendDMUseCase;
+    private final GetDMUseCase getDMUseCase;
     private final GetProfileUseCase getProfileUseCase;
     private final GetPresignedUrlUseCase getPresignedUrlUseCase;
     private final DMMapper dmMapper;
+
+    public DMChatRoomDto createDMChatRoom(DMChatRoomCreateRequest request) {
+        UUID userId = getCurrentUserId();
+        CreateDMChatRoomCommand command = dmMapper.toCommand(request.withUserId());
+        DMChatRoom dmChatRoom = createDMChatRoomUseCase.create(userId, command);
+        return toDMChatRoomDto(dmChatRoom, userId, Optional.empty());
+    }
 
     public CursorResponseDMChatRoomDto getDMChatRooms(CursorRequestDMChatRoomDto request) {
         UUID userId = getCurrentUserId();
@@ -71,8 +78,7 @@ public class DMCompositeService {
         Set<UUID> convIds = page.stream()
                 .map(DMChatRoom::getId)
                 .collect(Collectors.toSet());
-        Map<UUID, DMMessage> latestMessages = getDirectMessageUseCase
-                .findLatestByDMChatRoomIds(convIds);
+        Map<UUID, DMMessage> latestMessages = getDMUseCase.findLatestByDMChatRoomIds(convIds);
 
         latestMessages.values().forEach(msg -> {
             userIds.add(msg.getSenderId());
@@ -105,33 +111,23 @@ public class DMCompositeService {
         );
     }
 
-    public DMChatRoomDto createDMChatRoom(DMChatRoomCreateRequest request) {
-        UUID userId = getCurrentUserId();
-        CreateDMChatRoomCommand command = dmMapper.toCommand(request.withUserId());
-        DMChatRoom dmChatRoom = createDMChatRoomUseCase.create(userId, command);
-        return toDMChatRoomDto(dmChatRoom, userId, Optional.empty());
-    }
-
-    public void readDirectMessage(UUID dmChatRoomId, UUID messageId) {
-        UUID userId = getCurrentUserId();
-        messageReadUseCase.read(new ReadMessageCommand(
-                dmChatRoomId,
-                messageId,
-                userId
-        ));
-    }
-
     public DMChatRoomDto getDMChatRoom(UUID dmChatRoomId) {
         UUID userId = getCurrentUserId();
         DMChatRoom dmChatRoom = getDMChatRoomUseCase.findById(userId, dmChatRoomId);
-        Optional<DMMessage> dmMessage = getDirectMessageUseCase.findLatestByDMChatRoomId(dmChatRoomId);
+        Optional<DMMessage> dmMessage = getDMUseCase.findLatestByDMChatRoomId(dmChatRoomId);
         return toDMChatRoomDto(dmChatRoom, userId, dmMessage);
     }
 
-    public CursorResponseDirectMessageDto getDirectMessages(UUID dmChatRoomId, CursorRequestDirectMessageDto request) {
+    public DMChatRoomDto getDMChatRoomWith(UUID partnerId) {
+        UUID userId = getCurrentUserId();
+        DMChatRoom dmChatRoom = getDMChatRoomUseCase.findByWith(userId, partnerId);
+        return toDMChatRoomDto(dmChatRoom, userId, Optional.empty());
+    }
+
+    public CursorResponseDirectMessageDto getDMs(UUID dmChatRoomId, CursorRequestDirectMessageDto request) {
         int limit = request.limit();
 
-        List<DMMessage> items = getDirectMessageUseCase.findAll(
+        List<DMMessage> items = getDMUseCase.findAll(
                 dmChatRoomId,
                 request.cursor(),
                 request.idAfter(),
@@ -151,7 +147,7 @@ public class DMCompositeService {
             nextIdAfter = last.getId().toString();
         }
 
-        long totalCount = getDirectMessageUseCase.countAll(dmChatRoomId);
+        long totalCount = getDMUseCase.countAll(dmChatRoomId);
 
         Set<UUID> userIds = page.stream()
                 .flatMap(msg -> Stream.of(msg.getSenderId(), msg.getReceiverId()))
@@ -182,16 +178,16 @@ public class DMCompositeService {
         );
     }
 
-    public DMChatRoomDto getDMChatRoomWith(UUID partnerId) {
-        UUID userId = getCurrentUserId();
-        DMChatRoom dmChatRoom = getDMChatRoomUseCase.findByWith(userId, partnerId);
-        return toDMChatRoomDto(dmChatRoom, userId, Optional.empty());
-    }
 
-    public void sendMessage(UUID dmChatRoomId, UUID senderId, MessageSendRequest request) {
+    public void sendDM(UUID dmChatRoomId, UUID senderId, MessageSendRequest request) {
         DMChatRoom dmChatRoom = getDMChatRoomUseCase.findById(senderId, dmChatRoomId);
         UUID receiverId = dmChatRoom.getOtherParticipant(senderId);
-        messageSendUseCase.send(new MessageSendCommand(dmChatRoomId, senderId, receiverId, request.content()));
+        sendDMUseCase.send(new MessageSendCommand(dmChatRoomId, senderId, receiverId, request.content()));
+    }
+
+    public void readDM(UUID dmChatRoomId, UUID messageId) {
+        UUID userId = getCurrentUserId();
+        readDMUseCase.read(new ReadMessageCommand(dmChatRoomId, messageId, userId));
     }
 
     /**

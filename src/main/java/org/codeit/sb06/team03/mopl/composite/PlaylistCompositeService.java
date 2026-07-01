@@ -31,18 +31,16 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class PlaylistCompositeService {
 
     private final PlaylistMapper playlistMapper;
     private final CreatePlaylistUseCase createPlaylistUseCase;
-    private final GetPlaylistsUseCase getPlaylistsUseCase;
-    private final GetSinglePlaylistUseCase getPlaylistUseCase;
+    private final GetPlaylistUseCase getPlaylistUseCase;
     private final UpdatePlaylistUseCase updatePlaylistUseCase;
     private final DeletePlaylistUseCase deletePlaylistUseCase;
 
-    private final AddContentToCurationUseCase addContentToCurationUseCase;
-    private final DeleteCurationUseCase deleteContentFromCurationUseCase;
+    private final AddCurationUseCase addCurationUseCase;
+    private final DeleteCurationUseCase deleteCurationUseCase;
 
     private final SubscribePlaylistUseCase subscribePlaylistUseCase;
     private final UnsubscribePlaylistUseCase unsubscribePlaylistUseCase;
@@ -68,9 +66,8 @@ public class PlaylistCompositeService {
         return PlaylistDto.toDto(playlist, owner, false , Collections.emptyList());
     }
 
-
     public CursorResponsePlaylistDto getAll(CursorRequestPlaylistDto request, UUID viewerId) {
-        Slice<PlaylistReadModel> slice = getPlaylistsUseCase.get(request, viewerId);
+        Slice<PlaylistReadModel> slice = getPlaylistUseCase.get(request, viewerId);
         List<PlaylistReadModel> readModels = slice.getContent();
 
         List<UUID> ownerIds = readModels.stream().map(PlaylistReadModel::ownerId).toList();
@@ -162,8 +159,6 @@ public class PlaylistCompositeService {
         return PlaylistDto.toDto(readModel, owner, subscribedByMe, contentDtos);
     }
 
-
-
     public PlaylistDto updatePlayList(UUID playlistId, PlaylistUpdateRequest request, UUID ownerId) {
 
         UpdatePlaylistCommand command = playlistMapper.toCommand(request);
@@ -176,6 +171,29 @@ public class PlaylistCompositeService {
         UserSummary owner = new UserSummary(userDto.id(), userDto.name(), userDto.profileImageUrl());
         List<ContentDto> contentDtos = getContentDtos(playlist.getId());
         return PlaylistDto.toDto(playlist, owner, false , contentDtos);
+    }
+
+    public void deletePlaylist(UUID playlistId, UUID ownerId) {
+        deletePlaylistUseCase.delete(playlistId, ownerId);
+    }
+
+
+    public void addContentToPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
+        ContentReadModel content = getContentUseCase.get(contentId);
+        addCurationUseCase.addContentToPlaylist(playlistId, contentId, content.title(), ownerId);
+    }
+
+    public void deleteContentFromPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
+        deleteCurationUseCase.deleteContentFromPlaylist(playlistId, contentId, ownerId);
+    }
+
+
+    public void subscribePlaylist(UUID playlistId, UUID userId) {
+        subscribePlaylistUseCase.subscribe(playlistId, userId);
+    }
+
+    public void unsubscribePlaylist(UUID playlistId, UUID userId) {
+        unsubscribePlaylistUseCase.unsubscribe(playlistId, userId);
     }
 
 
@@ -196,26 +214,5 @@ public class PlaylistCompositeService {
         return contentReadModels.stream()
                 .map(rm -> ContentDto.from(rm, urls.get(rm.thumbnailKey())))
                 .toList();
-    }
-
-    public void deletePlaylist(UUID playlistId, UUID ownerId) {
-        deletePlaylistUseCase.delete(playlistId, ownerId);
-    }
-
-    public void addContentToPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
-        ContentReadModel content = getContentUseCase.get(contentId);
-        addContentToCurationUseCase.addContentToPlaylist(playlistId, contentId, content.title(), ownerId);
-    }
-
-    public void deleteContentFromPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
-        deleteContentFromCurationUseCase.deleteContentFromPlaylist(playlistId, contentId, ownerId);
-    }
-
-    public void subscribePlaylist(UUID playlistId, UUID userId) {
-        subscribePlaylistUseCase.subscribe(playlistId, userId);
-    }
-
-    public void unsubscribePlaylist(UUID playlistId, UUID userId) {
-        unsubscribePlaylistUseCase.unsubscribe(playlistId, userId);
     }
 }

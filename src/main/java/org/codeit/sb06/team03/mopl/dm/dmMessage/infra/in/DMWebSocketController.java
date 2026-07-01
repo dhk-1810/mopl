@@ -30,6 +30,6 @@ public class DMWebSocketController {
         MoplUserDetails userDetails = (MoplUserDetails) authentication.getPrincipal();
         UserDto userDto = userDetails.getUserDto();
 
-        dmCompositeService.sendMessage(dmChatRoomId, userDto.id(), request);
+        dmCompositeService.sendDM(dmChatRoomId, userDto.id(), request);
     }
 }

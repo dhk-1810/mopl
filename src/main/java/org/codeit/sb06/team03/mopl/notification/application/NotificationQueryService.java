@@ -10,6 +10,7 @@ import org.codeit.sb06.team03.mopl.notification.infra.in.NotificationDto;
 import org.codeit.sb06.team03.mopl.notification.infra.out.CursorGetNotificationsCondition;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +22,7 @@ public class NotificationQueryService implements GetNotificationsUseCase {
     private final LoadNotificationsPort loadNotificationsPort;
 
     @Override
+    @Transactional(readOnly = true)
     public CursorResponseNotificationDto get(CursorRequestNotificationDto request, UUID receiverId) {
 
         final UUID idAfter = request.idAfter() != null ? parseUUID(request.idAfter()): null;

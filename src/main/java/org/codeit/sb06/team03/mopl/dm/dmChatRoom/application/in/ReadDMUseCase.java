@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in;
 
-public interface ReadMessageUseCase {
+public interface ReadDMUseCase {
 
     void read(ReadMessageCommand command);
 

@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
-public class DMMessageQueryService implements GetDMUseCase {
+public class DMQueryService implements GetDMUseCase {
 
     private final LoadDMMessagePort loadDMMessagePort;
 

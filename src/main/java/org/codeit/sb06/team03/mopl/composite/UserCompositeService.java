@@ -29,8 +29,8 @@ public class UserCompositeService {
     private final UpdatePasswordUseCase updatePasswordUseCase;
     private final GetAccountUseCase getAccountUseCase;
     private final UpdateProfileUseCase updateProfileUseCase;
+
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
-    private final GetContentUseCase getContentUseCase;
     private final ProfileImageCache profileImageCache;
 
     public UserDto registerAccount(UserCreateRequest request) {

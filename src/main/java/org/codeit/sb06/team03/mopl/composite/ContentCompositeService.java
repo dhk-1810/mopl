@@ -23,12 +23,11 @@ import java.util.*;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class ContentCompositeService {
 
     private final ContentMapper contentMapper;
-    private final GetContentUseCase getContentUseCase;
     private final CreateContentUseCase createContentUseCase;
+    private final GetContentUseCase getContentUseCase;
     private final UpdateContentUseCase updateContentUseCase;
     private final DeleteContentUseCase deleteContentUseCase;
 
@@ -38,6 +37,14 @@ public class ContentCompositeService {
     private final GetPresignedUrlUseCase getPresignedUrlUseCase;
     private final RegisterImageUseCase registerImageUseCase;
     private final DeleteCurationUseCase deleteCurationUseCase;
+
+    public ContentDto create(ContentCreateRequest request, MultipartFile image) {
+        String thumbnailKey = registerImageUseCase.register(image);
+        CreateContentCommand command = contentMapper.toCommand(request);
+        ContentReadModel readModel = createContentUseCase.create(command, thumbnailKey);
+        createLiveChatRoomUseCase.create(readModel.id());
+        return ContentDto.from(readModel, getPresignedUrl(thumbnailKey));
+    }
 
     public CursorResponseContentDto getContents(CursorRequestContentDto request) {
 
@@ -80,14 +87,6 @@ public class ContentCompositeService {
         return ContentDto.from(readModel, getPresignedUrl(readModel.thumbnailKey()));
     }
 
-    public ContentDto create(ContentCreateRequest request, MultipartFile image) {
-        String thumbnailKey = registerImageUseCase.register(image);
-        CreateContentCommand command = contentMapper.toCommand(request);
-        ContentReadModel readModel = createContentUseCase.create(command, thumbnailKey);
-        createLiveChatRoomUseCase.create(readModel.id());
-        return ContentDto.from(readModel, getPresignedUrl(thumbnailKey));
-    }
-
     public ContentDto update(UUID contentId, ContentUpdateRequest request) {
         UpdateContentCommand command = contentMapper.toCommand(request);
         ContentReadModel readModel = updateContentUseCase.update(contentId, command);
@@ -103,7 +102,6 @@ public class ContentCompositeService {
     private String getPresignedUrl(String thumbnailKey) {
         return getPresignedUrlUseCase.getPresignedUrl(thumbnailKey);
     }
-
 
 }
 

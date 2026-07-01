@@ -14,12 +14,14 @@ import org.codeit.sb06.team03.mopl.notification.domain.exception.NotificationAcc
 import org.codeit.sb06.team03.mopl.notification.domain.exception.NotificationNotFoundException;
 import org.codeit.sb06.team03.mopl.notification.infra.in.NotificationDto;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class NotificationCommandService implements CreateNotificationUseCase, DeleteNotificationUseCase {
 
     private final SaveNotificationPort saveNotificationPort;

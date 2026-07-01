@@ -4,20 +4,20 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.application.out.LoadLiveDMUserPort;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.UserSummary;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.application.in.MessageSendCommand;
-import org.codeit.sb06.team03.mopl.dm.dmMessage.application.in.MessageSendUseCase;
+import org.codeit.sb06.team03.mopl.dm.dmMessage.application.in.SendDMUseCase;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.application.out.MarkAsUnreadPort;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.application.out.SaveDMMessagePort;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.domain.DMMessage;
-import org.codeit.sb06.team03.mopl.dm.dmMessage.domain.DMMessageService;
+import org.codeit.sb06.team03.mopl.dm.dmMessage.domain.DMService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
 @Transactional
-public class DMMessageCommandService implements MessageSendUseCase {
+public class DMCommandService implements SendDMUseCase {
 
-    private final DMMessageService dmMessageService;
+    private final DMService dmMessageService;
     private final SaveDMMessagePort saveDMMessagePort;
     private final LoadLiveDMUserPort loadDMUserPort;
     private final MarkAsUnreadPort markAsUnreadPort;

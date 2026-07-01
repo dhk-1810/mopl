@@ -1,11 +1,9 @@
 package org.codeit.sb06.team03.mopl.playlist.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.playlist.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.playlist.application.in.GetCurationUseCase;
-import org.codeit.sb06.team03.mopl.playlist.application.in.GetSinglePlaylistUseCase;
-import org.codeit.sb06.team03.mopl.playlist.application.in.GetPlaylistsUseCase;
+import org.codeit.sb06.team03.mopl.playlist.application.in.GetPlaylistUseCase;
 import org.codeit.sb06.team03.mopl.playlist.application.in.GetSubscriptionUseCase;
 import org.codeit.sb06.team03.mopl.playlist.application.out.LoadCurationPort;
 import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSinglePlaylistPort;
@@ -25,7 +23,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
-public class PlaylistQueryService implements GetPlaylistsUseCase, GetSinglePlaylistUseCase, GetSubscriptionUseCase, GetCurationUseCase {
+public class PlaylistQueryService implements GetPlaylistUseCase, GetSubscriptionUseCase, GetCurationUseCase {
 
     private final LoadPlaylistsPort loadPlaylistsPort;
     private final LoadSinglePlaylistPort loadSinglePlaylistPort;

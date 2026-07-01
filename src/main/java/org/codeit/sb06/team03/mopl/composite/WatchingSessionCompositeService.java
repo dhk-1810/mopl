@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 public class WatchingSessionCompositeService {
 
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
-    private final GetContentUseCase getSingleContentUseCase;
     private final GetProfileUseCase getProfileUseCase;
     private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 

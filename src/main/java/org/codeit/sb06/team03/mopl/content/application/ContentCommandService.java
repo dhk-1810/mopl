@@ -14,12 +14,14 @@ import org.codeit.sb06.team03.mopl.content.application.out.SaveContentPort;
 import org.codeit.sb06.team03.mopl.content.domain.ContentService;
 import org.codeit.sb06.team03.mopl.content.domain.exception.ContentNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class ContentCommandService implements CreateContentUseCase, UpdateContentUseCase, DeleteContentUseCase {
 
     private final LoadContentPort loadContentPort;

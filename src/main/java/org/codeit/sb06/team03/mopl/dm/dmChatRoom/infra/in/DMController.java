@@ -37,7 +37,7 @@ public class DMController implements DMApi {
             @PathVariable UUID dmChatRoomId,
             @PathVariable UUID directMessageId
     ) {
-        dmCompositeService.readDirectMessage(dmChatRoomId, directMessageId);
+        dmCompositeService.readDM(dmChatRoomId, directMessageId);
         return ResponseEntity.noContent().build();
     }
 
@@ -54,7 +54,7 @@ public class DMController implements DMApi {
             @PathVariable UUID dmChatRoomId,
             @ModelAttribute CursorRequestDirectMessageDto request
     ) {
-        CursorResponseDirectMessageDto response = dmCompositeService.getDirectMessages(dmChatRoomId, request);
+        CursorResponseDirectMessageDto response = dmCompositeService.getDMs(dmChatRoomId, request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

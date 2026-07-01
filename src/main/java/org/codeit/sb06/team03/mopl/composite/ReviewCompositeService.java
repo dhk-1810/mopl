@@ -25,9 +25,10 @@ import java.util.UUID;
 public class ReviewCompositeService {
 
     private final CreateReviewUseCase createReviewUseCase;
+    private final GetReviewUseCase getReviewUseCase;
     private final UpdateReviewUseCase updateReviewUseCase;
     private final DeleteReviewUseCase deleteReviewUseCase;
-    private final GetReviewUseCase getReviewUseCase;
+
     private final GetProfileUseCase getProfileUseCase;
     private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
