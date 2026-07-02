@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    watching-session:
+      url: jdbc:postgresql://localhost:5432/${DB_NAME_WATCHING_SESSION}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+      driver-class-name: org.postgresql.Driver
+  jpa:
+    watching-session:
+      hibernate:
+        ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+      show-sql: false

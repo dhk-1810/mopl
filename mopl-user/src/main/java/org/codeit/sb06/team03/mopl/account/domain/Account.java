@@ -31,7 +31,7 @@ import static org.codeit.sb06.team03.mopl.account.domain.event.AccountEvent.*;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "accounts")
-@SQLDelete(sql = "UPDATE accounts SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE accounts SET is_deleted = true WHERE id = ? AND version = ?")
 @SQLRestriction("is_deleted = false")
 public class Account extends AbstractAggregateRoot<Account> {
 

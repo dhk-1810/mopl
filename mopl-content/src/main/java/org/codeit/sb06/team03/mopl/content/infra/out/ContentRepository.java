@@ -18,11 +18,9 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.codeit.sb06.team03.mopl.account.domain.QAccount.account;
 import static org.codeit.sb06.team03.mopl.content.domain.entity.QContent.content;
 import static org.codeit.sb06.team03.mopl.content.domain.entity.QContentTag.contentTag;
 import static org.codeit.sb06.team03.mopl.profile.domain.entity.QProfile.profile;
-import static org.codeit.sb06.team03.mopl.watchingSession.domain.QWatchingSession.watchingSession;
 import static org.codeit.sb06.team03.mopl.tag.entity.QTag.tag;
 import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.group.GroupBy.set;
@@ -187,27 +185,7 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
         return profile.name.like("%" + watcherName + "%");
     }
 
-    private BooleanExpression getCursorAndAssistanceCursorCondition(
-            Instant cursor, UUID assistanceCursor, String direction
-    ) {
-        if (cursor == null || assistanceCursor == null) {
-            return null;
-        }
 
-        if (direction.equalsIgnoreCase("ASCENDING")) {
-            return watchingSession.createdAt.after(cursor).or(
-                    watchingSession.createdAt.eq(cursor).and(
-                            watchingSession.id.gt(assistanceCursor)
-                    )
-            );
-        } else {
-            return watchingSession.createdAt.before(cursor).or(
-                    watchingSession.createdAt.eq(cursor).and(
-                            watchingSession.id.lt(assistanceCursor)
-                    )
-            );
-        }
-    }
 
     private static OrderSpecifier<?>[] orderByExpressions(SortContentBy sortBy, SortDirection sortDirection) {
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();

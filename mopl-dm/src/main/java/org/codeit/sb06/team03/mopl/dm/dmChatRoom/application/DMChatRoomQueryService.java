@@ -14,6 +14,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(value = "dmTransactionManager", readOnly = true)
 public class DMChatRoomQueryService implements GetDMChatRoomUseCase {
 
     private final LoadDMChatRoomPort loadDMChatRoomPort;

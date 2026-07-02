@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.dm.dmMessage.infra.in;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.JoinDMMessageCommand;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.JoinDMMessageUseCase;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DMWebSocketEventListener {
@@ -35,11 +37,13 @@ public class DMWebSocketEventListener {
         if (accessor == null) return;
 
         String destination = accessor.getDestination();
+        log.info("DMWebSocketEventListener.onSubscribe: destination={}", destination);
         if (destination == null || !DM_SUB_PATTERN.matcher(destination).matches()) return;
         if (event.getUser() == null) return;
 
         UUID dmChatRoomId = extractDMChatRoomId(destination);
         UUID userId = getUserId(event.getUser());
+        log.info("DMWebSocketEventListener.onSubscribe matched: dmChatRoomId={}, userId={}", dmChatRoomId, userId);
 
         joindmMessageUseCase.join(new JoinDMMessageCommand(dmChatRoomId, userId));
     }
@@ -50,6 +54,7 @@ public class DMWebSocketEventListener {
         if (accessor == null) return;
 
         String destination = (String) accessor.getSessionAttributes().get(accessor.getSubscriptionId());
+        log.info("DMWebSocketEventListener.onUnsubscribe: destination={}", destination);
         if (destination == null || !DM_SUB_PATTERN.matcher(destination).matches()) return;
 
         accessor.getSessionAttributes().remove(accessor.getSubscriptionId());
@@ -58,6 +63,7 @@ public class DMWebSocketEventListener {
 
         UUID dmChatRoomId = extractDMChatRoomId(destination);
         UUID userId = getUserId(event.getUser());
+        log.info("DMWebSocketEventListener.onUnsubscribe matched: dmChatRoomId={}, userId={}", dmChatRoomId, userId);
 
         leaveDMMessageUseCase.leave(new LeaveDMMessageCommand(dmChatRoomId, userId));
     }

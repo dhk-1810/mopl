@@ -31,6 +31,5 @@ public class EmailAppService implements SendEmailUseCase {
 
 //        eventPublisher.publishEvent(new EmailEvent.EmailSentEvent());
         // TODO : 이벤트
-        // 이메일은 applicaion out이 없음
     }
 }

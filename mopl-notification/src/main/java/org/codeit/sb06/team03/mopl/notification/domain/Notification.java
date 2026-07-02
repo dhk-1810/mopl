@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "notifications")
-@SQLDelete(sql = "UPDATE notifications SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE notifications SET is_deleted = true WHERE id = ? AND version = ?")
 @SQLRestriction("is_deleted = false")
 public class Notification {
 

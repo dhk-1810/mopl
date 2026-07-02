@@ -20,7 +20,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "profiles")
-@SQLDelete(sql = "UPDATE profiles SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE profiles SET is_deleted = true WHERE id = ? AND version = ?")
 @SQLRestriction("is_deleted = false")
 public class Profile extends AbstractAggregateRoot<Profile> {
 

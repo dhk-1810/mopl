@@ -5,4 +5,5 @@ dependencies {
     implementation project(':mopl-playlist')
     implementation project(':mopl-dm')
     implementation project(':mopl-notification')
+    implementation project(':mopl-watching-session')
 }

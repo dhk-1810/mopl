@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
+@Table(name = "dm_messages")
 @EntityListeners(AuditingEntityListener.class)
 @SQLDelete(sql = "UPDATE dm_messages SET is_deleted = true WHERE id = ?")
 @SQLRestriction("is_deleted = false")

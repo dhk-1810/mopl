@@ -21,7 +21,7 @@ import java.util.UUID;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "password_resets")
-@SQLDelete(sql = "UPDATE password_resets SET is_deleted = true WHERE account_id = ?")
+@SQLDelete(sql = "UPDATE password_resets SET is_deleted = true WHERE account_id = ? AND version = ?")
 @SQLRestriction("is_deleted = false")
 public class PasswordReset {
 

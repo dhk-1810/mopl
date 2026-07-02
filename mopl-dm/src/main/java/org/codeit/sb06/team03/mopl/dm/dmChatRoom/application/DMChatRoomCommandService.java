@@ -10,11 +10,13 @@ import org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain.exception.DMChatRoomAlre
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain.exception.DMChatRoomNotFoundException;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.application.out.SaveDMMessagePort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
+@Transactional("dmTransactionManager")
 public class DMChatRoomCommandService implements CreateDMChatRoomUseCase, ReadDMUseCase, JoinDMMessageUseCase, LeaveDMMessageUseCase {
 
     private final DMChatRoomService dmChatRoomService;

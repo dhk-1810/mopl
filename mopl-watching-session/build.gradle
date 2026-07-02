@@ -1,0 +1,5 @@
+dependencies {
+    implementation project(':mopl-image')
+    implementation project(':mopl-user')
+    implementation project(':mopl-content')
+}

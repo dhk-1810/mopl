@@ -23,7 +23,7 @@ import java.util.UUID;
         name = "dm_chat_room_stats",
         uniqueConstraints = @UniqueConstraint(columnNames = {"dmChatRoom_id", "account_id"})
 )
-@SQLDelete(sql = "UPDATE dm_chat_room_stats SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE dm_chat_room_stats SET is_deleted = true WHERE id = ? AND version = ?")
 @SQLRestriction("is_deleted = false")
 public class DMChatRoomStat {
 

@@ -24,7 +24,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "dm_chat_room")
 @EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE dm_chat_room SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE dm_chat_room SET is_deleted = true WHERE id = ? AND version = ?")
 @SQLRestriction("is_deleted = false")
 public class DMChatRoom extends AbstractAggregateRoot<DMChatRoom> {
 

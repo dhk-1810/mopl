@@ -24,7 +24,7 @@ import java.util.Map;
         basePackages = {
                 "org.codeit.sb06.team03.mopl.content",
                 "org.codeit.sb06.team03.mopl.tag",
-                "org.codeit.sb06.team03.mopl.watchingSession"
+                "org.codeit.sb06.team03.mopl.liveChatRoom"
         },
         entityManagerFactoryRef = "contentEntityManagerFactory",
         transactionManagerRef = "contentTransactionManager"
@@ -58,7 +58,7 @@ public class ContentDbConfig {
                 .packages(
                         "org.codeit.sb06.team03.mopl.content",
                         "org.codeit.sb06.team03.mopl.tag",
-                        "org.codeit.sb06.team03.mopl.watchingSession"
+                        "org.codeit.sb06.team03.mopl.liveChatRoom"
                 )
                 .persistenceUnit("content")
                 .properties(properties)

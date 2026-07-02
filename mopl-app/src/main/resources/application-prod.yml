@@ -10,3 +10,4 @@ spring:
       - optional:classpath:/application-dm-prod.yml
       - optional:classpath:/application-notification-prod.yml
       - optional:classpath:/application-image-prod.yml
+      - optional:classpath:/application-watching-session-prod.yml

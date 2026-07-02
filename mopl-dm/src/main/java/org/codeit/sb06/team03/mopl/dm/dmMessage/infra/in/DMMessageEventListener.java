@@ -32,6 +32,7 @@ public class DMMessageEventListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMessageSent(DMMessageEvent.MessageSentEvent event) {
+        log.info("DMMessageEventListener handleMessageSent called for dmChatRoomId={}, messageId={}", event.getDmChatRoomId(), event.getMessageId());
         try {
             messagePassUseCase.pass(
                     event.getDmChatRoomId(),
