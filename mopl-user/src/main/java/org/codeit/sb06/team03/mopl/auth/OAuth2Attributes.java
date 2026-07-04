@@ -40,7 +40,4 @@ public record OAuth2Attributes(
         );
     }
 
-    public SocialLoginCommand toCommand(String registrationId) {
-        return new SocialLoginCommand(registrationId, name, email);
-    }
 }

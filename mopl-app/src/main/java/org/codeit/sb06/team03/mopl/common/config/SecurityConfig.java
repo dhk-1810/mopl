@@ -2,6 +2,7 @@ package org.codeit.sb06.team03.mopl.common.config;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.domain.vo.Role;
+import org.codeit.sb06.team03.mopl.auth.CustomOAuth2UserService;
 import org.codeit.sb06.team03.mopl.security.LoginFailureHandler;
 import org.codeit.sb06.team03.mopl.security.MoplAccessDeniedHandler;
 import org.codeit.sb06.team03.mopl.security.MoplAuthenticationEntryPoint;
@@ -31,7 +32,7 @@ import org.springframework.security.web.authentication.logout.HttpStatusReturnin
 @EnableMethodSecurity(jsr250Enabled = true)
 public class SecurityConfig {
 
-//    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOAuth2UserService customOAuth2UserService;
 //    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
