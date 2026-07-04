@@ -25,7 +25,8 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            scope: openid,profile,email # OIDC 활성화
+            redirect-uri: "{baseUrl}/login/oauth2/code/google" # 제공자 서버가 로그인 완료 후, 우리 서버에 인증 코드 전달하는 주소
+            scope: profile,email # 제공자의 서비스 scope. OIDC 비활성화 및 CustomOAuth2UserService 사용
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET}

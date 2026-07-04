@@ -3,6 +3,7 @@ package org.codeit.sb06.team03.mopl.common.config;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.domain.vo.Role;
 import org.codeit.sb06.team03.mopl.auth.CustomOAuth2UserService;
+import org.codeit.sb06.team03.mopl.auth.OAuth2SuccessHandler;
 import org.codeit.sb06.team03.mopl.security.LoginFailureHandler;
 import org.codeit.sb06.team03.mopl.security.MoplAccessDeniedHandler;
 import org.codeit.sb06.team03.mopl.security.MoplAuthenticationEntryPoint;
@@ -33,7 +34,7 @@ import org.springframework.security.web.authentication.logout.HttpStatusReturnin
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
-//    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(
@@ -60,7 +61,7 @@ public class SecurityConfig {
                         // 정적 리소스, h2, swagger
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
-                        .requestMatchers("/", "/index.html", "/favicon.svg", "/assets/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/favicon.svg", "/assets/**", "/oauth-redirect", "/sign-in").permitAll()
                         //Websocket
                         .requestMatchers("/ws/**").permitAll()
                         // REST API
@@ -77,13 +78,13 @@ public class SecurityConfig {
                         .successHandler(loginSuccessHandler)
                         .failureHandler(loginFailureHandler)
                 )
-//                .oauth2Login(oauth2 -> oauth2
-//                        .userInfoEndpoint(userInfo -> userInfo
-//                                        .userService(customOAuth2UserService)
-//                                // .oidcUserService(customOidcUserService) // OIDC 전용 파싱이 필요하다면 사용
-//                        )
-//                        .successHandler(oAuth2SuccessHandler)
-//                )
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                        .userService(customOAuth2UserService)
+                                // .oidcUserService(customOidcUserService) // OIDC 전용 파싱이 필요할때 사용
+                        )
+                        .successHandler(oAuth2SuccessHandler)
+                )
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/sign-out")
                         .addLogoutHandler(logoutHandler)

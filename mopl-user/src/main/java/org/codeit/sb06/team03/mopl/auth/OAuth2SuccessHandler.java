@@ -20,6 +20,12 @@ import java.io.IOException;
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
+//    @Value
+//    private String defaultUrl;
+
+    private static final String LOGIN_SUCCESS_REDIRECT_URI = "/oauth-redirect";
+    private static final String LOGIN_FAILURE_REDIRECT_URI = "/sign-in";
+
     private final JwtRegistry jwtRegistry;
     private final RefreshTokenCookieProvider refreshTokenCookieProvider;
 
@@ -45,7 +51,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 response.addCookie(refreshTokenCookie);
 
                 // Access Token을 파라미터로 실어서 프론트엔드로 리다이렉트
-                String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/oauth-redirect")
+                String targetUrl = UriComponentsBuilder.fromPath(LOGIN_SUCCESS_REDIRECT_URI)
                         .queryParam("accessToken", tokenPair.accessToken())
                         .build().toUriString();
 
@@ -53,7 +59,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 return;
             } catch (Exception e) {
                 // 토큰 생성 실패 시 프론트엔드 로그인 페이지로 에러와 함께 리다이렉트
-                String errorUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login")
+                String errorUrl = UriComponentsBuilder.fromPath(LOGIN_FAILURE_REDIRECT_URI)
                         .queryParam("error", "token_generation_failed")
                         .build().toUriString();
                 getRedirectStrategy().sendRedirect(request, response, errorUrl);
@@ -61,7 +67,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             }
         }
 
-        String unauthorizedUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login")
+        String unauthorizedUrl = UriComponentsBuilder.fromPath(LOGIN_FAILURE_REDIRECT_URI)
                 .queryParam("error", "unauthorized")
                 .build().toUriString();
         getRedirectStrategy().sendRedirect(request, response, unauthorizedUrl);
