@@ -1,5 +1,6 @@
 package org.codeit.sb06.team03.mopl.common.config;
 
+import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.domain.vo.Role;
 import org.codeit.sb06.team03.mopl.security.LoginFailureHandler;
 import org.codeit.sb06.team03.mopl.security.MoplAccessDeniedHandler;
@@ -24,10 +25,14 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(jsr250Enabled = true)
 public class SecurityConfig {
+
+//    private final CustomOAuth2UserService customOAuth2UserService;
+//    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(
@@ -71,6 +76,13 @@ public class SecurityConfig {
                         .successHandler(loginSuccessHandler)
                         .failureHandler(loginFailureHandler)
                 )
+//                .oauth2Login(oauth2 -> oauth2
+//                        .userInfoEndpoint(userInfo -> userInfo
+//                                        .userService(customOAuth2UserService)
+//                                // .oidcUserService(customOidcUserService) // OIDC 전용 파싱이 필요하다면 사용
+//                        )
+//                        .successHandler(oAuth2SuccessHandler)
+//                )
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/sign-out")
                         .addLogoutHandler(logoutHandler)

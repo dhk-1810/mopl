@@ -27,7 +27,7 @@ public class FollowEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleFollowedEvent(FollowEvent.FollowedEvent event) {
 
-        Profile profile = getProfileUseCase.load(event.getFolloweeId());
+        Profile profile = getProfileUseCase.getById(event.getFolloweeId());
 
         NotificationDto notificationDto = createNotificationUseCase.create(
                 event.getFolloweeId(),

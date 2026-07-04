@@ -7,16 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * QueryDSL 메서드로 DTO 형태로 한번에 가져올 경우 ProfileNotFoundException 발생
- * -> Profile 객체 자체를 가져오고 애플리케이션 계층에서 가공
- */
-
 public interface GetProfileUseCase {
 
-    Profile load(UUID accountId);
+    Profile getById(UUID accountId);
 
-    List<Profile> load(List<UUID> accountIds);
+    List<Profile> getByIdsIn(List<UUID> accountIds);
 
     ProfileReadModel getProfileReadModel(UUID id);
 

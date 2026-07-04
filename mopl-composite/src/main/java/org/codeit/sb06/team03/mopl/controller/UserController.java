@@ -66,8 +66,8 @@ public class UserController implements UserApi {
 
     @Override
     @GetMapping("/{userId}")
-    public ResponseEntity<UserDto> getUsersById(@PathVariable UUID userId) {
-        UserDto response = userCompositeService.getUser(userId);
+    public ResponseEntity<UserDto> getUserById(@PathVariable UUID userId) {
+        UserDto response = userCompositeService.getUserDto(userId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

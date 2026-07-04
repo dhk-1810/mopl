@@ -17,7 +17,7 @@ public interface LoadAccountPort {
 
     Optional<Account> findByEmailAddress(EmailAddress emailAddress);
 
-    List<UserDto> findAll(CursorRequestUserDto query);
+    List<Account> findAll(CursorRequestUserDto query);
 
     Long count(CursorRequestUserDto query);
 

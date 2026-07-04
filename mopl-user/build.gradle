@@ -1,4 +1,5 @@
 dependencies {
     implementation project(':mopl-image')
     implementation project(':mopl-notification')
+    api 'org.springframework.boot:spring-boot-starter-oauth2-client'
 }

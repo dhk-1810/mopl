@@ -1,14 +1,19 @@
 package org.codeit.sb06.team03.mopl.account.application.in;
 
+import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.profile.infra.in.CursorRequestUserDto;
-import org.codeit.sb06.team03.mopl.profile.infra.in.CursorResponseUserDto;
-import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
+import org.springframework.data.domain.Slice;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface GetAccountUseCase {
 
-    CursorResponseUserDto get(CursorRequestUserDto request);
+    Slice<Account> getById(CursorRequestUserDto request);
 
-    UserDto get(UUID accountId);
+    Account getById(UUID accountId);
+
+    Optional<Account> getByEmail(String email);
+
+    Long count(CursorRequestUserDto request);
 }

@@ -56,7 +56,7 @@ public interface UserApi {
     @Operation(summary = "사용자 상세 조회")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "404", description = "해당 리소스 없음")
-    ResponseEntity<UserDto> getUsersById(UUID userId);
+    ResponseEntity<UserDto> getUserById(UUID userId);
 
     @Operation(summary = "프로필 변경", description = "본인의 프로필만 변경할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "성공")

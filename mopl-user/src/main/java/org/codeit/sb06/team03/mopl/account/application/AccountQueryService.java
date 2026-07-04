@@ -6,20 +6,17 @@ import org.codeit.sb06.team03.mopl.account.application.in.GetAccountUseCase;
 import org.codeit.sb06.team03.mopl.account.application.out.LoadAccountPort;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.exception.AccountNotFoundException;
-import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
-import org.codeit.sb06.team03.mopl.profile.application.out.LoadProfilePort;
-import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
-import org.codeit.sb06.team03.mopl.profile.domain.exception.ProfileNotFoundException;
+import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.profile.infra.in.CursorRequestUserDto;
-import org.codeit.sb06.team03.mopl.profile.infra.in.CursorResponseUserDto;
-import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
-import org.springframework.lang.Nullable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-
-import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 
 @RequiredArgsConstructor
 @Service
@@ -27,84 +24,32 @@ import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 public class AccountQueryService implements GetAccountUseCase {
 
     private final LoadAccountPort loadAccountPort;
-    private final LoadProfilePort loadProfilePort;
-    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
 
     @Override
-    public CursorResponseUserDto get(CursorRequestUserDto request) {
-        final List<UserDto> userDtos = loadAccountPort.findAll(request);
+    public Slice<Account> getById(CursorRequestUserDto request) {
+        final List<Account> accounts = loadAccountPort.findAll(request);
         final Integer limit = request.limit();
-        final List<UserDto> data = obtainData(userDtos, limit);
-        final String nextCursor = obtainNextCursor(userDtos, limit, request.sortBy());
-        final String nextIdAfter = obtainNextIdAfter(userDtos, limit);
-        final Boolean hasNext = obtainHasNext(userDtos, limit);
-        final Long totalCount = loadAccountPort.count(request);
-        final String sortBy = request.sortBy();
-        final SortDirection sortDirection = SortDirection.parse(request.sortDirection());
-
-        return new CursorResponseUserDto(
-                data,
-                nextCursor,
-                nextIdAfter,
-                hasNext,
-                totalCount,
-                sortBy,
-                sortDirection
-        );
-    }
-
-    private static List<UserDto> obtainData(List<UserDto> userDtos, Integer limit) {
-        int size = calculateSize(userDtos, limit);
-        return userDtos.subList(0, size);
-    }
-
-    private static int calculateSize(List<UserDto> userDtos, Integer limit) {
-        if (userDtos.isEmpty()) {
-            return 0;
-        }
-        if (userDtos.size() <= limit) {
-            return userDtos.size();
-        }
-        return limit;
-    }
-
-    @Nullable
-    private static String obtainNextCursor(List<UserDto> userDtos, Integer limit, String sortOrder) {
-        if (userDtos.size() <= limit) {
-            return null;
-        }
-        return switch (sortOrder) {
-            case "name" -> userDtos.getLast().name();
-            case "email" -> userDtos.getLast().email();
-            case "createdAt" -> userDtos.getLast().createdAt().toString();
-            case "isLocked" -> userDtos.getLast().locked().toString();
-            default -> userDtos.getLast().role();
-        };
-    }
-
-    @Nullable
-    private static String obtainNextIdAfter(List<UserDto> userDtos, Integer limit) {
-        if (userDtos.size() <= limit) {
-            return null;
-        }
-        return userDtos.getLast().id().toString();
-    }
-
-    private static Boolean obtainHasNext(List<UserDto> userDtos, Integer limit) {
-        if (userDtos.size() > limit) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+        
+        final List<Account> data = accounts.size() > limit ? accounts.subList(0, limit) : accounts;
+        final Boolean hasNext = accounts.size() > limit;
+        
+        Pageable pageable = PageRequest.of(0, limit);
+        return new SliceImpl<>(data, pageable, hasNext);
     }
 
     @Override
-    public UserDto get(UUID accountId) {
-        Account account = loadAccountPort.findById(accountId)
+    public Account getById(UUID accountId) {
+        return loadAccountPort.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
-        Profile profile = loadProfilePort.load(accountId)
-                .orElseThrow(() -> new ProfileNotFoundException(accountId));
-        String url = getPresignedUrlUseCase.getPresignedUrl(profile.getImageKey());
-        return UserDto.from(account, profile, url);
+    }
+
+    @Override
+    public Optional<Account> getByEmail(String email) {
+        return loadAccountPort.findByEmailAddress(new EmailAddress(email));
+    }
+
+    @Override
+    public Long count(CursorRequestUserDto request) {
+        return loadAccountPort.count(request);
     }
 }
-

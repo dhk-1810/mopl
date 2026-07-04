@@ -19,13 +19,13 @@ public class ProfileQueryService implements GetProfileUseCase {
     private final LoadProfilePort loadProfilePort;
 
     @Override
-    public Profile load(UUID accountId) {
+    public Profile getById(UUID accountId) {
         return loadProfilePort.load(accountId)
                 .orElseThrow(() -> new ProfileNotFoundException(accountId));
     }
 
     @Override
-    public List<Profile> load(List<UUID> accountIds) {
+    public List<Profile> getByIdsIn(List<UUID> accountIds) {
         return loadProfilePort.load(accountIds);
     }
 
