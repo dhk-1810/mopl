@@ -30,13 +30,34 @@ public record OAuth2Attributes(
 
     private static OAuth2Attributes ofKakao(String userNameAttributeName, Map<String, Object> attributes) {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-        Map<String, Object> kakaoProfile = (Map<String, Object>) kakaoAccount.get("profile");
+        String nickname = "";
+        if (kakaoAccount != null) {
+            Map<String, Object> kakaoProfile = (Map<String, Object>) kakaoAccount.get("profile");
+            if (kakaoProfile != null) {
+                nickname = (String) kakaoProfile.get("nickname");
+            }
+        }
+
+        Object idVal = attributes.get(userNameAttributeName);
+        if (idVal == null) {
+            idVal = attributes.get("id");
+        }
+        String kakaoId = idVal != null ? String.valueOf(idVal) : "";
+
+        // Remove non-alphanumeric characters to satisfy EmailAddress regex pattern.
+        // If the resulting nickname is empty (e.g., Korean only), fallback to "kakao".
+        String sanitizedNickname = nickname == null ? "" : nickname.replaceAll("[^a-zA-Z0-9]", "");
+        if (sanitizedNickname.isEmpty()) {
+            sanitizedNickname = "kakao";
+        }
+
+        String virtualEmail = sanitizedNickname + "_" + kakaoId + "@kakao.com";
 
         return new OAuth2Attributes(
                 attributes,
                 userNameAttributeName,
-                (String) kakaoProfile.get("nickname"),
-                (String) kakaoAccount.get("email")
+                nickname,
+                virtualEmail
         );
     }
 
