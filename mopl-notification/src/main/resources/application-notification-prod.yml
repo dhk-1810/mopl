@@ -1,9 +1,9 @@
 spring:
   datasource:
     notification:
-      url: jdbc:postgresql://${DB_ENDPOINT_NOTIFICATION}:5432/${DB_NAME_NOTIFICATION}
-      username: ${DB_USERNAME_NOTIFICATION}
-      password: ${DB_PASSWORD_NOTIFICATION}
+      url: jdbc:postgresql://${DB_ENDPOINT}:5432/${DB_NAME_NOTIFICATION}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
       driver-class-name: org.postgresql.Driver
 
   jpa:

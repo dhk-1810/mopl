@@ -3,8 +3,8 @@ spring:
     batch:
       driver-class-name: org.postgresql.Driver
       url: jdbc:postgresql://${DB_ENDPOINT}:5432/${DB_NAME_BATCH}
-      username: ${DB_USERNAME_BATCH:${DB_USERNAME}}
-      password: ${DB_PASSWORD_BATCH:${DB_PASSWORD}}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
   batch:
     jdbc:
       initialize-schema: never # TODO DB Migration 사용

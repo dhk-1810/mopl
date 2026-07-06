@@ -1,9 +1,9 @@
 spring:
   datasource:
     watching-session:
-      url: jdbc:postgresql://${DB_ENDPOINT_WATCHING_SESSION:localhost}:5432/${DB_NAME_WATCHING_SESSION}
-      username: ${DB_USERNAME_WATCHING_SESSION}
-      password: ${DB_PASSWORD_WATCHING_SESSION}
+      url: jdbc:postgresql://${DB_ENDPOINT}:5432/${DB_NAME_WATCHING_SESSION}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
       driver-class-name: org.postgresql.Driver
   jpa:
     watching-session:
