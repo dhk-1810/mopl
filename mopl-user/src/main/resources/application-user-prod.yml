@@ -3,9 +3,9 @@ spring:
   datasource:
     user:
       driver-class-name: org.postgresql.Driver
-      url: jdbc:postgresql://${DB_ENDPOINT_USER}:5432/${DB_NAME_USER}
-      username: ${DB_USERNAME_USER}
-      password: ${DB_PASSWORD_USER}
+      url: jdbc:postgresql://${DB_ENDPOINT}:5432/${DB_NAME_USER}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
   jpa:
     user:
       hibernate:

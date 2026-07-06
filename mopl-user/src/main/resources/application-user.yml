@@ -43,7 +43,7 @@ spring:
 
 mopl:
   account:
-    password-policy: "no"
+    password-policy: "bcrypt"
     temp-password-policy: "fixed"
     temp-password-reset-timeout-policy-in-minutes: 3
   mail:
