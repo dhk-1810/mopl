@@ -9,4 +9,4 @@ spring:
   jpa:
     user:
       hibernate:
-        ddl-auto: none
+        ddl-auto: update
