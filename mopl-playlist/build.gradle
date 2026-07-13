@@ -3,4 +3,5 @@ dependencies {
     implementation project(':mopl-user')
     implementation project(':mopl-content')
     implementation project(':mopl-notification')
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 }
