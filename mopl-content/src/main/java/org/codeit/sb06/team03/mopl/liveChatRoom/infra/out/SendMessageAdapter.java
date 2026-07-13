@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.liveChatRoom.infra.out;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.UserSummary;
-import org.codeit.sb06.team03.mopl.common.WatchingSessionDto;
+import org.codeit.sb06.team03.mopl.watchingSession.application.in.WatchingSessionDto;
 import org.codeit.sb06.team03.mopl.liveChatRoom.application.out.SendMessagePort;
 import org.codeit.sb06.team03.mopl.liveChatRoom.application.out.query.SendLiveChatRoomMessageQuery;
 import org.codeit.sb06.team03.mopl.liveChatRoom.application.out.query.SendPresenceMessageQuery;

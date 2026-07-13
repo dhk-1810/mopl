@@ -1,5 +1,5 @@
 dependencies {
     implementation project(':mopl-image')
     implementation project(':mopl-user')
-    implementation project(':mopl-content')
+    // removed mopl-content dependency to resolve circular reference
 }

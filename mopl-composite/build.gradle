@@ -1,9 +1,0 @@
-dependencies {
-    implementation project(':mopl-image')
-    implementation project(':mopl-user')
-    implementation project(':mopl-content')
-    implementation project(':mopl-playlist')
-    implementation project(':mopl-dm')
-    implementation project(':mopl-notification')
-    implementation project(':mopl-watching-session')
-}

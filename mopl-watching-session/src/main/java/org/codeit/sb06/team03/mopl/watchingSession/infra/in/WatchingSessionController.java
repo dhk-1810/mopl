@@ -1,0 +1,40 @@
+package org.codeit.sb06.team03.mopl.watchingSession.infra.in;
+
+import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.watchingSession.application.in.WatchingSessionDto;
+import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.watchingSession.application.WatchingSessionCompositeService;
+import org.codeit.sb06.team03.mopl.watchingSession.application.in.CursorResponseWatchingSessionDto;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/api")
+public class WatchingSessionController {
+
+    private final WatchingSessionCompositeService watchingSessionCompositeService;
+
+    @GetMapping("/users/{watcherId}/watching-sessions")
+    public ResponseEntity<WatchingSessionDto> getByWatcherId(
+            @PathVariable UUID watcherId,
+            @AuthenticationPrincipal MoplUserDetails userDetails
+    ) {
+        WatchingSessionDto sessionDetails = watchingSessionCompositeService
+                .getByWatcherId(watcherId, userDetails);
+        return ResponseEntity.ok(sessionDetails);
+    }
+
+    @GetMapping("/contents/{contentId}/watching-sessions")
+    public ResponseEntity<CursorResponseWatchingSessionDto> getByContentId(
+            @PathVariable UUID contentId,
+            @ModelAttribute CursorWatchingSessionRequest watchingSessionCursorRequest
+    ){
+        CursorResponseWatchingSessionDto response = watchingSessionCompositeService
+                .getByContentId(contentId, watchingSessionCursorRequest);
+        return ResponseEntity.ok(response);
+    }
+}
