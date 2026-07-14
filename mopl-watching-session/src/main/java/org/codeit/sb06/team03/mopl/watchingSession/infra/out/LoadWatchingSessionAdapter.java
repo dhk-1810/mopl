@@ -5,12 +5,14 @@ import org.codeit.sb06.team03.mopl.watchingSession.application.out.WatchingSessi
 import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.application.out.LoadWatchingSessionPort;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@Profile("!redis")
 @Component
 @RequiredArgsConstructor
 public class LoadWatchingSessionAdapter implements LoadWatchingSessionPort {
@@ -20,11 +22,6 @@ public class LoadWatchingSessionAdapter implements LoadWatchingSessionPort {
     @Override
     public boolean existsByLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId) {
         return repository.existsByLiveChatRoomIdAndWatcherId(liveChatRoomId, watcherId);
-    }
-
-    @Override
-    public Optional<WatchingSession> findByLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId) {
-        return repository.findByLiveChatRoomIdAndWatcherId(liveChatRoomId, watcherId);
     }
 
     @Override

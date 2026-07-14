@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: redis
   datasource:
     watching-session:
       url: jdbc:postgresql://localhost:5432/${DB_NAME_WATCHING_SESSION}

@@ -3,8 +3,10 @@ package org.codeit.sb06.team03.mopl.watchingSession.infra.out;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.watchingSession.application.out.SaveWatchingSessionPort;
 import org.codeit.sb06.team03.mopl.watchingSession.domain.WatchingSession;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+@Profile("!redis")
 @Component
 @RequiredArgsConstructor
 public class SaveWatchingSessionAdapter implements SaveWatchingSessionPort {

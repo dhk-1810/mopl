@@ -12,8 +12,6 @@ public interface LoadWatchingSessionPort {
 
     boolean existsByLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId);
 
-    Optional<WatchingSession> findByLiveChatRoomIdAndWatcherId(UUID liveChatRoomId, UUID watcherId);
-
     long countByContentId(UUID contentId);
 
     Optional<WatchingSessionReadModel> findReadModelByWatcherId(UUID watcherId);
