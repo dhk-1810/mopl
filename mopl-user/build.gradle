@@ -2,4 +2,5 @@ dependencies {
     implementation project(':mopl-image')
     // removed mopl-notification dependency to resolve circular reference
     api 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 }

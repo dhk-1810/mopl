@@ -1,6 +1,5 @@
 dependencies {
     implementation project(':mopl-image')
     implementation project(':mopl-user')
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 }

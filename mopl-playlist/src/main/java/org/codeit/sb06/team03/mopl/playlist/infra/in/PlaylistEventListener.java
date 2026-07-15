@@ -12,6 +12,9 @@ import org.codeit.sb06.team03.mopl.playlist.application.out.SaveCurationPort;
 import org.codeit.sb06.team03.mopl.playlist.application.out.SaveSubscriptionPort;
 import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.sse.application.SseUseCase;
+import org.codeit.sb06.team03.mopl.playlist.RabbitConfig;
+import org.codeit.sb06.team03.mopl.playlist.infra.messaging.PlaylistSubscribedMessage;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -32,6 +35,7 @@ public class PlaylistEventListener {
     private final SaveCurationPort saveCurationPort;
     private final SaveSubscriptionPort saveSubscriptionPort;
     private final GetFolloweeUseCase getFolloweeUseCase;
+    private final RabbitTemplate rabbitTemplate;
 
     private static final String EVENT_NAME = "notifications";
 
@@ -64,15 +68,18 @@ public class PlaylistEventListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleSubscriptionCreatedEvent(PlaylistEvent.SubscriptionCreatedEvent event) {
-        final String subscriberName = event.getSubscriberName();
-        final String playlistTitle = event.getPlaylistTitle();
-        NotificationDto notificationDto = createNotificationUseCase.create(
-                event.getOwnerId(),
-                "%s 님이 내 플레이리스트 %s 을(를) 구독했어요.".formatted(subscriberName, playlistTitle),
-                null,
-                NotificationLevel.INFO
+        PlaylistSubscribedMessage message = new PlaylistSubscribedMessage(
+                event.getPlaylistId(),
+                event.getPlaylistTitle(),
+                event.getSubscriberId(),
+                event.getSubscriberName(),
+                event.getOwnerId()
         );
-        sseUseCase.send(notificationDto, EVENT_NAME, event.getOwnerId());
+        rabbitTemplate.convertAndSend(
+                RabbitConfig.PLAYLIST_EXCHANGE,
+                "playlist.subscribed",
+                message
+        );
     }
 
     @Async
