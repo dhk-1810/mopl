@@ -6,11 +6,10 @@ import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.GetDMChatRoomUse
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.infra.in.DirectMessageDto;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.application.in.MessagePassUseCase;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.domain.event.DMMessageEvent;
-import org.codeit.sb06.team03.mopl.notification.application.in.CreateNotificationUseCase;
-import org.codeit.sb06.team03.mopl.notification.domain.NotificationLevel;
-import org.codeit.sb06.team03.mopl.notification.infra.in.NotificationDto;
+import org.codeit.sb06.team03.mopl.dm.dmMessage.domain.event.DMNotificationRequiredEvent;
 import org.codeit.sb06.team03.mopl.UserSummary;
 import org.codeit.sb06.team03.mopl.sse.application.SseUseCase;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -24,10 +23,9 @@ public class DMMessageEventListener {
     private final MessagePassUseCase messagePassUseCase;
     private final GetDMChatRoomUseCase getDMChatRoomUseCase;
     private final SseUseCase sseUseCase;
-    private final CreateNotificationUseCase createNotificationUseCase;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final String EVENT_NAME_DM = "direct-messages";
-    private static final String EVENT_NAME_NOTIFICATION = "notifications";
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -54,13 +52,12 @@ public class DMMessageEventListener {
                 );
                 sseUseCase.send(dto, EVENT_NAME_DM, event.getReceiverId());
 
-                NotificationDto notificationDto = createNotificationUseCase.create(
+                log.info("Receiver is not active. Publishing DMNotificationRequiredEvent for receiverId={}", event.getReceiverId());
+                eventPublisher.publishEvent(new DMNotificationRequiredEvent(
                         event.getReceiverId(),
-                        "[DM]" + sender.name(),
-                        event.getContent(),
-                        NotificationLevel.INFO
-                );
-                sseUseCase.send(notificationDto, EVENT_NAME_NOTIFICATION, event.getReceiverId());
+                        sender.name(),
+                        event.getContent()
+                ));
             }
         } catch (Exception e) {
             log.error("DM WebSocket 전송 실패 - dmChatRoomId={}, messageId={}", event.getDmChatRoomId(), event.getMessageId(), e);
