@@ -4,21 +4,19 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.UserSummary;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
-import org.codeit.sb06.team03.mopl.content.ContentReadModel;
-import org.codeit.sb06.team03.mopl.content.application.in.GetContentUseCase;
 import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
 import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
 import org.codeit.sb06.team03.mopl.playlist.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.playlist.application.in.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
+import org.codeit.sb06.team03.mopl.playlist.domain.entity.cqrs.ExternalContentView;
+import org.codeit.sb06.team03.mopl.playlist.domain.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.*;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.CursorRequestPlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistCreateRequest;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistUpdateRequest;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.CursorResponsePlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
-import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
-import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -32,7 +30,6 @@ public class PlaylistCompositeService {
 
     private final PlaylistMapper playlistMapper;
     private final CreatePlaylistUseCase createPlaylistUseCase;
-    private final GetPlaylistUseCase getPlaylistUseCase;
     private final UpdatePlaylistUseCase updatePlaylistUseCase;
     private final DeletePlaylistUseCase deletePlaylistUseCase;
 
@@ -42,12 +39,12 @@ public class PlaylistCompositeService {
     private final SubscribePlaylistUseCase subscribePlaylistUseCase;
     private final UnsubscribePlaylistUseCase unsubscribePlaylistUseCase;
 
-    private final GetProfileUseCase getProfileUseCase;
-    private final GetSubscriptionUseCase getSubscriptionUseCase;
-
-    private final GetContentUseCase getContentUseCase;
-    private final GetCurationUseCase getCurationUseCase;
     private final GetPresignedUrlUseCase getPresignedUrlUseCase;
+
+    // Simplified Query Services (Local DB queries vs External read models)
+    private final PlaylistQueryService playlistQueryService;
+    private final ExternalUserQueryService externalUserQueryService;
+    private final ExternalContentQueryService externalContentQueryService;
 
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
 
@@ -64,44 +61,52 @@ public class PlaylistCompositeService {
     }
 
     public CursorResponsePlaylistDto getAll(CursorRequestPlaylistDto request, UUID viewerId) {
-        Slice<PlaylistReadModel> slice = getPlaylistUseCase.get(request, viewerId);
+        Slice<PlaylistReadModel> slice = playlistQueryService.getPlaylists(request, viewerId);
         List<PlaylistReadModel> readModels = slice.getContent();
 
         List<UUID> ownerIds = readModels.stream().map(PlaylistReadModel::ownerId).toList();
-        Map<UUID, ProfileReadModel> ownersMap = getProfileUseCase.getProfileReadModels(ownerIds);
+        Map<UUID, ExternalUserView> ownersMap = externalUserQueryService.getProfiles(ownerIds);
         Map<UUID, UserSummary> owners = ownersMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> {
-                            ProfileReadModel profile = entry.getValue();
-                            String url = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
-                            return new UserSummary(profile.userId(), profile.name(), url);
+                            ExternalUserView profile = entry.getValue();
+                            String url = getPresignedUrlUseCase.getPresignedUrl(profile.getProfileImageKey());
+                            return new UserSummary(profile.getId(), profile.getName(), url);
                         }
                 ));
 
         Set<UUID> playlistIds = readModels.stream().map(PlaylistReadModel::id).collect(Collectors.toSet());
-        Map<UUID, Boolean> subscribedByMe = getSubscriptionUseCase.isSubscribed(playlistIds, viewerId);
+        Map<UUID, Boolean> subscribedByMe = playlistQueryService.isSubscribed(playlistIds, viewerId);
 
-        // 1. 플레이리스트별 컨텐츠 ID 가져옴
-        Map<UUID, List<UUID>> contentIdsMap = getCurationUseCase.getContentIdsByPlaylistIds(playlistIds);
+        // 1. 플레이리스트별 컨텐츠 ID 가져옴 (Curation 로컬 쿼리)
+        Map<UUID, List<UUID>> contentIdsMap = playlistQueryService.getContentIdsByPlaylistIds(playlistIds);
 
         // 2. 컨텐츠 전체를 한번에 조회 및 presigned URL 일괄 생성
         Set<UUID> allContentIds = contentIdsMap.values().stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        List<ContentReadModel> contentReadModels = allContentIds.isEmpty()
-                ? Collections.emptyList()
-                : getContentUseCase.getByIds(allContentIds);
+        List<ExternalContentView> contentViews = externalContentQueryService.getContents(allContentIds);
 
-        List<String> thumbnailKeys = contentReadModels.stream()
-                .map(ContentReadModel::thumbnailKey)
+        List<String> thumbnailKeys = contentViews.stream()
+                .map(ExternalContentView::getThumbnailKey)
                 .filter(Objects::nonNull)
                 .toList();
         Map<String, String> urls = getPresignedUrlUseCase.getPresignedUrls(thumbnailKeys);
 
-        List<ContentDto> contentDtos = contentReadModels.stream()
-                .map(rm -> ContentDto.from(rm, urls.get(rm.thumbnailKey())))
+        List<ContentDto> contentDtos = contentViews.stream()
+                .map(cv -> new ContentDto(
+                        cv.getId(),
+                        cv.getType(),
+                        cv.getTitle(),
+                        cv.getDescription(),
+                        urls.get(cv.getThumbnailKey()),
+                        parseTags(cv.getTags()),
+                        cv.getAverageRating(),
+                        cv.getReviewCount(),
+                        cv.getWatcherCount()
+                ))
                 .toList();
 
         // 3. 플레이리스트별로 골라 담음
@@ -145,13 +150,16 @@ public class PlaylistCompositeService {
     }
 
     public PlaylistDto get(UUID playlistId, UUID viewerId) {
-        PlaylistReadModel readModel = getPlaylistUseCase.get(playlistId, viewerId);
+        PlaylistReadModel readModel = playlistQueryService.getPlaylist(playlistId, viewerId);
 
-        ProfileReadModel ownerProfile = getProfileUseCase.getProfileReadModel(readModel.ownerId());
-        String url = getPresignedUrlUseCase.getPresignedUrl(ownerProfile.imageKey());
-        UserSummary owner = new UserSummary(ownerProfile.userId(), ownerProfile.name(), url);
+        ExternalUserView ownerProfile = externalUserQueryService.getProfile(readModel.ownerId());
+        UserSummary owner = null;
+        if (ownerProfile != null) {
+            String url = getPresignedUrlUseCase.getPresignedUrl(ownerProfile.getProfileImageKey());
+            owner = new UserSummary(ownerProfile.getId(), ownerProfile.getName(), url);
+        }
 
-        boolean subscribedByMe = getSubscriptionUseCase.isSubscribed(playlistId, viewerId);
+        boolean subscribedByMe = playlistQueryService.isSubscribed(playlistId, viewerId);
         List<ContentDto> contentDtos = getContentDtos(readModel.id());
         return PlaylistDto.toDto(readModel, owner, subscribedByMe, contentDtos);
     }
@@ -176,8 +184,9 @@ public class PlaylistCompositeService {
 
 
     public void addContentToPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
-        ContentReadModel content = getContentUseCase.get(contentId);
-        addCurationUseCase.addContentToPlaylist(playlistId, contentId, content.title(), ownerId);
+        ExternalContentView content = externalContentQueryService.getContent(contentId);
+        String title = content != null ? content.getTitle() : "Unknown Content";
+        addCurationUseCase.addContentToPlaylist(playlistId, contentId, title, ownerId);
     }
 
     public void deleteContentFromPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
@@ -195,21 +204,41 @@ public class PlaylistCompositeService {
 
 
     private List<ContentDto> getContentDtos(UUID playlistId) {
-        Map<UUID, List<UUID>> contentIdsMap = getCurationUseCase.getContentIdsByPlaylistIds(Set.of(playlistId));
+        Map<UUID, List<UUID>> contentIdsMap = playlistQueryService.getContentIdsByPlaylistIds(Set.of(playlistId));
         List<UUID> contentIds = contentIdsMap.getOrDefault(playlistId, Collections.emptyList());
         if (contentIds.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<ContentReadModel> contentReadModels = getContentUseCase.getByIds(new HashSet<>(contentIds));
-        List<String> thumbnailKeys = contentReadModels.stream()
-                .map(ContentReadModel::thumbnailKey)
+        List<ExternalContentView> contentViews = externalContentQueryService.getContents(contentIds);
+        List<String> thumbnailKeys = contentViews.stream()
+                .map(ExternalContentView::getThumbnailKey)
                 .filter(Objects::nonNull)
                 .toList();
         Map<String, String> urls = getPresignedUrlUseCase.getPresignedUrls(thumbnailKeys);
 
-        return contentReadModels.stream()
-                .map(rm -> ContentDto.from(rm, urls.get(rm.thumbnailKey())))
+        return contentViews.stream()
+                .map(cv -> new ContentDto(
+                        cv.getId(),
+                        cv.getType(),
+                        cv.getTitle(),
+                        cv.getDescription(),
+                        urls.get(cv.getThumbnailKey()),
+                        parseTags(cv.getTags()),
+                        cv.getAverageRating(),
+                        cv.getReviewCount(),
+                        cv.getWatcherCount()
+                ))
                 .toList();
+    }
+
+    private Set<String> parseTags(String tags) {
+        if (tags == null || tags.isBlank()) {
+            return Collections.emptySet();
+        }
+        return Arrays.stream(tags.split(","))
+                .map(String::trim)
+                .filter(tag -> !tag.isEmpty())
+                .collect(Collectors.toSet());
     }
 }
