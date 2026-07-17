@@ -1,9 +1,8 @@
 package org.codeit.sb06.team03.mopl.dm.dmMessage.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.dm.dmMessage.application.in.GetDMUseCase;
-import org.codeit.sb06.team03.mopl.dm.dmMessage.application.out.LoadDMMessagePort;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.domain.DMMessage;
+import org.codeit.sb06.team03.mopl.dm.dmMessage.infra.out.DMMessageRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,11 +12,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 @Transactional(value = "dmTransactionManager", readOnly = true)
-public class DMQueryService implements GetDMUseCase {
+public class DMQueryService {
 
-    private final LoadDMMessagePort loadDMMessagePort;
+    private final DMMessageRepository dmMessageRepository;
 
-    @Override
     public List<DMMessage> findAll(
             UUID dmChatRoomId,
             String cursor,
@@ -27,23 +25,20 @@ public class DMQueryService implements GetDMUseCase {
             String sortBy
     ) {
         boolean ascending = "ASC".equalsIgnoreCase(sortDirection);
-        return loadDMMessagePort.findAll(dmChatRoomId, cursor, idAfter, limit, ascending, sortBy);
+        return dmMessageRepository.findAll(dmChatRoomId, cursor, idAfter, limit + 1, ascending, sortBy);
     }
 
-    @Override
     public long countAll(UUID dmChatRoomId) {
-        return loadDMMessagePort.count(dmChatRoomId);
+        return dmMessageRepository.count(dmChatRoomId);
     }
 
-    @Override
     public Optional<DMMessage> findLatestByDMChatRoomId(UUID dmChatRoomId) {
-        return loadDMMessagePort.findLatestByDMChatRoomId(dmChatRoomId);
+        return dmMessageRepository.findLatestByDMChatRoomId(dmChatRoomId);
     }
 
-    @Override
     public Map<UUID, DMMessage> findLatestByDMChatRoomIds(Set<UUID> dmChatRoomIds) {
         return dmChatRoomIds.stream()
-                .map(id -> Map.entry(id, loadDMMessagePort.findLatestByDMChatRoomId(id)))
+                .map(id -> Map.entry(id, dmMessageRepository.findLatestByDMChatRoomId(id)))
                 .filter(e -> e.getValue().isPresent())
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get()));
     }

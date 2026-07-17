@@ -5,7 +5,7 @@ import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.exception.AccountNotFoundException;
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.account.infra.out.AccountRepository;
-import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
+import org.codeit.sb06.team03.mopl.image.application.ImageQueryService;
 import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +21,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class MoplUserDetailsService implements UserDetailsService {
     private final AccountRepository accountRepository;
-    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
+    private final ImageQueryService imageQueryService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -38,7 +38,7 @@ public class MoplUserDetailsService implements UserDetailsService {
         UUID accountId = account.getId();
 
         Profile profile = account.getProfile();
-        String profileImageUrl = getPresignedUrlUseCase.getPresignedUrl(profile.getImageKey());
+        String profileImageUrl = imageQueryService.getPresignedUrl(profile.getImageKey());
 
         UserDto userDto = new UserDto(
                 accountId,

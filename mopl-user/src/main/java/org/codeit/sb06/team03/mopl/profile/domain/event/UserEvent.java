@@ -1,14 +1,19 @@
 package org.codeit.sb06.team03.mopl.profile.domain.event;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import java.util.UUID;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public abstract sealed class UserEvent {
+public interface UserEvent {
+    UUID userId();
 
-    public static final class UserProfileCreatedEvent extends UserEvent {
-    }
+    record UserProfileCreatedEvent(
+            UUID userId,
+            String name,
+            String imageKey
+    ) implements UserEvent {}
 
-    public static final class UserProfileUpdatedEvent extends UserEvent {
-    }
+    record UserProfileUpdatedEvent(
+            UUID userId,
+            String name,
+            String imageKey
+    ) implements UserEvent {}
 }

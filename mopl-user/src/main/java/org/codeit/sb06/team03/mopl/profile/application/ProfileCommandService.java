@@ -1,15 +1,12 @@
 package org.codeit.sb06.team03.mopl.profile.application;
 
-import org.codeit.sb06.team03.mopl.image.application.in.RegisterImageUseCase;
+import org.codeit.sb06.team03.mopl.image.application.ImageCommandService;
 import org.codeit.sb06.team03.mopl.profile.application.in.CreateProfileCommand;
-import org.codeit.sb06.team03.mopl.profile.application.in.CreateProfileUseCase;
 import org.codeit.sb06.team03.mopl.profile.application.in.UpdateProfileCommand;
-import org.codeit.sb06.team03.mopl.profile.application.in.UpdateProfileUseCase;
-import org.codeit.sb06.team03.mopl.profile.application.out.LoadProfilePort;
-import org.codeit.sb06.team03.mopl.profile.application.out.SaveProfilePort;
 import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.domain.ProfileService;
 import org.codeit.sb06.team03.mopl.profile.domain.exception.ProfileNotFoundException;
+import org.codeit.sb06.team03.mopl.profile.infra.out.ProfileRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,26 +15,22 @@ import java.util.UUID;
 
 @Service
 @Transactional
-public class ProfileCommandService implements CreateProfileUseCase, UpdateProfileUseCase {
+public class ProfileCommandService {
 
     private final ProfileService profileService;
-    private final SaveProfilePort saveProfilePort;
-    private final LoadProfilePort loadProfilePort;
-    private final RegisterImageUseCase registerImageUseCase;
+    private final ProfileRepository profileRepository;
+    private final ImageCommandService imageCommandService;
 
     public ProfileCommandService(
             ProfileService profileService,
-            SaveProfilePort saveProfilePort,
-            LoadProfilePort loadProfilePort,
-            RegisterImageUseCase registerImageUseCase
+            ProfileRepository profileRepository,
+            ImageCommandService imageCommandService
     ) {
         this.profileService = profileService;
-        this.saveProfilePort = saveProfilePort;
-        this.loadProfilePort = loadProfilePort;
-        this.registerImageUseCase = registerImageUseCase;
+        this.profileRepository = profileRepository;
+        this.imageCommandService = imageCommandService;
     }
 
-    @Override
     public Profile create(CreateProfileCommand command) {
         final UUID accountId = command.accountId();
         final String name = command.name();
@@ -45,22 +38,21 @@ public class ProfileCommandService implements CreateProfileUseCase, UpdateProfil
         return profileService.create(accountId, name);
     }
 
-    @Override
     public Profile update(UpdateProfileCommand command) {
         final UUID accountId = command.accountId();
         final String name = command.name();
         final MultipartFile image = command.image();
 
-        Profile profile = loadProfilePort.load(accountId)
+        Profile profile = profileRepository.findById(accountId)
                 .orElseThrow(() -> new ProfileNotFoundException(accountId));
 
         String imageKey = null;
         if (image != null && !image.isEmpty()) {
-            imageKey = registerImageUseCase.register(image);
+            imageKey = imageCommandService.register(image);
         }
 
         Profile updated = profileService.update(profile, name, imageKey);
-        return saveProfilePort.save(updated);
+        return profileRepository.save(updated);
     }
 }
 

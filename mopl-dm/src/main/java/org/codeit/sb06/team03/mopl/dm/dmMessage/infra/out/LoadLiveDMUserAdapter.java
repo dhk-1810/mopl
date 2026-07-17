@@ -1,28 +1,30 @@
 package org.codeit.sb06.team03.mopl.dm.dmMessage.infra.out;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.dm.dmMessage.application.out.LoadLiveDMUserPort;
-import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
+import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.ExternalUserQueryService;
+import org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain.entity.cqrs.ExternalUserView;
+import org.codeit.sb06.team03.mopl.image.application.ImageQueryService;
 import org.codeit.sb06.team03.mopl.UserSummary;
-import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
-import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Component
-public class LoadLiveDMUserAdapter implements LoadLiveDMUserPort {
+public class LoadLiveDMUserAdapter {
 
-    private final GetProfileUseCase getProfileUseCase;
-    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
+    private final ExternalUserQueryService externalUserQueryService;
+    private final ImageQueryService imageQueryService;
 
-    @Override
     public UserSummary findByUserId(UUID userId) {
-        ProfileReadModel profile = getProfileUseCase.getProfileReadModel(userId);
-        String url = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
-        return new UserSummary(profile.userId(), profile.name(), url);
+        ExternalUserView profile = externalUserQueryService.getProfile(userId);
+        String name = "Unknown User";
+        String imageKey = null;
+        if (profile != null) {
+            name = profile.getName();
+            imageKey = profile.getProfileImageKey();
+        }
+        String url = imageQueryService.getPresignedUrl(imageKey);
+        return new UserSummary(userId, name, url);
     }
 }
-
-

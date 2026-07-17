@@ -7,10 +7,10 @@ import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.CursorResponseWatchingSessionDto;
 import org.codeit.sb06.team03.mopl.watchingSession.infra.in.CursorWatchingSessionRequest;
-import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
+import org.codeit.sb06.team03.mopl.image.application.ImageQueryService;
 import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
-import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
+import org.codeit.sb06.team03.mopl.profile.application.ProfileQueryService;
 import org.codeit.sb06.team03.mopl.watchingSession.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.springframework.data.domain.Slice;
@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 public class WatchingSessionCompositeService {
 
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
-    private final GetProfileUseCase getProfileUseCase;
-    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
+    private final ProfileQueryService profileQueryService;
+    private final ImageQueryService imageQueryService;
 
     public WatchingSessionDto getByWatcherId(UUID watcherId, MoplUserDetails userDetails) {
 
@@ -49,7 +49,7 @@ public class WatchingSessionCompositeService {
 
         List<UUID> filteredWatcherIds = null;
         if (request.watcherNameLike() != null && !request.watcherNameLike().isBlank()) {
-            filteredWatcherIds = getProfileUseCase.loadByNameContaining(request.watcherNameLike())
+            filteredWatcherIds = profileQueryService.loadByNameContaining(request.watcherNameLike())
                     .stream()
                     .map(Profile::getAccountId)
                     .toList();
@@ -59,13 +59,13 @@ public class WatchingSessionCompositeService {
         List<WatchingSessionReadModel> watchingSessions = slice.getContent();
 
         List<UUID> watcherIds = watchingSessions.stream().map(WatchingSessionReadModel::watcherId).toList();
-        Map<UUID, ProfileReadModel> profilesMap = getProfileUseCase.getProfileReadModels(watcherIds);
+        Map<UUID, ProfileReadModel> profilesMap = profileQueryService.getProfileReadModels(watcherIds);
         Map<UUID, UserSummary> watchers = profilesMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> {
                             ProfileReadModel profile = entry.getValue();
-                            String url = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
+                            String url = imageQueryService.getPresignedUrl(profile.imageKey());
                             return new UserSummary(profile.userId(), profile.name(), url);
                         }
                 ));

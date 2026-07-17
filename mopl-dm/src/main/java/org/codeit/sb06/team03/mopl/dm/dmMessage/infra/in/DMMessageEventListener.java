@@ -2,13 +2,13 @@ package org.codeit.sb06.team03.mopl.dm.dmMessage.infra.in;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.GetDMChatRoomUseCase;
+import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.DMChatRoomQueryService;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.infra.in.DirectMessageDto;
-import org.codeit.sb06.team03.mopl.dm.dmMessage.application.in.MessagePassUseCase;
+import org.codeit.sb06.team03.mopl.dm.dmMessage.application.DMMessagePassService;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.domain.event.DMMessageEvent;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.domain.event.DMNotificationRequiredEvent;
 import org.codeit.sb06.team03.mopl.UserSummary;
-import org.codeit.sb06.team03.mopl.sse.application.SseUseCase;
+import org.codeit.sb06.team03.mopl.sse.application.SseService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -20,9 +20,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 public class DMMessageEventListener {
 
-    private final MessagePassUseCase messagePassUseCase;
-    private final GetDMChatRoomUseCase getDMChatRoomUseCase;
-    private final SseUseCase sseUseCase;
+    private final DMMessagePassService dmMessagePassService;
+    private final DMChatRoomQueryService dmChatRoomQueryService;
+    private final SseService sseService;
     private final ApplicationEventPublisher eventPublisher;
 
     private static final String EVENT_NAME_DM = "direct-messages";
@@ -32,7 +32,7 @@ public class DMMessageEventListener {
     public void handleMessageSent(DMMessageEvent.MessageSentEvent event) {
         log.info("DMMessageEventListener handleMessageSent called for dmChatRoomId={}, messageId={}", event.getDmChatRoomId(), event.getMessageId());
         try {
-            messagePassUseCase.pass(
+            dmMessagePassService.pass(
                     event.getDmChatRoomId(),
                     event.getMessageId(),
                     event.getContent(),
@@ -40,7 +40,7 @@ public class DMMessageEventListener {
                     event.getSender(),
                     event.getReceiver()
             );
-            if (!getDMChatRoomUseCase.isParticipantActive(event.getReceiverId(), event.getDmChatRoomId())) {
+            if (!dmChatRoomQueryService.isParticipantActive(event.getReceiverId(), event.getDmChatRoomId())) {
                 UserSummary sender = event.getSender();
                 DirectMessageDto dto = new DirectMessageDto(
                         event.getMessageId().toString(),
@@ -50,7 +50,7 @@ public class DMMessageEventListener {
                         event.getReceiver(),
                         event.getContent()
                 );
-                sseUseCase.send(dto, EVENT_NAME_DM, event.getReceiverId());
+                sseService.send(dto, EVENT_NAME_DM, event.getReceiverId());
 
                 log.info("Receiver is not active. Publishing DMNotificationRequiredEvent for receiverId={}", event.getReceiverId());
                 eventPublisher.publishEvent(new DMNotificationRequiredEvent(

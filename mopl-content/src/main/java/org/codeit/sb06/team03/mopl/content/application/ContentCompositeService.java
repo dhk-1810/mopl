@@ -4,16 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.content.ContentReadModel;
 import org.codeit.sb06.team03.mopl.content.application.in.*;
 import org.codeit.sb06.team03.mopl.content.domain.event.ContentDeletedEvent;
+import org.codeit.sb06.team03.mopl.content.domain.event.ContentCreatedEvent;
+import org.codeit.sb06.team03.mopl.content.domain.event.ContentUpdatedEvent;
 import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
 import org.codeit.sb06.team03.mopl.content.infra.CursorRequestContentDto;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentCreateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentMapper;
 import org.codeit.sb06.team03.mopl.content.infra.in.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorResponseContentDto;
-import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
-import org.codeit.sb06.team03.mopl.image.application.in.RegisterImageUseCase;
-import org.codeit.sb06.team03.mopl.liveChatRoom.application.in.CreateLiveChatRoomUseCase;
-import org.codeit.sb06.team03.mopl.liveChatRoom.application.in.DeleteLiveChatRoomUseCase;
+import org.codeit.sb06.team03.mopl.image.application.ImageQueryService;
+import org.codeit.sb06.team03.mopl.image.application.ImageCommandService;
+import org.codeit.sb06.team03.mopl.liveChatRoom.application.LiveChatRoomCommandService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -26,36 +27,46 @@ import java.util.*;
 public class ContentCompositeService {
 
     private final ContentMapper contentMapper;
-    private final CreateContentUseCase createContentUseCase;
-    private final GetContentUseCase getContentUseCase;
-    private final UpdateContentUseCase updateContentUseCase;
-    private final DeleteContentUseCase deleteContentUseCase;
+    private final ContentCommandService contentCommandService;
+    private final ContentQueryService contentQueryService;
 
-    private final CreateLiveChatRoomUseCase createLiveChatRoomUseCase;
-    private final DeleteLiveChatRoomUseCase deleteLiveChatRoomUseCase;
+    private final LiveChatRoomCommandService liveChatRoomCommandService;
 
-    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
-    private final RegisterImageUseCase registerImageUseCase;
+    private final ImageQueryService imageQueryService;
+    private final ImageCommandService imageCommandService;
     private final ApplicationEventPublisher eventPublisher;
 
     public ContentDto create(ContentCreateRequest request, MultipartFile image) {
-        String thumbnailKey = registerImageUseCase.register(image);
+        String thumbnailKey = imageCommandService.register(image);
         CreateContentCommand command = contentMapper.toCommand(request);
-        ContentReadModel readModel = createContentUseCase.create(command, thumbnailKey);
-        createLiveChatRoomUseCase.create(readModel.id());
+        ContentReadModel readModel = contentCommandService.create(command, thumbnailKey);
+        liveChatRoomCommandService.create(readModel.id());
+        
+        eventPublisher.publishEvent(new ContentCreatedEvent(
+                readModel.id(),
+                readModel.type(),
+                readModel.title(),
+                readModel.description(),
+                readModel.thumbnailKey(),
+                readModel.tags(),
+                readModel.averageRating(),
+                readModel.reviewCount(),
+                readModel.watcherCount()
+        ));
+        
         return ContentDto.from(readModel, getPresignedUrl(thumbnailKey));
     }
 
     public CursorResponseContentDto getContents(CursorRequestContentDto request) {
 
         // 개발 편의를 위해 slice를 composite 계층까지 가져옴.
-        Slice<ContentReadModel> slice = getContentUseCase.getAll(request);
+        Slice<ContentReadModel> slice = contentQueryService.getAll(request);
         List<ContentReadModel> readModels = slice.getContent();
 
         List<String> thumbnailKeys = readModels.stream()
                 .map(ContentReadModel::thumbnailKey)
                 .toList();
-        Map<String, String> urls = getPresignedUrlUseCase.getPresignedUrls(thumbnailKeys);
+        Map<String, String> urls = imageQueryService.getPresignedUrls(thumbnailKeys);
 
         List<ContentDto> contents = readModels.stream()
                 .map(rm -> ContentDto.from(rm, urls.get(rm.thumbnailKey())))
@@ -83,23 +94,36 @@ public class ContentCompositeService {
     }
 
     public ContentDto getSingleContent(UUID contentId) {
-        ContentReadModel readModel = getContentUseCase.get(contentId);
+        ContentReadModel readModel = contentQueryService.get(contentId);
         return ContentDto.from(readModel, getPresignedUrl(readModel.thumbnailKey()));
     }
 
     public ContentDto update(UUID contentId, ContentUpdateRequest request) {
         UpdateContentCommand command = contentMapper.toCommand(request);
-        ContentReadModel readModel = updateContentUseCase.update(contentId, command);
+        ContentReadModel readModel = contentCommandService.update(contentId, command);
+        
+        eventPublisher.publishEvent(new ContentUpdatedEvent(
+                readModel.id(),
+                readModel.type(),
+                readModel.title(),
+                readModel.description(),
+                readModel.thumbnailKey(),
+                readModel.tags(),
+                readModel.averageRating(),
+                readModel.reviewCount(),
+                readModel.watcherCount()
+        ));
+        
         return ContentDto.from(readModel, getPresignedUrl(readModel.thumbnailKey()));
     }
 
     public void delete(UUID contentId) {
-        deleteContentUseCase.delete(contentId);
-        deleteLiveChatRoomUseCase.delete(contentId);
+        contentCommandService.delete(contentId);
+        liveChatRoomCommandService.delete(contentId);
         eventPublisher.publishEvent(new ContentDeletedEvent(contentId));
     }
 
     private String getPresignedUrl(String thumbnailKey) {
-        return getPresignedUrlUseCase.getPresignedUrl(thumbnailKey);
+        return imageQueryService.getPresignedUrl(thumbnailKey);
     }
 }

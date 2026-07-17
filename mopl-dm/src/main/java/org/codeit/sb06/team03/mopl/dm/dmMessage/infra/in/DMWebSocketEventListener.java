@@ -3,10 +3,9 @@ package org.codeit.sb06.team03.mopl.dm.dmMessage.infra.in;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.DMChatRoomCommandService;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.JoinDMMessageCommand;
-import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.JoinDMMessageUseCase;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.LeaveDMMessageCommand;
-import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.LeaveDMMessageUseCase;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
@@ -28,8 +27,7 @@ public class DMWebSocketEventListener {
 
     private static final Pattern DM_SUB_PATTERN = Pattern.compile("^/sub/dm_chat_rooms/[0-9a-fA-F-]+/direct-messages$");
 
-    private final JoinDMMessageUseCase joindmMessageUseCase;
-    private final LeaveDMMessageUseCase leaveDMMessageUseCase;
+    private final DMChatRoomCommandService dmChatRoomCommandService;
 
     @EventListener
     void onSubscribe(SessionSubscribeEvent event) {
@@ -45,7 +43,7 @@ public class DMWebSocketEventListener {
         UUID userId = getUserId(event.getUser());
         log.info("DMWebSocketEventListener.onSubscribe matched: dmChatRoomId={}, userId={}", dmChatRoomId, userId);
 
-        joindmMessageUseCase.join(new JoinDMMessageCommand(dmChatRoomId, userId));
+        dmChatRoomCommandService.join(new JoinDMMessageCommand(dmChatRoomId, userId));
     }
 
     @EventListener
@@ -65,7 +63,7 @@ public class DMWebSocketEventListener {
         UUID userId = getUserId(event.getUser());
         log.info("DMWebSocketEventListener.onUnsubscribe matched: dmChatRoomId={}, userId={}", dmChatRoomId, userId);
 
-        leaveDMMessageUseCase.leave(new LeaveDMMessageCommand(dmChatRoomId, userId));
+        dmChatRoomCommandService.leave(new LeaveDMMessageCommand(dmChatRoomId, userId));
     }
 
     @EventListener
@@ -85,7 +83,7 @@ public class DMWebSocketEventListener {
 
         dmDestinations.forEach(destination -> {
             UUID dmChatRoomId = extractDMChatRoomId(destination);
-            leaveDMMessageUseCase.leave(new LeaveDMMessageCommand(dmChatRoomId, userId));
+            dmChatRoomCommandService.leave(new LeaveDMMessageCommand(dmChatRoomId, userId));
         });
     }
 

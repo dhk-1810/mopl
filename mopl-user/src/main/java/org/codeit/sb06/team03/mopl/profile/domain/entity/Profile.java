@@ -52,7 +52,7 @@ public class Profile extends AbstractAggregateRoot<Profile> {
         profile.accountId = accountId;
         profile.name = name;
         profile.version = 0;
-        profile.registerEvent(new UserProfileCreatedEvent());
+        profile.registerEvent(new UserProfileCreatedEvent(accountId, name, null));
         return profile;
     }
 
@@ -61,7 +61,7 @@ public class Profile extends AbstractAggregateRoot<Profile> {
         if (imageKey != null && !imageKey.isBlank()) {
             this.imageKey = imageKey;
         }
-        super.registerEvent(new UserProfileUpdatedEvent());
+        super.registerEvent(new UserProfileUpdatedEvent(this.accountId, this.name, this.imageKey));
         return this;
     }
 

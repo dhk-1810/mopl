@@ -1,26 +1,24 @@
 package org.codeit.sb06.team03.mopl.dm.dmChatRoom.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.GetDMChatRoomUseCase;
-import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.out.LoadDMChatRoomPort;
-import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.out.LoadDMChatRoomStatPort;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain.DMChatRoom;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain.exception.DMChatRoomNotFoundException;
+import org.codeit.sb06.team03.mopl.dm.dmChatRoom.infra.out.DMChatRoomRepository;
+import org.codeit.sb06.team03.mopl.dm.dmChatRoom.infra.out.DMChatRoomStatRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 @Transactional(value = "dmTransactionManager", readOnly = true)
-public class DMChatRoomQueryService implements GetDMChatRoomUseCase {
+public class DMChatRoomQueryService {
 
-    private final LoadDMChatRoomPort loadDMChatRoomPort;
-    private final LoadDMChatRoomStatPort loadDMChatRoomStatPort;
+    private final DMChatRoomRepository dmChatRoomRepository;
+    private final DMChatRoomStatRepository dmChatRoomStatRepository;
 
-    @Override
     public List<DMChatRoom> findAll(
             UUID userId,
             String cursor,
@@ -30,28 +28,36 @@ public class DMChatRoomQueryService implements GetDMChatRoomUseCase {
             String sortBy
     ) {
         boolean ascending = "ASC".equalsIgnoreCase(sortDirection);
-        return loadDMChatRoomPort.findAll(userId, cursor, idAfter, limit, ascending, sortBy);
+        List<UUID> ids = dmChatRoomRepository.findAllIds(userId, cursor, idAfter, limit + 1, ascending, sortBy);
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+
+        List<DMChatRoom> dmChatRooms = dmChatRoomRepository.findAllByIds(ids);
+
+        Map<UUID, DMChatRoom> map = dmChatRooms.stream()
+                .collect(Collectors.toMap(DMChatRoom::getId, c -> c));
+        return ids.stream()
+                .map(map::get)
+                .filter(Objects::nonNull)
+                .toList();
     }
 
-    @Override
     public long countAll(UUID userId) {
-        return loadDMChatRoomPort.count(userId);
+        return dmChatRoomRepository.count(userId);
     }
 
-    @Override
     public DMChatRoom findById(UUID userId, UUID dmChatRoomId) {
-        return loadDMChatRoomPort.findById(dmChatRoomId)
+        return dmChatRoomRepository.findDMChatRoomById(dmChatRoomId)
                 .orElseThrow(() -> new DMChatRoomNotFoundException(dmChatRoomId));
     }
 
-    @Override
     public DMChatRoom findByWith(UUID userId, UUID withUserId) {
-        return loadDMChatRoomPort.findByParticipants(userId, withUserId)
+        return dmChatRoomRepository.findByParticipants(userId, withUserId)
                 .orElseThrow(() -> new DMChatRoomNotFoundException(withUserId));
     }
 
-    @Override
     public boolean isParticipantActive(UUID userId, UUID dmChatRoomId) {
-        return loadDMChatRoomStatPort.isActive(dmChatRoomId, userId);
+        return dmChatRoomStatRepository.isActive(dmChatRoomId, userId);
     }
 }

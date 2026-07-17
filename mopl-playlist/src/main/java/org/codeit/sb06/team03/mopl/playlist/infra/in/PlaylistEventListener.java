@@ -1,19 +1,18 @@
 package org.codeit.sb06.team03.mopl.playlist.infra.in;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.follow.application.in.GetFolloweeUseCase;
+import org.codeit.sb06.team03.mopl.follow.application.in.FolloweeQueryService;
 import org.codeit.sb06.team03.mopl.follow.domain.Followee;
 import org.codeit.sb06.team03.mopl.follow.domain.exception.FolloweeNotFoundException;
-import org.codeit.sb06.team03.mopl.notification.application.in.CreateNotificationUseCase;
+import org.codeit.sb06.team03.mopl.notification.application.NotificationCommandService;
 import org.codeit.sb06.team03.mopl.notification.domain.NotificationLevel;
 import org.codeit.sb06.team03.mopl.notification.infra.in.NotificationDto;
-import org.codeit.sb06.team03.mopl.playlist.application.out.LoadSubscriptionPort;
-import org.codeit.sb06.team03.mopl.playlist.application.out.SaveCurationPort;
-import org.codeit.sb06.team03.mopl.playlist.application.out.SaveSubscriptionPort;
 import org.codeit.sb06.team03.mopl.playlist.domain.event.PlaylistEvent;
-import org.codeit.sb06.team03.mopl.sse.application.SseUseCase;
+import org.codeit.sb06.team03.mopl.sse.application.SseService;
 import org.codeit.sb06.team03.mopl.playlist.RabbitConfig;
 import org.codeit.sb06.team03.mopl.playlist.infra.messaging.PlaylistSubscribedMessage;
+import org.codeit.sb06.team03.mopl.playlist.infra.out.CurationRepository;
+import org.codeit.sb06.team03.mopl.playlist.infra.out.SubscriptionRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -29,12 +28,11 @@ import java.util.stream.Collectors;
 @Component
 public class PlaylistEventListener {
 
-    private final CreateNotificationUseCase createNotificationUseCase;
-    private final SseUseCase sseUseCase;
-    private final LoadSubscriptionPort loadSubscriptionPort;
-    private final SaveCurationPort saveCurationPort;
-    private final SaveSubscriptionPort saveSubscriptionPort;
-    private final GetFolloweeUseCase getFolloweeUseCase;
+    private final NotificationCommandService notificationCommandService;
+    private final SseService sseService;
+    private final SubscriptionRepository subscriptionRepository;
+    private final CurationRepository curationRepository;
+    private final FolloweeQueryService followeeQueryService;
     private final RabbitTemplate rabbitTemplate;
 
     private static final String EVENT_NAME = "notifications";
@@ -43,7 +41,7 @@ public class PlaylistEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePlaylistCreatedEvent(PlaylistEvent.PlaylistCreatedEvent event) {
 
-        Followee followee = getFolloweeUseCase.findById(event.getOwnerId())
+        Followee followee = followeeQueryService.findById(event.getOwnerId())
                 .orElseThrow(() -> new FolloweeNotFoundException(event.getOwnerId()));
         List<UUID> followerIds = followee.getFollowers().stream()
                 .map(follower -> follower.getId().getFollowerId())
@@ -51,7 +49,7 @@ public class PlaylistEventListener {
 
         final String notificationTitle = "%s 님이 새 플레이리스트 '%s'를 생성했어요."
                 .formatted(event.getOwnerName(), event.getPlaylistTitle());
-        List<NotificationDto> notifications = createNotificationUseCase.createAll(
+        List<NotificationDto> notifications = notificationCommandService.createAll(
                 followerIds,
                 notificationTitle,
                 null,
@@ -62,7 +60,7 @@ public class PlaylistEventListener {
                         NotificationDto::receiverId, // Key
                         notificationDto -> notificationDto  // Value
                 ));
-        sseUseCase.sendAll(data, EVENT_NAME);
+        sseService.sendAll(data, EVENT_NAME);
     }
 
     @Async
@@ -86,12 +84,12 @@ public class PlaylistEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void CurationAddedEvent(PlaylistEvent.CurationAddedEvent event) {
 
-        List<UUID> subscriberIds = loadSubscriptionPort.findSubscriberIdsByPlaylistId(event.getPlaylistId());
+        List<UUID> subscriberIds = subscriptionRepository.findSubscriberIdsByPlaylistId(event.getPlaylistId());
 
         final String notificationTitle = "%s 플레이리스트에 컨텐츠가 추가되었어요."
                 .formatted(event.getPlaylistTitle());
 
-        List<NotificationDto> notifications = createNotificationUseCase.createAll(
+        List<NotificationDto> notifications = notificationCommandService.createAll(
                         subscriberIds,
                         notificationTitle,
                         event.getContentTitle(),
@@ -102,14 +100,14 @@ public class PlaylistEventListener {
                         NotificationDto::receiverId, // Key
                         notificationDto -> notificationDto  // Value
                 ));
-        sseUseCase.sendAll(data, EVENT_NAME);
+        sseService.sendAll(data, EVENT_NAME);
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePlaylistDeletedEvent(PlaylistEvent.PlaylistDeletedEvent event) {
-        saveCurationPort.deleteAllByPlaylistId(event.getPlaylistId());
-        saveSubscriptionPort.deleteAllByPlaylistId(event.getPlaylistId());
+        curationRepository.deleteAllByPlaylistId(event.getPlaylistId());
+        subscriptionRepository.deleteAllByPlaylistId(event.getPlaylistId());
     }
 
 }

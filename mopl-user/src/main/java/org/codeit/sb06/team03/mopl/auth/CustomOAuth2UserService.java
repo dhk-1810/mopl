@@ -1,12 +1,12 @@
 package org.codeit.sb06.team03.mopl.auth;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.account.application.in.GetAccountUseCase;
+import org.codeit.sb06.team03.mopl.account.application.AccountCommandService;
+import org.codeit.sb06.team03.mopl.account.application.AccountQueryService;
 import org.codeit.sb06.team03.mopl.account.application.in.RegisterAccountCommand;
-import org.codeit.sb06.team03.mopl.account.application.in.RegisterAccountUseCase;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
-import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
+import org.codeit.sb06.team03.mopl.image.application.ImageQueryService;
 import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
@@ -23,9 +23,9 @@ import java.util.UUID;
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final GetAccountUseCase getAccountUseCase;
-    private final RegisterAccountUseCase registerAccountUseCase;
-    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
+    private final AccountQueryService accountQueryService;
+    private final AccountCommandService accountCommandService;
+    private final ImageQueryService imageQueryService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -38,12 +38,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .getUserNameAttributeName();
         OAuth2Attributes attributes = OAuth2Attributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
 
-        Account existingUser = getAccountUseCase.getByEmail(attributes.email()).orElse(null);
+        Account existingUser = accountQueryService.getByEmail(attributes.email()).orElse(null);
 
         UserDto userDto;
         if (existingUser != null) {
             Profile profile = existingUser.getProfile();
-            String profileImageUrl = getPresignedUrlUseCase.getPresignedUrl(profile.getImageKey());
+            String profileImageUrl = imageQueryService.getPresignedUrl(profile.getImageKey());
             userDto = UserDto.from(existingUser, profile, profileImageUrl);
         } else {
             RegisterAccountCommand registerCommand = new RegisterAccountCommand(
@@ -51,9 +51,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     new EmailAddress(attributes.email()),
                     UUID.randomUUID().toString()
             );
-            Account account = registerAccountUseCase.register(registerCommand);
+            Account account = accountCommandService.register(registerCommand);
             Profile profile = account.getProfile();
-            String profileImageUrl = getPresignedUrlUseCase.getPresignedUrl(profile.getImageKey());
+            String profileImageUrl = imageQueryService.getPresignedUrl(profile.getImageKey());
             userDto = UserDto.from(account, profile, profileImageUrl);
         }
 

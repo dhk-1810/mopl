@@ -5,14 +5,13 @@ import org.codeit.sb06.team03.mopl.UserSummary;
 import org.codeit.sb06.team03.mopl.content.SortReviewBy;
 import org.codeit.sb06.team03.mopl.content.application.in.*;
 import org.codeit.sb06.team03.mopl.content.domain.entity.Review;
+import org.codeit.sb06.team03.mopl.content.domain.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorRequestReviewDto;
 import org.codeit.sb06.team03.mopl.content.infra.in.CursorResponseReviewDto;
 import org.codeit.sb06.team03.mopl.content.infra.in.ReviewCreateRequest;
 import org.codeit.sb06.team03.mopl.content.infra.in.ReviewDto;
 import org.codeit.sb06.team03.mopl.content.infra.in.ReviewUpdateRequest;
-import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
-import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
-import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
+import org.codeit.sb06.team03.mopl.image.application.ImageQueryService;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
@@ -23,15 +22,13 @@ import java.util.UUID;
 @Service
 public class ReviewCompositeService {
 
-    private final CreateReviewUseCase createReviewUseCase;
-    private final GetReviewUseCase getReviewUseCase;
-    private final UpdateReviewUseCase updateReviewUseCase;
-    private final DeleteReviewUseCase deleteReviewUseCase;
-    private final GetProfileUseCase getProfileUseCase;
-    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
+    private final ReviewCommandService reviewCommandService;
+    private final ReviewQueryService reviewQueryService;
+    private final ExternalUserQueryService externalUserQueryService;
+    private final ImageQueryService imageQueryService;
 
     public ReviewDto createReview(ReviewCreateRequest request, UUID authorId) {
-        Review review = createReviewUseCase.create(new CreateReviewCommand(
+        Review review = reviewCommandService.create(new CreateReviewCommand(
                 request.contentId(),
                 authorId,
                 request.text(),
@@ -42,7 +39,7 @@ public class ReviewCompositeService {
     }
 
     public ReviewDto updateReview(UUID reviewId, ReviewUpdateRequest request, UUID authorId) {
-        Review review = updateReviewUseCase.update(new UpdateReviewCommand(
+        Review review = reviewCommandService.update(new UpdateReviewCommand(
                 reviewId,
                 authorId,
                 request.text(),
@@ -53,7 +50,7 @@ public class ReviewCompositeService {
     }
 
     public void deleteReview(UUID reviewId, UUID authorId) {
-        deleteReviewUseCase.delete(new DeleteReviewCommand(
+        reviewCommandService.delete(new DeleteReviewCommand(
                 reviewId,
                 authorId
         ));
@@ -62,7 +59,7 @@ public class ReviewCompositeService {
     public CursorResponseReviewDto getReviews(CursorRequestReviewDto request) {
         UUID contentId = request.contentId();
 
-        Slice<Review> slice = getReviewUseCase.getReviews(
+        Slice<Review> slice = reviewQueryService.getReviews(
                 contentId,
                 request.cursor(),
                 request.idAfter(),
@@ -88,7 +85,7 @@ public class ReviewCompositeService {
             }
         }
 
-        long totalCount = getReviewUseCase.countReviews(contentId);
+        long totalCount = reviewQueryService.countReviews(contentId);
 
         return new CursorResponseReviewDto(
                 data,
@@ -102,9 +99,15 @@ public class ReviewCompositeService {
     }
 
     private ReviewDto getReviewDto(UUID authorId, Review review) {
-        ProfileReadModel profile = getProfileUseCase.getProfileReadModel(authorId);
-        String profileUrl = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
-        UserSummary author = new UserSummary(profile.userId(), profile.name(), profileUrl);
+        ExternalUserView profile = externalUserQueryService.getProfile(authorId);
+        String name = "Unknown User";
+        String imageKey = null;
+        if (profile != null) {
+            name = profile.getName();
+            imageKey = profile.getProfileImageKey();
+        }
+        String profileUrl = imageQueryService.getPresignedUrl(imageKey);
+        UserSummary author = new UserSummary(authorId, name, profileUrl);
 
         return new ReviewDto(
                 review.getId(),

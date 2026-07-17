@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.liveChatRoom.infra.in.web;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
-import org.codeit.sb06.team03.mopl.liveChatRoom.application.in.SendPresenceMessageUseCase;
+import org.codeit.sb06.team03.mopl.liveChatRoom.application.LiveChatRoomCommandService;
 import org.codeit.sb06.team03.mopl.liveChatRoom.application.in.command.SendPresenceMessageCommand;
 import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.codeit.sb06.team03.mopl.cache.ProfileImageCache;
@@ -30,7 +30,7 @@ import java.util.UUID;
 public class LiveChatRoomWebEventListener {
 
     private final CreateWatchingSessionUseCase createWatchingSessionUseCase;
-    private final SendPresenceMessageUseCase sendPresenceMessageUseCase;
+    private final LiveChatRoomCommandService liveChatRoomCommandService;
     private final DeleteWatchingSessionUseCase deleteWatchingSessionUseCase;
     private final GetWatchingSessionUseCase getWatchingSessionUseCase;
     private final ProfileImageCache profileImageCache;
@@ -68,7 +68,7 @@ public class LiveChatRoomWebEventListener {
                         WatchType.JOIN.name(),
                         destination
                 );
-        sendPresenceMessageUseCase.sendPresenceMessage(liveChatRoomId, sendPresenceMessageCommand);
+        liveChatRoomCommandService.sendPresenceMessage(liveChatRoomId, sendPresenceMessageCommand);
     }
 
     @EventListener
@@ -107,7 +107,7 @@ public class LiveChatRoomWebEventListener {
                         destination
                 );
 
-        sendPresenceMessageUseCase.sendPresenceMessage(liveChatRoomId, sendPresenceMessageCommand);
+        liveChatRoomCommandService.sendPresenceMessage(liveChatRoomId, sendPresenceMessageCommand);
     }
 
     @EventListener
@@ -155,7 +155,7 @@ public class LiveChatRoomWebEventListener {
                                 WatchType.LEAVE.name(),
                                 destination
                         );
-                sendPresenceMessageUseCase.sendPresenceMessage(liveChatRoomId, sendPresenceMessageCommand);
+                liveChatRoomCommandService.sendPresenceMessage(liveChatRoomId, sendPresenceMessageCommand);
             });
         }
     }

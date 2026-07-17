@@ -2,12 +2,11 @@ package org.codeit.sb06.team03.mopl.notification.application;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.error.InvalidIdentifierException;
-import org.codeit.sb06.team03.mopl.notification.application.in.GetNotificationsUseCase;
-import org.codeit.sb06.team03.mopl.notification.application.out.LoadNotificationsPort;
 import org.codeit.sb06.team03.mopl.notification.infra.in.CursorRequestNotificationDto;
 import org.codeit.sb06.team03.mopl.notification.infra.in.CursorResponseNotificationDto;
 import org.codeit.sb06.team03.mopl.notification.infra.in.NotificationDto;
 import org.codeit.sb06.team03.mopl.notification.infra.out.CursorGetNotificationsCondition;
+import org.codeit.sb06.team03.mopl.notification.infra.out.NotificationRepository;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,11 +16,10 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-public class NotificationQueryService implements GetNotificationsUseCase {
+public class NotificationQueryService {
 
-    private final LoadNotificationsPort loadNotificationsPort;
+    private final NotificationRepository notificationRepository;
 
-    @Override
     @Transactional(value = "notificationTransactionManager", readOnly = true)
     public CursorResponseNotificationDto get(CursorRequestNotificationDto request, UUID receiverId) {
 
@@ -35,7 +33,7 @@ public class NotificationQueryService implements GetNotificationsUseCase {
                 request.sortDirection().equals("DESCENDING")
         );
 
-        Slice<NotificationDto> content = loadNotificationsPort.getNotifications(condition);
+        Slice<NotificationDto> content = notificationRepository.findAll(condition);
 
         String nextCursor = null;
         UUID nextIdAfter = null;
@@ -46,7 +44,7 @@ public class NotificationQueryService implements GetNotificationsUseCase {
             nextIdAfter = data.get(content.getSize() - 1).id();
         }
 
-        long totalCount = loadNotificationsPort.countByReceiverId(receiverId);
+        long totalCount = notificationRepository.countByReceiverId(receiverId);
         return new CursorResponseNotificationDto(
                 data,
                 nextCursor,

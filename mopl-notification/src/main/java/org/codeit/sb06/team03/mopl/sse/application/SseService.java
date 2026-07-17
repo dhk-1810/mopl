@@ -3,8 +3,7 @@ package org.codeit.sb06.team03.mopl.sse.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.sse.SseMessage;
-import org.codeit.sb06.team03.mopl.sse.infra.out.SseEmitterPort;
-import org.codeit.sb06.team03.mopl.sse.infra.out.SseMessagePort;
+import org.codeit.sb06.team03.mopl.sse.infra.out.SseRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -16,10 +15,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class SseService implements SseUseCase {
+public class SseService {
 
-    private final SseEmitterPort sseEmitterPort;
-    private final SseMessagePort sseMessagePort;
+    private final SseRepository sseRepository;
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 30; // 30분
 
     public SseEmitter connect(UUID receiverId, UUID lastEventId) {
@@ -27,18 +25,18 @@ public class SseService implements SseUseCase {
         SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
 
         // 연결 종료/타임아웃 시 리포지토리에서 삭제
-        emitter.onCompletion(() -> sseEmitterPort.delete(emitter, receiverId));
-        emitter.onTimeout(() -> sseEmitterPort.delete(emitter, receiverId));
-        emitter.onError((e) -> sseEmitterPort.delete(emitter, receiverId));
+        emitter.onCompletion(() -> sseRepository.deleteEmitter(emitter, receiverId));
+        emitter.onTimeout(() -> sseRepository.deleteEmitter(emitter, receiverId));
+        emitter.onError((e) -> sseRepository.deleteEmitter(emitter, receiverId));
 
-        sseEmitterPort.save(emitter, receiverId);
+        sseRepository.saveEmitter(emitter, receiverId);
 
         // 연결되면 더미 이벤트 전송, 연결 확인
         ping(emitter, receiverId, "connect check");
 
         // 마지막으로 받은 메시지 이후 유실된 메시지 재전송
         if (lastEventId != null) {
-            List<SseMessage> missedMessages = sseMessagePort.findAllMissedMessageByUserIdAndIdAfter(receiverId, lastEventId);
+            List<SseMessage> missedMessages = sseRepository.findAllMissedMessageByUserIdAndIdAfter(receiverId, lastEventId);
             missedMessages.forEach(message ->
                     sendToClient(emitter, receiverId, message.eventName(), message.data(), message.id().toString())
             );
@@ -50,10 +48,10 @@ public class SseService implements SseUseCase {
     @Scheduled(fixedDelay = 15000) // 15초마다 실행
     public void sendHeartbeat() {
 
-        Set<UUID> connectedUsers = sseEmitterPort.findAllConnectedUserIds();
+        Set<UUID> connectedUsers = sseRepository.findAllConnectedUserIds();
         if (connectedUsers.isEmpty()) return;
 
-        Map<UUID, List<SseEmitter>> allEmitters = sseEmitterPort.findAllByUserIdIn(connectedUsers);
+        Map<UUID, List<SseEmitter>> allEmitters = sseRepository.findAllEmittersByUserIdIn(connectedUsers);
 
         allEmitters.forEach((userId, emitters) ->
                 emitters.forEach(emitter -> ping(emitter, userId, "send heartbeat")));
@@ -62,9 +60,9 @@ public class SseService implements SseUseCase {
 
     public void send(Object data, String eventName, UUID receiverId) {
         SseMessage sseMessage = SseMessage.create(eventName, data);
-        sseMessagePort.saveMessage(sseMessage, receiverId);
+        sseRepository.saveMessage(sseMessage, receiverId);
 
-        List<SseEmitter> emitters = sseEmitterPort.findByUserId(receiverId);
+        List<SseEmitter> emitters = sseRepository.findEmittersByUserId(receiverId);
         emitters.forEach(emitter -> sendToClient(emitter, receiverId, eventName, data, sseMessage.id().toString()));
     }
 
@@ -77,10 +75,10 @@ public class SseService implements SseUseCase {
                                 Map.Entry::getKey,
                                 entry -> SseMessage.create(eventName, entry.getValue())
                         ));
-        sseMessagePort.saveMessages(sseMessageMap);
+        sseRepository.saveAllMessages(sseMessageMap);
 
         Set<UUID> receiverIds = sseMessageMap.keySet();
-        Map<UUID, List<SseEmitter>> emitterMap = sseEmitterPort.findAllByUserIdIn(receiverIds);
+        Map<UUID, List<SseEmitter>> emitterMap = sseRepository.findAllEmittersByUserIdIn(receiverIds);
 
         emitterMap.forEach((userId, emitters) -> {
             SseMessage sseMessage = sseMessageMap.get(userId);
@@ -102,17 +100,17 @@ public class SseService implements SseUseCase {
     public void cleanUp() {
         log.info("SSE Emitter clean up task started.");
 
-        Set<UUID> userIds = sseEmitterPort.findAllConnectedUserIds();
+        Set<UUID> userIds = sseRepository.findAllConnectedUserIds();
 
         int removedCount = 0;
         for (UUID userId : userIds) {
-            List<SseEmitter> emitters = sseEmitterPort.findByUserId(userId);
+            List<SseEmitter> emitters = sseRepository.findEmittersByUserId(userId);
 
             for (SseEmitter emitter : emitters) {
                 try {
                     emitter.send(SseEmitter.event().name("cleanup-ping").data("check"));
                 } catch (Exception e) {
-                    sseEmitterPort.delete(emitter, userId);
+                    sseRepository.deleteEmitter(emitter, userId);
                     removedCount++;
                 }
             }
@@ -141,7 +139,7 @@ public class SseService implements SseUseCase {
             emitter.send(eventBuilder);
 
         } catch (IOException e) {
-            sseEmitterPort.delete(emitter, userId);
+            sseRepository.deleteEmitter(emitter, userId);
             log.error("SSE send failed. removing connection: {}", userId);
         }
     }

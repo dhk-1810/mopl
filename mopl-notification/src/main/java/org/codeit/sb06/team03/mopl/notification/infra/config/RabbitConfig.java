@@ -21,6 +21,10 @@ public class RabbitConfig {
     public static final String USER_ROLE_UPDATED_ROUTING_KEY = "user.role-updated";
     public static final String USER_FOLLOWED_QUEUE = "notification.user-followed.queue";
     public static final String USER_FOLLOWED_ROUTING_KEY = "user.followed";
+    public static final String USER_PROFILE_CREATE_QUEUE = "notification.user-profile-create.queue";
+    public static final String USER_PROFILE_CREATE_ROUTING_KEY = "user.profile-created";
+    public static final String USER_PROFILE_UPDATE_QUEUE = "notification.user-profile-update.queue";
+    public static final String USER_PROFILE_UPDATE_ROUTING_KEY = "user.profile-updated";
 
     public static final String DM_EXCHANGE = "mopl.dm.exchange";
     public static final String DM_NOTIFICATION_REQUIRED_QUEUE = "notification.dm-notification-required.queue";
@@ -71,6 +75,30 @@ public class RabbitConfig {
         return BindingBuilder.bind(userFollowedQueue())
                 .to(userExchange())
                 .with(USER_FOLLOWED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Queue userProfileCreateQueue() {
+        return new Queue(USER_PROFILE_CREATE_QUEUE, true);
+    }
+
+    @Bean
+    public Binding bindingUserProfileCreate() {
+        return BindingBuilder.bind(userProfileCreateQueue())
+                .to(userExchange())
+                .with(USER_PROFILE_CREATE_ROUTING_KEY);
+    }
+
+    @Bean
+    public Queue userProfileUpdateQueue() {
+        return new Queue(USER_PROFILE_UPDATE_QUEUE, true);
+    }
+
+    @Bean
+    public Binding bindingUserProfileUpdate() {
+        return BindingBuilder.bind(userProfileUpdateQueue())
+                .to(userExchange())
+                .with(USER_PROFILE_UPDATE_ROUTING_KEY);
     }
 
     // DM 관련 빈

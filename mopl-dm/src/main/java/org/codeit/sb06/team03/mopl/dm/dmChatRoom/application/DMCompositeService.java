@@ -6,17 +6,16 @@ import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.application.in.*;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain.DMChatRoom;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain.entity.DMChatRoomStat;
+import org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.infra.in.*;
 import org.codeit.sb06.team03.mopl.dm.dmChatRoom.infra.in.request.*;
-import org.codeit.sb06.team03.mopl.dm.dmMessage.application.in.GetDMUseCase;
+import org.codeit.sb06.team03.mopl.dm.dmMessage.application.DMCommandService;
+import org.codeit.sb06.team03.mopl.dm.dmMessage.application.DMQueryService;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.application.in.MessageSendCommand;
-import org.codeit.sb06.team03.mopl.dm.dmMessage.application.in.SendDMUseCase;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.domain.DMMessage;
 import org.codeit.sb06.team03.mopl.dm.dmMessage.infra.in.request.MessageSendRequest;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
-import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
-import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
-import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
+import org.codeit.sb06.team03.mopl.image.application.ImageQueryService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -28,20 +27,18 @@ import java.util.stream.Stream;
 @Service
 public class DMCompositeService {
 
-    private final CreateDMChatRoomUseCase createDMChatRoomUseCase;
-    private final GetDMChatRoomUseCase getDMChatRoomUseCase;
-
-    private final ReadDMUseCase readDMUseCase;
-    private final SendDMUseCase sendDMUseCase;
-    private final GetDMUseCase getDMUseCase;
-    private final GetProfileUseCase getProfileUseCase;
-    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
+    private final DMChatRoomCommandService dmChatRoomCommandService;
+    private final DMChatRoomQueryService dmChatRoomQueryService;
+    private final DMCommandService dmCommandService;
+    private final DMQueryService dmQueryService;
+    private final ExternalUserQueryService externalUserQueryService;
+    private final ImageQueryService imageQueryService;
     private final DMMapper dmMapper;
 
     public DMChatRoomDto createDMChatRoom(DMChatRoomCreateRequest request) {
         UUID userId = getCurrentUserId();
         CreateDMChatRoomCommand command = dmMapper.toCommand(request.withUserId());
-        DMChatRoom dmChatRoom = createDMChatRoomUseCase.create(userId, command);
+        DMChatRoom dmChatRoom = dmChatRoomCommandService.create(userId, command);
         return toDMChatRoomDto(dmChatRoom, userId, Optional.empty());
     }
 
@@ -49,7 +46,7 @@ public class DMCompositeService {
         UUID userId = getCurrentUserId();
         int limit = request.limit();
 
-        List<DMChatRoom> items = getDMChatRoomUseCase.findAll(
+        List<DMChatRoom> items = dmChatRoomQueryService.findAll(
                 userId,
                 request.cursor(),
                 request.idAfter(),
@@ -69,7 +66,7 @@ public class DMCompositeService {
             nextIdAfter = last.getId().toString();
         }
 
-        long totalCount = getDMChatRoomUseCase.countAll(userId);
+        long totalCount = dmChatRoomQueryService.countAll(userId);
 
         Set<UUID> userIds = page.stream()
                 .map(conv -> conv.getOtherParticipant(userId))
@@ -78,21 +75,21 @@ public class DMCompositeService {
         Set<UUID> convIds = page.stream()
                 .map(DMChatRoom::getId)
                 .collect(Collectors.toSet());
-        Map<UUID, DMMessage> latestMessages = getDMUseCase.findLatestByDMChatRoomIds(convIds);
+        Map<UUID, DMMessage> latestMessages = dmQueryService.findLatestByDMChatRoomIds(convIds);
 
         latestMessages.values().forEach(msg -> {
             userIds.add(msg.getSenderId());
             userIds.add(msg.getReceiverId());
         });
 
-        Map<UUID, ProfileReadModel> profilesMap = getProfileUseCase.getProfileReadModels(new ArrayList<>(userIds));
+        Map<UUID, ExternalUserView> profilesMap = externalUserQueryService.getProfiles(userIds);
         Map<UUID, UserSummary> userMap = profilesMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> {
-                            ProfileReadModel profile = entry.getValue();
-                            String url = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
-                            return new UserSummary(profile.userId(), profile.name(), url);
+                            ExternalUserView profile = entry.getValue();
+                            String url = imageQueryService.getPresignedUrl(profile.getProfileImageKey());
+                            return new UserSummary(profile.getId(), profile.getName(), url);
                         }
                 ));
 
@@ -113,21 +110,21 @@ public class DMCompositeService {
 
     public DMChatRoomDto getDMChatRoom(UUID dmChatRoomId) {
         UUID userId = getCurrentUserId();
-        DMChatRoom dmChatRoom = getDMChatRoomUseCase.findById(userId, dmChatRoomId);
-        Optional<DMMessage> dmMessage = getDMUseCase.findLatestByDMChatRoomId(dmChatRoomId);
+        DMChatRoom dmChatRoom = dmChatRoomQueryService.findById(userId, dmChatRoomId);
+        Optional<DMMessage> dmMessage = dmQueryService.findLatestByDMChatRoomId(dmChatRoomId);
         return toDMChatRoomDto(dmChatRoom, userId, dmMessage);
     }
 
     public DMChatRoomDto getDMChatRoomWith(UUID partnerId) {
         UUID userId = getCurrentUserId();
-        DMChatRoom dmChatRoom = getDMChatRoomUseCase.findByWith(userId, partnerId);
+        DMChatRoom dmChatRoom = dmChatRoomQueryService.findByWith(userId, partnerId);
         return toDMChatRoomDto(dmChatRoom, userId, Optional.empty());
     }
 
     public CursorResponseDirectMessageDto getDMs(UUID dmChatRoomId, CursorRequestDirectMessageDto request) {
         int limit = request.limit();
 
-        List<DMMessage> items = getDMUseCase.findAll(
+        List<DMMessage> items = dmQueryService.findAll(
                 dmChatRoomId,
                 request.cursor(),
                 request.idAfter(),
@@ -147,19 +144,19 @@ public class DMCompositeService {
             nextIdAfter = last.getId().toString();
         }
 
-        long totalCount = getDMUseCase.countAll(dmChatRoomId);
+        long totalCount = dmQueryService.countAll(dmChatRoomId);
 
         Set<UUID> userIds = page.stream()
                 .flatMap(msg -> Stream.of(msg.getSenderId(), msg.getReceiverId()))
                 .collect(Collectors.toSet());
-        Map<UUID, ProfileReadModel> profilesMap = getProfileUseCase.getProfileReadModels(new ArrayList<>(userIds));
+        Map<UUID, ExternalUserView> profilesMap = externalUserQueryService.getProfiles(userIds);
         Map<UUID, UserSummary> userMap = profilesMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> {
-                            ProfileReadModel profile = entry.getValue();
-                            String url = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
-                            return new UserSummary(profile.userId(), profile.name(), url);
+                            ExternalUserView profile = entry.getValue();
+                            String url = imageQueryService.getPresignedUrl(profile.getProfileImageKey());
+                            return new UserSummary(profile.getId(), profile.getName(), url);
                         }
                 ));
 
@@ -180,14 +177,14 @@ public class DMCompositeService {
 
 
     public void sendDM(UUID dmChatRoomId, UUID senderId, MessageSendRequest request) {
-        DMChatRoom dmChatRoom = getDMChatRoomUseCase.findById(senderId, dmChatRoomId);
+        DMChatRoom dmChatRoom = dmChatRoomQueryService.findById(senderId, dmChatRoomId);
         UUID receiverId = dmChatRoom.getOtherParticipant(senderId);
-        sendDMUseCase.send(new MessageSendCommand(dmChatRoomId, senderId, receiverId, request.content()));
+        dmCommandService.send(new MessageSendCommand(dmChatRoomId, senderId, receiverId, request.content()));
     }
 
     public void readDM(UUID dmChatRoomId, UUID messageId) {
         UUID userId = getCurrentUserId();
-        readDMUseCase.read(new ReadMessageCommand(dmChatRoomId, messageId, userId));
+        dmChatRoomCommandService.read(new ReadMessageCommand(dmChatRoomId, messageId, userId));
     }
 
     /**
@@ -196,14 +193,28 @@ public class DMCompositeService {
 
     private DMChatRoomDto toDMChatRoomDto(DMChatRoom dmChatRoom, UUID userId, Optional<DMMessage> dmMessage) {
         UUID withUserId = dmChatRoom.getOtherParticipant(userId);
-        ProfileReadModel withProfile = getProfileUseCase.getProfileReadModel(withUserId);
-        String withUrl = getPresignedUrlUseCase.getPresignedUrl(withProfile.imageKey());
-        UserSummary with = new UserSummary(withProfile.userId(), withProfile.name(), withUrl);
+        ExternalUserView withProfile = externalUserQueryService.getProfile(withUserId);
+        String withName = "Unknown User";
+        String withImageKey = null;
+        if (withProfile != null) {
+            withName = withProfile.getName();
+            withImageKey = withProfile.getProfileImageKey();
+        }
+        String withUrl = imageQueryService.getPresignedUrl(withImageKey);
+        UserSummary with = new UserSummary(withUserId, withName, withUrl);
+
         DirectMessageDto latestMessage = dmMessage
                 .map(msg -> {
-                    ProfileReadModel myProfile = getProfileUseCase.getProfileReadModel(userId);
-                    String myUrl = getPresignedUrlUseCase.getPresignedUrl(myProfile.imageKey());
-                    UserSummary me = new UserSummary(myProfile.userId(), myProfile.name(), myUrl);
+                    ExternalUserView myProfile = externalUserQueryService.getProfile(userId);
+                    String myName = "Unknown User";
+                    String myImageKey = null;
+                    if (myProfile != null) {
+                        myName = myProfile.getName();
+                        myImageKey = myProfile.getProfileImageKey();
+                    }
+                    String myUrl = imageQueryService.getPresignedUrl(myImageKey);
+                    UserSummary me = new UserSummary(userId, myName, myUrl);
+
                     return toDirectMessageDto(msg, Map.of(withUserId, with, userId, me));
                 })
                 .orElse(null);

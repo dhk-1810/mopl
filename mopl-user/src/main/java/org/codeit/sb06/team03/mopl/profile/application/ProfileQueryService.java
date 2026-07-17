@@ -2,47 +2,48 @@ package org.codeit.sb06.team03.mopl.profile.application;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.profile.ProfileReadModel;
-import org.codeit.sb06.team03.mopl.profile.application.in.GetProfileUseCase;
-import org.codeit.sb06.team03.mopl.profile.application.out.LoadProfilePort;
 import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.domain.exception.ProfileNotFoundException;
+import org.codeit.sb06.team03.mopl.profile.infra.out.ProfileRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-public class ProfileQueryService implements GetProfileUseCase {
+public class ProfileQueryService {
 
-    private final LoadProfilePort loadProfilePort;
+    private final ProfileRepository profileRepository;
 
-    @Override
     public Profile getById(UUID accountId) {
-        return loadProfilePort.load(accountId)
+        return profileRepository.findById(accountId)
                 .orElseThrow(() -> new ProfileNotFoundException(accountId));
     }
 
-    @Override
     public List<Profile> getByIdsIn(List<UUID> accountIds) {
-        return loadProfilePort.load(accountIds);
+        return profileRepository.findByAccountIdIn(accountIds);
     }
 
-    @Override
     public ProfileReadModel getProfileReadModel(UUID id) {
-        return loadProfilePort.getProfileReadModel(id)
+        return profileRepository.findReadModelById(id)
                 .orElseThrow(() -> new ProfileNotFoundException(id));
     }
 
-    @Override
     public Map<UUID, ProfileReadModel> getProfileReadModels(List<UUID> ids) {
-        return loadProfilePort.getProfileReadModels(ids);
+        List<ProfileReadModel> list = profileRepository.findReadModelsByIds(ids);
+        return list.stream()
+                .collect(Collectors.toMap(
+                        ProfileReadModel::userId,
+                        rm -> rm,
+                        (existing, replacement) -> existing
+                ));
     }
 
-    @Override
     public List<Profile> loadByNameContaining(String name) {
-        return loadProfilePort.loadByNameContaining(name);
+        return profileRepository.findByNameContaining(name);
     }
 
 }

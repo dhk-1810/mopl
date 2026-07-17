@@ -3,11 +3,10 @@ package org.codeit.sb06.team03.mopl.content.application;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.content.SortReviewBy;
-import org.codeit.sb06.team03.mopl.content.application.in.GetReviewUseCase;
-import org.codeit.sb06.team03.mopl.content.application.out.LoadContentPort;
-import org.codeit.sb06.team03.mopl.content.application.out.LoadReviewPort;
 import org.codeit.sb06.team03.mopl.content.domain.entity.Review;
 import org.codeit.sb06.team03.mopl.content.domain.exception.ContentNotFoundException;
+import org.codeit.sb06.team03.mopl.content.infra.out.ContentRepository;
+import org.codeit.sb06.team03.mopl.content.infra.out.ReviewRepository;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +16,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 @Transactional(value = "contentTransactionManager", readOnly = true)
-public class ReviewQueryService implements GetReviewUseCase {
+public class ReviewQueryService {
 
-    private final LoadReviewPort loadReviewPort;
-    private final LoadContentPort loadContentPort;
+    private final ReviewRepository reviewRepository;
+    private final ContentRepository contentRepository;
 
-    @Override
     public Slice<Review> getReviews(
             UUID contentId,
             String cursor,
@@ -31,14 +29,13 @@ public class ReviewQueryService implements GetReviewUseCase {
             SortReviewBy sortBy,
             SortDirection sortDirection
     ) {
-        if (!loadContentPort.existsById(contentId)) {
+        if (!contentRepository.existsById(contentId)) {
             throw ContentNotFoundException.fromId(contentId);
         }
-        return loadReviewPort.findByContentId(contentId, cursor, idAfter, limit, sortBy, sortDirection);
+        return reviewRepository.findByContentId(contentId, cursor, idAfter, limit, sortBy, sortDirection);
     }
 
-    @Override
     public long countReviews(UUID contentId) {
-        return loadReviewPort.countByContentId(contentId);
+        return reviewRepository.countByContentId(contentId);
     }
 }

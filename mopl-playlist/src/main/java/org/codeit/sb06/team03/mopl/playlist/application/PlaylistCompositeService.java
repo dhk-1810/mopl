@@ -5,9 +5,8 @@ import org.codeit.sb06.team03.mopl.UserSummary;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.content.infra.ContentDto;
-import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
+import org.codeit.sb06.team03.mopl.image.application.ImageQueryService;
 import org.codeit.sb06.team03.mopl.playlist.PlaylistReadModel;
-import org.codeit.sb06.team03.mopl.playlist.application.in.*;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.cqrs.ExternalContentView;
 import org.codeit.sb06.team03.mopl.playlist.domain.entity.cqrs.ExternalUserView;
@@ -28,28 +27,15 @@ import java.util.stream.Collectors;
 @Service
 public class PlaylistCompositeService {
 
-    private final PlaylistMapper playlistMapper;
-    private final CreatePlaylistUseCase createPlaylistUseCase;
-    private final UpdatePlaylistUseCase updatePlaylistUseCase;
-    private final DeletePlaylistUseCase deletePlaylistUseCase;
+    private final PlaylistCommandService playlistCommandService;
+    private final ImageQueryService imageQueryService;
 
-    private final AddCurationUseCase addCurationUseCase;
-    private final DeleteCurationUseCase deleteCurationUseCase;
-
-    private final SubscribePlaylistUseCase subscribePlaylistUseCase;
-    private final UnsubscribePlaylistUseCase unsubscribePlaylistUseCase;
-
-    private final GetPresignedUrlUseCase getPresignedUrlUseCase;
-
-    // Simplified Query Services (Local DB queries vs External read models)
     private final PlaylistQueryService playlistQueryService;
     private final ExternalUserQueryService externalUserQueryService;
     private final ExternalContentQueryService externalContentQueryService;
 
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
-
-        CreatePlaylistCommand command = playlistMapper.toCommand(request);
-        Playlist playlist = createPlaylistUseCase.create(command, ownerId);
+        Playlist playlist = playlistCommandService.create(request.title(), request.description(), ownerId);
 
         MoplUserDetails userDetails = (MoplUserDetails) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -71,7 +57,7 @@ public class PlaylistCompositeService {
                         Map.Entry::getKey,
                         entry -> {
                             ExternalUserView profile = entry.getValue();
-                            String url = getPresignedUrlUseCase.getPresignedUrl(profile.getProfileImageKey());
+                            String url = imageQueryService.getPresignedUrl(profile.getProfileImageKey());
                             return new UserSummary(profile.getId(), profile.getName(), url);
                         }
                 ));
@@ -93,7 +79,7 @@ public class PlaylistCompositeService {
                 .map(ExternalContentView::getThumbnailKey)
                 .filter(Objects::nonNull)
                 .toList();
-        Map<String, String> urls = getPresignedUrlUseCase.getPresignedUrls(thumbnailKeys);
+        Map<String, String> urls = imageQueryService.getPresignedUrls(thumbnailKeys);
 
         List<ContentDto> contentDtos = contentViews.stream()
                 .map(cv -> new ContentDto(
@@ -155,7 +141,7 @@ public class PlaylistCompositeService {
         ExternalUserView ownerProfile = externalUserQueryService.getProfile(readModel.ownerId());
         UserSummary owner = null;
         if (ownerProfile != null) {
-            String url = getPresignedUrlUseCase.getPresignedUrl(ownerProfile.getProfileImageKey());
+            String url = imageQueryService.getPresignedUrl(ownerProfile.getProfileImageKey());
             owner = new UserSummary(ownerProfile.getId(), ownerProfile.getName(), url);
         }
 
@@ -165,9 +151,7 @@ public class PlaylistCompositeService {
     }
 
     public PlaylistDto updatePlayList(UUID playlistId, PlaylistUpdateRequest request, UUID ownerId) {
-
-        UpdatePlaylistCommand command = playlistMapper.toCommand(request);
-        Playlist playlist = updatePlaylistUseCase.update(playlistId, command, ownerId);
+        Playlist playlist = playlistCommandService.update(playlistId, request.title(), request.description(), ownerId);
 
         MoplUserDetails userDetails = (MoplUserDetails) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -179,29 +163,26 @@ public class PlaylistCompositeService {
     }
 
     public void deletePlaylist(UUID playlistId, UUID ownerId) {
-        deletePlaylistUseCase.delete(playlistId, ownerId);
+        playlistCommandService.delete(playlistId, ownerId);
     }
-
 
     public void addContentToPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
         ExternalContentView content = externalContentQueryService.getContent(contentId);
         String title = content != null ? content.getTitle() : "Unknown Content";
-        addCurationUseCase.addContentToPlaylist(playlistId, contentId, title, ownerId);
+        playlistCommandService.addContentToPlaylist(playlistId, contentId, title, ownerId);
     }
 
     public void deleteContentFromPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
-        deleteCurationUseCase.deleteContentFromPlaylist(playlistId, contentId, ownerId);
+        playlistCommandService.deleteContentFromPlaylist(playlistId, contentId, ownerId);
     }
 
-
     public void subscribePlaylist(UUID playlistId, UUID userId) {
-        subscribePlaylistUseCase.subscribe(playlistId, userId);
+        playlistCommandService.subscribe(playlistId, userId);
     }
 
     public void unsubscribePlaylist(UUID playlistId, UUID userId) {
-        unsubscribePlaylistUseCase.unsubscribe(playlistId, userId);
+        playlistCommandService.unsubscribe(playlistId, userId);
     }
-
 
     private List<ContentDto> getContentDtos(UUID playlistId) {
         Map<UUID, List<UUID>> contentIdsMap = playlistQueryService.getContentIdsByPlaylistIds(Set.of(playlistId));
@@ -215,7 +196,7 @@ public class PlaylistCompositeService {
                 .map(ExternalContentView::getThumbnailKey)
                 .filter(Objects::nonNull)
                 .toList();
-        Map<String, String> urls = getPresignedUrlUseCase.getPresignedUrls(thumbnailKeys);
+        Map<String, String> urls = imageQueryService.getPresignedUrls(thumbnailKeys);
 
         return contentViews.stream()
                 .map(cv -> new ContentDto(
