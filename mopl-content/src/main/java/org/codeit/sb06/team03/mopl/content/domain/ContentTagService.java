@@ -2,8 +2,8 @@ package org.codeit.sb06.team03.mopl.content.domain;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.content.domain.entity.ContentTag;
-import org.codeit.sb06.team03.mopl.content.infra.out.ContentRepository;
-import org.codeit.sb06.team03.mopl.content.infra.out.ContentTagRepository;
+import org.codeit.sb06.team03.mopl.content.repository.ContentRepository;
+import org.codeit.sb06.team03.mopl.content.repository.ContentTagRepository;
 import org.codeit.sb06.team03.mopl.tag.entity.Tag;
 import org.codeit.sb06.team03.mopl.tag.repository.TagRepository;
 import org.springframework.stereotype.Service;

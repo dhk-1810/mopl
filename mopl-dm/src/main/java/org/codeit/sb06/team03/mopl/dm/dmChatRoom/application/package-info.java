@@ -1,4 +1,4 @@
 @NonNullApi
-package org.codeit.sb06.team03.mopl.dm.dmChatRoom.application;
+package org.codeit.sb06.team03.mopl.dm.dmChatRoom.service;
 
 import org.springframework.lang.NonNullApi;

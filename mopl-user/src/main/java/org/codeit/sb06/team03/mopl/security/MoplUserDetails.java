@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.security;
 
 import lombok.Getter;
-import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.profile.controller.UserDto;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

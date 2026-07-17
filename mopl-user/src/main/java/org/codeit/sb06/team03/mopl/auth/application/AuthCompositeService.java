@@ -1,14 +1,14 @@
 package org.codeit.sb06.team03.mopl.auth.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.account.application.AccountCommandService;
-import org.codeit.sb06.team03.mopl.account.application.AccountQueryService;
-import org.codeit.sb06.team03.mopl.account.application.in.ResetPasswordCommand;
+import org.codeit.sb06.team03.mopl.account.service.AccountCommandService;
+import org.codeit.sb06.team03.mopl.account.service.AccountQueryService;
+import org.codeit.sb06.team03.mopl.account.service.ResetPasswordCommand;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.auth.infra.in.AuthMapper;
 import org.codeit.sb06.team03.mopl.auth.infra.in.ResetPasswordRequest;
-import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
-import org.codeit.sb06.team03.mopl.image.application.ImageQueryService;
+import org.codeit.sb06.team03.mopl.profile.controller.UserDto;
+import org.codeit.sb06.team03.mopl.image.service.ImageQueryService;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;

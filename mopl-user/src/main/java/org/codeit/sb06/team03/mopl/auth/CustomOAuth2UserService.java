@@ -1,14 +1,14 @@
 package org.codeit.sb06.team03.mopl.auth;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.account.application.AccountCommandService;
-import org.codeit.sb06.team03.mopl.account.application.AccountQueryService;
-import org.codeit.sb06.team03.mopl.account.application.in.RegisterAccountCommand;
+import org.codeit.sb06.team03.mopl.account.service.AccountCommandService;
+import org.codeit.sb06.team03.mopl.account.service.AccountQueryService;
+import org.codeit.sb06.team03.mopl.account.service.RegisterAccountCommand;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
-import org.codeit.sb06.team03.mopl.image.application.ImageQueryService;
+import org.codeit.sb06.team03.mopl.image.service.ImageQueryService;
 import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
-import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.profile.controller.UserDto;
 import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;

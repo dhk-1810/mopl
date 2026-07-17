@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.auth.infra.in;
 
-import org.codeit.sb06.team03.mopl.account.application.in.ResetPasswordCommand;
+import org.codeit.sb06.team03.mopl.account.service.ResetPasswordCommand;
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
 import org.springframework.stereotype.Component;
 

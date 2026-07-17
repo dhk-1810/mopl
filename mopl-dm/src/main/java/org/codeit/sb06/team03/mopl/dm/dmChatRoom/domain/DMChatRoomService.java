@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain;
 
-import org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain.exception.DMChatRoomCannotCreateWithSelfException;
+import org.codeit.sb06.team03.mopl.dm.dmChatRoom.exception.DMChatRoomCannotCreateWithSelfException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;

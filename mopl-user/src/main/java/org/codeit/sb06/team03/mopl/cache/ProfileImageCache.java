@@ -1,8 +1,8 @@
 package org.codeit.sb06.team03.mopl.cache;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.image.application.ImageQueryService;
-import org.codeit.sb06.team03.mopl.profile.application.ProfileQueryService;
+import org.codeit.sb06.team03.mopl.image.service.ImageQueryService;
+import org.codeit.sb06.team03.mopl.profile.service.ProfileQueryService;
 import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;

@@ -4,7 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.profile.controller.UserDto;
 import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.security.jwt.JwtClaims;
 import org.codeit.sb06.team03.mopl.security.jwt.RefreshTokenCookieProvider;

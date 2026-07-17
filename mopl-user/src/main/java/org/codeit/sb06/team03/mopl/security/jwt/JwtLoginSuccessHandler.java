@@ -10,7 +10,7 @@ import org.codeit.sb06.team03.mopl.common.error.ErrorResponse;
 import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.security.jwt.exception.TokenGenerationFailedException;
 import org.codeit.sb06.team03.mopl.security.jwt.registry.JwtRegistry;
-import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.profile.controller.UserDto;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;

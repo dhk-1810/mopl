@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.account.domain.vo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
-import org.codeit.sb06.team03.mopl.account.domain.exception.InvalidEmailAddressException;
+import org.codeit.sb06.team03.mopl.account.exception.InvalidEmailAddressException;
 
 import java.util.regex.Pattern;
 

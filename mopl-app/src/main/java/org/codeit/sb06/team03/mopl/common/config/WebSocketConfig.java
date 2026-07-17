@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.common.config;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.common.StompAuthInboundInterceptor;
-import org.codeit.sb06.team03.mopl.liveChatRoom.infra.in.web.StompContentInboundInterceptor;
+import org.codeit.sb06.team03.mopl.liveChatRoom.controller.web.StompContentInboundInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;

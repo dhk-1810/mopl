@@ -6,7 +6,7 @@ import org.codeit.sb06.team03.mopl.security.jwt.JwtClaims;
 import org.codeit.sb06.team03.mopl.security.jwt.JwtTokenProvider;
 import org.codeit.sb06.team03.mopl.security.jwt.exception.InvalidTokenException;
 import org.codeit.sb06.team03.mopl.security.jwt.registry.JwtRegistry;
-import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.profile.controller.UserDto;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;

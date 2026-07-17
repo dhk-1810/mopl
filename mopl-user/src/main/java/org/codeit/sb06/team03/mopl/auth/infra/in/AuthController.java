@@ -9,7 +9,7 @@ import org.codeit.sb06.team03.mopl.auth.application.AuthCompositeService;
 import org.codeit.sb06.team03.mopl.security.jwt.*;
 import org.codeit.sb06.team03.mopl.security.jwt.exception.InvalidTokenException;
 import org.codeit.sb06.team03.mopl.security.jwt.registry.JwtRegistry;
-import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
+import org.codeit.sb06.team03.mopl.profile.controller.UserDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
