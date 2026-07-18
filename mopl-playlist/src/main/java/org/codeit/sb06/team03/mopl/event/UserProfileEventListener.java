@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
-import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalUserView;
+import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalUserViewRepository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;

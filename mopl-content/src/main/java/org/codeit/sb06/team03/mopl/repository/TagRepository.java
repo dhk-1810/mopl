@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.repository;
 
-import org.codeit.sb06.team03.mopl.domain.entity.Tag;
+import org.codeit.sb06.team03.mopl.entity.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

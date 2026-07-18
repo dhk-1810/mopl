@@ -9,7 +9,7 @@ import org.codeit.sb06.team03.mopl.image.service.ImageQueryService;
 import org.codeit.sb06.team03.mopl.playlist.config.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalContentView;
-import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalUserView;
+import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.playlist.config.infra.in.*;
 import org.codeit.sb06.team03.mopl.playlist.config.infra.in.request.CursorRequestPlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.config.infra.in.request.PlaylistCreateRequest;

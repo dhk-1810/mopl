@@ -1,5 +1,4 @@
 package org.codeit.sb06.team03.mopl.exception;
-import org.codeit.sb06.team03.mopl.domain.entity.LiveChatRoom;
 
 import java.util.UUID;
 

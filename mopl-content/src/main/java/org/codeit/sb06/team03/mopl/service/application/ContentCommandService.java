@@ -1,10 +1,10 @@
 package org.codeit.sb06.team03.mopl.service.application;
-import org.codeit.sb06.team03.mopl.domain.ContentTagService;
+import org.codeit.sb06.team03.mopl.entity.ContentTagService;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.domain.entity.Content;
-import org.codeit.sb06.team03.mopl.domain.ContentReadModel;
-import org.codeit.sb06.team03.mopl.domain.ContentService;
+import org.codeit.sb06.team03.mopl.entity.entity.Content;
+import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
+import org.codeit.sb06.team03.mopl.entity.ContentService;
 import org.codeit.sb06.team03.mopl.exception.ContentNotFoundException;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;
 import org.springframework.stereotype.Service;

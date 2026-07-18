@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.domain.entity.*;
-import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalUserView;
+import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.exception.*;
 import org.codeit.sb06.team03.mopl.profile.exception.ProfileNotFoundException;

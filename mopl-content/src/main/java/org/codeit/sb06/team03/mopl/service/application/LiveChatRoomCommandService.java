@@ -1,10 +1,10 @@
 package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.domain.ContentReadModel;
+import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;
 import org.codeit.sb06.team03.mopl.exception.ContentNotFoundException;
-import org.codeit.sb06.team03.mopl.domain.entity.LiveChatRoom;
+import org.codeit.sb06.team03.mopl.entity.entity.LiveChatRoom;
 import org.codeit.sb06.team03.mopl.exception.LiveChatRoomDuplicateException;
 import org.codeit.sb06.team03.mopl.repository.LiveChatRoomRepository;
 import org.codeit.sb06.team03.mopl.dto.response.WatchingSessionDto;

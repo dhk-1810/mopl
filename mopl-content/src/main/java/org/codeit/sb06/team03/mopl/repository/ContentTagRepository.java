@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.repository;
 
-import org.codeit.sb06.team03.mopl.domain.entity.ContentTag;
-import org.codeit.sb06.team03.mopl.domain.entity.ContentTagId;
+import org.codeit.sb06.team03.mopl.entity.entity.ContentTag;
+import org.codeit.sb06.team03.mopl.entity.entity.ContentTagId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

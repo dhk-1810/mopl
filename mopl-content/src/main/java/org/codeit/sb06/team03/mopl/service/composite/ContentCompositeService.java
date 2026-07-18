@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.service.composite;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.domain.ContentReadModel;
+import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.codeit.sb06.team03.mopl.service.application.*;
 import org.codeit.sb06.team03.mopl.event.ContentDeletedEvent;
 import org.codeit.sb06.team03.mopl.event.ContentCreatedEvent;

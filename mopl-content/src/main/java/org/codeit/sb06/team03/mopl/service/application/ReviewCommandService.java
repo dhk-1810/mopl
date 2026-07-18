@@ -1,9 +1,8 @@
 package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.service.application.*;
-import org.codeit.sb06.team03.mopl.domain.entity.Content;
-import org.codeit.sb06.team03.mopl.domain.entity.Review;
+import org.codeit.sb06.team03.mopl.entity.entity.Content;
+import org.codeit.sb06.team03.mopl.entity.Review;
 import org.codeit.sb06.team03.mopl.exception.ContentNotFoundException;
 import org.codeit.sb06.team03.mopl.exception.ReviewAlreadyExistsException;
 import org.codeit.sb06.team03.mopl.exception.ReviewNotFoundException;
@@ -12,8 +11,6 @@ import org.codeit.sb06.team03.mopl.repository.ReviewRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service

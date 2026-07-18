@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.dto.response;
 
-import org.codeit.sb06.team03.mopl.domain.ContentReadModel;
+import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.codeit.sb06.team03.mopl.enums.ContentType;
 
 import java.util.Set;

@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.domain.entity.cqrs;
+package org.codeit.sb06.team03.mopl.entity.cqrs;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -21,8 +21,8 @@ public class ExternalUserView {
 
     private String profileImageKey;
 
-    public static org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView create(UUID id, String name, String profileImageKey) {
-        org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView view = new org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView();
+    public static ExternalUserView create(UUID id, String name, String profileImageKey) {
+        ExternalUserView view = new ExternalUserView();
         view.id = id;
         view.name = name;
         view.profileImageKey = profileImageKey;

@@ -6,7 +6,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.enums.SortReviewBy;
-import org.codeit.sb06.team03.mopl.domain.entity.Review;
+import org.codeit.sb06.team03.mopl.entity.Review;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
