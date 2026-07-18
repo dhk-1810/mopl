@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.codeit.sb06.team03.mopl.watchingSession.domain.QWatchingSession.watchingSession;
+import static org.codeit.sb06.team03.mopl.domain.QWatchingSession.watchingSession;
+
 
 public interface WatchingSessionPostgresRepository extends QuerydslJpaRepository<WatchingSession, UUID> {
 

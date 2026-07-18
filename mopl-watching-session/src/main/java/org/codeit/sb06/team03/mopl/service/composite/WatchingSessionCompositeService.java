@@ -12,7 +12,7 @@ import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.domain.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.service.ProfileQueryService;
 import org.codeit.sb06.team03.mopl.dto.WatchingSessionReadModel;
-import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
+import org.codeit.sb06.team03.mopl.service.application.WatchingSessionQueryService;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
@@ -25,14 +25,14 @@ import java.util.stream.Collectors;
 @Service
 public class WatchingSessionCompositeService {
 
-    private final GetWatchingSessionUseCase getWatchingSessionUseCase;
+    private final WatchingSessionQueryService watchingSessionQueryService;
     private final ProfileQueryService profileQueryService;
     private final ImageQueryService imageQueryService;
 
     public WatchingSessionDto getByWatcherId(UUID watcherId, MoplUserDetails userDetails) {
 
         // TODO 자발/강제 로그아웃 시 워칭세션 삭제
-        WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByContentId(watcherId);
+        WatchingSessionReadModel watchingSession = watchingSessionQueryService.getByContentId(watcherId);
         if (watchingSession == null) return null;
 
         var userDto = userDetails.getUserDto();
@@ -55,7 +55,7 @@ public class WatchingSessionCompositeService {
                     .toList();
         }
 
-        Slice<WatchingSessionReadModel> slice = getWatchingSessionUseCase.getByContentId(contentId, filteredWatcherIds, request);
+        Slice<WatchingSessionReadModel> slice = watchingSessionQueryService.getByContentId(contentId, filteredWatcherIds, request);
         List<WatchingSessionReadModel> watchingSessions = slice.getContent();
 
         List<UUID> watcherIds = watchingSessions.stream().map(WatchingSessionReadModel::watcherId).toList();

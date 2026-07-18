@@ -7,10 +7,9 @@ import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.profile.controller.UserDto;
 import org.codeit.sb06.team03.mopl.cache.ProfileImageCache;
 import org.codeit.sb06.team03.mopl.dto.WatchingSessionReadModel;
-import org.codeit.sb06.team03.mopl.watchingSession.application.in.CreateWatchingSessionUseCase;
+import org.codeit.sb06.team03.mopl.service.application.WatchingSessionCommandService;
+import org.codeit.sb06.team03.mopl.service.application.WatchingSessionQueryService;
 import org.codeit.sb06.team03.mopl.service.application.CreateWatchingSessionCommand;
-import org.codeit.sb06.team03.mopl.watchingSession.application.in.DeleteWatchingSessionUseCase;
-import org.codeit.sb06.team03.mopl.watchingSession.application.in.GetWatchingSessionUseCase;
 import org.codeit.sb06.team03.mopl.exception.WatchingSessionNotFoundException;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -29,10 +28,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LiveChatRoomWebEventListener {
 
-    private final CreateWatchingSessionUseCase createWatchingSessionUseCase;
+    private final WatchingSessionCommandService watchingSessionCommandService;
     private final LiveChatRoomCommandService liveChatRoomCommandService;
-    private final DeleteWatchingSessionUseCase deleteWatchingSessionUseCase;
-    private final GetWatchingSessionUseCase getWatchingSessionUseCase;
+    private final WatchingSessionQueryService watchingSessionQueryService;
     private final ProfileImageCache profileImageCache;
 
     // 같은 채널을 구독하지 못하게 하는 로직 필요
@@ -54,9 +52,9 @@ public class LiveChatRoomWebEventListener {
         UserDto userDto = userDetails.getUserDto();
 
         CreateWatchingSessionCommand createWatchingSessionCommand = new CreateWatchingSessionCommand(liveChatRoomId, userDto.id());
-        createWatchingSessionUseCase.create(createWatchingSessionCommand);
+        watchingSessionCommandService.create(createWatchingSessionCommand);
 
-        WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByContentId(userDto.id());
+        WatchingSessionReadModel watchingSession = watchingSessionQueryService.getByContentId(userDto.id());
         String profileImageUrl = profileImageCache.getProfileImageUrl(userDto.id());
         SendPresenceMessageCommand sendPresenceMessageCommand =
                 new SendPresenceMessageCommand(
@@ -90,10 +88,10 @@ public class LiveChatRoomWebEventListener {
         UUID contentId = UUID.fromString(DestinationUtils.extractContentId(destination));
         UUID liveChatRoomId = contentId; // LiveChatRoom은 Content와 같은 ID를 쓰고 있음.
 
-        WatchingSessionReadModel watchingSession = getWatchingSessionUseCase.getByContentId(userDto.id());
+        WatchingSessionReadModel watchingSession = watchingSessionQueryService.getByContentId(userDto.id());
         if (watchingSession == null) return;
 
-        deleteWatchingSessionUseCase.delete(watchingSession.id());
+        watchingSessionCommandService.delete(watchingSession.id());
 
         String profileImageUrl = profileImageCache.getProfileImageUrl(userDto.id());
         SendPresenceMessageCommand sendPresenceMessageCommand =
@@ -131,12 +129,12 @@ public class LiveChatRoomWebEventListener {
 
         WatchingSessionReadModel watchingSession = null;
         try {
-            watchingSession = getWatchingSessionUseCase.getByContentId(userDto.id());
+            watchingSession = watchingSessionQueryService.getByContentId(userDto.id());
         } catch (WatchingSessionNotFoundException e) {
             // 이미 삭제된 경우 예외 무시
         }
 
-        deleteWatchingSessionUseCase.deleteByWatcherId(userDto.id());
+        watchingSessionCommandService.deleteByWatcherId(userDto.id());
 
         if (watchingSession != null) {
             WatchingSessionReadModel finalWatchingSession = watchingSession;
