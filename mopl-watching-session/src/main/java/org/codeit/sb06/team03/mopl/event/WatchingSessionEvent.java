@@ -13,7 +13,6 @@ public abstract sealed class WatchingSessionEvent {
     @Getter
     @RequiredArgsConstructor
     public static final class WatchingSessionCreatedEvent extends WatchingSessionEvent {
-
         private final UUID accountId;
         private final UUID watchingSessionId;
     }

@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.service.application;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.common.error.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.domain.Notification;
-import org.codeit.sb06.team03.mopl.domain.NotificationLevel;
+import org.codeit.sb06.team03.mopl.enums.NotificationLevel;
 import org.codeit.sb06.team03.mopl.domain.NotificationService;
 import org.codeit.sb06.team03.mopl.exception.NotificationAccessDeniedException;
 import org.codeit.sb06.team03.mopl.exception.NotificationNotFoundException;

@@ -1,5 +1,6 @@
 package org.codeit.sb06.team03.mopl.domain;
 
+import org.codeit.sb06.team03.mopl.enums.NotificationLevel;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;

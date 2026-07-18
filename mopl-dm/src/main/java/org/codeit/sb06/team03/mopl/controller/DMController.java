@@ -9,7 +9,6 @@ import org.codeit.sb06.team03.mopl.dto.request.CursorRequestDMChatRoomDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.service.composite.DMCompositeService;
-import org.codeit.sb06.team03.mopl.controller.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
