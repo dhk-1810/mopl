@@ -1,0 +1,71 @@
+package org.codeit.sb06.team03.mopl.config;
+
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class RabbitConfig {
+
+    public static final String DM_EXCHANGE = "mopl.dm.exchange";
+    public static final String USER_EXCHANGE = "mopl.user.exchange";
+
+    public static final String ROUTING_KEY_PROFILE_CREATED = "user.profile-created";
+    public static final String ROUTING_KEY_PROFILE_UPDATED = "user.profile-updated";
+
+    public static final String USER_PROFILE_CREATE_QUEUE = "dm.user-profile-create.queue";
+    public static final String USER_PROFILE_UPDATE_QUEUE = "dm.user-profile-update.queue";
+
+    @Bean
+    public TopicExchange dmExchange() {
+        return new TopicExchange(DM_EXCHANGE);
+    }
+
+    @Bean
+    public TopicExchange userExchange() {
+        return new TopicExchange(USER_EXCHANGE);
+    }
+
+    @Bean
+    public Queue userProfileCreateQueue() {
+        return new Queue(USER_PROFILE_CREATE_QUEUE, true);
+    }
+
+    @Bean
+    public Queue userProfileUpdateQueue() {
+        return new Queue(USER_PROFILE_UPDATE_QUEUE, true);
+    }
+
+    @Bean
+    public Binding userProfileCreateBinding() {
+        return BindingBuilder.bind(userProfileCreateQueue())
+                .to(userExchange())
+                .with(ROUTING_KEY_PROFILE_CREATED);
+    }
+
+    @Bean
+    public Binding userProfileUpdateBinding() {
+        return BindingBuilder.bind(userProfileUpdateQueue())
+                .to(userExchange())
+                .with(ROUTING_KEY_PROFILE_UPDATED);
+    }
+
+    @Bean
+    public MessageConverter jackson2JsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter());
+        return rabbitTemplate;
+    }
+}
