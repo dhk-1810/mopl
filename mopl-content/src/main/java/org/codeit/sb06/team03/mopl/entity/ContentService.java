@@ -1,6 +1,5 @@
 package org.codeit.sb06.team03.mopl.entity;
 
-import org.codeit.sb06.team03.mopl.entity.entity.Content;
 import org.codeit.sb06.team03.mopl.enums.ContentType;
 import org.springframework.stereotype.Service;
 

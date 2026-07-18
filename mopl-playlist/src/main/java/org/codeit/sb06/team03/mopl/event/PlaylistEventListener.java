@@ -1,11 +1,10 @@
 package org.codeit.sb06.team03.mopl.event;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.follow.domain.Followee;
-import org.codeit.sb06.team03.mopl.follow.exception.FolloweeNotFoundException;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
-import org.codeit.sb06.team03.mopl.follow.service.FolloweeQueryService;
 import org.codeit.sb06.team03.mopl.service.PlaylistQueryService;
+import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
+import org.codeit.sb06.team03.mopl.service.cqrs.ExternalFollowQueryService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -21,16 +20,14 @@ public class PlaylistEventListener {
 
     private final PlaylistQueryService playlistQueryService;
     private final PlaylistCommandService playlistCommandService;
+    private final ExternalFollowQueryService externalFollowQueryService;
+
     private final RabbitTemplate rabbitTemplate;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePlaylistCreatedEvent(PlaylistEvent.PlaylistCreatedEvent event) {
-        Followee followee = followeeQueryService.findById(event.getOwnerId())
-                .orElseThrow(() -> new FolloweeNotFoundException(event.getOwnerId()));
-        List<UUID> followerIds = followee.getFollowers().stream()
-                .map(follower -> follower.getId().getFollowerId())
-                .toList();
+        List<UUID> followerIds = externalFollowQueryService.getFollowerIds(event.getOwnerId());
 
         rabbitTemplate.convertAndSend(
                 RabbitConfig.PLAYLIST_EXCHANGE,
@@ -75,6 +72,6 @@ public class PlaylistEventListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePlaylistDeletedEvent(PlaylistEvent.PlaylistDeletedEvent event) {
-        playlistCommandService.deleteCascadeByPlaylistId(event.getPlaylistId());
+        playlistCommandService.deleteCurationByContentId(event.getPlaylistId());
     }
 }

@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.entity.entity.Content;
+import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.entity.Review;
 import org.codeit.sb06.team03.mopl.exception.ContentNotFoundException;
 import org.codeit.sb06.team03.mopl.exception.ReviewAlreadyExistsException;

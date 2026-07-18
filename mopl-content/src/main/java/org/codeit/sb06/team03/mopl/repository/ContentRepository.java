@@ -7,7 +7,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
 import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
-import org.codeit.sb06.team03.mopl.entity.entity.Content;
+import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.codeit.sb06.team03.mopl.enums.SortContentBy;
 import org.codeit.sb06.team03.mopl.enums.ContentType;
@@ -18,10 +18,10 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.codeit.sb06.team03.mopl.domain.entity.QContent.content;
-import static org.codeit.sb06.team03.mopl.domain.entity.QContentTag.contentTag;
+import static org.codeit.sb06.team03.mopl.entity.QContent.content;
+import static org.codeit.sb06.team03.mopl.entity.QContentTag.contentTag;
 import static org.codeit.sb06.team03.mopl.profile.domain.entity.QProfile.profile;
-import static org.codeit.sb06.team03.mopl.domain.entity.QTag.tag;
+import static org.codeit.sb06.team03.mopl.entity.QTag.tag;
 import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.group.GroupBy.set;
 

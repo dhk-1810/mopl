@@ -1,8 +1,7 @@
 package org.codeit.sb06.team03.mopl.dto.response;
 
 import org.codeit.sb06.team03.mopl.UserSummary;
-import org.codeit.sb06.team03.mopl.content.controller.ContentDto;
-import org.codeit.sb06.team03.mopl.playlist.config.PlaylistReadModel;
+import org.codeit.sb06.team03.mopl.domain.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.domain.entity.Playlist;
 
 import java.time.Instant;

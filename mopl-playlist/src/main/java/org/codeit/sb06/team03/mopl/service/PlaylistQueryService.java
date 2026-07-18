@@ -1,14 +1,14 @@
 package org.codeit.sb06.team03.mopl.service;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.playlist.config.PlaylistReadModel;
+import org.codeit.sb06.team03.mopl.domain.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.domain.entity.SubscriptionId;
-import org.codeit.sb06.team03.mopl.playlist.domain.exception.PlaylistNotFoundException;
-import org.codeit.sb06.team03.mopl.playlist.config.infra.in.request.CursorRequestPlaylistDto;
-import org.codeit.sb06.team03.mopl.playlist.config.infra.out.CurationRepository;
-import org.codeit.sb06.team03.mopl.playlist.config.infra.out.PlaylistRepository;
-import org.codeit.sb06.team03.mopl.playlist.config.infra.out.SubscriptionRepository;
+import org.codeit.sb06.team03.mopl.dto.request.CursorRequestPlaylistDto;
+import org.codeit.sb06.team03.mopl.exception.PlaylistNotFoundException;
+import org.codeit.sb06.team03.mopl.repository.CurationRepository;
+import org.codeit.sb06.team03.mopl.repository.PlaylistRepository;
+import org.codeit.sb06.team03.mopl.repository.SubscriptionRepository;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,5 +67,9 @@ public class PlaylistQueryService {
     // 3. Curation Queries
     public Map<UUID, List<UUID>> getContentIdsByPlaylistIds(Set<UUID> playlistIds) {
         return curationRepository.findAllByPlaylistIdsIn(playlistIds);
+    }
+
+    public List<UUID> getSubscriberIds(UUID playlistId) {
+        return subscriptionRepository.findSubscriberIdsByPlaylistId(playlistId);
     }
 }

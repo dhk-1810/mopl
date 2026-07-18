@@ -1,7 +1,6 @@
 package org.codeit.sb06.team03.mopl.entity;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.entity.entity.ContentTag;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;
 import org.codeit.sb06.team03.mopl.repository.ContentTagRepository;
 import org.codeit.sb06.team03.mopl.repository.TagRepository;

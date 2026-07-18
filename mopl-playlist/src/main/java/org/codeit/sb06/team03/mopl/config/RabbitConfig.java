@@ -27,6 +27,9 @@ public class RabbitConfig {
     public static final String ROUTING_KEY_PROFILE_CREATED = "user.profile-created";
     public static final String ROUTING_KEY_PROFILE_UPDATED = "user.profile-updated";
 
+    public static final String ROUTING_KEY_PLAYLIST_CREATED = "playlist.created";
+    public static final String ROUTING_KEY_CURATION_ADDED = "curation.added";
+
     // Queues
     public static final String CONTENT_CREATE_QUEUE = "playlist.content-create.queue";
     public static final String CONTENT_UPDATE_QUEUE = "playlist.content-update.queue";

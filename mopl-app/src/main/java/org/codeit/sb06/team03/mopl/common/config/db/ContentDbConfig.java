@@ -22,9 +22,7 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableQuerydslRepositories(
         basePackages = {
-                "org.codeit.sb06.team03.mopl.content",
-                "org.codeit.sb06.team03.mopl.tag",
-                "org.codeit.sb06.team03.mopl.liveChatRoom"
+                "org.codeit.sb06.team03.mopl"
         },
         entityManagerFactoryRef = "contentEntityManagerFactory",
         transactionManagerRef = "contentTransactionManager"
@@ -56,9 +54,7 @@ public class ContentDbConfig {
         return builder
                 .dataSource(contentDataSource())
                 .packages(
-                        "org.codeit.sb06.team03.mopl.content",
-                        "org.codeit.sb06.team03.mopl.tag",
-                        "org.codeit.sb06.team03.mopl.liveChatRoom"
+                        "org.codeit.sb06.team03.mopl"
                 )
                 .persistenceUnit("content")
                 .properties(properties)

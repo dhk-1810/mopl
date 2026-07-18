@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import static org.codeit.sb06.team03.mopl.domain.entity.QReview.review;
+import static org.codeit.sb06.team03.mopl.entity.QReview.review;
 
 public interface ReviewRepository extends QuerydslJpaRepository<Review, UUID> {
 

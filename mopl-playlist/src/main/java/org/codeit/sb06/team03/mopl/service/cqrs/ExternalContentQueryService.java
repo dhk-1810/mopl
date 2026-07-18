@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.service.cqrs;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalContentView;
-import org.codeit.sb06.team03.mopl.playlist.config.infra.out.cqrs.ExternalContentViewRepository;
+import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalContentViewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

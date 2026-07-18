@@ -3,8 +3,10 @@ package org.codeit.sb06.team03.mopl.repository;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
-import org.codeit.sb06.team03.mopl.playlist.config.PlaylistReadModel;
+import org.codeit.sb06.team03.mopl.domain.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.domain.entity.Playlist;
+import org.codeit.sb06.team03.mopl.domain.entity.QPlaylist;
+import org.codeit.sb06.team03.mopl.domain.entity.QSubscription;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -14,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.codeit.sb06.team03.mopl.playlist.domain.entity.QPlaylist.playlist;
-import static org.codeit.sb06.team03.mopl.playlist.domain.entity.QSubscription.subscription;
-
 public interface PlaylistRepository extends QuerydslJpaRepository<Playlist, UUID> {
+
+    QPlaylist playlist = new QPlaylist("playlist");
+    QSubscription subscription = new QSubscription("subscription");
 
     default Slice<PlaylistReadModel> findAll(
             String keywordLike,

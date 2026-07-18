@@ -3,7 +3,6 @@ package org.codeit.sb06.team03.mopl.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.common.error.ErrorResponse;
 import org.codeit.sb06.team03.mopl.controller.PlaylistController;
-import org.codeit.sb06.team03.mopl.playlist.domain.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

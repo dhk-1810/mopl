@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.enums.NotificationLevel;
 import org.codeit.sb06.team03.mopl.dto.response.NotificationDto;
-import org.codeit.sb06.team03.mopl.notification.application.ExternalUserQueryService;
-import org.codeit.sb06.team03.mopl.notification.domain.entity.cqrs.ExternalUserView;
+import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
+import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.service.application.ExternalUserCommandService;
 import org.codeit.sb06.team03.mopl.service.application.NotificationCommandService;
 import org.codeit.sb06.team03.mopl.sse.service.SseService;
@@ -60,14 +60,14 @@ public class UserEventConsumer {
      * CQRS
      */
     @RabbitListener(queues = RabbitConfig.USER_PROFILE_CREATE_QUEUE)
-    public void handleProfileCreated(UserEvent.ProfileCreatedEvent event) {
+    public void handleProfileCreated(UserEvent.UserProfileCreatedEvent event) {
         log.info("Received UserProfileCreatedEvent from RabbitMQ in mopl-notification: {}", event);
-        externalUserCommandService.createOrUpdateProfile(event.getUserId(), event.getName(), event.getImageKey());
+        externalUserCommandService.createOrUpdateProfile(event.userId(), event.name(), event.imageKey());
     }
 
     @RabbitListener(queues = RabbitConfig.USER_PROFILE_UPDATE_QUEUE)
-    public void handleProfileUpdated(UserEvent.ProfileUpdatedEvent event) {
+    public void handleProfileUpdated(UserEvent.UserProfileUpdatedEvent event) {
         log.info("Received UserProfileUpdatedEvent from RabbitMQ in mopl-notification: {}", event);
-        externalUserCommandService.createOrUpdateProfile(event.getUserId(), event.getName(), event.getImageKey());
+        externalUserCommandService.createOrUpdateProfile(event.userId(), event.name(), event.imageKey());
     }
 }

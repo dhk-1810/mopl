@@ -6,7 +6,7 @@ import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.dto.response.NotificationDto;
 import org.codeit.sb06.team03.mopl.service.application.NotificationCommandService;
 import org.codeit.sb06.team03.mopl.enums.NotificationLevel;
-import org.codeit.sb06.team03.mopl.service.SseService;
+import org.codeit.sb06.team03.mopl.sse.service.SseService;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalUserView;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

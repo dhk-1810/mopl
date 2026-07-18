@@ -3,9 +3,10 @@ package org.codeit.sb06.team03.mopl.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
-import org.codeit.sb06.team03.mopl.playlist.config.application.PlaylistCommandService;
+import org.codeit.sb06.team03.mopl.enums.ContentType;
 import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalContentView;
-import org.codeit.sb06.team03.mopl.playlist.config.infra.out.cqrs.ExternalContentViewRepository;
+import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalContentViewRepository;
+import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,15 +26,15 @@ public class ContentEventListener {
     public void handleContentCreated(ContentEvent.ContentCreatedEvent event) {
         log.info("Received ContentCreatedEvent from RabbitMQ: {}", event);
         ExternalContentView contentView = ExternalContentView.create(
-                event.contentId(),
-                event.type(),
-                event.title(),
-                event.description(),
-                event.thumbnailKey(),
-                joinTags(event.tags()),
-                event.averageRating(),
-                event.reviewCount(),
-                event.watcherCount()
+                event.getContentId(),
+                ContentType.valueOf(event.getType()),
+                event.getTitle(),
+                event.getDescription(),
+                event.getThumbnailKey(),
+                joinTags(event.getTags()),
+                event.getAverageRating(),
+                event.getReviewCount(),
+                event.getWatcherCount()
         );
         externalContentViewRepository.save(contentView);
     }
@@ -42,26 +43,26 @@ public class ContentEventListener {
     @Transactional(value = "playlistTransactionManager")
     public void handleContentUpdated(ContentEvent.ContentUpdatedEvent event) {
         log.info("Received ContentUpdatedEvent from RabbitMQ: {}", event);
-        ExternalContentView contentView = externalContentViewRepository.findById(event.contentId())
+        ExternalContentView contentView = externalContentViewRepository.findById(event.getContentId())
                 .orElseGet(() -> ExternalContentView.create(
-                        event.contentId(),
-                        event.type(),
-                        event.title(),
-                        event.description(),
-                        event.thumbnailKey(),
-                        joinTags(event.tags()),
-                        event.averageRating(),
-                        event.reviewCount(),
-                        event.watcherCount()
+                        event.getContentId(),
+                        ContentType.valueOf(event.getType()),
+                        event.getTitle(),
+                        event.getDescription(),
+                        event.getThumbnailKey(),
+                        joinTags(event.getTags()),
+                        event.getAverageRating(),
+                        event.getReviewCount(),
+                        event.getWatcherCount()
                 ));
         contentView.update(
-                event.title(),
-                event.description(),
-                event.thumbnailKey(),
-                joinTags(event.tags()),
-                event.averageRating(),
-                event.reviewCount(),
-                event.watcherCount()
+                event.getTitle(),
+                event.getDescription(),
+                event.getThumbnailKey(),
+                joinTags(event.getTags()),
+                event.getAverageRating(),
+                event.getReviewCount(),
+                event.getWatcherCount()
         );
         externalContentViewRepository.save(contentView);
     }
@@ -71,9 +72,9 @@ public class ContentEventListener {
     public void handleContentDeleted(ContentEvent.ContentDeletedEvent event) {
         log.info("Received ContentDeletedEvent from RabbitMQ: {}", event);
         // 1. Delete curation entries containing this content
-        playlistCommandService.deleteCurationByContentId(event.contentId());
+        playlistCommandService.deleteCurationByContentId(event.getContentId());
         // 2. Delete local read model
-        externalContentViewRepository.deleteById(event.contentId());
+        externalContentViewRepository.deleteById(event.getContentId());
     }
 
     private String joinTags(Set<String> tags) {

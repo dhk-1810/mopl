@@ -140,4 +140,9 @@ public class PlaylistCommandService {
         playlist.decreaseSubscriberCount();
         playlistRepository.save(playlist);
     }
+
+    public void deleteCascadeByPlaylistId(UUID playlistId) {
+        curationRepository.deleteAllByPlaylistId(playlistId);
+        subscriptionRepository.deleteAllByPlaylistId(playlistId);
+    }
 }

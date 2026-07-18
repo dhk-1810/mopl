@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.codeit.sb06.team03.mopl.content.domain.vo.ContentType;
+import org.codeit.sb06.team03.mopl.enums.ContentType;
 
 import java.util.UUID;
 

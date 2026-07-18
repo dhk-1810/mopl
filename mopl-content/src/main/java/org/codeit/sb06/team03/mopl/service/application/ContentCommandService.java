@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.service.application;
 import org.codeit.sb06.team03.mopl.entity.ContentTagService;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.entity.entity.Content;
+import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.codeit.sb06.team03.mopl.entity.ContentService;
 import org.codeit.sb06.team03.mopl.exception.ContentNotFoundException;

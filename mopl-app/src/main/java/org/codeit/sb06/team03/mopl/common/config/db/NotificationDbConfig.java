@@ -22,7 +22,7 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableQuerydslRepositories(
         basePackages = {
-                "org.codeit.sb06.team03.mopl.notification"
+                "org.codeit.sb06.team03.mopl"
         },
         entityManagerFactoryRef = "notificationEntityManagerFactory",
         transactionManagerRef = "notificationTransactionManager"
@@ -54,7 +54,7 @@ public class NotificationDbConfig {
         return builder
                 .dataSource(notificationDataSource())
                 .packages(
-                        "org.codeit.sb06.team03.mopl.notification"
+                        "org.codeit.sb06.team03.mopl"
                 )
                 .persistenceUnit("notification")
                 .properties(properties)
