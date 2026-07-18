@@ -16,6 +16,8 @@ import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistCreateReque
 import org.codeit.sb06.team03.mopl.playlist.infra.in.request.PlaylistUpdateRequest;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.CursorResponsePlaylistDto;
 import org.codeit.sb06.team03.mopl.playlist.infra.in.response.PlaylistDto;
+import org.codeit.sb06.team03.mopl.service.application.cqrs.ExternalContentQueryService;
+import org.codeit.sb06.team03.mopl.service.application.cqrs.ExternalUserQueryService;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;

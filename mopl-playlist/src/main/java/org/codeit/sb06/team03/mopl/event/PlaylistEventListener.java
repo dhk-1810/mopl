@@ -5,6 +5,7 @@ import org.codeit.sb06.team03.mopl.follow.domain.Followee;
 import org.codeit.sb06.team03.mopl.follow.exception.FolloweeNotFoundException;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.follow.service.FolloweeQueryService;
+import org.codeit.sb06.team03.mopl.service.PlaylistQueryService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,6 @@ import java.util.UUID;
 @Component
 public class PlaylistEventListener {
 
-    private final FolloweeQueryService followeeQueryService;
     private final PlaylistQueryService playlistQueryService;
     private final PlaylistCommandService playlistCommandService;
     private final RabbitTemplate rabbitTemplate;

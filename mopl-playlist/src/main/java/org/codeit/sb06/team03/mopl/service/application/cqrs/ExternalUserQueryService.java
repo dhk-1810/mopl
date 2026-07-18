@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.service.application;
+package org.codeit.sb06.team03.mopl.service.application.cqrs;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalUserView;

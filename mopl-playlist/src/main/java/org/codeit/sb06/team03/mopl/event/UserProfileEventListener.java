@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalUserView;
-import org.codeit.sb06.team03.mopl.playlist.config.infra.out.cqrs.ExternalUserViewRepository;
+import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalUserViewRepository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +20,7 @@ public class UserProfileEventListener {
     @Transactional(value = "playlistTransactionManager")
     public void handleProfileCreated(UserEvent.UserProfileCreatedEvent event) {
         log.info("Received UserProfileCreatedEvent from RabbitMQ: {}", event);
-        ExternalUserView userView = ExternalUserView.create(event.userId(), event.name(), event.imageKey());
+        ExternalUserView userView = ExternalUserView.create(event.getUserId(), event.getName(), event.getImageKey());
         externalUserViewRepository.save(userView);
     }
 
@@ -28,9 +28,9 @@ public class UserProfileEventListener {
     @Transactional(value = "playlistTransactionManager")
     public void handleProfileUpdated(UserEvent.UserProfileUpdatedEvent event) {
         log.info("Received UserProfileUpdatedEvent from RabbitMQ: {}", event);
-        ExternalUserView userView = externalUserViewRepository.findById(event.userId())
-                .orElseGet(() -> ExternalUserView.create(event.userId(), event.name(), event.imageKey()));
-        userView.update(event.name(), event.imageKey());
+        ExternalUserView userView = externalUserViewRepository.findById(event.getUserId())
+                .orElseGet(() -> ExternalUserView.create(event.getUserId(), event.getName(), event.getImageKey()));
+        userView.update(event.getName(), event.getImageKey());
         externalUserViewRepository.save(userView);
     }
 }

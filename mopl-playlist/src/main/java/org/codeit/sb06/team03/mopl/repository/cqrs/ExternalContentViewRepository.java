@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.repository;
+package org.codeit.sb06.team03.mopl.repository.cqrs;
 
 import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalContentView;
 import org.springframework.data.jpa.repository.JpaRepository;

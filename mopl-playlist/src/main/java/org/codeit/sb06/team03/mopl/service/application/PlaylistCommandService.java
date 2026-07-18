@@ -1,16 +1,13 @@
 package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.domain.CurationService;
-import org.codeit.sb06.team03.mopl.domain.SubscriptionService;
 import org.codeit.sb06.team03.mopl.domain.entity.*;
 import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalUserView;
-import org.codeit.sb06.team03.mopl.domain.PlaylistService;
 import org.codeit.sb06.team03.mopl.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.exception.*;
-import org.codeit.sb06.team03.mopl.infra.out.cqrs.ExternalUserViewRepository;
 import org.codeit.sb06.team03.mopl.profile.exception.ProfileNotFoundException;
 import org.codeit.sb06.team03.mopl.repository.CurationRepository;
+import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalUserViewRepository;
 import org.codeit.sb06.team03.mopl.repository.PlaylistRepository;
 import org.codeit.sb06.team03.mopl.repository.SubscriptionRepository;
 import org.springframework.context.ApplicationEventPublisher;
@@ -29,14 +26,10 @@ public class PlaylistCommandService {
     private final CurationRepository curationRepository;
     private final ExternalUserViewRepository externalUserViewRepository;
 
-    private final PlaylistService playlistService;
-    private final CurationService curationService;
-    private final SubscriptionService subscriptionService;
-
     private final ApplicationEventPublisher eventPublisher;
 
     public Playlist create(String title, String description, UUID ownerId) {
-        Playlist playlist = playlistService.create(title, description, ownerId);
+        Playlist playlist = Playlist.create(title, description, ownerId);
         playlistRepository.save(playlist);
         return playlist;
     }
@@ -48,7 +41,7 @@ public class PlaylistCommandService {
             throw new PlaylistAccessDeniedException(playlistId, ownerId);
         }
 
-        playlist = playlistService.update(playlist, title, description);
+        playlist.update(title, description);
         playlistRepository.save(playlist);
 
         return playlist;
@@ -75,7 +68,7 @@ public class PlaylistCommandService {
             throw new ContentAlreadyBeenCuratedException(playlistId, contentId);
         }
 
-        Curation curation = curationService.create(playlistId, contentId, contentTitle);
+        Curation curation = Curation.create(playlistId, contentId, contentTitle);
         curationRepository.save(curation);
 
         playlist.increaseContentCount();
@@ -119,7 +112,7 @@ public class PlaylistCommandService {
             throw new SelfSubscriptionNotAllowedException(playlistId, userId);
         }
 
-        Subscription subscription = subscriptionService.create(playlistId, userId);
+        Subscription subscription = Subscription.create(playlistId, userId);
         subscriptionRepository.save(subscription);
 
         playlist.increaseSubscriberCount();

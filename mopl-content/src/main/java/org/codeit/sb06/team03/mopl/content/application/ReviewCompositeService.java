@@ -2,16 +2,13 @@ package org.codeit.sb06.team03.mopl.content.application;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.UserSummary;
-import org.codeit.sb06.team03.mopl.content.SortReviewBy;
-import org.codeit.sb06.team03.mopl.content.application.in.*;
+import org.codeit.sb06.team03.mopl.content.controller.*;
 import org.codeit.sb06.team03.mopl.content.domain.entity.Review;
 import org.codeit.sb06.team03.mopl.content.domain.entity.cqrs.ExternalUserView;
-import org.codeit.sb06.team03.mopl.content.infra.in.CursorRequestReviewDto;
-import org.codeit.sb06.team03.mopl.content.infra.in.CursorResponseReviewDto;
-import org.codeit.sb06.team03.mopl.content.infra.in.ReviewCreateRequest;
-import org.codeit.sb06.team03.mopl.content.infra.in.ReviewDto;
-import org.codeit.sb06.team03.mopl.content.infra.in.ReviewUpdateRequest;
-import org.codeit.sb06.team03.mopl.image.application.in.GetPresignedUrlUseCase;
+import org.codeit.sb06.team03.mopl.content.service.CreateReviewCommand;
+import org.codeit.sb06.team03.mopl.content.service.DeleteReviewCommand;
+import org.codeit.sb06.team03.mopl.content.service.SortReviewBy;
+import org.codeit.sb06.team03.mopl.content.service.UpdateReviewCommand;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
