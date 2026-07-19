@@ -19,8 +19,8 @@ import org.codeit.sb06.team03.mopl.service.application.DMCommandService;
 import org.codeit.sb06.team03.mopl.service.application.DMQueryService;
 import org.codeit.sb06.team03.mopl.domain.entity.DMMessage;
 import org.codeit.sb06.team03.mopl.dto.request.MessageSendRequest;
-import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
-import org.codeit.sb06.team03.mopl.image.service.ImageQueryService;
+import org.codeit.sb06.team03.mopl.enums.SortDirection;
+import org.codeit.sb06.team03.mopl.service.ImageQueryService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 

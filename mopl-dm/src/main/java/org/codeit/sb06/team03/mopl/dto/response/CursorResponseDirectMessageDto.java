@@ -1,8 +1,7 @@
 package org.codeit.sb06.team03.mopl.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
-import org.codeit.sb06.team03.mopl.dto.response.DirectMessageDto;
+import org.codeit.sb06.team03.mopl.enums.SortDirection;
 import org.springframework.lang.Nullable;
 
 import java.util.List;

@@ -10,7 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.codeit.sb06.team03.mopl.UserSummary;
-import org.codeit.sb06.team03.mopl.dm.dmChatRoom.event.DMMessageEvent;
+import org.codeit.sb06.team03.mopl.event.DMEvent;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -71,7 +71,7 @@ public class DMMessage extends AbstractAggregateRoot<DMMessage> {
         dmMessage.receiverId = receiverId;
         dmMessage.content = content;
         dmMessage.hasUnread = true;
-        dmMessage.registerEvent(new DMMessageEvent.MessageSentEvent(dmMessage.id, dmChatRoomId, senderId, receiverId, content, dmMessage.createdAt, sender, receiver));
+        dmMessage.registerEvent(new DMEvent.MessageSentEvent(dmMessage.id, dmChatRoomId, senderId, receiverId, content, dmMessage.createdAt, sender, receiver));
         return dmMessage;
     }
 
@@ -80,11 +80,11 @@ public class DMMessage extends AbstractAggregateRoot<DMMessage> {
     }
 
     public void receive() {
-        this.registerEvent(new DMMessageEvent.MessageReceivedEvent(this.id, this.dmChatRoomId, this.senderId, this.receiverId));
+        this.registerEvent(new DMEvent.MessageReceivedEvent(this.id, this.dmChatRoomId, this.senderId, this.receiverId));
     }
 
     public void pass() {
-        this.registerEvent(new DMMessageEvent.MessagePassedEvent(this.id, this.dmChatRoomId, this.receiverId, this.content));
+        this.registerEvent(new DMEvent.MessagePassedEvent(this.id, this.dmChatRoomId, this.receiverId, this.content));
     }
 }
 

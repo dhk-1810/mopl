@@ -4,7 +4,7 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
-import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
+import org.codeit.sb06.team03.mopl.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.enums.SortReviewBy;
 import org.codeit.sb06.team03.mopl.entity.Review;
 import org.springframework.data.domain.PageRequest;

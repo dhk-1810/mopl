@@ -8,7 +8,7 @@ import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.auth.infra.in.AuthMapper;
 import org.codeit.sb06.team03.mopl.auth.infra.in.ResetPasswordRequest;
 import org.codeit.sb06.team03.mopl.profile.controller.UserDto;
-import org.codeit.sb06.team03.mopl.image.service.ImageQueryService;
+import org.codeit.sb06.team03.mopl.service.ImageQueryService;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;

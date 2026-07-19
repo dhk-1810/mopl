@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.service.composite;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.UserSummary;
-import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
+import org.codeit.sb06.team03.mopl.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.domain.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestPlaylistDto;
 import org.codeit.sb06.team03.mopl.dto.request.PlaylistCreateRequest;
@@ -11,7 +11,7 @@ import org.codeit.sb06.team03.mopl.dto.response.CursorResponsePlaylistDto;
 import org.codeit.sb06.team03.mopl.dto.response.PlaylistDto;
 import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.dto.response.ContentDto;
-import org.codeit.sb06.team03.mopl.image.service.ImageQueryService;
+import org.codeit.sb06.team03.mopl.service.ImageQueryService;
 import org.codeit.sb06.team03.mopl.domain.entity.Playlist;
 import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalContentView;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;

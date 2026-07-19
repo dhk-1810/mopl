@@ -6,7 +6,7 @@ import org.codeit.sb06.team03.mopl.account.service.AccountQueryService;
 import org.codeit.sb06.team03.mopl.account.service.RegisterAccountCommand;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
-import org.codeit.sb06.team03.mopl.image.service.ImageQueryService;
+import org.codeit.sb06.team03.mopl.service.ImageQueryService;
 import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.controller.UserDto;
 import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
@@ -16,7 +16,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor

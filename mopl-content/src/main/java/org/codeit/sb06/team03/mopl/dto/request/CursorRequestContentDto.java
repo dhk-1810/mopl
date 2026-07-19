@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.dto.request;
 
-import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
+import org.codeit.sb06.team03.mopl.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.enums.SortContentBy;
 
 import java.util.Set;

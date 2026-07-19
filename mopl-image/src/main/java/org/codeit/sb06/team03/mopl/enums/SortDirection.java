@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.common.enums;
+package org.codeit.sb06.team03.mopl.enums;
 
 public enum SortDirection {
     ASCENDING, DESCENDING;

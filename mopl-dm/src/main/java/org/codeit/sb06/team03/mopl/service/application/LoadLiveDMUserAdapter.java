@@ -3,7 +3,7 @@ package org.codeit.sb06.team03.mopl.service.application;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
-import org.codeit.sb06.team03.mopl.image.service.ImageQueryService;
+import org.codeit.sb06.team03.mopl.service.ImageQueryService;
 import org.codeit.sb06.team03.mopl.UserSummary;
 import org.springframework.stereotype.Component;
 

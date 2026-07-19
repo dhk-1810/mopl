@@ -21,14 +21,19 @@ public class DMEventConsumer {
     private static final String EVENT_NAME_NOTIFICATION = "notifications";
 
     @RabbitListener(queues = RabbitConfig.DM_NOTIFICATION_REQUIRED_QUEUE)
-    public void handleDMNotificationRequired(DMEvent event) {
-        log.info("Received DMNotificationRequiredEvent from RabbitMQ: {}", event);
+    public void handleDMNotificationRequired(DMEvent.NewMessageMarkEvent event) {
+        log.info("Received NewMessageMarkEvent from RabbitMQ: {}", event);
         NotificationDto notificationDto = notificationCommandService.create(
-                event.receiverId(),
-                "[DM]" + event.senderName(),
-                event.content(),
+                event.getReceiverId(),
+                "[DM]" + event.getSenderName(),
+                event.getContent(),
                 NotificationLevel.INFO
         );
-        sseService.send(notificationDto, EVENT_NAME_NOTIFICATION, event.receiverId());
+        // 1. 알림 토스트/벨 아이콘용 SSE 전송
+        sseService.send(notificationDto, EVENT_NAME_NOTIFICATION, event.getReceiverId());
+
+        // 2. 실시간 DM 목록/안 읽은 배지 업데이트용 SSE 전송
+        sseService.send(event.getDirectMessage(), "direct-messages", event.getReceiverId());
     }
+
 }

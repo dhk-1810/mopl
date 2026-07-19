@@ -17,9 +17,10 @@ public class DMEventPublisher {
 
     public static final String ROUTING_KEY_MESSAGE_SENT = "dm.message-sent";
     public static final String ROUTING_KEY_NOTIFICATION_REQUIRED = "dm.notification-required";
+    public static final String ROUTING_KEY_SSE_SEND = "dm.sse-send";
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleMessageSentEvent(DMMessageEvent.MessageSentEvent event) {
+    public void handleMessageSentEvent(DMEvent.MessageSentEvent event) {
         log.info("Publishing MessageSentEvent to RabbitMQ: {}", event);
         rabbitTemplate.convertAndSend(
                 RabbitConfig.DM_EXCHANGE,
@@ -28,14 +29,5 @@ public class DMEventPublisher {
         );
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleDMNotificationRequiredEvent(DMNotificationRequiredEvent event) {
-        log.info("Publishing DMNotificationRequiredEvent to RabbitMQ: {}", event);
-        rabbitTemplate.convertAndSend(
-                RabbitConfig.DM_EXCHANGE,
-                ROUTING_KEY_NOTIFICATION_REQUIRED,
-                event
-        );
-    }
 }
 

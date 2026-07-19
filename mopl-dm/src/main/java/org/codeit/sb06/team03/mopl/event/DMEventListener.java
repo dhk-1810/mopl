@@ -2,12 +2,12 @@ package org.codeit.sb06.team03.mopl.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.service.application.DMChatRoomQueryService;
 import org.codeit.sb06.team03.mopl.service.application.DMMessagePassService;
 import org.codeit.sb06.team03.mopl.dto.response.DirectMessageDto;
 import org.codeit.sb06.team03.mopl.UserSummary;
-import org.codeit.sb06.team03.mopl.service.SseService;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -16,18 +16,15 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class DMMessageEventListener {
+public class DMEventListener {
 
     private final DMMessagePassService dmMessagePassService;
     private final DMChatRoomQueryService dmChatRoomQueryService;
-    private final SseService sseService;
-    private final ApplicationEventPublisher eventPublisher;
-
-    private static final String EVENT_NAME_DM = "direct-messages";
+    private final RabbitTemplate rabbitTemplate;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleMessageSent(DMMessageEvent.MessageSentEvent event) {
+    public void handleMessageSent(DMEvent.MessageSentEvent event) {
         log.info("DMMessageEventListener handleMessageSent called for dmChatRoomId={}, messageId={}", event.getDmChatRoomId(), event.getMessageId());
         try {
             dmMessagePassService.pass(
@@ -48,14 +45,20 @@ public class DMMessageEventListener {
                         event.getReceiver(),
                         event.getContent()
                 );
-                sseService.send(dto, EVENT_NAME_DM, event.getReceiverId());
-
-                log.info("Receiver is not active. Publishing DMNotificationRequiredEvent for receiverId={}", event.getReceiverId());
-                eventPublisher.publishEvent(new DMNotificationRequiredEvent(
+                log.info("Receiver is not active. Publishing NewMessageMarkEvent directly to RabbitMQ for receiverId={}", event.getReceiverId());
+                
+                DMEvent.NewMessageMarkEvent mqEvent = new DMEvent.NewMessageMarkEvent(
                         event.getReceiverId(),
                         sender.name(),
-                        event.getContent()
-                ));
+                        event.getContent(),
+                        dto
+                );
+
+                rabbitTemplate.convertAndSend(
+                        RabbitConfig.DM_EXCHANGE,
+                        "dm.notification-required",
+                        mqEvent
+                );
             }
         } catch (Exception e) {
             log.error("DM WebSocket 전송 실패 - dmChatRoomId={}, messageId={}", event.getDmChatRoomId(), event.getMessageId(), e);

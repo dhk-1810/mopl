@@ -1,8 +1,6 @@
 package org.codeit.sb06.team03.mopl.profile.service;
 
-import org.codeit.sb06.team03.mopl.image.service.ImageCommandService;
-import org.codeit.sb06.team03.mopl.profile.service.CreateProfileCommand;
-import org.codeit.sb06.team03.mopl.profile.service.UpdateProfileCommand;
+import org.codeit.sb06.team03.mopl.service.ImageCommandService;
 import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
 import org.codeit.sb06.team03.mopl.profile.domain.ProfileService;
 import org.codeit.sb06.team03.mopl.profile.exception.ProfileNotFoundException;

@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.UserSummary;
 import org.codeit.sb06.team03.mopl.domain.entity.DMMessage;
-import org.codeit.sb06.team03.mopl.domain.DMService;
-import org.codeit.sb06.team03.mopl.event.DMMessageEvent;
+import org.codeit.sb06.team03.mopl.event.DMEvent;
 import org.codeit.sb06.team03.mopl.repository.DMMessageRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,6 @@ import java.util.UUID;
 @Transactional("dmTransactionManager")
 public class DMCommandService {
 
-    private final DMService dmMessageService;
     private final DMMessageRepository dmMessageRepository;
     private final LoadLiveDMUserAdapter loadDMUserAdapter;
     private final DMChatRoomCommandService dmChatRoomCommandService;
@@ -30,7 +28,7 @@ public class DMCommandService {
         UserSummary sender = loadDMUserAdapter.findByUserId(senderId);
         UserSummary receiver = loadDMUserAdapter.findByUserId(receiverId);
 
-        DMMessage message = dmMessageService.create(
+        DMMessage message = DMMessage.create(
                 dmChatRoomId, senderId,
                 receiverId, content,
                 sender, receiver
@@ -40,7 +38,7 @@ public class DMCommandService {
 
         dmChatRoomCommandService.markAsUnread(dmChatRoomId, receiverId);
 
-        eventPublisher.publishEvent(new DMMessageEvent.MessageSentEvent(
+        eventPublisher.publishEvent(new DMEvent.MessageSentEvent(
                 savedMessage.getId(),
                 savedMessage.getDmChatRoomId(),
                 savedMessage.getSenderId(),

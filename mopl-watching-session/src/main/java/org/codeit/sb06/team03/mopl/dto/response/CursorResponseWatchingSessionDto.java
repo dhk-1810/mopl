@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.dto.response;
 
-import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
+import org.codeit.sb06.team03.mopl.enums.SortDirection;
 
 import java.util.List;
 import java.util.UUID;

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.codeit.sb06.team03.mopl.dm.dmChatRoom.domain.event.DMChatRoomEvent;
+import org.codeit.sb06.team03.mopl.event.DMEvent;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -52,23 +52,23 @@ public class DMChatRoom extends AbstractAggregateRoot<DMChatRoom> {
         dmChatRoom.id = UUID.randomUUID();
         dmChatRoom.addStat(withUserId);
         dmChatRoom.addStat(userId);
-        dmChatRoom.registerEvent(new DMChatRoomEvent.DMChatRoomCreatedEvent(dmChatRoom.id, userId, withUserId));
+        dmChatRoom.registerEvent(new DMEvent.ChatRoomCreatedEvent(dmChatRoom.id, userId, withUserId));
         return dmChatRoom;
     }
 
-    public void joinDMMessage(UUID userId) {
+    public void join(UUID userId) {
         DMChatRoomStat stat = this.dmChatRoomStats.get(userId);
         if (stat != null) {
             stat.updateActivity(true);
-            registerEvent(new DMChatRoomEvent.DMMessageJoinedEvent(this.id, userId));
+            registerEvent(new DMEvent.ChatRoomJoinedEvent(this.id, userId));
         }
     }
 
-    public void leaveDMMessage(UUID userId) {
+    public void leave(UUID userId) {
         DMChatRoomStat stat = this.dmChatRoomStats.get(userId);
         if (stat != null) {
             stat.updateActivity(false);
-            registerEvent(new DMChatRoomEvent.DMMessageLeftEvent(this.id, userId));
+            registerEvent(new DMEvent.ChatRoomLeftEvent(this.id, userId));
         }
     }
 
@@ -76,7 +76,7 @@ public class DMChatRoom extends AbstractAggregateRoot<DMChatRoom> {
         DMChatRoomStat stat = this.dmChatRoomStats.get(userId);
         if (stat != null) {
             stat.markAsRead();
-            registerEvent(new DMChatRoomEvent.MessageReadedEvent(this.id, userId));
+            registerEvent(new DMEvent.MessageReadEvent(this.id, userId));
         }
     }
 

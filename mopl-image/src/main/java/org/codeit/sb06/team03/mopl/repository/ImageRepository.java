@@ -1,6 +1,6 @@
-package org.codeit.sb06.team03.mopl.image.repository;
+package org.codeit.sb06.team03.mopl.repository;
 
-import org.codeit.sb06.team03.mopl.image.domain.TimeoutImage;
+import org.codeit.sb06.team03.mopl.entity.TimeoutImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;

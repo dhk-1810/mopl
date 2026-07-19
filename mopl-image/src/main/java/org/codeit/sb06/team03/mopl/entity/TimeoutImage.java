@@ -1,11 +1,11 @@
-package org.codeit.sb06.team03.mopl.image.domain;
+package org.codeit.sb06.team03.mopl.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.codeit.sb06.team03.mopl.image.service.PresignedUrlUpdateListener;
+import org.codeit.sb06.team03.mopl.service.PresignedUrlUpdateListener;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;

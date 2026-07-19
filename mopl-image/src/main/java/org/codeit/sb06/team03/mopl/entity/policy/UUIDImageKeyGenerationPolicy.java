@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.image.domain.policy;
+package org.codeit.sb06.team03.mopl.entity.policy;
 
 import org.springframework.stereotype.Component;
 

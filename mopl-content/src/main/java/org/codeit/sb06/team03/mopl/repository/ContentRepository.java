@@ -6,7 +6,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
-import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
+import org.codeit.sb06.team03.mopl.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.codeit.sb06.team03.mopl.enums.SortContentBy;

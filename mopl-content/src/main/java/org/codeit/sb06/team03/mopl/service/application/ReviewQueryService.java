@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.common.enums.SortDirection;
+import org.codeit.sb06.team03.mopl.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.enums.SortReviewBy;
 import org.codeit.sb06.team03.mopl.entity.Review;
 import org.codeit.sb06.team03.mopl.exception.ContentNotFoundException;
