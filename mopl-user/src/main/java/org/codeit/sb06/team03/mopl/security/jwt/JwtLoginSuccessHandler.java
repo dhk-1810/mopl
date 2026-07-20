@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.common.error.ErrorResponse;
+import org.codeit.sb06.team03.mopl.ErrorResponse;
 import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.security.jwt.exception.TokenGenerationFailedException;
 import org.codeit.sb06.team03.mopl.security.jwt.registry.JwtRegistry;

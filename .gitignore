@@ -31,5 +31,5 @@ bin/
 
 # Others
 .env
-.env.local
+.env.*
 nginx/mopl-nginx-key-pair.pem

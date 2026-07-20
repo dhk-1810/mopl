@@ -1,11 +1,9 @@
 package org.codeit.sb06.team03.mopl.account.service;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.account.service.*;
 import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.AccountService;
 import org.codeit.sb06.team03.mopl.account.exception.*;
-import org.codeit.sb06.team03.mopl.common.error.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.account.domain.vo.Role;
 import org.codeit.sb06.team03.mopl.follow.domain.Followee;
@@ -123,11 +121,4 @@ public class AccountCommandService {
         accountRepository.save(updatedAccount);
     }
 
-    private UUID parseUUID(String id) {
-        try {
-            return UUID.fromString(id);
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new InvalidIdentifierException(id);
-        }
-    }
 }

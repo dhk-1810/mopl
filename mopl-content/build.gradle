@@ -1,6 +1,18 @@
+bootJar {
+    enabled = true
+}
+
+jar {
+    enabled = false
+}
+
 dependencies {
-    implementation project(':mopl-image')
-    implementation project(':mopl-user')
-    implementation project(':mopl-watching-session')
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'com.nimbusds:nimbus-jose-jwt:10.7'
+    runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 }

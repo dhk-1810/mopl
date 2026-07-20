@@ -39,17 +39,6 @@ public class S3Service {
         client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
     }
 
-    public void uploadBytes(String key, byte[] bytes, String contentType) {
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(properties.bucketName())
-                .key(key)
-                .contentType(contentType)
-                .contentLength((long) bytes.length)
-                .build();
-
-        client.putObject(putObjectRequest, RequestBody.fromBytes(bytes));
-    }
-
     public String createPresignedUrl(String key, Duration timeout) {
         GetObjectPresignRequest presignedRequest = GetObjectPresignRequest.builder()
                 .signatureDuration(timeout)

@@ -1,5 +1,18 @@
 dependencies {
-    implementation project(':mopl-image')
-    implementation project(':mopl-user')
-    // removed mopl-content dependency to resolve circular reference
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'com.nimbusds:nimbus-jose-jwt:10.7'
+    runtimeOnly 'org.postgresql:postgresql'
+}
+
+bootJar {
+    enabled = true
+}
+
+jar {
+    enabled = false
 }
