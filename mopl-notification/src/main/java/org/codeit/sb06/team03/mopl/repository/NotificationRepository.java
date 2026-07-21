@@ -5,7 +5,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
-import org.codeit.sb06.team03.mopl.domain.Notification;
+import org.codeit.sb06.team03.mopl.entity.Notification;
 import org.codeit.sb06.team03.mopl.dto.response.NotificationDto;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.util.UUID;
 
-import static org.codeit.sb06.team03.mopl.domain.QNotification.notification;
+import static org.codeit.sb06.team03.mopl.entity.QNotification.notification;
 
 public interface NotificationRepository extends QuerydslJpaRepository<Notification, UUID> {
 

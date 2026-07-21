@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalUserView;
+import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.repository.ExternalUserViewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

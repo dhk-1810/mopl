@@ -6,6 +6,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.7'
+
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+    implementation "io.github.openfeign.querydsl:querydsl-jpa-spring:${querydslVersion}"
+
+    annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:${querydslVersion}:jakarta"
+
     runtimeOnly 'org.postgresql:postgresql'
 }
 

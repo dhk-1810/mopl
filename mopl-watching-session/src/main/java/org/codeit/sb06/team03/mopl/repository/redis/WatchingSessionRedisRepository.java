@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.repository.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.domain.WatchingSession;
+import org.codeit.sb06.team03.mopl.entity.WatchingSession;
 import org.codeit.sb06.team03.mopl.dto.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.repository.WatchingSessionRepository;
 import org.codeit.sb06.team03.mopl.repository.postgres.WatchingSessionSearchCondition;

@@ -19,9 +19,11 @@ public class RabbitConfig {
 
     public static final String ROUTING_KEY_PROFILE_CREATED = "user.profile-created";
     public static final String ROUTING_KEY_PROFILE_UPDATED = "user.profile-updated";
+    public static final String ROUTING_KEY_TOKEN_EXPIRED = "user.token-expired";
 
     public static final String USER_PROFILE_CREATE_QUEUE = "dm.user-profile-create.queue";
     public static final String USER_PROFILE_UPDATE_QUEUE = "dm.user-profile-update.queue";
+    public static final String TOKEN_EXPIRED_QUEUE = "dm.token-expired.queue";
 
     @Bean
     public TopicExchange dmExchange() {
@@ -44,6 +46,11 @@ public class RabbitConfig {
     }
 
     @Bean
+    public Queue tokenExpiredQueue() {
+        return new Queue(TOKEN_EXPIRED_QUEUE, true);
+    }
+
+    @Bean
     public Binding userProfileCreateBinding() {
         return BindingBuilder.bind(userProfileCreateQueue())
                 .to(userExchange())
@@ -55,6 +62,13 @@ public class RabbitConfig {
         return BindingBuilder.bind(userProfileUpdateQueue())
                 .to(userExchange())
                 .with(ROUTING_KEY_PROFILE_UPDATED);
+    }
+
+    @Bean
+    public Binding tokenExpiredBinding() {
+        return BindingBuilder.bind(tokenExpiredQueue())
+                .to(userExchange())
+                .with(ROUTING_KEY_TOKEN_EXPIRED);
     }
 
     @Bean

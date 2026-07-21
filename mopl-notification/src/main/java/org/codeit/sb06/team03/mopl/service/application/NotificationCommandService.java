@@ -1,10 +1,8 @@
 package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.common.error.InvalidIdentifierException;
-import org.codeit.sb06.team03.mopl.domain.Notification;
+import org.codeit.sb06.team03.mopl.entity.Notification;
 import org.codeit.sb06.team03.mopl.enums.NotificationLevel;
-import org.codeit.sb06.team03.mopl.domain.NotificationService;
 import org.codeit.sb06.team03.mopl.exception.NotificationAccessDeniedException;
 import org.codeit.sb06.team03.mopl.exception.NotificationNotFoundException;
 import org.codeit.sb06.team03.mopl.dto.response.NotificationDto;
@@ -21,39 +19,30 @@ import java.util.UUID;
 public class NotificationCommandService {
 
     private final NotificationRepository notificationRepository;
-    private final NotificationService notificationService;
 
     public NotificationDto create(UUID receiverId, String title, String content, NotificationLevel level) {
-        Notification notification = notificationService.create(receiverId, title, content, level);
+        Notification notification = Notification.create(receiverId, title, content, level);
         notificationRepository.save(notification);
         return NotificationDto.toDto(notification);
     }
 
     public List<NotificationDto> createAll(List<UUID> receiverIds, String title, String content, NotificationLevel level) {
         List<Notification> notifications = receiverIds.stream()
-                .map(id -> notificationService.create(id, title, content, level))
+                .map(id -> Notification.create(id, title, content, level))
                 .toList();
         notificationRepository.saveAll(notifications);
         return notifications.stream().map(NotificationDto::toDto).toList();
     }
 
-    public void delete(String notificationId, UUID receiverId) {
+    public void delete(UUID notificationId, UUID receiverId) {
 
-        UUID notificationUUID = parseUUID(notificationId);
-        Notification notification = notificationRepository.findById(notificationUUID)
-                .orElseThrow(() -> new NotificationNotFoundException(notificationUUID));
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new NotificationNotFoundException(notificationId));
 
         if (!notification.getReceiverId().equals(receiverId)) {
-            throw new NotificationAccessDeniedException(notificationUUID, receiverId);
+            throw new NotificationAccessDeniedException(notificationId, receiverId);
         }
-        notificationRepository.deleteById(notificationUUID);
+        notificationRepository.deleteById(notificationId);
     }
 
-    private UUID parseUUID(String id) {
-        try {
-            return UUID.fromString(id);
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new InvalidIdentifierException(id);
-        }
-    }
 }

@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.repository;
 
-import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalUserView;
+import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

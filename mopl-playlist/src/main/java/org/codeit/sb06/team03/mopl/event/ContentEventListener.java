@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.enums.ContentType;
-import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalContentView;
+import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalContentView;
 import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalContentViewRepository;
 import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

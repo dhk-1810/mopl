@@ -7,11 +7,9 @@ import org.codeit.sb06.team03.mopl.dto.request.CursorRequestReviewDto;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.service.composite.ReviewCompositeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -26,9 +24,9 @@ public class ReviewController {
     @PostMapping
     public ResponseEntity<ReviewDto> create(
             @RequestBody @Valid ReviewCreateRequest request,
-            @AuthenticationPrincipal MoplUserDetails user
+            @RequestHeader(value = "X-User-Id") UUID userId
     ) {
-        ReviewDto reviewDto = reviewCompositeService.createReview(request, user.getId());
+        ReviewDto reviewDto = reviewCompositeService.createReview(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewDto);
     }
 
@@ -36,18 +34,18 @@ public class ReviewController {
     public ResponseEntity<ReviewDto> update(
             @PathVariable UUID reviewId,
             @RequestBody @Valid ReviewUpdateRequest request,
-            @AuthenticationPrincipal MoplUserDetails user
+            @RequestHeader(value = "X-User-Id") UUID userId
     ) {
-        ReviewDto reviewDto = reviewCompositeService.updateReview(reviewId, request, user.getId());
+        ReviewDto reviewDto = reviewCompositeService.updateReview(reviewId, request, userId);
         return ResponseEntity.ok(reviewDto);
     }
 
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID reviewId,
-            @AuthenticationPrincipal MoplUserDetails user
+            @RequestHeader(value = "X-User-Id") UUID userId
     ) {
-        reviewCompositeService.deleteReview(reviewId, user.getId());
+        reviewCompositeService.deleteReview(reviewId, userId);
         return ResponseEntity.noContent().build();
     }
 

@@ -1,10 +1,10 @@
 package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.common.error.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestNotificationDto;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponseNotificationDto;
 import org.codeit.sb06.team03.mopl.dto.response.NotificationDto;
+import org.codeit.sb06.team03.mopl.exception.InvalidIdentifierException;
 import org.codeit.sb06.team03.mopl.repository.CursorGetNotificationsCondition;
 import org.codeit.sb06.team03.mopl.repository.NotificationRepository;
 import org.springframework.data.domain.Slice;

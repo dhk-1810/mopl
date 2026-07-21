@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.profile.service;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.SortDirection;
 import org.codeit.sb06.team03.mopl.account.service.AccountCommandService;
 import org.codeit.sb06.team03.mopl.account.service.AccountQueryService;
 import org.codeit.sb06.team03.mopl.account.service.*;
@@ -10,7 +11,6 @@ import org.codeit.sb06.team03.mopl.profile.controller.ProfileMapper;
 import org.codeit.sb06.team03.mopl.profile.controller.*;
 import org.codeit.sb06.team03.mopl.cache.ProfileImageCache;
 import org.codeit.sb06.team03.mopl.service.ImageQueryService;
-import org.codeit.sb06.team03.mopl.enums.SortDirection;
 import org.springframework.data.domain.Slice;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;

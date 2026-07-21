@@ -1,9 +1,9 @@
 package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.codeit.sb06.team03.mopl.dto.response.DirectMessageDto;
-import org.codeit.sb06.team03.mopl.UserSummary;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -13,7 +13,7 @@ import java.util.UUID;
 @Service
 public class DMMessagePassService {
 
-    private final SimpMessageSendingOperations messagingTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public void pass(UUID dmChatRoomId, UUID messageId, String content, Instant createdAt, UserSummary sender, UserSummary receiver) {
         DirectMessageDto dto = new DirectMessageDto(

@@ -1,9 +1,9 @@
 package org.codeit.sb06.team03.mopl.service;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.domain.PlaylistReadModel;
-import org.codeit.sb06.team03.mopl.domain.entity.Playlist;
-import org.codeit.sb06.team03.mopl.domain.entity.SubscriptionId;
+import org.codeit.sb06.team03.mopl.dto.PlaylistReadModel;
+import org.codeit.sb06.team03.mopl.entity.Playlist;
+import org.codeit.sb06.team03.mopl.entity.SubscriptionId;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestPlaylistDto;
 import org.codeit.sb06.team03.mopl.exception.PlaylistNotFoundException;
 import org.codeit.sb06.team03.mopl.repository.CurationRepository;

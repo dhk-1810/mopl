@@ -17,6 +17,13 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
+import org.springframework.web.socket.handler.WebSocketHandlerDecorator;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.CloseStatus;
+import org.codeit.sb06.team03.mopl.websocket.WebSocketSessionManager;
+
 @Slf4j
 @Configuration
 @EnableWebSocketMessageBroker
@@ -25,6 +32,24 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompAuthInboundInterceptor stompAuthInboundInterceptor;
     private final StompContentInboundInterceptor stompContentInboundInterceptor;
+    private final WebSocketSessionManager webSocketSessionManager;
+
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
+        registration.addDecoratorFactory(handler -> new WebSocketHandlerDecorator(handler) {
+            @Override
+            public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+                webSocketSessionManager.register(session);
+                super.afterConnectionEstablished(session);
+            }
+
+            @Override
+            public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+                webSocketSessionManager.remove(session.getId());
+                super.afterConnectionClosed(session, closeStatus);
+            }
+        });
+    }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {

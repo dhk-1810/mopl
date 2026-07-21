@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.codeit.sb06.team03.mopl.UserSummary;
+import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.springframework.lang.Nullable;
 
 public record DMChatRoomDto(

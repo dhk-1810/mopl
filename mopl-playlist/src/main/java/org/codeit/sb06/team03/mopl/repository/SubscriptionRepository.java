@@ -1,9 +1,9 @@
 package org.codeit.sb06.team03.mopl.repository;
 
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
-import org.codeit.sb06.team03.mopl.domain.entity.QSubscription;
-import org.codeit.sb06.team03.mopl.domain.entity.Subscription;
-import org.codeit.sb06.team03.mopl.domain.entity.SubscriptionId;
+import org.codeit.sb06.team03.mopl.entity.QSubscription;
+import org.codeit.sb06.team03.mopl.entity.Subscription;
+import org.codeit.sb06.team03.mopl.entity.SubscriptionId;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -2,9 +2,9 @@ package org.codeit.sb06.team03.mopl.repository;
 
 import com.querydsl.core.group.GroupBy;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
-import org.codeit.sb06.team03.mopl.domain.entity.Curation;
-import org.codeit.sb06.team03.mopl.domain.entity.CurationId;
-import org.codeit.sb06.team03.mopl.domain.entity.QCuration;
+import org.codeit.sb06.team03.mopl.entity.Curation;
+import org.codeit.sb06.team03.mopl.entity.CurationId;
+import org.codeit.sb06.team03.mopl.entity.QCuration;
 
 import java.util.*;
 

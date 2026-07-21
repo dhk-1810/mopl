@@ -1,19 +1,19 @@
 package org.codeit.sb06.team03.mopl.service.composite;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.UserSummary;
+import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.codeit.sb06.team03.mopl.dto.response.WatchingSessionDto;
 import org.codeit.sb06.team03.mopl.enums.SortDirection;
-import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponseWatchingSessionDto;
 import org.codeit.sb06.team03.mopl.dto.request.CursorWatchingSessionRequest;
-import org.codeit.sb06.team03.mopl.service.ImageQueryService;
-import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
+import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.profile.domain.entity.ExternalProfileView;
 import org.codeit.sb06.team03.mopl.profile.domain.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.profile.service.ProfileQueryService;
 import org.codeit.sb06.team03.mopl.dto.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.service.application.WatchingSessionQueryService;
 import org.springframework.data.domain.Slice;
+import org.codeit.sb06.team03.mopl.exception.WatchingSessionAccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,16 +27,22 @@ public class WatchingSessionCompositeService {
 
     private final WatchingSessionQueryService watchingSessionQueryService;
     private final ProfileQueryService profileQueryService;
-    private final ImageQueryService imageQueryService;
+    private final ExternalImageQueryService imageQueryService;
 
-    public WatchingSessionDto getByWatcherId(UUID watcherId, MoplUserDetails userDetails) {
+    public WatchingSessionDto getByWatcherId(UUID watcherId, String authenticatedUserId) {
+        if (authenticatedUserId == null || !watcherId.toString().equals(authenticatedUserId)) {
+            throw new WatchingSessionAccessDeniedException();
+        }
 
         // TODO 자발/강제 로그아웃 시 워칭세션 삭제
         WatchingSessionReadModel watchingSession = watchingSessionQueryService.getByContentId(watcherId);
         if (watchingSession == null) return null;
 
-        var userDto = userDetails.getUserDto();
-        UserSummary watcher = new UserSummary(userDto.id(), userDto.name(), userDto.profileImageUrl());
+        ProfileReadModel profile = profileQueryService.getProfileReadModels(List.of(watcherId)).get(watcherId);
+        String url = (profile != null) ? imageQueryService.getPresignedUrl(profile.imageKey()) : null;
+        String name = (profile != null) ? profile.name() : "Unknown";
+
+        UserSummary watcher = new UserSummary(watcherId, name, url);
 
         return new WatchingSessionDto(
                 watchingSession.id(),
@@ -51,7 +57,7 @@ public class WatchingSessionCompositeService {
         if (request.watcherNameLike() != null && !request.watcherNameLike().isBlank()) {
             filteredWatcherIds = profileQueryService.loadByNameContaining(request.watcherNameLike())
                     .stream()
-                    .map(Profile::getAccountId)
+                    .map(ExternalProfileView::getAccountId)
                     .toList();
         }
 

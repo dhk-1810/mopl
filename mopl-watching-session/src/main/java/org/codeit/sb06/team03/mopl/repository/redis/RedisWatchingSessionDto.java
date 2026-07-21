@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.repository.redis;
 
-import org.codeit.sb06.team03.mopl.domain.WatchingSession;
+import org.codeit.sb06.team03.mopl.entity.WatchingSession;
 
 public record RedisWatchingSessionDto(
         String id,

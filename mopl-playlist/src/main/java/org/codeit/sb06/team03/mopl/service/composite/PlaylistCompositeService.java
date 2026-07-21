@@ -1,26 +1,24 @@
 package org.codeit.sb06.team03.mopl.service.composite;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.UserSummary;
+import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.codeit.sb06.team03.mopl.enums.SortDirection;
-import org.codeit.sb06.team03.mopl.domain.PlaylistReadModel;
+import org.codeit.sb06.team03.mopl.dto.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestPlaylistDto;
 import org.codeit.sb06.team03.mopl.dto.request.PlaylistCreateRequest;
 import org.codeit.sb06.team03.mopl.dto.request.PlaylistUpdateRequest;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponsePlaylistDto;
 import org.codeit.sb06.team03.mopl.dto.response.PlaylistDto;
-import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.dto.response.ContentDto;
-import org.codeit.sb06.team03.mopl.service.ImageQueryService;
-import org.codeit.sb06.team03.mopl.domain.entity.Playlist;
-import org.codeit.sb06.team03.mopl.domain.entity.cqrs.ExternalContentView;
+import org.codeit.sb06.team03.mopl.entity.Playlist;
+import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalContentView;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
+import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
 import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalContentQueryService;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.service.PlaylistQueryService;
 import org.springframework.data.domain.Slice;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -31,21 +29,15 @@ import java.util.stream.Collectors;
 public class PlaylistCompositeService {
 
     private final PlaylistCommandService playlistCommandService;
-    private final ImageQueryService imageQueryService;
-
     private final PlaylistQueryService playlistQueryService;
     private final ExternalUserQueryService externalUserQueryService;
     private final ExternalContentQueryService externalContentQueryService;
+    private final ExternalImageQueryService imageQueryService;
 
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
         Playlist playlist = playlistCommandService.create(request.title(), request.description(), ownerId);
 
-        MoplUserDetails userDetails = (MoplUserDetails) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-        var userDto = userDetails.getUserDto();
-        UserSummary owner = new UserSummary(userDto.id(), userDto.name(), userDto.profileImageUrl());
-
+        UserSummary owner = getUserSummary(ownerId);
         return PlaylistDto.toDto(playlist, owner, false , Collections.emptyList());
     }
 
@@ -156,11 +148,7 @@ public class PlaylistCompositeService {
     public PlaylistDto updatePlayList(UUID playlistId, PlaylistUpdateRequest request, UUID ownerId) {
         Playlist playlist = playlistCommandService.update(playlistId, request.title(), request.description(), ownerId);
 
-        MoplUserDetails userDetails = (MoplUserDetails) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-        var userDto = userDetails.getUserDto();
-        UserSummary owner = new UserSummary(userDto.id(), userDto.name(), userDto.profileImageUrl());
+        UserSummary owner = getUserSummary(ownerId);
         List<ContentDto> contentDtos = getContentDtos(playlist.getId());
         return PlaylistDto.toDto(playlist, owner, false , contentDtos);
     }
@@ -224,5 +212,16 @@ public class PlaylistCompositeService {
                 .map(String::trim)
                 .filter(tag -> !tag.isEmpty())
                 .collect(Collectors.toSet());
+    }
+
+    private UserSummary getUserSummary(UUID ownerId) {
+        ExternalUserView ownerProfile = externalUserQueryService.getProfile(ownerId);
+        String ownerName = "Unknown User";
+        String ownerUrl = null;
+        if (ownerProfile != null) {
+            ownerName = ownerProfile.getName();
+            ownerUrl = imageQueryService.getPresignedUrl(ownerProfile.getProfileImageKey());
+        }
+        return new UserSummary(ownerId, ownerName, ownerUrl);
     }
 }

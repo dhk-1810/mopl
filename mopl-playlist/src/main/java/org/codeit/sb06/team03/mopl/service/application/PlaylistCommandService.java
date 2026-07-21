@@ -1,11 +1,10 @@
 package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.domain.entity.*;
+import org.codeit.sb06.team03.mopl.entity.*;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.exception.*;
-import org.codeit.sb06.team03.mopl.profile.exception.ProfileNotFoundException;
 import org.codeit.sb06.team03.mopl.repository.CurationRepository;
 import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalUserViewRepository;
 import org.codeit.sb06.team03.mopl.repository.PlaylistRepository;
@@ -91,7 +90,7 @@ public class PlaylistCommandService {
         curationRepository.deleteById(id);
 
         playlist.decreaseContentCount();
-        playlistRepository.save(playlist); // Originally did savePlaylistPort.delete(playlistId) which might be a bug in original code, but they decrease count so it should save! Let's save.
+        playlistRepository.save(playlist);
     }
 
     public void deleteCurationByContentId(UUID contentId) {
@@ -102,7 +101,7 @@ public class PlaylistCommandService {
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
         ExternalUserView subscriber = externalUserViewRepository.findById(userId)
-                .orElseThrow(() -> new ProfileNotFoundException(userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         SubscriptionId id = new SubscriptionId(playlistId, userId);
         if (subscriptionRepository.existsById(id)){

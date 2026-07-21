@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestNotificationDto;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponseNotificationDto;
 import org.codeit.sb06.team03.mopl.service.composite.NotificationCompositeService;
-import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
@@ -20,18 +19,18 @@ public class NotificationController implements NotificationApi {
     @GetMapping
     public ResponseEntity<CursorResponseNotificationDto> getNotifications(
             @ModelAttribute CursorRequestNotificationDto request,
-            @AuthenticationPrincipal MoplUserDetails user
+            @RequestHeader(value = "X-User-Id") UUID userId
     ) {
-        return ResponseEntity.ok(notificationCompositeService.getNotifications(request, user.getId()));
+        return ResponseEntity.ok(notificationCompositeService.getNotifications(request, userId));
     }
 
     @Override
     @DeleteMapping("/{notificationId}")
     public ResponseEntity<Void> deleteNotification(
-            @PathVariable String notificationId,
-            @AuthenticationPrincipal MoplUserDetails user
+            @PathVariable UUID notificationId,
+            @RequestHeader(value = "X-User-Id") UUID userId
     ) {
-        notificationCompositeService.deleteNotification(notificationId, user.getId());
+        notificationCompositeService.deleteNotification(notificationId, userId);
         return ResponseEntity.noContent().build();
     }
 }

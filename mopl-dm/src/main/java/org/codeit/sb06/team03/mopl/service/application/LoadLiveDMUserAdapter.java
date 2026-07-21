@@ -3,8 +3,8 @@ package org.codeit.sb06.team03.mopl.service.application;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
-import org.codeit.sb06.team03.mopl.service.ImageQueryService;
-import org.codeit.sb06.team03.mopl.UserSummary;
+import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -14,7 +14,7 @@ import java.util.UUID;
 public class LoadLiveDMUserAdapter {
 
     private final ExternalUserQueryService externalUserQueryService;
-    private final ImageQueryService imageQueryService;
+    private final ExternalImageQueryService imageQueryService;
 
     public UserSummary findByUserId(UUID userId) {
         ExternalUserView profile = externalUserQueryService.getProfile(userId);

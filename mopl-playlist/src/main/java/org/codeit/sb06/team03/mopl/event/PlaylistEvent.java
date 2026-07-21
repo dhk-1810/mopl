@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -18,7 +19,7 @@ public abstract sealed class PlaylistEvent {
         private final String ownerName;
         private final UUID playlistId;
         private final String playlistTitle;
-        private final List<UUID> followerIds;
+        private final Set<UUID> followerIds;
 
         public PlaylistCreatedEvent(UUID ownerId, String ownerName, UUID playlistId, String playlistTitle) {
             this.ownerId = ownerId;

@@ -2,12 +2,10 @@ package org.codeit.sb06.team03.mopl.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.dto.response.WatchingSessionDto;
-import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.service.composite.WatchingSessionCompositeService;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponseWatchingSessionDto;
 import org.codeit.sb06.team03.mopl.dto.request.CursorWatchingSessionRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -22,10 +20,10 @@ public class WatchingSessionController {
     @GetMapping("/users/{watcherId}/watching-sessions")
     public ResponseEntity<WatchingSessionDto> getByWatcherId(
             @PathVariable UUID watcherId,
-            @AuthenticationPrincipal MoplUserDetails userDetails
+            @RequestHeader(value = "X-User-Id", required = false) String userId
     ) {
         WatchingSessionDto sessionDetails = watchingSessionCompositeService
-                .getByWatcherId(watcherId, userDetails);
+                .getByWatcherId(watcherId, userId);
         return ResponseEntity.ok(sessionDetails);
     }
 

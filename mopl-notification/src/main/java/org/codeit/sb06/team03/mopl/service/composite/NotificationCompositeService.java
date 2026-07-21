@@ -20,7 +20,7 @@ public class NotificationCompositeService {
         return notificationQueryService.get(request, receiverId);
     }
 
-    public void deleteNotification(String notificationId, UUID receiverId) {
+    public void deleteNotification(UUID notificationId, UUID receiverId) {
         notificationCommandService.delete(notificationId, receiverId);
     }
 }

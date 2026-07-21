@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.exception;
 
-import org.codeit.sb06.team03.mopl.common.error.ErrorResponse;
+import org.codeit.sb06.team03.mopl.ErrorResponse;
 import org.codeit.sb06.team03.mopl.exception.LiveChatRoomDuplicateException;
 import org.codeit.sb06.team03.mopl.exception.LiveChatRoomNotFoundException;
 import org.springframework.http.HttpStatus;

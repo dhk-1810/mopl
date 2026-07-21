@@ -5,10 +5,11 @@ import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.dto.CollectedContentDto;
+import org.codeit.sb06.team03.mopl.dto.ContentCreateRequest;
+import org.codeit.sb06.team03.mopl.dto.CursorResponseContentDto;
 import org.codeit.sb06.team03.mopl.client.TmdbClient;
 import org.codeit.sb06.team03.mopl.client.SportsDbClient;
-import org.codeit.sb06.team03.mopl.entity.Content;
-import org.codeit.sb06.team03.mopl.repository.ContentRepository;
+import org.codeit.sb06.team03.mopl.client.ContentClient;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -17,13 +18,13 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -31,12 +32,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContentCollectionBatchConfig {
 
+    private final PlatformTransactionManager transactionManager;
     private final JobRepository jobRepository;
-    @Qualifier("contentTransactionManager")
-    private final PlatformTransactionManager contentTransactionManager;
-    private final ContentRepository contentRepository;
     private final TmdbClient tmdbClient;
     private final SportsDbClient sportsDbClient;
+    private final ContentClient contentClient;
     private final MeterRegistry meterRegistry;
 
     @Bean
@@ -50,7 +50,7 @@ public class ContentCollectionBatchConfig {
     @Bean
     public Step collectTmdbStep() {
         return new StepBuilder("collectTmdbStep", jobRepository)
-                .<CollectedContentDto, Content>chunk(10, contentTransactionManager)
+                .<CollectedContentDto, ContentCreateRequest>chunk(10, transactionManager)
                 .reader(tmdbReader())
                 .processor(contentProcessor())
                 .writer(contentWriter("TMDB"))
@@ -60,7 +60,7 @@ public class ContentCollectionBatchConfig {
     @Bean
     public Step collectSportsStep() {
         return new StepBuilder("collectSportsStep", jobRepository)
-                .<CollectedContentDto, Content>chunk(10, contentTransactionManager)
+                .<CollectedContentDto, ContentCreateRequest>chunk(10, transactionManager)
                 .reader(sportsDbReader())
                 .processor(contentProcessor())
                 .writer(contentWriter("SportsDB"))
@@ -112,28 +112,29 @@ public class ContentCollectionBatchConfig {
     }
 
     @Bean
-    public ItemProcessor<CollectedContentDto, Content> contentProcessor() {
+    public ItemProcessor<CollectedContentDto, ContentCreateRequest> contentProcessor() {
         return dto -> {
-            boolean exists = contentRepository.existsByTitleAndType(dto.title(), dto.type());
+            CursorResponseContentDto response = contentClient.getContents(dto.title(), dto.type().name());
+            boolean exists = response != null && response.data() != null && !response.data().isEmpty();
             if (exists) {
                 log.info("Content already exists, skipping: {} ({})", dto.title(), dto.type());
                 return null;
             }
-            return Content.create(dto.type(), dto.title(), dto.description(), dto.thumbnailKey());
+            return new ContentCreateRequest(dto.type(), dto.title(), dto.description(), Collections.emptySet(), dto.thumbnailKey());
         };
     }
 
     @Bean
-    public ItemWriter<Content> contentWriter(String source) {
+    public ItemWriter<ContentCreateRequest> contentWriter(String source) {
         Counter successCounter = Counter.builder("mopl.batch.content.collected")
                 .description("Number of contents collected successfully")
                 .tag("source", source)
                 .register(meterRegistry);
 
         return chunk -> {
-            List<? extends Content> items = chunk.getItems();
-            for (Content item : items) {
-                contentRepository.save(item);
+            List<? extends ContentCreateRequest> items = chunk.getItems();
+            for (ContentCreateRequest item : items) {
+                contentClient.createInternal(item);
                 successCounter.increment();
             }
             log.info("Saved {} contents from {}", items.size(), source);

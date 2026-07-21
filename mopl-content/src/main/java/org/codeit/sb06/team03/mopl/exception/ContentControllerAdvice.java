@@ -1,10 +1,6 @@
 package org.codeit.sb06.team03.mopl.exception;
 
-import org.codeit.sb06.team03.mopl.common.error.ErrorResponse;
-import org.codeit.sb06.team03.mopl.exception.InvalidCursorFormatException;
-import org.codeit.sb06.team03.mopl.exception.ContentNotFoundException;
-import org.codeit.sb06.team03.mopl.exception.ReviewAlreadyExistsException;
-import org.codeit.sb06.team03.mopl.exception.ReviewNotFoundException;
+import org.codeit.sb06.team03.mopl.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

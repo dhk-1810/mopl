@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.follow.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.common.error.ErrorResponse;
+import org.codeit.sb06.team03.mopl.ErrorResponse;
 import org.codeit.sb06.team03.mopl.follow.exception.FolloweeNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -24,15 +24,21 @@ public class DMController implements DMApi {
 
     @Override
     @GetMapping
-    public ResponseEntity<CursorResponseDMChatRoomDto> getDMChatRooms(@ModelAttribute CursorRequestDMChatRoomDto request) {
-        CursorResponseDMChatRoomDto response = dmCompositeService.getDMChatRooms(request);
+    public ResponseEntity<CursorResponseDMChatRoomDto> getDMChatRooms(
+            @ModelAttribute CursorRequestDMChatRoomDto request,
+            @RequestHeader(value = "X-User-Id") UUID userId
+    ) {
+        CursorResponseDMChatRoomDto response = dmCompositeService.getDMChatRooms(request, userId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Override
     @PostMapping
-    public ResponseEntity<DMChatRoomDto> createDMChatRoom(@RequestBody(required = true) @Valid DMChatRoomCreateRequest request) {
-        DMChatRoomDto response = dmCompositeService.createDMChatRoom(request);
+    public ResponseEntity<DMChatRoomDto> createDMChatRoom(
+            @RequestBody(required = true) @Valid DMChatRoomCreateRequest request,
+            @RequestHeader(value = "X-User-Id") UUID userId
+    ) {
+        DMChatRoomDto response = dmCompositeService.createDMChatRoom(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -40,16 +46,20 @@ public class DMController implements DMApi {
     @PostMapping("/{conversationId}/direct-messages/{directMessageId}/read")
     public ResponseEntity<Void> readDirectMessage(
             @PathVariable UUID conversationId,
-            @PathVariable UUID directMessageId
+            @PathVariable UUID directMessageId,
+            @RequestHeader(value = "X-User-Id") UUID userId
     ) {
-        dmCompositeService.readDM(conversationId, directMessageId);
+        dmCompositeService.readDM(conversationId, directMessageId, userId);
         return ResponseEntity.noContent().build();
     }
 
     @Override
     @GetMapping("/{conversationId}")
-    public ResponseEntity<DMChatRoomDto> getDMChatRoom(@PathVariable UUID conversationId) {
-        DMChatRoomDto response = dmCompositeService.getDMChatRoom(conversationId);
+    public ResponseEntity<DMChatRoomDto> getDMChatRoom(
+            @PathVariable UUID conversationId,
+            @RequestHeader(value = "X-User-Id") UUID userId
+    ) {
+        DMChatRoomDto response = dmCompositeService.getDMChatRoom(conversationId, userId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -57,16 +67,20 @@ public class DMController implements DMApi {
     @GetMapping("/{conversationId}/direct-messages")
     public ResponseEntity<CursorResponseDirectMessageDto> getDirectMessages(
             @PathVariable UUID conversationId,
-            @ModelAttribute CursorRequestDirectMessageDto request
+            @ModelAttribute CursorRequestDirectMessageDto request,
+            @RequestHeader(value = "X-User-Id") UUID userId
     ) {
-        CursorResponseDirectMessageDto response = dmCompositeService.getDMs(conversationId, request);
+        CursorResponseDirectMessageDto response = dmCompositeService.getDMs(conversationId, request, userId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Override
     @GetMapping("/with")
-    public ResponseEntity<DMChatRoomDto> getDMChatRoomWith(@RequestParam UUID userId) {
-        DMChatRoomDto response = dmCompositeService.getDMChatRoomWith(userId);
+    public ResponseEntity<DMChatRoomDto> getDMChatRoomWith(
+            @RequestParam UUID userId,
+            @RequestHeader(value = "X-User-Id") UUID currentUserId
+    ) {
+        DMChatRoomDto response = dmCompositeService.getDMChatRoomWith(userId, currentUserId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

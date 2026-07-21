@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.profile.controller;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.codeit.sb06.team03.mopl.enums.SortDirection;
+import org.codeit.sb06.team03.mopl.SortDirection;
 import org.springframework.lang.Nullable;
 
 import java.util.List;

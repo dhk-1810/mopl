@@ -1,4 +1,6 @@
 package org.codeit.sb06.team03.mopl.service.composite;
+
+import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.dto.response.DirectMessageDto;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponseDMChatRoomDto;
 import org.codeit.sb06.team03.mopl.dto.response.DMChatRoomDto;
@@ -6,10 +8,7 @@ import org.codeit.sb06.team03.mopl.dto.response.CursorResponseDirectMessageDto;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestDirectMessageDto;
 import org.codeit.sb06.team03.mopl.dto.request.DMChatRoomCreateRequest;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestDMChatRoomDto;
-
-import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.UserSummary;
-import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
+import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.codeit.sb06.team03.mopl.service.application.*;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.domain.entity.DMChatRoom;
@@ -19,9 +18,8 @@ import org.codeit.sb06.team03.mopl.service.application.DMCommandService;
 import org.codeit.sb06.team03.mopl.service.application.DMQueryService;
 import org.codeit.sb06.team03.mopl.domain.entity.DMMessage;
 import org.codeit.sb06.team03.mopl.dto.request.MessageSendRequest;
+import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
 import org.codeit.sb06.team03.mopl.enums.SortDirection;
-import org.codeit.sb06.team03.mopl.service.ImageQueryService;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -37,16 +35,14 @@ public class DMCompositeService {
     private final DMCommandService dmCommandService;
     private final DMQueryService dmQueryService;
     private final ExternalUserQueryService externalUserQueryService;
-    private final ImageQueryService imageQueryService;
+    private final ExternalImageQueryService imageQueryService;
 
-    public DMChatRoomDto createDMChatRoom(DMChatRoomCreateRequest request) {
-        UUID userId = getCurrentUserId();
+    public DMChatRoomDto createDMChatRoom(DMChatRoomCreateRequest request, UUID userId) {
         DMChatRoom dmChatRoom = dmChatRoomCommandService.create(userId, request.withUserId());
         return toDMChatRoomDto(dmChatRoom, userId, Optional.empty());
     }
 
-    public CursorResponseDMChatRoomDto getDMChatRooms(CursorRequestDMChatRoomDto request) {
-        UUID userId = getCurrentUserId();
+    public CursorResponseDMChatRoomDto getDMChatRooms(CursorRequestDMChatRoomDto request, UUID userId) {
         int limit = request.limit();
 
         List<DMChatRoom> items = dmChatRoomQueryService.findAll(
@@ -111,20 +107,18 @@ public class DMCompositeService {
         );
     }
 
-    public DMChatRoomDto getDMChatRoom(UUID dmChatRoomId) {
-        UUID userId = getCurrentUserId();
+    public DMChatRoomDto getDMChatRoom(UUID dmChatRoomId, UUID userId) {
         DMChatRoom dmChatRoom = dmChatRoomQueryService.findById(userId, dmChatRoomId);
         Optional<DMMessage> dmMessage = dmQueryService.findLatestByDMChatRoomId(dmChatRoomId);
         return toDMChatRoomDto(dmChatRoom, userId, dmMessage);
     }
 
-    public DMChatRoomDto getDMChatRoomWith(UUID partnerId) {
-        UUID userId = getCurrentUserId();
+    public DMChatRoomDto getDMChatRoomWith(UUID partnerId, UUID userId) {
         DMChatRoom dmChatRoom = dmChatRoomQueryService.findByWith(userId, partnerId);
         return toDMChatRoomDto(dmChatRoom, userId, Optional.empty());
     }
 
-    public CursorResponseDirectMessageDto getDMs(UUID dmChatRoomId, CursorRequestDirectMessageDto request) {
+    public CursorResponseDirectMessageDto getDMs(UUID dmChatRoomId, CursorRequestDirectMessageDto request, UUID userId) {
         int limit = request.limit();
 
         List<DMMessage> items = dmQueryService.findAll(
@@ -185,8 +179,7 @@ public class DMCompositeService {
         dmCommandService.send(dmChatRoomId, senderId, receiverId, request.content());
     }
 
-    public void readDM(UUID dmChatRoomId, UUID messageId) {
-        UUID userId = getCurrentUserId();
+    public void readDM(UUID dmChatRoomId, UUID messageId, UUID userId) {
         dmChatRoomCommandService.read(dmChatRoomId, messageId, userId);
     }
 
@@ -268,9 +261,4 @@ public class DMCompositeService {
         );
     }
 
-    private UUID getCurrentUserId() {
-        MoplUserDetails user = (MoplUserDetails) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
-        return user.getId();
-    }
 }

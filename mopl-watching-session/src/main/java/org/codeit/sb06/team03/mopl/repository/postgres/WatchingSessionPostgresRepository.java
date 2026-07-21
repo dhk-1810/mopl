@@ -5,7 +5,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
 import org.codeit.sb06.team03.mopl.dto.WatchingSessionReadModel;
-import org.codeit.sb06.team03.mopl.domain.WatchingSession;
+import org.codeit.sb06.team03.mopl.entity.WatchingSession;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.codeit.sb06.team03.mopl.domain.QWatchingSession.watchingSession;
+import static org.codeit.sb06.team03.mopl.entity.QWatchingSession.watchingSession;
 
 
 public interface WatchingSessionPostgresRepository extends QuerydslJpaRepository<WatchingSession, UUID> {

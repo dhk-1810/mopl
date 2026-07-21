@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.util.DestinationUtils;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;

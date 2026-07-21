@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 import static org.codeit.sb06.team03.mopl.entity.QContent.content;
 import static org.codeit.sb06.team03.mopl.entity.QContentTag.contentTag;
-import static org.codeit.sb06.team03.mopl.profile.domain.entity.QProfile.profile;
 import static org.codeit.sb06.team03.mopl.entity.QTag.tag;
 import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.group.GroupBy.set;
@@ -177,15 +176,6 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
             }
         };
     }
-
-        private BooleanExpression getWatcherNameLikeCondition(String watcherName) {
-        if (watcherName == null) {
-            return null;
-        }
-        return profile.name.like("%" + watcherName + "%");
-    }
-
-
 
     private static OrderSpecifier<?>[] orderByExpressions(SortContentBy sortBy, SortDirection sortDirection) {
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();

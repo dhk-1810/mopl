@@ -2,12 +2,10 @@ package org.codeit.sb06.team03.mopl.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.service.application.DMChatRoomCommandService;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
@@ -22,7 +20,6 @@ import java.util.regex.Pattern;
 @Component
 @RequiredArgsConstructor
 public class DMWebSocketEventListener {
-
     private static final Pattern DM_SUB_PATTERN = Pattern.compile("^/sub/dm_chat_rooms/[0-9a-fA-F-]+/direct-messages$");
 
     private final DMChatRoomCommandService dmChatRoomCommandService;
@@ -91,8 +88,6 @@ public class DMWebSocketEventListener {
     }
 
     private UUID getUserId(Principal principal) {
-        Authentication authentication = (Authentication) principal;
-        MoplUserDetails userDetails = (MoplUserDetails) authentication.getPrincipal();
-        return userDetails.getId();
+        return UUID.fromString(principal.getName());
     }
 }

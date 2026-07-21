@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.dto.response;
 
-import org.codeit.sb06.team03.mopl.domain.Notification;
+import org.codeit.sb06.team03.mopl.entity.Notification;
 import org.codeit.sb06.team03.mopl.enums.NotificationLevel;
 
 import java.time.Instant;

@@ -8,10 +8,10 @@ import org.codeit.sb06.team03.mopl.entity.LiveChatRoom;
 import org.codeit.sb06.team03.mopl.exception.LiveChatRoomDuplicateException;
 import org.codeit.sb06.team03.mopl.repository.LiveChatRoomRepository;
 import org.codeit.sb06.team03.mopl.dto.response.WatchingSessionDto;
-import org.codeit.sb06.team03.mopl.UserSummary;
+import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.codeit.sb06.team03.mopl.dto.response.LiveChatRoomMessageResponse;
 import org.codeit.sb06.team03.mopl.dto.response.LiveChatRoomPresenceResponse;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +24,7 @@ public class LiveChatRoomCommandService {
 
     private final LiveChatRoomRepository liveChatRoomRepository;
     private final ContentRepository contentRepository;
-    private final SimpMessageSendingOperations messagingTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public void sendPresenceMessage(UUID liveChatRoomId, SendPresenceMessageCommand command) {
         UUID contentId = liveChatRoomId; // LiveChatRoom과 Content는 같은 ID를 쓰고 있음

@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
+import org.codeit.sb06.team03.mopl.dto.request.ContentCreateInternalRequest;
+
 @RestController
 @RequestMapping("/api/contents")
 @RequiredArgsConstructor
@@ -30,6 +32,14 @@ public class ContentController {
     @GetMapping("/{contentId}")
     public ResponseEntity<ContentDto> getSingleContent(@PathVariable UUID contentId){
         return ResponseEntity.ok(contentCompositeService.getSingleContent(contentId));
+    }
+
+    @PostMapping("/internal")
+    public ResponseEntity<ContentDto> createInternal(
+            @RequestBody ContentCreateInternalRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(contentCompositeService.createInternal(request));
     }
 
     @PostMapping

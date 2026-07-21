@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.repository;
 
-import org.codeit.sb06.team03.mopl.domain.WatchingSession;
+import org.codeit.sb06.team03.mopl.entity.WatchingSession;
 import org.codeit.sb06.team03.mopl.dto.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.repository.postgres.WatchingSessionSearchCondition;
 import org.springframework.data.domain.Slice;

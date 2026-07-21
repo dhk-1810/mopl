@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.service.composite;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.UserSummary;
+import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.codeit.sb06.team03.mopl.enums.SortReviewBy;
 import org.codeit.sb06.team03.mopl.service.application.*;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
@@ -12,7 +12,7 @@ import org.codeit.sb06.team03.mopl.dto.response.CursorResponseReviewDto;
 import org.codeit.sb06.team03.mopl.dto.request.ReviewCreateRequest;
 import org.codeit.sb06.team03.mopl.dto.response.ReviewDto;
 import org.codeit.sb06.team03.mopl.dto.request.ReviewUpdateRequest;
-import org.codeit.sb06.team03.mopl.service.ImageQueryService;
+import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ public class ReviewCompositeService {
     private final ReviewCommandService reviewCommandService;
     private final ReviewQueryService reviewQueryService;
     private final ExternalUserQueryService externalUserQueryService;
-    private final ImageQueryService imageQueryService;
+    private final ExternalImageQueryService imageQueryService;
 
     public ReviewDto createReview(ReviewCreateRequest request, UUID authorId) {
         Review review = reviewCommandService.create(new CreateReviewCommand(

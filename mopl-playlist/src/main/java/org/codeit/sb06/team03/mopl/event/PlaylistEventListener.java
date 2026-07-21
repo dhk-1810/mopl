@@ -12,6 +12,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class PlaylistEventListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePlaylistCreatedEvent(PlaylistEvent.PlaylistCreatedEvent event) {
-        List<UUID> followerIds = externalFollowQueryService.getFollowerIds(event.getOwnerId());
+        Set<UUID> followerIds = externalFollowQueryService.getFollowerIds(event.getOwnerId());
 
         rabbitTemplate.convertAndSend(
                 RabbitConfig.PLAYLIST_EXCHANGE,

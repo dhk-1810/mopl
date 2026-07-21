@@ -4,25 +4,23 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.DestinationUtils;
 import org.codeit.sb06.team03.mopl.enums.WatchType;
 import org.codeit.sb06.team03.mopl.service.application.LiveChatRoomCommandService;
-import org.codeit.sb06.team03.mopl.security.MoplUserDetails;
-import org.codeit.sb06.team03.mopl.profile.controller.UserDto;
-import org.codeit.sb06.team03.mopl.cache.ProfileImageCache;
-import org.codeit.sb06.team03.mopl.dto.WatchingSessionReadModel;
-import org.codeit.sb06.team03.mopl.service.application.WatchingSessionCommandService;
-import org.codeit.sb06.team03.mopl.service.application.WatchingSessionQueryService;
-import org.codeit.sb06.team03.mopl.service.application.CreateWatchingSessionCommand;
+import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
+import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.service.application.SendPresenceMessageCommand;
-import org.codeit.sb06.team03.mopl.exception.WatchingSessionNotFoundException;
+import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.event.WatchingSessionCreateRequestEvent;
+import org.codeit.sb06.team03.mopl.event.WatchingSessionDeleteRequestEvent;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 
 import java.security.Principal;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,10 +28,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LiveChatRoomWebEventListener {
 
-    private final WatchingSessionCommandService watchingSessionCommandService;
     private final LiveChatRoomCommandService liveChatRoomCommandService;
-    private final WatchingSessionQueryService watchingSessionQueryService;
-    private final ProfileImageCache profileImageCache;
+    private final ExternalUserQueryService externalUserQueryService;
+    private final ExternalImageQueryService imageQueryService;
+    private final RabbitTemplate rabbitTemplate;
+
+    private static final String WS_EXCHANGE = "mopl.watching-session.exchange";
+    private static final String WS_CREATE_ROUTING = "watching-session.create";
+    private static final String WS_DELETE_ROUTING = "watching-session.delete";
 
     // 같은 채널을 구독하지 못하게 하는 로직 필요
     @EventListener
@@ -50,20 +52,27 @@ public class LiveChatRoomWebEventListener {
         UUID contentId = UUID.fromString(DestinationUtils.extractContentId(destination));
         UUID liveChatRoomId = contentId; // LiveChatRoom은 Content와 같은 ID를 쓰고 있음.
 
-        MoplUserDetails userDetails = getUserDetails(event.getUser());
-        UserDto userDto = userDetails.getUserDto();
+        UUID userId = getUserId(event.getUser());
+        ExternalUserView userView = externalUserQueryService.getProfile(userId);
+        String name = userView != null ? userView.getName() : "Unknown User";
+        String imageKey = userView != null ? userView.getProfileImageKey() : null;
 
-        CreateWatchingSessionCommand createWatchingSessionCommand = new CreateWatchingSessionCommand(liveChatRoomId, userDto.id());
-        watchingSessionCommandService.create(createWatchingSessionCommand);
+        UUID sessionId = UUID.randomUUID();
+        Instant createdAt = Instant.now();
 
-        WatchingSessionReadModel watchingSession = watchingSessionQueryService.getByContentId(userDto.id());
-        String profileImageUrl = profileImageCache.getProfileImageUrl(userDto.id());
+        // 1. RabbitMQ를 통해 mopl-watching-session에 세션 생성을 위임
+        WatchingSessionCreateRequestEvent createEvent = new WatchingSessionCreateRequestEvent(
+                sessionId, liveChatRoomId, userId, createdAt
+        );
+        rabbitTemplate.convertAndSend(WS_EXCHANGE, WS_CREATE_ROUTING, createEvent);
+
+        String profileImageUrl = imageQueryService.getPresignedUrl(imageKey);
         SendPresenceMessageCommand sendPresenceMessageCommand =
                 new SendPresenceMessageCommand(
-                        watchingSession.id(),
-                        watchingSession.createdAt(),
-                        userDto.id(),
-                        userDto.name(),
+                        sessionId,
+                        createdAt,
+                        userId,
+                        name,
                         profileImageUrl,
                         WatchType.JOIN.name(),
                         destination
@@ -84,24 +93,25 @@ public class LiveChatRoomWebEventListener {
 
         accessor.getSessionAttributes().remove(accessor.getSubscriptionId());
 
-        MoplUserDetails userDetails = getUserDetails(event.getUser());
-        UserDto userDto = userDetails.getUserDto();
+        UUID userId = getUserId(event.getUser());
+        ExternalUserView userView = externalUserQueryService.getProfile(userId);
+        String name = userView != null ? userView.getName() : "Unknown User";
+        String imageKey = userView != null ? userView.getProfileImageKey() : null;
 
         UUID contentId = UUID.fromString(DestinationUtils.extractContentId(destination));
         UUID liveChatRoomId = contentId; // LiveChatRoom은 Content와 같은 ID를 쓰고 있음.
 
-        WatchingSessionReadModel watchingSession = watchingSessionQueryService.getByContentId(userDto.id());
-        if (watchingSession == null) return;
+        // 2. RabbitMQ를 통해 mopl-watching-session에 세션 삭제를 위임
+        WatchingSessionDeleteRequestEvent deleteEvent = new WatchingSessionDeleteRequestEvent(null, userId);
+        rabbitTemplate.convertAndSend(WS_EXCHANGE, WS_DELETE_ROUTING, deleteEvent);
 
-        watchingSessionCommandService.delete(watchingSession.id());
-
-        String profileImageUrl = profileImageCache.getProfileImageUrl(userDto.id());
+        String profileImageUrl = imageQueryService.getPresignedUrl(imageKey);
         SendPresenceMessageCommand sendPresenceMessageCommand =
                 new SendPresenceMessageCommand(
-                        watchingSession.id(),
-                        watchingSession.createdAt(),
-                        userDto.id(),
-                        userDto.name(),
+                        UUID.randomUUID(),
+                        Instant.now(),
+                        userId,
+                        name,
                         profileImageUrl,
                         WatchType.LEAVE.name(),
                         destination
@@ -119,8 +129,10 @@ public class LiveChatRoomWebEventListener {
         if (accessor == null) return;
         if (accessor.getSessionAttributes() == null || accessor.getSessionAttributes().isEmpty()) return;
 
-        MoplUserDetails userDetails = getUserDetails(event.getUser());
-        UserDto userDto = userDetails.getUserDto();
+        UUID userId = getUserId(event.getUser());
+        ExternalUserView userView = externalUserQueryService.getProfile(userId);
+        String name = userView != null ? userView.getName() : "Unknown User";
+        String imageKey = userView != null ? userView.getProfileImageKey() : null;
 
         List<String> destinations = accessor.getSessionAttributes().values()
                 .stream().map(value -> (String) value)
@@ -129,39 +141,31 @@ public class LiveChatRoomWebEventListener {
 
         if (destinations.isEmpty()) return;
 
-        WatchingSessionReadModel watchingSession = null;
-        try {
-            watchingSession = watchingSessionQueryService.getByContentId(userDto.id());
-        } catch (WatchingSessionNotFoundException e) {
-            // 이미 삭제된 경우 예외 무시
-        }
+        // 3. RabbitMQ를 통해 mopl-watching-session에 세션 삭제를 위임
+        WatchingSessionDeleteRequestEvent deleteEvent = new WatchingSessionDeleteRequestEvent(null, userId);
+        rabbitTemplate.convertAndSend(WS_EXCHANGE, WS_DELETE_ROUTING, deleteEvent);
 
-        watchingSessionCommandService.deleteByWatcherId(userDto.id());
+        String profileImageUrl = imageQueryService.getPresignedUrl(imageKey);
+        destinations.forEach(destination -> {
+            UUID contentId = UUID.fromString(DestinationUtils.extractContentId(destination));
+            UUID liveChatRoomId = contentId;
 
-        if (watchingSession != null) {
-            WatchingSessionReadModel finalWatchingSession = watchingSession;
-            String profileImageUrl = profileImageCache.getProfileImageUrl(userDto.id());
-            destinations.forEach(destination -> {
-                UUID contentId = UUID.fromString(DestinationUtils.extractContentId(destination));
-                UUID liveChatRoomId = contentId;
-
-                SendPresenceMessageCommand sendPresenceMessageCommand =
-                        new SendPresenceMessageCommand(
-                                finalWatchingSession.id(),
-                                finalWatchingSession.createdAt(),
-                                userDto.id(),
-                                userDto.name(),
-                                profileImageUrl,
-                                WatchType.LEAVE.name(),
-                                destination
-                        );
-                liveChatRoomCommandService.sendPresenceMessage(liveChatRoomId, sendPresenceMessageCommand);
-            });
-        }
+            SendPresenceMessageCommand sendPresenceMessageCommand =
+                    new SendPresenceMessageCommand(
+                            UUID.randomUUID(),
+                            Instant.now(),
+                            userId,
+                            name,
+                            profileImageUrl,
+                            WatchType.LEAVE.name(),
+                            destination
+                    );
+            liveChatRoomCommandService.sendPresenceMessage(liveChatRoomId, sendPresenceMessageCommand);
+        });
     }
 
-    private MoplUserDetails getUserDetails(Principal principal) {
-        Authentication authentication = (Authentication) principal;
-        return (MoplUserDetails) authentication.getPrincipal();
+    private UUID getUserId(Principal principal) {
+        return UUID.fromString(principal.getName());
     }
+
 }
