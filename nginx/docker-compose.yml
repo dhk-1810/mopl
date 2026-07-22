@@ -12,6 +12,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./html:/usr/share/nginx/html:ro
       # 필요 시 SSL 인증서 디렉토리 마운트 (Let's Encrypt 등)
       # - /etc/letsencrypt:/etc/letsencrypt:ro
     restart: always
@@ -107,6 +108,180 @@ services:
       resources:
         limits:
           memory: 256M
+
+  # -------------------------------------------------------------
+  # RabbitMQ Service
+  # -------------------------------------------------------------
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: mopl-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: always
+
+  # -------------------------------------------------------------
+  # Spring Boot Microservices
+  # -------------------------------------------------------------
+  mopl-user:
+    build:
+      context: ../mopl-user
+      dockerfile: Dockerfile
+    container_name: mopl-user-server
+    ports:
+      - "8081:8081"
+    env_file:
+      - ../.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8081
+      - SPRING_DATA_REDIS_HOST=user-redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - user-redis
+      - rabbitmq
+    restart: always
+
+  mopl-content:
+    build:
+      context: ../mopl-content
+      dockerfile: Dockerfile
+    container_name: mopl-content-server
+    ports:
+      - "8082:8082"
+    env_file:
+      - ../.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8082
+      - SPRING_DATA_REDIS_HOST=content-redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - content-redis
+      - rabbitmq
+    restart: always
+
+  mopl-playlist:
+    build:
+      context: ../mopl-playlist
+      dockerfile: Dockerfile
+    container_name: mopl-playlist-server
+    ports:
+      - "8083:8083"
+    env_file:
+      - ../.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8083
+      - SPRING_DATA_REDIS_HOST=playlist-redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - playlist-redis
+      - rabbitmq
+    restart: always
+
+  mopl-dm:
+    build:
+      context: ../mopl-dm
+      dockerfile: Dockerfile
+    container_name: mopl-dm-server
+    ports:
+      - "8084:8084"
+    env_file:
+      - ../.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8084
+      - SPRING_DATA_REDIS_HOST=dm-redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - dm-redis
+      - rabbitmq
+    restart: always
+
+  mopl-notification:
+    build:
+      context: ../mopl-notification
+      dockerfile: Dockerfile
+    container_name: mopl-notification-server
+    ports:
+      - "8085:8085"
+    env_file:
+      - ../.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8085
+      - SPRING_DATA_REDIS_HOST=notification-redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - notification-redis
+      - rabbitmq
+    restart: always
+
+  mopl-watching-session:
+    build:
+      context: ../mopl-watching-session
+      dockerfile: Dockerfile
+    container_name: mopl-watching-session-server
+    ports:
+      - "8086:8086"
+    env_file:
+      - ../.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8086
+      - SPRING_DATA_REDIS_HOST=watching-session-redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - watching-session-redis
+      - rabbitmq
+    restart: always
+
+  mopl-image:
+    build:
+      context: ../mopl-image
+      dockerfile: Dockerfile
+    container_name: mopl-image-server
+    ports:
+      - "8087:8087"
+    env_file:
+      - ../.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8087
+      - SPRING_DATA_REDIS_HOST=user-redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - user-redis
+      - rabbitmq
+    restart: always
+
+  mopl-batch:
+    build:
+      context: ../mopl-batch
+      dockerfile: Dockerfile
+    container_name: mopl-batch-server
+    ports:
+      - "8088:8087"
+    env_file:
+      - ../.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8087
+      - SPRING_DATA_REDIS_HOST=user-redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - user-redis
+      - rabbitmq
+    restart: always
 
 # 데이터 영속성을 위한 Docker 볼륨 설정
 volumes:

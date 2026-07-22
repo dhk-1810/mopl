@@ -1,4 +1,15 @@
 spring:
+  application:
+    name: mopl-user
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
   jpa:
     hibernate:
       ddl-auto: update
@@ -46,6 +57,13 @@ mopl:
     password-policy: "bcrypt"
     temp-password-policy: "fixed"
     temp-password-reset-timeout-policy-in-minutes: 3
+  storage:
+    aws:
+      region: ${AWS_REGION:ap-northeast-2}
+      bucket-name: ${AWS_S3_BUCKET}
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+      signature-duration-in-hours: 1 # Presigned URL 유효기간
   mail:
     host: "smtp.gmail.com"
     port: 587
@@ -65,3 +83,9 @@ mopl:
       secret: ${JWT_REFRESH_TOKEN_SECRET:sb06-mopl-team03-jwt-temporary-secret}
       expiration-ms: ${REFRESH_TOKEN_EXPIRATION_MS:604800000}
     max-session: ${JWT_MAX_SESSION:1}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics,prometheus"

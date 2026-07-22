@@ -7,6 +7,5 @@ include 'mopl-playlist'
 include 'mopl-dm'
 include 'mopl-notification'
 include 'mopl-batch'
-include 'mopl-app'
 include 'mopl-watching-session'
 

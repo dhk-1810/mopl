@@ -2,6 +2,9 @@ server:
   port: 8081
 
 spring:
+  config:
+    activate:
+      on-profile: dev
   # 데이터베이스 설정 (RDB)
   datasource:
     user:

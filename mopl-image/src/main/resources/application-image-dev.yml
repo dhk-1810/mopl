@@ -2,6 +2,9 @@ server:
   port: 8087
 
 spring:
+  config:
+    activate:
+      on-profile: dev
   datasource:
     image:
       url: jdbc:postgresql://localhost:5432/${DB_NAME_IMAGE}

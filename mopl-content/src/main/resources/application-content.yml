@@ -1,12 +1,6 @@
 spring:
   application:
-    name: mopl
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
-  data:
-    redis:
-      host: ${SPRING_DATA_REDIS_HOST:localhost}
-      port: ${SPRING_DATA_REDIS_PORT:6379}
+    name: mopl-content
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST:localhost}
     port: ${SPRING_RABBITMQ_PORT:5672}
@@ -27,6 +21,3 @@ management:
     web:
       exposure:
         include: "health,info,metrics,prometheus"
-  endpoint:
-    metrics:
-      enabled: true

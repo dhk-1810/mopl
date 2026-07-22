@@ -12,7 +12,7 @@ public abstract sealed class UserEvent {
 
     @Getter
     @RequiredArgsConstructor
-    public static final class UserProfileCreatedEvent extends UserEvent {
+    public static final class ProfileCreatedEvent extends UserEvent {
         private final UUID userId;
         private final String name;
         private final String imageKey;
@@ -20,7 +20,7 @@ public abstract sealed class UserEvent {
 
     @Getter
     @RequiredArgsConstructor
-    public static final class UserProfileUpdatedEvent extends UserEvent {
+    public static final class ProfileUpdatedEvent extends UserEvent {
         private final UUID userId;
         private final String name;
         private final String imageKey;

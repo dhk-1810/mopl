@@ -2,6 +2,9 @@ server:
   port: 8084
 
 spring:
+  config:
+    activate:
+      on-profile: dev
   datasource:
     dm:
       # 로컬에서만 사용하므로 평문 사용.

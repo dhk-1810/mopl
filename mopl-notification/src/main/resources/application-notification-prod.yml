@@ -1,4 +1,10 @@
+server:
+  port: 8085
+
 spring:
+  config:
+    activate:
+      on-profile: prod
   datasource:
     notification:
       url: jdbc:postgresql://${DB_ENDPOINT}:5432/${DB_NAME_NOTIFICATION}
