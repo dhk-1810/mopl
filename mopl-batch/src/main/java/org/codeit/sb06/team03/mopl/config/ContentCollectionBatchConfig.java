@@ -85,6 +85,8 @@ public class ContentCollectionBatchConfig {
                 if (nextIndex < items.size()) {
                     return items.get(nextIndex++);
                 }
+                items = null;
+                nextIndex = 0;
                 return null;
             }
         };
@@ -106,6 +108,8 @@ public class ContentCollectionBatchConfig {
                 if (nextIndex < items.size()) {
                     return items.get(nextIndex++);
                 }
+                items = null;
+                nextIndex = 0;
                 return null;
             }
         };

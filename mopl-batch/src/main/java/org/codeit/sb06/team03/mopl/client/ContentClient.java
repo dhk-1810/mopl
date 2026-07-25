@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "mopl-content", url = "${mopl.services.content.url:http://localhost:8080}")
+@FeignClient(name = "mopl-content", url = "${mopl.services.content.url:http://localhost:8082}")
 public interface ContentClient {
 
     @GetMapping("/api/contents")
     CursorResponseContentDto getContents(
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String type
+            @RequestParam(name = "keywordLike", required = false) String keywordLike,
+            @RequestParam(name = "typeEqual", required = false) String typeEqual
     );
 
     @PostMapping("/api/contents/internal")

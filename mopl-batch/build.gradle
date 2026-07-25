@@ -7,7 +7,7 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign' // 서비스 간 HTTP API 호출 위해 사용.
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
     testImplementation 'org.springframework.batch:spring-batch-test'
-    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.postgresql:postgresql'
 }
 
 bootJar {

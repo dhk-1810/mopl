@@ -19,7 +19,7 @@ public class BatchScheduler {
     private final JobLauncher jobLauncher;
     private final Job contentCollectionJob;
 
-    @Scheduled(cron = "${mopl.batch.cron}")
+    @Scheduled(cron = "0 * * * * *") // "${mopl.batch.cron}"
     public void runContentCollectionJob() {
         try {
             log.info("Starting scheduled Content Collection Job...");

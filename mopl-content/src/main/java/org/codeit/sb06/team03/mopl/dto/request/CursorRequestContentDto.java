@@ -12,8 +12,19 @@ public record CursorRequestContentDto (
         Set<String> tagsIn, // 미사용
         String cursor,
         UUID idAfter,
-        int limit,
+        Integer limit,
         SortContentBy sortBy,
         SortDirection sortDirection
 ) {
+    public CursorRequestContentDto {
+        if (limit == null || limit <= 0) {
+            limit = 20;
+        }
+        if (sortBy == null) {
+            sortBy = SortContentBy.createdAt;
+        }
+        if (sortDirection == null) {
+            sortDirection = SortDirection.DESCENDING;
+        }
+    }
 }

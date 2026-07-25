@@ -3,7 +3,7 @@ spring:
     name: mopl-batch
   batch:
     jdbc:
-      initialize-schema: never
+      initialize-schema: always
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST:localhost}
     port: ${SPRING_RABBITMQ_PORT:5672}
@@ -11,6 +11,9 @@ spring:
     password: ${SPRING_RABBITMQ_PASSWORD:guest}
 
 mopl:
+  services:
+    content:
+      url: http://${CONTENT_HOST:localhost}:8082 # TODO .env파일에 추가 필요
   api:
     tmdb:
       key: ${TMDB_API_KEY:mock}

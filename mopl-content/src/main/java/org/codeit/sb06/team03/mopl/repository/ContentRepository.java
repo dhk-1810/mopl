@@ -134,7 +134,11 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
         if (typeEqual == null || typeEqual.isEmpty()) {
             return null;
         }
-        return content.type.eq(ContentType.valueOf(typeEqual));
+        try {
+            return content.type.eq(ContentType.valueOf(typeEqual));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     private static BooleanExpression cursorExpressionPredicate(

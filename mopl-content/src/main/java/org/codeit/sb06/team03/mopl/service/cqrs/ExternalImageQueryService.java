@@ -21,17 +21,36 @@ public class ExternalImageQueryService {
         if (imageKey == null || imageKey.isBlank()) {
             return null;
         }
+        if (imageKey.startsWith("http://") || imageKey.startsWith("https://")) {
+            return imageKey;
+        }
         return externalImageViewRepository.findByImageKey(imageKey)
                 .map(ExternalImageView::getPresignedUrl)
-                .orElse(null);
+                .orElse(imageKey);
     }
 
     public Map<String, String> getPresignedUrls(List<String> imageKeys) {
+        if (imageKeys == null || imageKeys.isEmpty()) {
+            return Map.of();
+        }
         List<ExternalImageView> images = externalImageViewRepository.findByImageKeyIn(imageKeys);
-        return images.stream()
+        Map<String, String> dbMap = images.stream()
                 .collect(Collectors.toMap(
                         ExternalImageView::getImageKey,
                         ExternalImageView::getPresignedUrl,
+                        (existing, replacement) -> existing
+                ));
+
+        return imageKeys.stream()
+                .filter(key -> key != null && !key.isBlank())
+                .collect(Collectors.toMap(
+                        key -> key,
+                        key -> {
+                            if (key.startsWith("http://") || key.startsWith("https://")) {
+                                return key;
+                            }
+                            return dbMap.getOrDefault(key, key);
+                        },
                         (existing, replacement) -> existing
                 ));
     }
