@@ -8,7 +8,7 @@ import org.codeit.sb06.team03.mopl.security.LoginFailureHandler;
 import org.codeit.sb06.team03.mopl.security.MoplAccessDeniedHandler;
 import org.codeit.sb06.team03.mopl.security.MoplAuthenticationEntryPoint;
 import org.codeit.sb06.team03.mopl.security.SpaCsrfTokenRequestHandler;
-import org.codeit.sb06.team03.mopl.security.jwt.JwtAuthenticationFilter;
+import org.codeit.sb06.team03.mopl.security.UserHeaderAuthenticationFilter;
 import org.codeit.sb06.team03.mopl.security.jwt.JwtLoginSuccessHandler;
 import org.codeit.sb06.team03.mopl.security.jwt.JwtLogoutHandler;
 import org.springframework.context.annotation.Bean;
@@ -42,7 +42,7 @@ public class SecurityConfig {
             SpaCsrfTokenRequestHandler spaCsrfTokenRequestHandler,
             JwtLoginSuccessHandler loginSuccessHandler,
             LoginFailureHandler loginFailureHandler,
-            JwtAuthenticationFilter jwtAuthenticationFilter,
+            UserHeaderAuthenticationFilter userHeaderAuthenticationFilter,
             MoplAuthenticationEntryPoint authenticationEntryPoint,
             MoplAccessDeniedHandler accessDeniedHandler,
             JwtLogoutHandler logoutHandler
@@ -57,7 +57,6 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/favicon.svg", "/assets/**", "/oauth-redirect", "/sign-in").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/sign-in").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/auth/validate").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
@@ -85,7 +84,7 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(userHeaderAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler)

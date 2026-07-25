@@ -57,13 +57,4 @@ public interface AuthApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<Void> logout();
-
-    @Operation(summary = "Nginx auth_request용 토큰 검증")
-    @ApiResponse(responseCode = "200", description = "인증 성공 (X-User-Id 헤더 설정)")
-    @ApiResponse(responseCode = "401", description = "인증 실패")
-    ResponseEntity<Void> validate(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            @RequestParam(name = "strict", defaultValue = "true") boolean strict
-    );
 }

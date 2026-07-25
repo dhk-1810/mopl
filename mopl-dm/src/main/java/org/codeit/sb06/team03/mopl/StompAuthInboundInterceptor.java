@@ -7,11 +7,9 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.security.Principal;
 
 @Component
 @RequiredArgsConstructor
@@ -34,9 +32,8 @@ public class StompAuthInboundInterceptor implements ChannelInterceptor {
             if (userId == null || userId.isBlank()) {
                 throw new IllegalArgumentException("Missing X-User-Id header");
             }
-            Authentication authentication =
-                    new UsernamePasswordAuthenticationToken(userId, null, List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER")));
-            accessor.setUser(authentication);
+            Principal principal = () -> userId;
+            accessor.setUser(principal);
         }
 
         return message;

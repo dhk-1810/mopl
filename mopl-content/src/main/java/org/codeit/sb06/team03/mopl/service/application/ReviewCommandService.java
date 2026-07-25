@@ -8,7 +8,6 @@ import org.codeit.sb06.team03.mopl.exception.ReviewAlreadyExistsException;
 import org.codeit.sb06.team03.mopl.exception.ReviewNotFoundException;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;
 import org.codeit.sb06.team03.mopl.repository.ReviewRepository;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +42,7 @@ public class ReviewCommandService {
                 .orElseThrow(() -> ReviewNotFoundException.fromId(command.reviewId()));
 
         if (!review.getAuthorId().equals(command.authorId())) {
-            throw new AccessDeniedException("You are not the author of this review");
+            throw new IllegalArgumentException("You are not the author of this review");
         }
 
         if (command.rating() != null) {
@@ -65,7 +64,7 @@ public class ReviewCommandService {
                 .orElseThrow(() -> ReviewNotFoundException.fromId(command.reviewId()));
 
         if (!review.getAuthorId().equals(command.authorId())) {
-            throw new AccessDeniedException("You are not the author of this review");
+            throw new IllegalArgumentException("You are not the author of this review");
         }
 
         Content content = review.getContent();

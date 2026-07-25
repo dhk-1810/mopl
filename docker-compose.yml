@@ -1,26 +1,29 @@
+# -------------------------------------------------------------
+# 로컬 테스트만을 위한 DB, Redis, RabbitMQ 구성임.
+# -------------------------------------------------------------
 version: '3.8'
 
 services:
-  # -------------------------------------------------------------
-  # Nginx Service (API Gateway / Reverse Proxy)
-  # -------------------------------------------------------------
-  nginx:
-    image: nginx:1.25-alpine
-    container_name: mopl-nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./html:/usr/share/nginx/html:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+#  # -------------------------------------------------------------
+#  # Nginx Service (API Gateway / Reverse Proxy) - Replaced by Spring Cloud Gateway (mopl-gateway)
+#  # -------------------------------------------------------------
+#  nginx:
+#    image: nginx:1.25-alpine
+#    container_name: mopl-nginx
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - ./nginx.conf.pem:/etc/nginx/nginx.conf.pem:ro
+#      - ./html:/usr/share/nginx/html:ro
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#    restart: always
+#    logging:
+#      driver: "json-file"
+#      options:
+#        max-size: "10m"
+#        max-file: "3"
 
   # -------------------------------------------------------------
   # Redis Services (각 마이크로서비스별 독립 인스턴스)
@@ -129,7 +132,7 @@ services:
     ports:
       - "5432:5432"
     env_file:
-      - ../mopl-user/.env.local.user
+      - mopl-user/.env.local.user
     volumes:
       - user-db-data:/var/lib/postgresql/data
     restart: always
@@ -144,7 +147,7 @@ services:
     ports:
       - "5433:5432"
     env_file:
-      - ../mopl-content/.env.local.content
+      - mopl-content/.env.local.content
     volumes:
       - content-db-data:/var/lib/postgresql/data
     restart: always
@@ -159,7 +162,7 @@ services:
     ports:
       - "5434:5432"
     env_file:
-      - ../mopl-playlist/.env.local.playlist
+      - mopl-playlist/.env.local.playlist
     volumes:
       - playlist-db-data:/var/lib/postgresql/data
     restart: always
@@ -174,7 +177,7 @@ services:
     ports:
       - "5435:5432"
     env_file:
-      - ../mopl-dm/.env.local.dm
+      - mopl-dm/.env.local.dm
     volumes:
       - dm-db-data:/var/lib/postgresql/data
     restart: always
@@ -189,7 +192,7 @@ services:
     ports:
       - "5436:5432"
     env_file:
-      - ../mopl-notification/.env.local.notification
+      - mopl-notification/.env.local.notification
     volumes:
       - notification-db-data:/var/lib/postgresql/data
     restart: always
@@ -204,7 +207,7 @@ services:
     ports:
       - "5438:5432"
     env_file:
-      - ../mopl-image/.env.local.image
+      - mopl-image/.env.local.image
     volumes:
       - image-db-data:/var/lib/postgresql/data
     restart: always
@@ -219,7 +222,7 @@ services:
     ports:
       - "5439:5432"
     env_file:
-      - ../mopl-batch/.env.local.batch
+      - mopl-batch/.env.local.batch
     volumes:
       - batch-db-data:/var/lib/postgresql/data
     restart: always

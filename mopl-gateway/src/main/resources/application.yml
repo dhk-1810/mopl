@@ -1,0 +1,99 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: mopl-gateway
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders: "*"
+      routes:
+        # 1. Watching Session Service
+        - id: watching-session-user-route
+          uri: http://${WATCHING_SESSION_HOST:localhost}:8086
+          predicates:
+            - Path=/api/users/{watcherId}/watching-sessions
+
+        - id: watching-session-content-route
+          uri: http://${WATCHING_SESSION_HOST:localhost}:8086
+          predicates:
+            - Path=/api/contents/{contentId}/watching-sessions
+
+        # 2. SSE (Notification Service)
+        - id: sse-route
+          uri: http://${NOTIFICATION_HOST:localhost}:8085
+          predicates:
+            - Path=/api/sse
+
+        # 3. WebSocket (DM Service)
+        - id: websocket-dm-route
+          uri: http://${DM_HOST:localhost}:8084
+          predicates:
+            - Path=/ws/**
+
+        # 4. User / Auth / Follow Service
+        - id: user-service-auth-route
+          uri: http://${USER_HOST:localhost}:8081
+          predicates:
+            - Path=/api/auth/**
+
+        - id: user-service-users-route
+          uri: http://${USER_HOST:localhost}:8081
+          predicates:
+            - Path=/api/users/**
+
+        - id: user-service-follows-route
+          uri: http://${USER_HOST:localhost}:8081
+          predicates:
+            - Path=/api/follows/**
+
+        # 5. Content / Review Service
+        - id: content-service-route
+          uri: http://${CONTENT_HOST:localhost}:8082
+          predicates:
+            - Path=/api/contents/**
+
+        - id: review-service-route
+          uri: http://${CONTENT_HOST:localhost}:8082
+          predicates:
+            - Path=/api/reviews/**
+
+        # 6. Playlist Service
+        - id: playlist-service-route
+          uri: http://${PLAYLIST_HOST:localhost}:8083
+          predicates:
+            - Path=/api/playlists/**
+
+        # 7. DM Service
+        - id: dm-service-route
+          uri: http://${DM_HOST:localhost}:8084
+          predicates:
+            - Path=/api/conversations/**
+
+        # 8. Notification Service
+        - id: notification-service-route
+          uri: http://${NOTIFICATION_HOST:localhost}:8085
+          predicates:
+            - Path=/api/notifications/**
+
+        # 9. Batch Service
+        - id: batch-service-route
+          uri: http://${BATCH_HOST:localhost}:8088
+          predicates:
+            - Path=/api/admin/batch/**
+
+mopl:
+  jwt:
+    access-token:
+      secret: ${JWT_ACCESS_TOKEN_SECRET:f38d384ddc2984e6f2734af3f5a4bfb09397118996d2afb1d3dee81c8610789b}

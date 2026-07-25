@@ -1,5 +1,6 @@
 rootProject.name = 'mopl'
 
+include 'mopl-gateway'
 include 'mopl-image'
 include 'mopl-user'
 include 'mopl-content'

@@ -77,27 +77,4 @@ public class AuthController implements AuthApi {
     public ResponseEntity<Void> logout() {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
-    @Override
-    @GetMapping("/validate")
-    public ResponseEntity<Void> validate(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            @RequestParam(name = "strict", defaultValue = "true") boolean strict
-    ) {
-        String bearerToken = request.getHeader("Authorization");
-        if (org.springframework.util.StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            String accessToken = bearerToken.substring(7);
-            if (jwtRegistry.hasActiveAccessToken(accessToken)) {
-                JwtClaims claims = jwtTokenProvider.getClaims(accessToken);
-                response.setHeader("X-User-Id", claims.id().toString());
-                return ResponseEntity.ok().build();
-            }
-        }
-
-        if (strict) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        return ResponseEntity.ok().build();
-    }
 }
