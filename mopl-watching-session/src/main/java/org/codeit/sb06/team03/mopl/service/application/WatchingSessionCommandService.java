@@ -5,7 +5,6 @@ import org.codeit.sb06.team03.mopl.repository.WatchingSessionRepository;
 import org.codeit.sb06.team03.mopl.entity.WatchingSession;
 import org.codeit.sb06.team03.mopl.exception.WatchingSessionDuplicateException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -15,7 +14,6 @@ public class WatchingSessionCommandService {
 
     private final WatchingSessionRepository watchingSessionRepository;
 
-    @Transactional("watchingSessionTransactionManager")
     public void create(CreateWatchingSessionCommand command) {
         UUID liveChatRoomId = command.liveChatRoomId();
         UUID watcherId = command.watcherId();
@@ -28,7 +26,6 @@ public class WatchingSessionCommandService {
         watchingSessionRepository.save(watchingSession);
     }
 
-    @Transactional("watchingSessionTransactionManager")
     public void createWithId(UUID id, UUID liveChatRoomId, UUID watcherId, java.time.Instant createdAt) {
         if (watchingSessionRepository.existsByLiveChatRoomIdAndWatcherId(liveChatRoomId, watcherId)) {
             throw WatchingSessionDuplicateException.fromLiveChatRoomIdAndAccountId(liveChatRoomId, watcherId);
@@ -38,12 +35,10 @@ public class WatchingSessionCommandService {
         watchingSessionRepository.save(watchingSession);
     }
 
-    @Transactional("watchingSessionTransactionManager")
     public void deleteByWatcherId(UUID watcherId) {
         watchingSessionRepository.deleteByWatcherId(watcherId);
     }
 
-    @Transactional("watchingSessionTransactionManager")
     public void delete(UUID id) {
         watchingSessionRepository.deleteById(id);
     }

@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.security.jwt;
 
-import org.codeit.sb06.team03.mopl.profile.controller.UserDto;
+import org.codeit.sb06.team03.mopl.dto.response.UserDto;
 
 public record JwtDto(
         UserDto userDto,

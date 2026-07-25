@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.repository;
 
 import org.codeit.sb06.team03.mopl.entity.WatchingSession;
 import org.codeit.sb06.team03.mopl.dto.WatchingSessionReadModel;
-import org.codeit.sb06.team03.mopl.repository.postgres.WatchingSessionSearchCondition;
+import org.codeit.sb06.team03.mopl.repository.redis.WatchingSessionSearchCondition;
 import org.springframework.data.domain.Slice;
 
 import java.util.Optional;

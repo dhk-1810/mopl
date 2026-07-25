@@ -13,7 +13,7 @@ import org.codeit.sb06.team03.mopl.dto.response.ContentDto;
 import org.codeit.sb06.team03.mopl.entity.Playlist;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalContentView;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
-import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
 import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalContentQueryService;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;

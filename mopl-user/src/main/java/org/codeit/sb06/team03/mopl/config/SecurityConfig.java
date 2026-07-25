@@ -1,9 +1,9 @@
 package org.codeit.sb06.team03.mopl.config;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.account.domain.vo.Role;
-import org.codeit.sb06.team03.mopl.auth.CustomOAuth2UserService;
-import org.codeit.sb06.team03.mopl.auth.OAuth2SuccessHandler;
+import org.codeit.sb06.team03.mopl.entity.vo.Role;
+import org.codeit.sb06.team03.mopl.service.CustomOAuth2UserService;
+import org.codeit.sb06.team03.mopl.security.OAuth2SuccessHandler;
 import org.codeit.sb06.team03.mopl.security.LoginFailureHandler;
 import org.codeit.sb06.team03.mopl.security.MoplAccessDeniedHandler;
 import org.codeit.sb06.team03.mopl.security.MoplAuthenticationEntryPoint;
@@ -57,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/favicon.svg", "/assets/**", "/oauth-redirect", "/sign-in").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/sign-in").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/auth/validate").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()

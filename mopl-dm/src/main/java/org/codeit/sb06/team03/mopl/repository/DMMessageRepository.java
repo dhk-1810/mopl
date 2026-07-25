@@ -2,9 +2,9 @@ package org.codeit.sb06.team03.mopl.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
+import org.codeit.sb06.team03.mopl.entity.DMMessage;
+import org.codeit.sb06.team03.mopl.entity.QDMMessage;
 import org.codeit.sb06.team03.mopl.util.CursorUtils;
-import org.codeit.sb06.team03.mopl.domain.entity.DMMessage;
-import org.codeit.sb06.team03.mopl.domain.entity.QDMMessage;
 import org.springframework.lang.Nullable;
 
 import java.util.List;

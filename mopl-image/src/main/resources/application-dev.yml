@@ -1,0 +1,23 @@
+server:
+  port: 8087
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    image:
+      url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB}
+      username: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+      driver-class-name: org.postgresql.Driver
+
+  jpa:
+    image:
+      hibernate:
+        ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+      show-sql: false

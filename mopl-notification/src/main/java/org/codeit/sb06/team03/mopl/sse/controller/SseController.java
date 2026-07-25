@@ -18,7 +18,7 @@ public class SseController {
 
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> connect(
-            @RequestHeader(value = "X-User-Id") UUID userId,
+            @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestParam(name = "LastEventID", required = false) UUID lastEventId
     ) {
         SseEmitter emitter = sseService.connect(userId, lastEventId);

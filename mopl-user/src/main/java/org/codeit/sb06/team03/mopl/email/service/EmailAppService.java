@@ -1,11 +1,8 @@
 package org.codeit.sb06.team03.mopl.email.service;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.email.service.SendEmailCommand;
-import org.codeit.sb06.team03.mopl.email.service.SendEmailUseCase;
 import org.codeit.sb06.team03.mopl.email.domain.Email;
 import org.codeit.sb06.team03.mopl.email.domain.EmailService;
-import org.codeit.sb06.team03.mopl.email.domain.event.EmailEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +19,7 @@ public class EmailAppService implements SendEmailUseCase {
 
     @Override
     @Transactional("notificationTransactionManager")
-    public void sendEmail(SendEmailCommand command) {
-        final String emailAddress = command.emailAddress();
-        final String rawTempPassword = command.rawTempPassword();
-        final Instant expireDate = command.expireDate();
-
+    public void sendEmail(String emailAddress, String rawTempPassword, Instant expireDate) {
         Email email = emailService.send(emailAddress, rawTempPassword, expireDate);
 
 //        eventPublisher.publishEvent(new EmailEvent.EmailSentEvent());

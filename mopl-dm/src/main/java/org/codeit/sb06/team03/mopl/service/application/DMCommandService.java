@@ -2,8 +2,8 @@ package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.domain.entity.DMMessage;
 import org.codeit.sb06.team03.mopl.dto.UserSummary;
+import org.codeit.sb06.team03.mopl.entity.DMMessage;
 import org.codeit.sb06.team03.mopl.event.DMEvent;
 import org.codeit.sb06.team03.mopl.repository.DMMessageRepository;
 import org.springframework.context.ApplicationEventPublisher;

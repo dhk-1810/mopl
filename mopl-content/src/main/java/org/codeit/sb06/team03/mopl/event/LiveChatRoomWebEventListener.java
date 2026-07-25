@@ -7,9 +7,7 @@ import org.codeit.sb06.team03.mopl.service.application.LiveChatRoomCommandServic
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.service.application.SendPresenceMessageCommand;
-import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
-import org.codeit.sb06.team03.mopl.event.WatchingSessionCreateRequestEvent;
-import org.codeit.sb06.team03.mopl.event.WatchingSessionDeleteRequestEvent;
+import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;

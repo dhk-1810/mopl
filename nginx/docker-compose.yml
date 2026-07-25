@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   # -------------------------------------------------------------
-  # Nginx Service
+  # Nginx Service (API Gateway / Reverse Proxy)
   # -------------------------------------------------------------
   nginx:
     image: nginx:1.25-alpine
@@ -13,8 +13,8 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./html:/usr/share/nginx/html:ro
-      # 필요 시 SSL 인증서 디렉토리 마운트 (Let's Encrypt 등)
-      # - /etc/letsencrypt:/etc/letsencrypt:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: always
     logging:
       driver: "json-file"
@@ -37,7 +37,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M # EC2 메모리 부하 방지를 위해 제한 설정 (조정 가능)
+          memory: 256M
 
   content-redis:
     image: redis:7.2-alpine
@@ -121,167 +121,112 @@ services:
     restart: always
 
   # -------------------------------------------------------------
-  # Spring Boot Microservices
+  # PostgreSQL Databases (Database-per-service 격리)
   # -------------------------------------------------------------
-  mopl-user:
-    build:
-      context: ../mopl-user
-      dockerfile: Dockerfile
-    container_name: mopl-user-server
+  user-db:
+    image: postgres:15-alpine
+    container_name: mopl-user-db
     ports:
-      - "8081:8081"
+      - "5432:5432"
     env_file:
-      - ../.env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SERVER_PORT=8081
-      - SPRING_DATA_REDIS_HOST=user-redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - user-redis
-      - rabbitmq
+      - ../mopl-user/.env.local.user
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
-  mopl-content:
-    build:
-      context: ../mopl-content
-      dockerfile: Dockerfile
-    container_name: mopl-content-server
+  content-db:
+    image: postgres:15-alpine
+    container_name: mopl-content-db
     ports:
-      - "8082:8082"
+      - "5433:5432"
     env_file:
-      - ../.env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SERVER_PORT=8082
-      - SPRING_DATA_REDIS_HOST=content-redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - content-redis
-      - rabbitmq
+      - ../mopl-content/.env.local.content
+    volumes:
+      - content-db-data:/var/lib/postgresql/data
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
-  mopl-playlist:
-    build:
-      context: ../mopl-playlist
-      dockerfile: Dockerfile
-    container_name: mopl-playlist-server
+  playlist-db:
+    image: postgres:15-alpine
+    container_name: mopl-playlist-db
     ports:
-      - "8083:8083"
+      - "5434:5432"
     env_file:
-      - ../.env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SERVER_PORT=8083
-      - SPRING_DATA_REDIS_HOST=playlist-redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - playlist-redis
-      - rabbitmq
+      - ../mopl-playlist/.env.local.playlist
+    volumes:
+      - playlist-db-data:/var/lib/postgresql/data
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
-  mopl-dm:
-    build:
-      context: ../mopl-dm
-      dockerfile: Dockerfile
-    container_name: mopl-dm-server
+  dm-db:
+    image: postgres:15-alpine
+    container_name: mopl-dm-db
     ports:
-      - "8084:8084"
+      - "5435:5432"
     env_file:
-      - ../.env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SERVER_PORT=8084
-      - SPRING_DATA_REDIS_HOST=dm-redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - dm-redis
-      - rabbitmq
+      - ../mopl-dm/.env.local.dm
+    volumes:
+      - dm-db-data:/var/lib/postgresql/data
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
-  mopl-notification:
-    build:
-      context: ../mopl-notification
-      dockerfile: Dockerfile
-    container_name: mopl-notification-server
+  notification-db:
+    image: postgres:15-alpine
+    container_name: mopl-notification-db
     ports:
-      - "8085:8085"
+      - "5436:5432"
     env_file:
-      - ../.env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SERVER_PORT=8085
-      - SPRING_DATA_REDIS_HOST=notification-redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - notification-redis
-      - rabbitmq
+      - ../mopl-notification/.env.local.notification
+    volumes:
+      - notification-db-data:/var/lib/postgresql/data
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
-  mopl-watching-session:
-    build:
-      context: ../mopl-watching-session
-      dockerfile: Dockerfile
-    container_name: mopl-watching-session-server
+  image-db:
+    image: postgres:15-alpine
+    container_name: mopl-image-db
     ports:
-      - "8086:8086"
+      - "5438:5432"
     env_file:
-      - ../.env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SERVER_PORT=8086
-      - SPRING_DATA_REDIS_HOST=watching-session-redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - watching-session-redis
-      - rabbitmq
+      - ../mopl-image/.env.local.image
+    volumes:
+      - image-db-data:/var/lib/postgresql/data
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
-  mopl-image:
-    build:
-      context: ../mopl-image
-      dockerfile: Dockerfile
-    container_name: mopl-image-server
+  batch-db:
+    image: postgres:15-alpine
+    container_name: mopl-batch-db
     ports:
-      - "8087:8087"
+      - "5439:5432"
     env_file:
-      - ../.env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SERVER_PORT=8087
-      - SPRING_DATA_REDIS_HOST=user-redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - user-redis
-      - rabbitmq
+      - ../mopl-batch/.env.local.batch
+    volumes:
+      - batch-db-data:/var/lib/postgresql/data
     restart: always
-
-  mopl-batch:
-    build:
-      context: ../mopl-batch
-      dockerfile: Dockerfile
-    container_name: mopl-batch-server
-    ports:
-      - "8088:8087"
-    env_file:
-      - ../.env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SERVER_PORT=8087
-      - SPRING_DATA_REDIS_HOST=user-redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - user-redis
-      - rabbitmq
-    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
 # 데이터 영속성을 위한 Docker 볼륨 설정
 volumes:
@@ -291,3 +236,10 @@ volumes:
   dm-redis-data:
   notification-redis-data:
   watching-session-redis-data:
+  user-db-data:
+  content-db-data:
+  playlist-db-data:
+  dm-db-data:
+  notification-db-data:
+  image-db-data:
+  batch-db-data:

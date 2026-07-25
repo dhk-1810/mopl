@@ -3,7 +3,6 @@ package org.codeit.sb06.team03.mopl.service;
 import jakarta.persistence.PostLoad;
 import org.codeit.sb06.team03.mopl.entity.policy.PresignedUrlTimeoutPolicy;
 import org.codeit.sb06.team03.mopl.entity.TimeoutImage;
-import org.codeit.sb06.team03.mopl.s3.S3Service;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 

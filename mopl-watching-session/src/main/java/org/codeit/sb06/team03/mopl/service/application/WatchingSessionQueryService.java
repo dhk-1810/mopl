@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.service.application;
 
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.repository.postgres.WatchingSessionSearchCondition;
+import org.codeit.sb06.team03.mopl.repository.redis.WatchingSessionSearchCondition;
 import org.codeit.sb06.team03.mopl.repository.WatchingSessionRepository;
 import org.codeit.sb06.team03.mopl.dto.request.CursorWatchingSessionRequest;
 import org.codeit.sb06.team03.mopl.dto.WatchingSessionReadModel;

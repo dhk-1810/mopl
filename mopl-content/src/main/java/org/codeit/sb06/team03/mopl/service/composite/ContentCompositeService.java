@@ -15,7 +15,7 @@ import org.codeit.sb06.team03.mopl.dto.response.CursorResponseContentDto;
 import org.codeit.sb06.team03.mopl.s3.S3Service;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.codeit.sb06.team03.mopl.event.ImageUploadEvent;
-import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
 import org.codeit.sb06.team03.mopl.service.application.LiveChatRoomCommandService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Slice;

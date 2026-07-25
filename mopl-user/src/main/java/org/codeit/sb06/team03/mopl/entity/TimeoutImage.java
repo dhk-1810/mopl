@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.codeit.sb06.team03.mopl.service.PresignedUrlUpdateListener;
+import org.codeit.sb06.team03.mopl.event.PresignedUrlUpdateListener;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;

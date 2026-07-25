@@ -1,0 +1,124 @@
+package org.codeit.sb06.team03.mopl.entity;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.codeit.sb06.team03.mopl.event.AccountEvent;
+import org.codeit.sb06.team03.mopl.entity.policy.PasswordEncryptionPolicy;
+import org.codeit.sb06.team03.mopl.entity.policy.TempPasswordGenerationPolicy;
+import org.codeit.sb06.team03.mopl.entity.policy.TempPasswordResetTimeoutPolicy;
+import org.codeit.sb06.team03.mopl.entity.vo.EmailAddress;
+import org.codeit.sb06.team03.mopl.entity.vo.Password;
+import org.codeit.sb06.team03.mopl.entity.vo.Role;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.domain.AbstractAggregateRoot;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
+import java.time.Instant;
+import java.util.UUID;
+
+import static org.codeit.sb06.team03.mopl.event.AccountEvent.*;
+
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@Entity
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "accounts")
+@SQLDelete(sql = "UPDATE accounts SET is_deleted = true WHERE id = ? AND version = ?")
+@SQLRestriction("is_deleted = false")
+public class Account extends AbstractAggregateRoot<Account> {
+
+    @Id
+    @Column(name = "id", nullable = false)
+    private UUID id;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+
+    @NotNull
+    @CreatedDate
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private short version;
+
+    @Embedded
+    private EmailAddress emailAddress;
+
+    @Embedded
+    private Password password;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
+
+    @Column(name = "locked", nullable = false)
+    private boolean locked;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private PasswordReset passwordReset;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Profile profile;
+
+    public static Account create(EmailAddress emailAddress, Password password) {
+        var account = new Account();
+        account.id = UUID.randomUUID();
+        account.emailAddress = emailAddress;
+        account.password = password;
+        account.role = Role.USER;
+        account.locked = false;
+        account.registerEvent(new AccountRegisteredEvent());
+        return account;
+    }
+
+    public void updatePassword(Password newPassword) {
+        this.password = newPassword;
+    }
+
+    public Account updateRole(Role role) {
+        if (this.role != role) {
+            this.role = role;
+            this.registerEvent(new RoleUpdatedEvent(this.id, role));
+        }
+        return this;
+    }
+
+    public Account updateLocked(boolean locked) {
+        if (this.locked != locked) {
+            this.locked = locked;
+            this.registerEvent(new AccountLockUpdatedEvent(this.id, this.locked));
+        }
+        return this;
+    }
+
+    public Account passwordReset(
+            TempPasswordGenerationPolicy tempPasswordGenerationPolicy,
+            TempPasswordResetTimeoutPolicy tempPasswordResetTimeoutPolicy,
+            PasswordEncryptionPolicy passwordEncryptionPolicy
+    ) {
+        final String rawTempPassword = tempPasswordGenerationPolicy.generate(); // temporary1!!
+        final Instant expiresAt = tempPasswordResetTimeoutPolicy.createExpiresAt();
+
+        Password encrypted = passwordEncryptionPolicy.apply(rawTempPassword);
+
+        this.passwordReset = PasswordReset.create(this, encrypted, expiresAt);
+        this.registerEvent(new AccountEvent.PasswordResetedEvent(
+                emailAddress.value(), rawTempPassword, expiresAt.toString()
+        ));
+        return this;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+        profile.setAccount(this);
+    }
+}

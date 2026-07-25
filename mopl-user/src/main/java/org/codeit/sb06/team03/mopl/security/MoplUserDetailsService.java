@@ -1,13 +1,13 @@
 package org.codeit.sb06.team03.mopl.security;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.account.domain.Account;
-import org.codeit.sb06.team03.mopl.account.exception.AccountNotFoundException;
-import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
-import org.codeit.sb06.team03.mopl.account.repository.AccountRepository;
+import org.codeit.sb06.team03.mopl.entity.Account;
+import org.codeit.sb06.team03.mopl.exception.account.AccountNotFoundException;
+import org.codeit.sb06.team03.mopl.entity.vo.EmailAddress;
+import org.codeit.sb06.team03.mopl.repository.AccountRepository;
 import org.codeit.sb06.team03.mopl.service.ImageQueryService;
-import org.codeit.sb06.team03.mopl.profile.domain.entity.Profile;
-import org.codeit.sb06.team03.mopl.profile.controller.UserDto;
+import org.codeit.sb06.team03.mopl.entity.Profile;
+import org.codeit.sb06.team03.mopl.dto.response.UserDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

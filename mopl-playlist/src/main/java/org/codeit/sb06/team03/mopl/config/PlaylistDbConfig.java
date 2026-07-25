@@ -22,7 +22,7 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableQuerydslRepositories(
         basePackages = {
-                "org.codeit.sb06.team03.mopl.playlist"
+                "org.codeit.sb06.team03.mopl.repository"
         },
         entityManagerFactoryRef = "playlistEntityManagerFactory",
         transactionManagerRef = "playlistTransactionManager"
@@ -54,7 +54,9 @@ public class PlaylistDbConfig {
         return builder
                 .dataSource(playlistDataSource())
                 .packages(
-                        "org.codeit.sb06.team03.mopl.playlist"
+                        "org.codeit.sb06.team03.mopl.entity",
+                        "org.codeit.sb06.team03.mopl.entity.cqrs",
+                        "org.codeit.sb06.team03.mopl.image.domain.entity"
                 )
                 .persistenceUnit("playlist")
                 .properties(properties)

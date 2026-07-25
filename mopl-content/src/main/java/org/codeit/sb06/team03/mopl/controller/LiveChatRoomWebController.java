@@ -7,7 +7,7 @@ import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.service.application.LiveChatRoomCommandService;
 import org.codeit.sb06.team03.mopl.service.application.SendLiveChatRoomMessageCommand;
-import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;

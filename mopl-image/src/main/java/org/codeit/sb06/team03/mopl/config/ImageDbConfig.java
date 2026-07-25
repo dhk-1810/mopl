@@ -22,7 +22,7 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableQuerydslRepositories(
         basePackages = {
-                "org.codeit.sb06.team03.mopl.image"
+                "org.codeit.sb06.team03.mopl"
         },
         entityManagerFactoryRef = "imageEntityManagerFactory",
         transactionManagerRef = "imageTransactionManager"
@@ -54,7 +54,7 @@ public class ImageDbConfig {
         return builder
                 .dataSource(imageDataSource())
                 .packages(
-                        "org.codeit.sb06.team03.mopl.image"
+                        "org.codeit.sb06.team03.mopl"
                 )
                 .persistenceUnit("image")
                 .properties(properties)

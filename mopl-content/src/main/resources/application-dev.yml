@@ -1,0 +1,24 @@
+server:
+  port: 8082
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    content:
+      url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB}
+      username: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+      driver-class-name: org.postgresql.Driver
+  jpa:
+    content:
+      hibernate:
+        ddl-auto: update
+    open-in-view: false
+    defer-datasource-initialization: true # 테이블 생성된 후 schema.sql 실행
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+      show-sql: false

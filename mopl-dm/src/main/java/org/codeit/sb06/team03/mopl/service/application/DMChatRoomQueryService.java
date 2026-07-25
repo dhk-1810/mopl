@@ -1,7 +1,7 @@
 package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.domain.entity.DMChatRoom;
+import org.codeit.sb06.team03.mopl.entity.DMChatRoom;
 import org.codeit.sb06.team03.mopl.exception.DMChatRoomNotFoundException;
 import org.codeit.sb06.team03.mopl.repository.DMChatRoomRepository;
 import org.codeit.sb06.team03.mopl.repository.DMChatRoomStatRepository;

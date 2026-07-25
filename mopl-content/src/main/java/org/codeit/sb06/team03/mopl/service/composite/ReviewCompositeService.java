@@ -12,7 +12,7 @@ import org.codeit.sb06.team03.mopl.dto.response.CursorResponseReviewDto;
 import org.codeit.sb06.team03.mopl.dto.request.ReviewCreateRequest;
 import org.codeit.sb06.team03.mopl.dto.response.ReviewDto;
 import org.codeit.sb06.team03.mopl.dto.request.ReviewUpdateRequest;
-import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 

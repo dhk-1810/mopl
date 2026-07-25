@@ -1,6 +1,5 @@
 package org.codeit.sb06.team03.mopl.service;
 
-import jakarta.persistence.PostLoad;
 import org.codeit.sb06.team03.mopl.entity.policy.PresignedUrlTimeoutPolicy;
 import org.codeit.sb06.team03.mopl.entity.ExternalTimeoutImageView;
 import org.codeit.sb06.team03.mopl.s3.S3Service;
@@ -23,7 +22,6 @@ public class PresignedUrlUpdateListener {
         this.presignedUrlTimeoutPolicy = presignedUrlTimeoutPolicy;
     }
 
-    @PostLoad
     public void updatePresignedUrl(Object entity) {
         if (entity instanceof ExternalTimeoutImageView timeoutImage) {
             if (timeoutImage.isExpired()) {

@@ -22,7 +22,7 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableQuerydslRepositories(
         basePackages = {
-                "org.codeit.sb06.team03.mopl.dm"
+                "org.codeit.sb06.team03.mopl"
         },
         entityManagerFactoryRef = "dmEntityManagerFactory",
         transactionManagerRef = "dmTransactionManager"
@@ -54,7 +54,7 @@ public class DmDbConfig {
         return builder
                 .dataSource(dmDataSource())
                 .packages(
-                        "org.codeit.sb06.team03.mopl.dm"
+                        "org.codeit.sb06.team03.mopl"
                 )
                 .persistenceUnit("dm")
                 .properties(properties)

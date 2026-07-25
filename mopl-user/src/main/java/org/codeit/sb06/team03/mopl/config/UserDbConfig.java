@@ -23,10 +23,7 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableQuerydslRepositories(
         basePackages = {
-                "org.codeit.sb06.team03.mopl.account",
-                "org.codeit.sb06.team03.mopl.follow",
-                "org.codeit.sb06.team03.mopl.profile",
-                "org.codeit.sb06.team03.mopl.security"
+                "org.codeit.sb06.team03.mopl"
         },
         entityManagerFactoryRef = "userEntityManagerFactory",
         transactionManagerRef = "userTransactionManager"
@@ -61,10 +58,7 @@ public class UserDbConfig {
         return builder
                 .dataSource(userDataSource())
                 .packages(
-                        "org.codeit.sb06.team03.mopl.account",
-                        "org.codeit.sb06.team03.mopl.follow",
-                        "org.codeit.sb06.team03.mopl.profile",
-                        "org.codeit.sb06.team03.mopl.security"
+                        "org.codeit.sb06.team03.mopl"
                 )
                 .persistenceUnit("user")
                 .properties(properties)

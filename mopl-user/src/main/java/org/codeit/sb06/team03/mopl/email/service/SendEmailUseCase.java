@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.email.service;
 
-public interface SendEmailUseCase {
+import java.time.Instant;
 
-    void sendEmail(SendEmailCommand command);
+public interface SendEmailUseCase {
+    void sendEmail(String emailAddress, String rawTempPassword, Instant expireDate);
 }

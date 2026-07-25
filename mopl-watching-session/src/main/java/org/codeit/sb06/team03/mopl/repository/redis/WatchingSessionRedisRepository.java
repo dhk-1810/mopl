@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.entity.WatchingSession;
 import org.codeit.sb06.team03.mopl.dto.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.repository.WatchingSessionRepository;
-import org.codeit.sb06.team03.mopl.repository.postgres.WatchingSessionSearchCondition;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -17,7 +16,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Profile("redis")
 @Repository
 @RequiredArgsConstructor
 public class WatchingSessionRedisRepository implements WatchingSessionRepository {
