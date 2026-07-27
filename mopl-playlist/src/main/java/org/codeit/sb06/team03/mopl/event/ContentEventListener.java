@@ -21,23 +21,7 @@ public class ContentEventListener {
     private final ExternalContentViewRepository externalContentViewRepository;
     private final PlaylistCommandService playlistCommandService;
 
-    @RabbitListener(queues = RabbitConfig.CONTENT_CREATE_QUEUE)
-    @Transactional(value = "playlistTransactionManager")
-    public void handleContentCreated(ContentEvent.ContentCreatedEvent event) {
-        log.info("Received ContentCreatedEvent from RabbitMQ: {}", event);
-        ExternalContentView contentView = ExternalContentView.create(
-                event.getContentId(),
-                ContentType.valueOf(event.getType()),
-                event.getTitle(),
-                event.getDescription(),
-                event.getThumbnailKey(),
-                joinTags(event.getTags()),
-                event.getAverageRating(),
-                event.getReviewCount(),
-                event.getWatcherCount()
-        );
-        externalContentViewRepository.save(contentView);
-    }
+
 
     @RabbitListener(queues = RabbitConfig.CONTENT_UPDATE_QUEUE)
     @Transactional(value = "playlistTransactionManager")

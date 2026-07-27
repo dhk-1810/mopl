@@ -15,17 +15,26 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitConfig {
 
     public static final String CONTENT_EXCHANGE = "mopl.content.exchange";
+    public static final String PLAYLIST_EXCHANGE = "mopl.playlist.exchange";
     public static final String USER_EXCHANGE = "mopl.user.exchange";
 
     public static final String ROUTING_KEY_PROFILE_CREATED = "user.profile-created";
     public static final String ROUTING_KEY_PROFILE_UPDATED = "user.profile-updated";
+    public static final String ROUTING_KEY_CURATION_CONTENT_REQUEST = "curation.content-request";
+    public static final String ROUTING_KEY_CONTENT_BATCH_INFO = "content.batch-info";
 
     public static final String USER_PROFILE_CREATE_QUEUE = "content.user-profile-create.queue";
     public static final String USER_PROFILE_UPDATE_QUEUE = "content.user-profile-update.queue";
+    public static final String CURATION_CONTENT_REQUEST_QUEUE = "content.curation-content-request.queue";
 
     @Bean
     public TopicExchange contentExchange() {
         return new TopicExchange(CONTENT_EXCHANGE);
+    }
+
+    @Bean
+    public TopicExchange playlistExchange() {
+        return new TopicExchange(PLAYLIST_EXCHANGE);
     }
 
     @Bean
@@ -44,6 +53,11 @@ public class RabbitConfig {
     }
 
     @Bean
+    public Queue curationContentRequestQueue() {
+        return new Queue(CURATION_CONTENT_REQUEST_QUEUE, true);
+    }
+
+    @Bean
     public Binding userProfileCreateBinding() {
         return BindingBuilder.bind(userProfileCreateQueue())
                 .to(userExchange())
@@ -55,6 +69,13 @@ public class RabbitConfig {
         return BindingBuilder.bind(userProfileUpdateQueue())
                 .to(userExchange())
                 .with(ROUTING_KEY_PROFILE_UPDATED);
+    }
+
+    @Bean
+    public Binding curationContentRequestBinding() {
+        return BindingBuilder.bind(curationContentRequestQueue())
+                .to(playlistExchange())
+                .with(ROUTING_KEY_CURATION_CONTENT_REQUEST);
     }
 
     @Bean

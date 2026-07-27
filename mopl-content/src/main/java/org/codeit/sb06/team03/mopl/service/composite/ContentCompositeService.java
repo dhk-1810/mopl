@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.codeit.sb06.team03.mopl.service.application.*;
 import org.codeit.sb06.team03.mopl.event.ContentDeletedEvent;
-import org.codeit.sb06.team03.mopl.event.ContentCreatedEvent;
 import org.codeit.sb06.team03.mopl.event.ContentUpdatedEvent;
 import org.codeit.sb06.team03.mopl.dto.response.ContentDto;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestContentDto;
@@ -51,18 +50,6 @@ public class ContentCompositeService {
         ContentReadModel readModel = contentCommandService.create(command, request.thumbnailKey());
         liveChatRoomCommandService.create(readModel.id());
 
-        eventPublisher.publishEvent(new ContentCreatedEvent(
-                readModel.id(),
-                readModel.type(),
-                readModel.title(),
-                readModel.description(),
-                readModel.thumbnailKey(),
-                readModel.tags(),
-                readModel.averageRating(),
-                readModel.reviewCount(),
-                readModel.watcherCount()
-        ));
-
         return ContentDto.from(readModel, getPresignedUrl(request.thumbnailKey()));
     }
 
@@ -85,18 +72,6 @@ public class ContentCompositeService {
         CreateContentCommand command = contentMapper.toCommand(request);
         ContentReadModel readModel = contentCommandService.create(command, thumbnailKey);
         liveChatRoomCommandService.create(readModel.id());
-        
-        eventPublisher.publishEvent(new ContentCreatedEvent(
-                readModel.id(),
-                readModel.type(),
-                readModel.title(),
-                readModel.description(),
-                readModel.thumbnailKey(),
-                readModel.tags(),
-                readModel.averageRating(),
-                readModel.reviewCount(),
-                readModel.watcherCount()
-        ));
         
         return ContentDto.from(readModel, getPresignedUrl(thumbnailKey));
     }

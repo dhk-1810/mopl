@@ -20,9 +20,10 @@ public class RabbitConfig {
     public static final String USER_EXCHANGE = "mopl.user.exchange";
 
     // Routing Keys
-    public static final String ROUTING_KEY_CONTENT_CREATED = "content.created";
     public static final String ROUTING_KEY_CONTENT_UPDATED = "content.updated";
     public static final String ROUTING_KEY_CONTENT_DELETED = "content.deleted";
+    public static final String ROUTING_KEY_CONTENT_BATCH_INFO = "content.batch-info";
+    public static final String ROUTING_KEY_CURATION_CONTENT_REQUEST = "curation.content-request";
 
     public static final String ROUTING_KEY_PROFILE_CREATED = "user.profile-created";
     public static final String ROUTING_KEY_PROFILE_UPDATED = "user.profile-updated";
@@ -31,9 +32,9 @@ public class RabbitConfig {
     public static final String ROUTING_KEY_CURATION_ADDED = "curation.added";
 
     // Queues
-    public static final String CONTENT_CREATE_QUEUE = "playlist.content-create.queue";
     public static final String CONTENT_UPDATE_QUEUE = "playlist.content-update.queue";
     public static final String CONTENT_DELETE_QUEUE = "playlist.content-delete.queue";
+    public static final String CONTENT_BATCH_INFO_QUEUE = "playlist.content-batch-info.queue";
 
     public static final String USER_PROFILE_CREATE_QUEUE = "playlist.user-profile-create.queue";
     public static final String USER_PROFILE_UPDATE_QUEUE = "playlist.user-profile-update.queue";
@@ -55,11 +56,6 @@ public class RabbitConfig {
 
     // Queues Beans
     @Bean
-    public Queue contentCreateQueue() {
-        return new Queue(CONTENT_CREATE_QUEUE, true);
-    }
-
-    @Bean
     public Queue contentUpdateQueue() {
         return new Queue(CONTENT_UPDATE_QUEUE, true);
     }
@@ -67,6 +63,11 @@ public class RabbitConfig {
     @Bean
     public Queue contentDeleteQueue() {
         return new Queue(CONTENT_DELETE_QUEUE, true);
+    }
+
+    @Bean
+    public Queue contentBatchInfoQueue() {
+        return new Queue(CONTENT_BATCH_INFO_QUEUE, true);
     }
 
     @Bean
@@ -81,13 +82,6 @@ public class RabbitConfig {
 
     // Bindings Beans
     @Bean
-    public Binding contentCreateBinding() {
-        return BindingBuilder.bind(contentCreateQueue())
-                .to(contentExchange())
-                .with(ROUTING_KEY_CONTENT_CREATED);
-    }
-
-    @Bean
     public Binding contentUpdateBinding() {
         return BindingBuilder.bind(contentUpdateQueue())
                 .to(contentExchange())
@@ -99,6 +93,13 @@ public class RabbitConfig {
         return BindingBuilder.bind(contentDeleteQueue())
                 .to(contentExchange())
                 .with(ROUTING_KEY_CONTENT_DELETED);
+    }
+
+    @Bean
+    public Binding contentBatchInfoBinding() {
+        return BindingBuilder.bind(contentBatchInfoQueue())
+                .to(contentExchange())
+                .with(ROUTING_KEY_CONTENT_BATCH_INFO);
     }
 
     @Bean

@@ -30,9 +30,6 @@ public class WatchingSessionCompositeService {
     private final ExternalImageQueryService imageQueryService;
 
     public WatchingSessionDto getByWatcherId(UUID watcherId, String authenticatedUserId) {
-        if (authenticatedUserId == null || !watcherId.toString().equals(authenticatedUserId)) {
-            throw new WatchingSessionAccessDeniedException();
-        }
 
         // TODO 자발/강제 로그아웃 시 워칭세션 삭제
         WatchingSessionReadModel watchingSession = watchingSessionQueryService.getByContentId(watcherId);

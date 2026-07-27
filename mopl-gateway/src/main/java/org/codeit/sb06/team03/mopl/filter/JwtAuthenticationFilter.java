@@ -35,6 +35,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/api/auth/refresh",
             "/api/auth/reset-password",
             "/api/users", // 회원가입 POST
+            "/ws/**",
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/favicon.svg",

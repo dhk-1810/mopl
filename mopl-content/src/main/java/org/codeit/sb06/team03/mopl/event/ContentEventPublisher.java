@@ -14,19 +14,8 @@ import org.springframework.stereotype.Component;
 public class ContentEventPublisher {
 
     private final RabbitTemplate rabbitTemplate;
-    public static final String ROUTING_KEY_CONTENT_CREATED = "content.created";
     public static final String ROUTING_KEY_CONTENT_UPDATED = "content.updated";
     public static final String ROUTING_KEY_CONTENT_DELETED = "content.deleted";
-
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleContentCreatedEvent(ContentCreatedEvent event) {
-        log.info("Publishing ContentCreatedEvent to RabbitMQ: {}", event);
-        rabbitTemplate.convertAndSend(
-                RabbitConfig.CONTENT_EXCHANGE,
-                ROUTING_KEY_CONTENT_CREATED,
-                event
-        );
-    }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleContentUpdatedEvent(ContentUpdatedEvent event) {

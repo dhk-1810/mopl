@@ -12,6 +12,7 @@ import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.codeit.sb06.team03.mopl.entity.DMChatRoom;
 import org.codeit.sb06.team03.mopl.entity.DMChatRoomStat;
 import org.codeit.sb06.team03.mopl.entity.DMMessage;
+import org.codeit.sb06.team03.mopl.exception.DMChatRoomNotFoundException;
 import org.codeit.sb06.team03.mopl.service.application.*;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
@@ -114,7 +115,12 @@ public class DMCompositeService {
     }
 
     public DMChatRoomDto getDMChatRoomWith(UUID partnerId, UUID userId) {
-        DMChatRoom dmChatRoom = dmChatRoomQueryService.findByWith(userId, partnerId);
+        DMChatRoom dmChatRoom;
+        try {
+            dmChatRoom = dmChatRoomQueryService.findByWith(userId, partnerId);
+        } catch (DMChatRoomNotFoundException e) {
+            dmChatRoom = dmChatRoomCommandService.create(userId, partnerId);
+        }
         return toDMChatRoomDto(dmChatRoom, userId, Optional.empty());
     }
 

@@ -18,6 +18,9 @@ import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalContentQueryService;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.service.PlaylistQueryService;
+import org.codeit.sb06.team03.mopl.config.RabbitConfig;
+import org.codeit.sb06.team03.mopl.event.CurationContentRequestEvent;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +36,7 @@ public class PlaylistCompositeService {
     private final ExternalUserQueryService externalUserQueryService;
     private final ExternalContentQueryService externalContentQueryService;
     private final ExternalImageQueryService imageQueryService;
+    private final RabbitTemplate rabbitTemplate;
 
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
         Playlist playlist = playlistCommandService.create(request.title(), request.description(), ownerId);
@@ -183,6 +187,21 @@ public class PlaylistCompositeService {
         }
 
         List<ExternalContentView> contentViews = externalContentQueryService.getContents(contentIds);
+        Set<UUID> foundIds = contentViews.stream().map(ExternalContentView::getId).collect(Collectors.toSet());
+
+        List<String> missingIds = contentIds.stream()
+                .filter(id -> !foundIds.contains(id))
+                .map(UUID::toString)
+                .toList();
+
+        if (!missingIds.isEmpty()) {
+            rabbitTemplate.convertAndSend(
+                    RabbitConfig.PLAYLIST_EXCHANGE,
+                    RabbitConfig.ROUTING_KEY_CURATION_CONTENT_REQUEST,
+                    new CurationContentRequestEvent(missingIds)
+            );
+        }
+
         List<String> thumbnailKeys = contentViews.stream()
                 .map(ExternalContentView::getThumbnailKey)
                 .filter(Objects::nonNull)
