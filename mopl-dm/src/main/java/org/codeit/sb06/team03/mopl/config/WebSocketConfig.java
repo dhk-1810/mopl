@@ -33,6 +33,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final StompAuthInboundInterceptor stompAuthInboundInterceptor;
     private final StompContentInboundInterceptor stompContentInboundInterceptor;
     private final WebSocketSessionManager webSocketSessionManager;
+    private final UserIdHandshakeInterceptor userIdHandshakeInterceptor;
 
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
@@ -63,9 +64,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*")
+                .addInterceptors(userIdHandshakeInterceptor)
                 .withSockJS();
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*");
+                .setAllowedOriginPatterns("*")
+                .addInterceptors(userIdHandshakeInterceptor);
     }
 
     @Override

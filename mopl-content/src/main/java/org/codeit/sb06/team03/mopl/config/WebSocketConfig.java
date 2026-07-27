@@ -29,14 +29,17 @@ import org.springframework.web.socket.CloseStatus;
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    /** Register SockJS/WebSocket endpoint. */
+    private final UserIdHandshakeInterceptor userIdHandshakeInterceptor;
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*")
+                .addInterceptors(userIdHandshakeInterceptor)
                 .withSockJS();
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*");
+                .setAllowedOriginPatterns("*")
+                .addInterceptors(userIdHandshakeInterceptor);
     }
 
     /** Configure a simple broker for /sub destinations. */

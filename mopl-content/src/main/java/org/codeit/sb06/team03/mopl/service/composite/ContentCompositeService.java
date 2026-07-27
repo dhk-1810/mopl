@@ -82,13 +82,20 @@ public class ContentCompositeService {
         Slice<ContentReadModel> slice = contentQueryService.getAll(request);
         List<ContentReadModel> readModels = slice.getContent();
 
-        List<String> thumbnailKeys = readModels.stream()
+        List<String> s3Keys = readModels.stream()
                 .map(ContentReadModel::thumbnailKey)
+                .filter(key -> key != null && !key.startsWith("http://") && !key.startsWith("https://"))
                 .toList();
-        Map<String, String> urls = imageQueryService.getPresignedUrls(thumbnailKeys);
+        Map<String, String> urls = imageQueryService.getPresignedUrls(s3Keys);
 
         List<ContentDto> contents = readModels.stream()
-                .map(rm -> ContentDto.from(rm, urls.get(rm.thumbnailKey())))
+                .map(rm -> {
+                    String key = rm.thumbnailKey();
+                    String url = (key != null && (key.startsWith("http://") || key.startsWith("https://")))
+                            ? key
+                            : urls.get(key);
+                    return ContentDto.from(rm, url);
+                })
                 .toList();
 
         String nextCursor = null;
@@ -143,6 +150,9 @@ public class ContentCompositeService {
     }
 
     private String getPresignedUrl(String thumbnailKey) {
+        if (thumbnailKey != null && (thumbnailKey.startsWith("http://") || thumbnailKey.startsWith("https://"))) {
+            return thumbnailKey;
+        }
         return imageQueryService.getPresignedUrl(thumbnailKey);
     }
 }

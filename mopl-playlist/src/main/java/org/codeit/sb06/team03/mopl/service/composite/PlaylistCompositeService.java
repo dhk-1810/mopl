@@ -74,24 +74,30 @@ public class PlaylistCompositeService {
 
         List<ExternalContentView> contentViews = externalContentQueryService.getContents(allContentIds);
 
-        List<String> thumbnailKeys = contentViews.stream()
+        List<String> s3Keys = contentViews.stream()
                 .map(ExternalContentView::getThumbnailKey)
-                .filter(Objects::nonNull)
+                .filter(key -> key != null && !key.startsWith("http://") && !key.startsWith("https://"))
                 .toList();
-        Map<String, String> urls = imageQueryService.getPresignedUrls(thumbnailKeys);
+        Map<String, String> urls = imageQueryService.getPresignedUrls(s3Keys);
 
         List<ContentDto> contentDtos = contentViews.stream()
-                .map(cv -> new ContentDto(
-                        cv.getId(),
-                        cv.getType(),
-                        cv.getTitle(),
-                        cv.getDescription(),
-                        urls.get(cv.getThumbnailKey()),
-                        parseTags(cv.getTags()),
-                        cv.getAverageRating(),
-                        cv.getReviewCount(),
-                        cv.getWatcherCount()
-                ))
+                .map(cv -> {
+                    String key = cv.getThumbnailKey();
+                    String url = (key != null && (key.startsWith("http://") || key.startsWith("https://")))
+                            ? key
+                            : urls.get(key);
+                    return new ContentDto(
+                            cv.getId(),
+                            cv.getType(),
+                            cv.getTitle(),
+                            cv.getDescription(),
+                            url,
+                            parseTags(cv.getTags()),
+                            cv.getAverageRating(),
+                            cv.getReviewCount(),
+                            cv.getWatcherCount()
+                    );
+                })
                 .toList();
 
         // 3. 플레이리스트별로 골라 담음
@@ -128,7 +134,7 @@ public class PlaylistCompositeService {
                 nextCursor,
                 nextIdAfter,
                 slice.hasNext(),
-                0,
+                1,
                 request.sortBy(),
                 SortDirection.valueOf(request.sortDirection())
         );
@@ -202,24 +208,30 @@ public class PlaylistCompositeService {
             );
         }
 
-        List<String> thumbnailKeys = contentViews.stream()
+        List<String> s3Keys = contentViews.stream()
                 .map(ExternalContentView::getThumbnailKey)
-                .filter(Objects::nonNull)
+                .filter(key -> key != null && !key.startsWith("http://") && !key.startsWith("https://"))
                 .toList();
-        Map<String, String> urls = imageQueryService.getPresignedUrls(thumbnailKeys);
+        Map<String, String> urls = imageQueryService.getPresignedUrls(s3Keys);
 
         return contentViews.stream()
-                .map(cv -> new ContentDto(
-                        cv.getId(),
-                        cv.getType(),
-                        cv.getTitle(),
-                        cv.getDescription(),
-                        urls.get(cv.getThumbnailKey()),
-                        parseTags(cv.getTags()),
-                        cv.getAverageRating(),
-                        cv.getReviewCount(),
-                        cv.getWatcherCount()
-                ))
+                .map(cv -> {
+                    String key = cv.getThumbnailKey();
+                    String url = (key != null && (key.startsWith("http://") || key.startsWith("https://")))
+                            ? key
+                            : urls.get(key);
+                    return new ContentDto(
+                            cv.getId(),
+                            cv.getType(),
+                            cv.getTitle(),
+                            cv.getDescription(),
+                            url,
+                            parseTags(cv.getTags()),
+                            cv.getAverageRating(),
+                            cv.getReviewCount(),
+                            cv.getWatcherCount()
+                    );
+                })
                 .toList();
     }
 
