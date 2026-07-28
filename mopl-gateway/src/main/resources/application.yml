@@ -36,11 +36,17 @@ spring:
           predicates:
             - Path=/api/sse
 
-        # 3. WebSocket (DM Service)
+        # 3. WebSocket (Content Service)
+        - id: websocket-content-route
+          uri: http://${CONTENT_HOST:localhost}:8082
+          predicates:
+            - Path=/ws/contents/**
+
+        # 4. WebSocket (DM Service)
         - id: websocket-dm-route
           uri: http://${DM_HOST:localhost}:8084
           predicates:
-            - Path=/ws/**
+            - Path=/ws/dm/**
 
         # 4. User / Auth / Follow Service
         - id: user-service-auth-route

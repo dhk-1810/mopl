@@ -62,11 +62,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws")
+        registry.addEndpoint("/ws/dm")
                 .setAllowedOriginPatterns("*")
                 .addInterceptors(userIdHandshakeInterceptor)
                 .withSockJS();
-        registry.addEndpoint("/ws")
+        registry.addEndpoint("/ws/dm")
                 .setAllowedOriginPatterns("*")
                 .addInterceptors(userIdHandshakeInterceptor);
     }

@@ -18,7 +18,7 @@ public class UserProfileEventListener {
 
     @RabbitListener(queues = RabbitConfig.USER_PROFILE_CREATE_QUEUE)
     @Transactional(value = "dmTransactionManager")
-    public void handleProfileCreated(UserEvent.ProfileCreatedEvent event) {
+    public void handleProfileCreated(UserEvent.UserProfileCreatedEvent event) {
         log.info("Received UserProfileCreatedEvent from RabbitMQ in mopl-dm: {}", event);
         ExternalUserView userView = ExternalUserView.create(event.getUserId(), event.getName(), event.getImageKey());
         externalUserViewRepository.save(userView);
@@ -26,7 +26,7 @@ public class UserProfileEventListener {
 
     @RabbitListener(queues = RabbitConfig.USER_PROFILE_UPDATE_QUEUE)
     @Transactional(value = "dmTransactionManager")
-    public void handleProfileUpdated(UserEvent.ProfileUpdatedEvent event) {
+    public void handleProfileUpdated(UserEvent.UserProfileUpdatedEvent event) {
         log.info("Received UserProfileUpdatedEvent from RabbitMQ in mopl-dm: {}", event);
         ExternalUserView userView = externalUserViewRepository.findById(event.getUserId())
                 .orElseGet(() -> ExternalUserView.create(event.getUserId(), event.getName(), event.getImageKey()));

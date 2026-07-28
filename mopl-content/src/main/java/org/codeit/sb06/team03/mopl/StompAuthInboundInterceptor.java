@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.UserIdHandshakeInterceptor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -15,6 +16,7 @@ import java.security.Principal;
 import java.util.Base64;
 import java.util.Map;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class StompAuthInboundInterceptor implements ChannelInterceptor {
@@ -32,29 +34,35 @@ public class StompAuthInboundInterceptor implements ChannelInterceptor {
         }
 
         if (command == StompCommand.CONNECT) {
+            log.info("StompAuthInboundInterceptor CONNECT incoming request");
             // 1순위: Gateway가 HTTP Upgrade 요청에 주입한 X-User-Id (HandshakeInterceptor → session attributes)
             Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
             String userId = sessionAttributes != null
                     ? (String) sessionAttributes.get(UserIdHandshakeInterceptor.USER_ID_ATTR)
                     : null;
+            log.info("StompAuthInboundInterceptor 1st priority: userId={}", userId);
 
             // 2순위: STOMP native 헤더 X-User-Id
             if (userId == null || userId.isBlank()) {
                 userId = accessor.getFirstNativeHeader("X-User-Id");
+                log.info("StompAuthInboundInterceptor 2nd priority: userId={}", userId);
             }
 
             // 3순위: Authorization: Bearer <jwt> 에서 sub 파싱 (브라우저 WebSocket은 Upgrade 시 커스텀 헤더 불가)
             if (userId == null || userId.isBlank()) {
                 String authHeader = accessor.getFirstNativeHeader("Authorization");
                 userId = extractSubjectFromBearer(authHeader);
+                log.info("StompAuthInboundInterceptor 3rd priority: userId={}", userId);
             }
 
             if (userId == null || userId.isBlank()) {
+                log.error("StompAuthInboundInterceptor failed: Missing user identity in CONNECT");
                 throw new IllegalArgumentException("Missing user identity in WebSocket CONNECT");
             }
 
             final String finalUserId = userId;
             accessor.setUser((Principal) () -> finalUserId);
+            log.info("StompAuthInboundInterceptor success: user set to {}", finalUserId);
         }
 
         return message;

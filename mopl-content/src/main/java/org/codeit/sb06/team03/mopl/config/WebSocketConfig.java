@@ -9,6 +9,10 @@ import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.codeit.sb06.team03.mopl.StompAuthInboundInterceptor;
+import org.codeit.sb06.team03.mopl.StompContentInboundInterceptor;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -29,15 +33,17 @@ import org.springframework.web.socket.CloseStatus;
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    private final StompAuthInboundInterceptor stompAuthInboundInterceptor;
+    private final StompContentInboundInterceptor stompContentInboundInterceptor;
     private final UserIdHandshakeInterceptor userIdHandshakeInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws")
+        registry.addEndpoint("/ws/contents")
                 .setAllowedOriginPatterns("*")
                 .addInterceptors(userIdHandshakeInterceptor)
                 .withSockJS();
-        registry.addEndpoint("/ws")
+        registry.addEndpoint("/ws/contents")
                 .setAllowedOriginPatterns("*")
                 .addInterceptors(userIdHandshakeInterceptor);
     }
@@ -69,6 +75,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         });
     }
 
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.executor(websocketInboundExecutor())
+                .interceptors(stompAuthInboundInterceptor, stompContentInboundInterceptor);
+    }
+
+    @Override
+    public void configureClientOutboundChannel(ChannelRegistration registration) {
+        registration.executor(websocketOutboundExecutor());
+    }
+
     @Bean("websocketTaskScheduler")
     public TaskScheduler websocketTaskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
@@ -89,6 +106,32 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         executor.setThreadNamePrefix("default-async-");
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setAwaitTerminationSeconds(30);
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean("websocketInboundExecutor")
+    public TaskExecutor websocketInboundExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(16);
+        executor.setMaxPoolSize(32);
+        executor.setQueueCapacity(1000);
+        executor.setThreadNamePrefix("inbound-");
+        executor.setWaitForTasksToCompleteOnShutdown(false);
+        executor.setKeepAliveSeconds(60);
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean("websocketOutboundExecutor")
+    public TaskExecutor websocketOutboundExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(16);
+        executor.setMaxPoolSize(32);
+        executor.setQueueCapacity(1000);
+        executor.setThreadNamePrefix("outbound-");
+        executor.setWaitForTasksToCompleteOnShutdown(false);
+        executor.setKeepAliveSeconds(60);
         executor.initialize();
         return executor;
     }
