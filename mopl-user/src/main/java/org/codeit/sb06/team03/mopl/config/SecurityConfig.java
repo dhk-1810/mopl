@@ -52,8 +52,9 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
-                        .requestMatchers("/", "/index.html", "/favicon.svg", "/assets/**", "/oauth-redirect", "/sign-in").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/error").permitAll()
+                        .requestMatchers("/", "/index.html", "/favicon.svg", "/assets/**").permitAll()
+                        .requestMatchers("/sign-in", "/oauth-redirect", "/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/sign-in").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()

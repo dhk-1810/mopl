@@ -1,11 +1,11 @@
 server:
   port: 8081
+  forward-headers-strategy: framework
 
 spring:
   config:
     activate:
       on-profile: dev
-  # 데이터베이스 설정 (RDB)
   datasource:
     user:
       driver-class-name: org.postgresql.Driver
@@ -16,3 +16,11 @@ spring:
     user:
       hibernate:
         ddl-auto: update
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            redirect-uri: "http://localhost:8080/login/oauth2/code/google"
+          kakao:
+            redirect-uri: "http://localhost:8080/login/oauth2/code/kakao"

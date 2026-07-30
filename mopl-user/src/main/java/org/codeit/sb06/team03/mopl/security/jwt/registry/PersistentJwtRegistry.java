@@ -28,6 +28,7 @@ public class PersistentJwtRegistry implements JwtRegistry {
     }
 
     @Override
+    @Transactional
     public TokenPair register(JwtClaims jwtClaims) {
         TokenResult refreshToken = jwtTokenProvider.generateRefreshToken(jwtClaims);
         TokenResult accessToken = jwtTokenProvider.generateAccessToken(jwtClaims);
@@ -78,11 +79,13 @@ public class PersistentJwtRegistry implements JwtRegistry {
     }
 
     @Override
+    @Transactional
     public void invalidateToken(String refreshToken) {
         tokenSessionRepository.deleteById(jwtTokenProvider.getTokenId(refreshToken));
     }
 
     @Override
+    @Transactional
     public TokenPair rotate(String oldRefreshToken) {
         if (!hasActiveRefreshToken(oldRefreshToken)) {
             throw new InvalidTokenException();

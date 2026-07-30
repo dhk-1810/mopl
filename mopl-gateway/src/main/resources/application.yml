@@ -9,7 +9,7 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "*"
+            allowedOriginPatterns: "*"
             allowedMethods:
               - GET
               - POST
@@ -18,6 +18,7 @@ spring:
               - PATCH
               - OPTIONS
             allowedHeaders: "*"
+            allowCredentials: true
       routes:
         # 1. Watching Session Service
         - id: watching-session-user-route
@@ -53,6 +54,11 @@ spring:
           uri: http://${USER_HOST:localhost}:8081
           predicates:
             - Path=/api/auth/**
+
+        - id: user-service-oauth2-route
+          uri: http://${USER_HOST:localhost}:8081
+          predicates:
+            - Path=/oauth2/**, /login/oauth2/**
 
         - id: user-service-users-route
           uri: http://${USER_HOST:localhost}:8081
@@ -102,4 +108,4 @@ spring:
 mopl:
   jwt:
     access-token:
-      secret: ${JWT_ACCESS_TOKEN_SECRET:f38d384ddc2984e6f2734af3f5a4bfb09397118996d2afb1d3dee81c8610789b}
+      secret: ${JWT_ACCESS_TOKEN_SECRET}

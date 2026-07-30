@@ -4,11 +4,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.dto.response.UserDto;
 import org.codeit.sb06.team03.mopl.security.jwt.JwtClaims;
 import org.codeit.sb06.team03.mopl.security.jwt.RefreshTokenCookieProvider;
 import org.codeit.sb06.team03.mopl.security.jwt.TokenPair;
 import org.codeit.sb06.team03.mopl.security.jwt.registry.JwtRegistry;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -16,22 +20,21 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
+@RequiredArgsConstructor
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-//    @Value
-//    private String defaultUrl;
+    @Value("${mopl.oauth2.redirect-uri.success}")
+    private String loginSuccessRedirectUri;
 
-    private static final String LOGIN_SUCCESS_REDIRECT_URI = "/oauth-redirect";
-    private static final String LOGIN_FAILURE_REDIRECT_URI = "/sign-in";
+    @Value("${mopl.oauth2.redirect-uri.failure}")
+    private String loginFailureRedirectUri;
+
+    @Value("${mopl.jwt.refresh-token.expiration-ms}")
+    private long refreshTokenExpirationInMs;
 
     private final JwtRegistry jwtRegistry;
     private final RefreshTokenCookieProvider refreshTokenCookieProvider;
-
-    public OAuth2SuccessHandler(JwtRegistry jwtRegistry, RefreshTokenCookieProvider refreshTokenCookieProvider) {
-        this.jwtRegistry = jwtRegistry;
-        this.refreshTokenCookieProvider = refreshTokenCookieProvider;
-    }
 
     @Override
     public void onAuthenticationSuccess(
@@ -45,12 +48,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 JwtClaims jwtClaims = userDetailsToJwtClaims(userDetails);
                 TokenPair tokenPair = jwtRegistry.register(jwtClaims);
 
-                Cookie refreshTokenCookie = refreshTokenCookieProvider
-                        .generateRefreshTokenCookie(tokenPair.refreshToken());
-                response.addCookie(refreshTokenCookie);
+                ResponseCookie refreshTokenCookie = ResponseCookie.from("REFRESH_TOKEN", tokenPair.refreshToken())
+                        .path("/")
+                        .httpOnly(true)
+                        .maxAge(refreshTokenExpirationInMs / 1000)
+                        .sameSite("Lax") // 로컬 개발 리다이렉트 대응
+                        .build();
+
+                response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
                 // Access Token을 파라미터로 실어서 프론트엔드로 리다이렉트
-                String targetUrl = UriComponentsBuilder.fromPath(LOGIN_SUCCESS_REDIRECT_URI)
+                String targetUrl = UriComponentsBuilder.fromUriString(loginSuccessRedirectUri)
                         .queryParam("accessToken", tokenPair.accessToken())
                         .build().toUriString();
 
@@ -58,7 +66,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 return;
             } catch (Exception e) {
                 // 토큰 생성 실패 시 프론트엔드 로그인 페이지로 에러와 함께 리다이렉트
-                String errorUrl = UriComponentsBuilder.fromPath(LOGIN_FAILURE_REDIRECT_URI)
+                String errorUrl = UriComponentsBuilder.fromUriString(loginFailureRedirectUri)
                         .queryParam("error", "token_generation_failed")
                         .build().toUriString();
                 getRedirectStrategy().sendRedirect(request, response, errorUrl);
@@ -66,7 +74,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             }
         }
 
-        String unauthorizedUrl = UriComponentsBuilder.fromPath(LOGIN_FAILURE_REDIRECT_URI)
+        String unauthorizedUrl = UriComponentsBuilder.fromUriString(loginFailureRedirectUri)
                 .queryParam("error", "unauthorized")
                 .build().toUriString();
         getRedirectStrategy().sendRedirect(request, response, unauthorizedUrl);

@@ -35,6 +35,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/api/auth/refresh",
             "/api/auth/reset-password",
             "/api/users", // 회원가입 POST
+            "/oauth2/**",
+            "/login/oauth2/**",
+            "/oauth-redirect",
             "/ws/**",
             "/swagger-ui/**",
             "/v3/api-docs/**",
@@ -45,7 +48,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     );
 
     public JwtAuthenticationFilter(
-            @Value("${mopl.jwt.access-token.secret:sb06-mopl-team03-jwt-temporary-secret}")
+            @Value("${mopl.jwt.access-token.secret}")
             String accessTokenSecret
     ) throws Exception {
         this.accessTokenVerifier = new MACVerifier(accessTokenSecret.getBytes());

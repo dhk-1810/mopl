@@ -8,9 +8,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
-
 import java.time.Instant;
 import java.util.UUID;
 
@@ -18,15 +15,10 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "token_sessions")
-@SQLDelete(sql = "UPDATE token_sessions SET is_deleted = true WHERE refresh_token_id = ?")
-@SQLRestriction("is_deleted = false")
 public class TokenSession {
 
     @Id
     private UUID refreshTokenId;
-
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
 
     @Column(nullable = false)
     private UUID accessTokenId;
