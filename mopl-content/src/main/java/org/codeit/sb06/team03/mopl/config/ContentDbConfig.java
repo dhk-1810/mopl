@@ -29,7 +29,7 @@ import java.util.Map;
 )
 public class ContentDbConfig {
 
-    @Value("${spring.jpa.content.hibernate.ddl-auto:update}")
+    @Value("${spring.jpa.content.hibernate.ddl-auto:validate}")
     private String ddlAuto;
 
     @Bean

@@ -29,7 +29,7 @@ import java.util.Map;
 )
 public class NotificationDbConfig {
 
-    @Value("${spring.jpa.notification.hibernate.ddl-auto:update}")
+    @Value("${spring.jpa.notification.hibernate.ddl-auto:validate}")
     private String ddlAuto;
 
     @Bean

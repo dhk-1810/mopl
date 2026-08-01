@@ -12,12 +12,16 @@ spring:
     password: ${SPRING_RABBITMQ_PASSWORD:guest}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 100
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
   mail:
     host: ${mopl.mail.host}
     port: ${mopl.mail.port}

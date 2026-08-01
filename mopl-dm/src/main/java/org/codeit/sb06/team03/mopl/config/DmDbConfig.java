@@ -29,7 +29,7 @@ import java.util.Map;
 )
 public class DmDbConfig {
 
-    @Value("${spring.jpa.dm.hibernate.ddl-auto:update}")
+    @Value("${spring.jpa.dm.hibernate.ddl-auto:validate}")
     private String ddlAuto;
 
     @Bean
