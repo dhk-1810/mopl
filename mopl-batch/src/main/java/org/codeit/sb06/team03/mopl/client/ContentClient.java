@@ -3,21 +3,41 @@ package org.codeit.sb06.team03.mopl.client;
 import org.codeit.sb06.team03.mopl.dto.ContentCreateRequest;
 import org.codeit.sb06.team03.mopl.dto.ContentDto;
 import org.codeit.sb06.team03.mopl.dto.CursorResponseContentDto;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
-@FeignClient(name = "mopl-content", url = "${mopl.services.content.url:http://localhost:8082}")
-public interface ContentClient {
+@Component
+public class ContentClient {
 
-    @GetMapping("/api/contents")
-    CursorResponseContentDto getContents(
-            @RequestParam(name = "keywordLike", required = false) String keywordLike,
-            @RequestParam(name = "typeEqual", required = false) String typeEqual
-    );
+    private final RestClient restClient;
 
-    @PostMapping("/api/contents/internal")
-    ContentDto createInternal(@RequestBody ContentCreateRequest request);
+    public ContentClient(@Value("${mopl.services.content.url:http://localhost:8082}") String contentUrl) {
+        this.restClient = RestClient.builder()
+                .baseUrl(contentUrl)
+                .build();
+    }
+
+    public CursorResponseContentDto getContents(String keywordLike, String typeEqual) {
+        return restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/contents")
+                        .queryParam("keywordLike", keywordLike)
+                        .queryParam("typeEqual", typeEqual)
+                        .build())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .body(CursorResponseContentDto.class);
+    }
+
+    public ContentDto createInternal(ContentCreateRequest request) {
+        return restClient.post()
+                .uri("/api/contents/internal")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .retrieve()
+                .body(ContentDto.class);
+    }
 }
+
