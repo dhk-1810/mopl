@@ -59,7 +59,13 @@ CREATE TABLE external_image_views (
     url TEXT
 );
 
--- Indexes
+-- Extensions & Special Indexes
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE INDEX idx_contents_name_lower_trgm
+    ON contents USING gin (LOWER(title) gin_trgm_ops);
+
+-- Standard Indexes
 CREATE INDEX idx_contents_type_created ON contents(type, created_at DESC) WHERE is_deleted = FALSE;
 CREATE INDEX idx_contents_title ON contents(title) WHERE is_deleted = FALSE;
 CREATE INDEX idx_reviews_content_created ON reviews(content_id, created_at DESC) WHERE is_deleted = FALSE;
