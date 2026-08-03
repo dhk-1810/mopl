@@ -26,6 +26,7 @@ public class RabbitConfig {
     public static final String USER_PROFILE_CREATE_QUEUE = "content.user-profile-create.queue";
     public static final String USER_PROFILE_UPDATE_QUEUE = "content.user-profile-update.queue";
     public static final String CURATION_CONTENT_REQUEST_QUEUE = "content.curation-content-request.queue";
+    public static final String CONTENT_BATCH_INFO_QUEUE = "content.batch-info.queue";
 
     @Bean
     public TopicExchange contentExchange() {
@@ -58,6 +59,11 @@ public class RabbitConfig {
     }
 
     @Bean
+    public Queue contentBatchInfoQueue() {
+        return new Queue(CONTENT_BATCH_INFO_QUEUE, true);
+    }
+
+    @Bean
     public Binding userProfileCreateBinding() {
         return BindingBuilder.bind(userProfileCreateQueue())
                 .to(userExchange())
@@ -76,6 +82,13 @@ public class RabbitConfig {
         return BindingBuilder.bind(curationContentRequestQueue())
                 .to(playlistExchange())
                 .with(ROUTING_KEY_CURATION_CONTENT_REQUEST);
+    }
+
+    @Bean
+    public Binding contentBatchInfoBinding() {
+        return BindingBuilder.bind(contentBatchInfoQueue())
+                .to(contentExchange())
+                .with(ROUTING_KEY_CONTENT_BATCH_INFO);
     }
 
     @Bean
