@@ -244,4 +244,20 @@ public class WatchingSessionRedisRepository implements WatchingSessionRepository
             deleteByWatcherId(watcherId); // 한 watcher는 한 WatchingSession만 가지므로 호출.
         }
     }
+
+    @Override
+    public void deleteByLiveChatRoomId(UUID liveChatRoomId) {
+        String roomKey = LIVE_CHATROOM_KEY_PREFIX + liveChatRoomId;
+        Set<String> watcherIdStrings = redisTemplate.opsForZSet().range(roomKey, 0, -1);
+        if (watcherIdStrings != null && !watcherIdStrings.isEmpty()) {
+            for (String watcherIdStr : watcherIdStrings) {
+                try {
+                    deleteByWatcherId(UUID.fromString(watcherIdStr));
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+        }
+        redisTemplate.delete(roomKey);
+    }
 }

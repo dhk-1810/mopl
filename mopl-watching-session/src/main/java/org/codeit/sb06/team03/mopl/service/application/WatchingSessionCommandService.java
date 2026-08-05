@@ -43,4 +43,8 @@ public class WatchingSessionCommandService {
         watchingSessionRepository.deleteById(id);
     }
 
+    public void deleteByLiveChatRoomId(UUID liveChatRoomId) {
+        watchingSessionRepository.deleteByLiveChatRoomId(liveChatRoomId);
+    }
+
 }

@@ -21,6 +21,7 @@ public class ContentCommandService {
     private final ContentRepository contentRepository;
     private final ContentService contentService;
     private final ContentTagService contentTagService;
+    private final org.codeit.sb06.team03.mopl.event.ContentEventPublisher contentEventPublisher;
 
     public ContentReadModel create(CreateContentCommand command, String thumbnailKey) {
         Content content = contentService.create(
@@ -44,7 +45,25 @@ public class ContentCommandService {
     public void delete(UUID id) {
         Content content = contentRepository.findById(id)
                 .orElseThrow(() -> ContentNotFoundException.fromId(id));
-        contentRepository.deleteById(id);
+        content.markAsDeleted();
+        contentRepository.save(content);
+    }
+
+    public UUID deleteSaga(UUID id) {
+        Content content = contentRepository.findById(id)
+                .orElseThrow(() -> ContentNotFoundException.fromId(id));
+
+        // 1. Soft lock state
+        content.markAsDeleting();
+        contentRepository.save(content);
+
+        // 2. Publish Saga Start Event
+        UUID sagaId = UUID.randomUUID();
+        contentEventPublisher.publishContentDeletionSagaStart(
+                org.codeit.sb06.team03.mopl.event.ContentDeletionSagaEvent.start(sagaId, id)
+        );
+
+        return sagaId;
     }
 }
 

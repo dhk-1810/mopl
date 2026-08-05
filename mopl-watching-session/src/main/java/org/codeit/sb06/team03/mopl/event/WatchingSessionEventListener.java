@@ -44,4 +44,30 @@ public class WatchingSessionEventListener {
             log.error("Failed to delete watching session asynchronously from event: {}", event, e);
         }
     }
+
+    @RabbitListener(queues = RabbitConfig.WS_CONTENT_SAGA_START_QUEUE)
+    public void handleContentDeletionSaga(ContentDeletionSagaEvent event) {
+        log.info("Received ContentDeletionSagaEvent START in mopl-watching-session: {}", event);
+        try {
+            // 해당 contentId와 연관된 시청 세션 정리 (LiveChatRoom 단위 삭제 또는 watcher 삭제 연동)
+            // mopl-watching-session 은 Redis 데이터를 기반으로 세션을 삭제
+            watchingSessionCommandService.deleteByLiveChatRoomId(event.contentId());
+
+            // Saga 성공 이벤트 응답 (mopl-content로 전파)
+            sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "WATCHING_SESSION"));
+        } catch (Exception e) {
+            log.error("Failed to delete watching session for contentId: {}", event.contentId(), e);
+            sendSagaResponse(ContentDeletionSagaEvent.failed(event.sagaId(), event.contentId(), "WATCHING_SESSION", e.getMessage()));
+        }
+    }
+
+    private final org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
+
+    private void sendSagaResponse(ContentDeletionSagaEvent event) {
+        rabbitTemplate.convertAndSend(
+                RabbitConfig.CONTENT_EXCHANGE,
+                RabbitConfig.ROUTING_KEY_SAGA_RESPONSE,
+                event
+        );
+    }
 }

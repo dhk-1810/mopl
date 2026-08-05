@@ -5,10 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.codeit.sb06.team03.mopl.enums.ContentStatus;
 import org.codeit.sb06.team03.mopl.enums.ContentType;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
 
 import java.time.Instant;
 import java.util.Set;
@@ -18,16 +16,16 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "contents")
-@SQLDelete(sql = "UPDATE contents SET is_deleted = true WHERE id = ?")
-@SQLRestriction("is_deleted = false")
 public class Content {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private ContentStatus status = ContentStatus.ACTIVE;
 
     @NotNull
     @Column(name = "created_at", nullable = false)
@@ -74,6 +72,7 @@ public class Content {
     private Content(ContentType type, String title, String description, String thumbnailKey) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
+        this.status = ContentStatus.ACTIVE;
         this.type = type;
         this.title = title;
         this.description = description;
@@ -121,5 +120,29 @@ public class Content {
             totalRating = totalRating - oldRating + newRating;
             this.averageRating = Math.round((totalRating / this.reviewCount) * 10.0) / 10.0;
         }
+    }
+
+    public void markAsDeleting() {
+        this.status = ContentStatus.DELETING;
+    }
+
+    public void markAsDeleted() {
+        this.status = ContentStatus.DELETED;
+    }
+
+    public void restoreActive() {
+        this.status = ContentStatus.ACTIVE;
+    }
+
+    public boolean isActive() {
+        return this.status == ContentStatus.ACTIVE;
+    }
+
+    public boolean isDeleting() {
+        return this.status == ContentStatus.DELETING;
+    }
+
+    public boolean isDeleted() {
+        return this.status == ContentStatus.DELETED;
     }
 }

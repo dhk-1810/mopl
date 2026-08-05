@@ -35,6 +35,10 @@ public class RabbitConfig {
     public static final String CONTENT_UPDATE_QUEUE = "playlist.content-update.queue";
     public static final String CONTENT_DELETE_QUEUE = "playlist.content-delete.queue";
     public static final String CONTENT_BATCH_INFO_QUEUE = "playlist.content-batch-info.queue";
+    public static final String CONTENT_SAGA_START_QUEUE = "playlist.content-saga-start.queue";
+
+    public static final String ROUTING_KEY_SAGA_START = "content.saga.delete.start";
+    public static final String ROUTING_KEY_SAGA_RESPONSE = "content.saga.delete.response";
 
     public static final String USER_PROFILE_CREATE_QUEUE = "playlist.user-profile-create.queue";
     public static final String USER_PROFILE_UPDATE_QUEUE = "playlist.user-profile-update.queue";
@@ -100,6 +104,18 @@ public class RabbitConfig {
         return BindingBuilder.bind(contentBatchInfoQueue())
                 .to(contentExchange())
                 .with(ROUTING_KEY_CONTENT_BATCH_INFO);
+    }
+
+    @Bean
+    public Queue contentSagaStartQueue() {
+        return new Queue(CONTENT_SAGA_START_QUEUE, true);
+    }
+
+    @Bean
+    public Binding contentSagaStartBinding() {
+        return BindingBuilder.bind(contentSagaStartQueue())
+                .to(contentExchange())
+                .with(ROUTING_KEY_SAGA_START);
     }
 
     @Bean

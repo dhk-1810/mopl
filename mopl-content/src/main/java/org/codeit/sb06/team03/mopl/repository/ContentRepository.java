@@ -6,6 +6,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
+import org.codeit.sb06.team03.mopl.enums.ContentStatus;
 import org.codeit.sb06.team03.mopl.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
@@ -35,7 +36,7 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
                 .from(content)
                 .leftJoin(contentTag).on(content.id.eq(contentTag.id.contentId))
                 .leftJoin(tag).on(contentTag.id.tagId.eq(tag.id))
-                .where(content.id.eq(id))
+                .where(content.id.eq(id).and(content.status.eq(ContentStatus.ACTIVE)))
                 .transform(groupBy(content.id).as(Projections.constructor(ContentReadModel.class,
                         content.id,
                         content.type,
@@ -63,6 +64,7 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
             SortDirection sortDirection
     ) {
         Predicate[] predicates = {
+                content.status.eq(ContentStatus.ACTIVE),
                 keywordLikePredicate(keywordLike),
                 typeEqualPredicate(typeEqual),
                 cursorExpressionPredicate(cursor, idAfter, sortBy, sortDirection)
@@ -105,7 +107,7 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
                 .from(content)
                 .leftJoin(contentTag).on(content.id.eq(contentTag.id.contentId))
                 .leftJoin(tag).on(contentTag.id.tagId.eq(tag.id))
-                .where(content.id.in(ids))
+                .where(content.id.in(ids).and(content.status.eq(ContentStatus.ACTIVE)))
                 .transform(groupBy(content.id).as(Projections.constructor(ContentReadModel.class,
                         content.id,
                         content.type,

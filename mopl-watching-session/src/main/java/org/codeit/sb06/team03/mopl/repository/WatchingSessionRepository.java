@@ -25,4 +25,6 @@ public interface WatchingSessionRepository {
     void deleteByWatcherId(UUID watcherId);
 
     void deleteById(UUID id);
+
+    void deleteByLiveChatRoomId(UUID liveChatRoomId);
 }

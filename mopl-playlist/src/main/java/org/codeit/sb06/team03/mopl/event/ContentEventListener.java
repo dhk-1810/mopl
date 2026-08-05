@@ -20,6 +20,15 @@ public class ContentEventListener {
 
     private final ExternalContentViewRepository externalContentViewRepository;
     private final PlaylistCommandService playlistCommandService;
+    private final org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
+
+    private void sendSagaResponse(ContentDeletionSagaEvent event) {
+        rabbitTemplate.convertAndSend(
+                RabbitConfig.CONTENT_EXCHANGE,
+                RabbitConfig.ROUTING_KEY_SAGA_RESPONSE,
+                event
+        );
+    }
 
 
 
@@ -59,6 +68,23 @@ public class ContentEventListener {
         playlistCommandService.deleteCurationByContentId(event.getContentId());
         // 2. Delete local read model
         externalContentViewRepository.deleteById(event.getContentId());
+    }
+
+    @RabbitListener(queues = RabbitConfig.CONTENT_SAGA_START_QUEUE)
+    @Transactional(value = "playlistTransactionManager")
+    public void handleContentDeletionSaga(ContentDeletionSagaEvent event) {
+        log.info("Received ContentDeletionSagaEvent START in mopl-playlist: {}", event);
+        try {
+            // 1. 플레이리스트 연관 항목 및 CQRS View 뷰 삭제
+            playlistCommandService.deleteCurationByContentId(event.contentId());
+            externalContentViewRepository.deleteById(event.contentId());
+
+            // 2. 성공 이벤트 응답 (mopl-content에 전달)
+            sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "PLAYLIST"));
+        } catch (Exception e) {
+            log.error("Failed to delete playlist curation for contentId: {}", event.contentId(), e);
+            sendSagaResponse(ContentDeletionSagaEvent.failed(event.sagaId(), event.contentId(), "PLAYLIST", e.getMessage()));
+        }
     }
 
     private String joinTags(Set<String> tags) {

@@ -36,4 +36,13 @@ public class ContentEventPublisher {
                 event
         );
     }
+
+    public void publishContentDeletionSagaStart(ContentDeletionSagaEvent event) {
+        log.info("Publishing ContentDeletionSagaEvent START to RabbitMQ: {}", event);
+        rabbitTemplate.convertAndSend(
+                RabbitConfig.CONTENT_EXCHANGE,
+                RabbitConfig.ROUTING_KEY_SAGA_START,
+                event
+        );
+    }
 }
