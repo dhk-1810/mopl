@@ -29,7 +29,7 @@ import java.util.Map;
 )
 public class ImageDbConfig {
 
-    @Value("${spring.jpa.image.hibernate.ddl-auto:validate}")
+    @Value("${spring.jpa.image.hibernate.ddl-auto:none}")
     private String ddlAuto;
 
     @Bean

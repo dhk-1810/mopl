@@ -21,9 +21,9 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-@Table(name = "dm_chat_room")
+@Table(name = "dm_chat_rooms")
 @EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE dm_chat_room SET is_deleted = true WHERE id = ? AND version = ?")
+@SQLDelete(sql = "UPDATE dm_chat_rooms SET is_deleted = true WHERE id = ? AND version = ?")
 @SQLRestriction("is_deleted = false")
 public class DMChatRoom extends AbstractAggregateRoot<DMChatRoom> {
 

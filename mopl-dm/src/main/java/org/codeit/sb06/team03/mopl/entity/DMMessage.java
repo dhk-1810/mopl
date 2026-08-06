@@ -43,7 +43,7 @@ public class DMMessage extends AbstractAggregateRoot<DMMessage> {
     private Instant createdAt;
 
     @NotNull
-    @Column(name = "dmChatRoom_id", nullable = false)
+    @Column(name = "dm_chat_room_id", nullable = false)
     private UUID dmChatRoomId;
 
     @NotNull

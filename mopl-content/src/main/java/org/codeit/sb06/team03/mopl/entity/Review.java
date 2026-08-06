@@ -44,6 +44,7 @@ public class Review {
     @Column(name = "author_id", nullable = false)
     private UUID authorId;
 
+    @Version
     @Column(name = "version", nullable = false)
     private short version;
 

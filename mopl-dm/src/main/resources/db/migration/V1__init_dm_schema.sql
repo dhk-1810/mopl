@@ -3,6 +3,7 @@ CREATE TABLE dm_chat_rooms (
     id UUID PRIMARY KEY,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    version SMALLINT NOT NULL DEFAULT 0,
     user1_id UUID NOT NULL,
     user2_id UUID NOT NULL
 );
@@ -11,30 +12,40 @@ CREATE TABLE dm_messages (
     id UUID PRIMARY KEY,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    chat_room_id UUID NOT NULL REFERENCES dm_chat_rooms(id) ON DELETE CASCADE,
+    dm_chat_room_id UUID NOT NULL REFERENCES dm_chat_rooms(id) ON DELETE CASCADE,
     sender_id UUID NOT NULL,
-    message TEXT NOT NULL
+    receiver_id UUID NOT NULL,
+    content VARCHAR(1000) NOT NULL,
+    has_unread BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE dm_chat_room_stats (
-    chat_room_id UUID PRIMARY KEY REFERENCES dm_chat_rooms(id) ON DELETE CASCADE,
-    last_message_id UUID,
-    last_message_time TIMESTAMP WITH TIME ZONE,
-    unread_count_user1 INT NOT NULL DEFAULT 0,
-    unread_count_user2 INT NOT NULL DEFAULT 0
+    id UUID PRIMARY KEY,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    dm_chat_room_id UUID NOT NULL REFERENCES dm_chat_rooms(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    version SMALLINT NOT NULL DEFAULT 0,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    account_id UUID NOT NULL,
+    activity BOOLEAN NOT NULL DEFAULT FALSE,
+    has_unread BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT uq_dm_chat_room_stats_room_account UNIQUE (dm_chat_room_id, account_id)
 );
 
 CREATE TABLE external_user_views (
-    id UUID PRIMARY KEY,
-    name VARCHAR(255),
-    image_key VARCHAR(255)
+    user_id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    profile_image_key VARCHAR(255)
 );
 
-CREATE TABLE external_image_views (
-    image_key VARCHAR(255) PRIMARY KEY,
-    url TEXT
+CREATE TABLE timeout_images (
+    id UUID PRIMARY KEY,
+    image_key VARCHAR(255) UNIQUE,
+    presigned_url VARCHAR(1024),
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    exp TIMESTAMP WITH TIME ZONE
 );
 
 -- Indexes
 CREATE INDEX idx_dm_chat_rooms_users ON dm_chat_rooms(user1_id, user2_id) WHERE is_deleted = FALSE;
-CREATE INDEX idx_dm_messages_room_created ON dm_messages(chat_room_id, created_at DESC) WHERE is_deleted = FALSE;
+CREATE INDEX idx_dm_messages_room_created ON dm_messages(dm_chat_room_id, created_at DESC) WHERE is_deleted = FALSE;

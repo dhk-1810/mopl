@@ -20,7 +20,7 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 @Table(
         name = "dm_chat_room_stats",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"dmChatRoom_id", "account_id"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"dm_chat_room_id", "account_id"})
 )
 @SQLDelete(sql = "UPDATE dm_chat_room_stats SET is_deleted = true WHERE id = ? AND version = ?")
 @SQLRestriction("is_deleted = false")
@@ -34,7 +34,7 @@ public class DMChatRoomStat {
     private boolean isDeleted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dmChatRoom_id", nullable = false)
+    @JoinColumn(name = "dm_chat_room_id", nullable = false)
     private DMChatRoom dmChatRoom;
 
     @NotNull

@@ -27,8 +27,11 @@ public class SportsDbClient {
         try {
             // Fetch English Premier League events (League ID: 4328)
             String url = String.format("%s/%s/eventsseason.php?id=4328", apiUrl, apiKey);
+            log.info("Fetching SportsDB events from URL: {} (apiKey={})", url.replaceAll(apiKey, "***"), apiKey);
             Map<String, Object> response = restTemplate.getForObject(url, Map.class);
-            return parseSportsDbResponse(response);
+            List<CollectedContentDto> result = parseSportsDbResponse(response);
+            log.info("Successfully fetched {} sports events from TheSportsDB.", result.size());
+            return result;
         } catch (Exception e) {
             log.error("Failed to fetch sports events from TheSportsDB API: {}", e.getMessage(), e);
             return List.of();
@@ -39,11 +42,13 @@ public class SportsDbClient {
     private List<CollectedContentDto> parseSportsDbResponse(Map<String, Object> response) {
         List<CollectedContentDto> results = new ArrayList<>();
         if (response == null || !response.containsKey("events")) {
+            log.warn("TheSportsDB API response is null or missing 'events' key. Response: {}", response);
             return results;
         }
 
         List<Map<String, Object>> events = (List<Map<String, Object>>) response.get("events");
         if (events == null) {
+            log.warn("TheSportsDB API 'events' list is null.");
             return results;
         }
 

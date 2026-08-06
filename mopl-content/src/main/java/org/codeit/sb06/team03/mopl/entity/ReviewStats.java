@@ -36,6 +36,7 @@ public class ReviewStats {
     @Column(name = "review_count", nullable = false)
     private int reviewCount;
 
+    @Version
     @Column(name = "version", nullable = false)
     private short version;
 }

@@ -30,7 +30,7 @@ import java.util.Map;
 )
 public class UserDbConfig {
 
-    @Value("${spring.jpa.user.hibernate.ddl-auto:validate}")
+    @Value("${spring.jpa.user.hibernate.ddl-auto:none}")
     private String ddlAuto;
 
     @Primary

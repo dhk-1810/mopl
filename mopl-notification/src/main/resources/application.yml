@@ -1,10 +1,14 @@
 spring:
   application:
     name: mopl-notification
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: false
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST:localhost}
-      port: ${SPRING_DATA_REDIS_PORT:6379}
+      port: ${SPRING_DATA_REDIS_PORT:6384}
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST:localhost}
     port: ${SPRING_RABBITMQ_PORT:5672}

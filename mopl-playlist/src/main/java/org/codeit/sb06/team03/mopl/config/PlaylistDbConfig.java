@@ -29,7 +29,7 @@ import java.util.Map;
 )
 public class PlaylistDbConfig {
 
-    @Value("${spring.jpa.playlist.hibernate.ddl-auto:validate}")
+    @Value("${spring.jpa.playlist.hibernate.ddl-auto:none}")
     private String ddlAuto;
 
     @Bean

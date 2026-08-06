@@ -1,6 +1,10 @@
 spring:
   application:
     name: mopl-content
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: false
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST:localhost}
     port: ${SPRING_RABBITMQ_PORT:5672}
