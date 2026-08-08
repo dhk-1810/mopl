@@ -36,8 +36,9 @@ public interface PlaylistRepository extends QuerydslJpaRepository<Playlist, UUID
                 subscriberIdEqualPredicate(subscriberIdEqual),
                 cursorExpressionPredicate(cursor, idAfter, sortDirection, sortBy)
         };
-        sortDirection = sortDirection.equalsIgnoreCase("ASCENDING") ? "ASC" : "DESC";
-        var contents = select(Projections.constructor(PlaylistReadModel.class,
+        String orderDirection = sortDirection.equalsIgnoreCase("ASCENDING") ? "ASC" : "DESC";
+
+        var query = select(Projections.constructor(PlaylistReadModel.class,
                     playlist.id,
                     playlist.ownerId,
                     playlist.title,
@@ -46,10 +47,15 @@ public interface PlaylistRepository extends QuerydslJpaRepository<Playlist, UUID
                     playlist.subscriberCount,
                     playlist.contentCount
                 ))
-                .from(playlist)
-                .leftJoin(subscription).on(subscription.id.playlistId.eq(playlist.id))
+                .from(playlist);
+
+        if (subscriberIdEqual != null) {
+            query = query.leftJoin(subscription).on(subscription.id.playlistId.eq(playlist.id));
+        }
+
+        var contents = query
                 .where(predicates)
-                .orderBy(orderByExpressions(sortDirection, sortBy))
+                .orderBy(orderByExpressions(orderDirection, sortBy))
                 .limit(limit + 1)
                 .fetch();
 

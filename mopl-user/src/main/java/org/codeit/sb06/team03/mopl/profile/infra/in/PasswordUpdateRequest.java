@@ -9,7 +9,7 @@ public record PasswordUpdateRequest(
         @Schema(description = "새 비밀번호")
         @NotBlank
         @Length(min = 8)
-        String newPassword
+        String password
 
 ) {
 

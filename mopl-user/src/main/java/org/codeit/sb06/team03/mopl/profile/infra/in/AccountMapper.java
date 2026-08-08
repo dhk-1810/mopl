@@ -18,7 +18,7 @@ public class AccountMapper {
     }
 
     public UpdatePasswordCommand toCommand(PasswordUpdateRequest request){
-        final String newPassword = request.newPassword();
+        final String newPassword = request.password();
         return new UpdatePasswordCommand(newPassword);
     }
 

@@ -20,9 +20,9 @@ public class DMWebSocketController {
 
     private final DMCompositeService dmCompositeService;
 
-    @MessageMapping("/dm_chat_rooms/{dmChatRoomId}/direct-messages")
+    @MessageMapping("/conversations/{conversationId}/direct-messages")
     public void sendMessage(
-            @DestinationVariable UUID dmChatRoomId,
+            @DestinationVariable UUID conversationId,
             @Payload MessageSendRequest request,
             Principal principal
     ) {
@@ -30,6 +30,6 @@ public class DMWebSocketController {
         MoplUserDetails userDetails = (MoplUserDetails) authentication.getPrincipal();
         UserDto userDto = userDetails.getUserDto();
 
-        dmCompositeService.sendDM(dmChatRoomId, userDto.id(), request);
+        dmCompositeService.sendDM(conversationId, userDto.id(), request);
     }
 }

@@ -110,7 +110,7 @@ public class ImageService implements RegisterImageUseCase, GetPresignedUrlUseCas
 
         List<TimeoutImage> timeoutImages = loadImagePort.findByKeys(s3Keys);
         Map<String, TimeoutImage> imageMap = timeoutImages.stream()
-                .collect(Collectors.toMap(TimeoutImage::getKey, img -> img));
+                .collect(Collectors.toMap(TimeoutImage::getKey, img -> img, (existing, replacement) -> existing));
 
         Map<String, String> result = new HashMap<>();
 

@@ -51,7 +51,7 @@ public class PlaylistController implements PlaylistApi {
             @AuthenticationPrincipal MoplUserDetails user
     ) {
         UUID userId =  (user != null) ? user.getId() : null;
-        PlaylistDto playlistDto = playlistCompositeService.get(playlistId, user.getId()); // 조회자 ID
+        PlaylistDto playlistDto = playlistCompositeService.get(playlistId, userId); // 조회자 ID
         return ResponseEntity.ok(playlistDto);
     }
 

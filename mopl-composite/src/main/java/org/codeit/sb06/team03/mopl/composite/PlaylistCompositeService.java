@@ -72,14 +72,22 @@ public class PlaylistCompositeService {
 
         List<UUID> ownerIds = readModels.stream().map(PlaylistReadModel::ownerId).toList();
         Map<UUID, ProfileReadModel> ownersMap = getProfileUseCase.getProfileReadModels(ownerIds);
+
+        List<String> ownerImageKeys = ownersMap.values().stream()
+                .map(ProfileReadModel::imageKey)
+                .filter(Objects::nonNull)
+                .toList();
+        Map<String, String> ownerImageUrls = getPresignedUrlUseCase.getPresignedUrls(ownerImageKeys);
+
         Map<UUID, UserSummary> owners = ownersMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> {
                             ProfileReadModel profile = entry.getValue();
-                            String url = getPresignedUrlUseCase.getPresignedUrl(profile.imageKey());
+                            String url = profile.imageKey() != null ? ownerImageUrls.get(profile.imageKey()) : null;
                             return new UserSummary(profile.userId(), profile.name(), url);
-                        }
+                        },
+                        (existing, replacement) -> existing
                 ));
 
         Set<UUID> playlistIds = readModels.stream().map(PlaylistReadModel::id).collect(Collectors.toSet());
@@ -116,16 +124,23 @@ public class PlaylistCompositeService {
                             return contentDtos.stream()
                                     .filter(dto -> contentIds.contains(dto.id()))
                                     .toList();
-                        }
+                        },
+                        (existing, replacement) -> existing
                 ));
 
         List<PlaylistDto> data = readModels.stream()
-                .map(readModel -> PlaylistDto.toDto(
-                        readModel,
-                        owners.get(readModel.ownerId()),
-                        subscribedByMe.getOrDefault(readModel.id(), false),
-                        contentsMap.getOrDefault(readModel.id(), Collections.emptyList())
-                ))
+                .map(readModel -> {
+                    UserSummary owner = owners.get(readModel.ownerId());
+                    if (owner == null) {
+                        owner = new UserSummary(readModel.ownerId(), null, null);
+                    }
+                    return PlaylistDto.toDto(
+                            readModel,
+                            owner,
+                            subscribedByMe.getOrDefault(readModel.id(), false),
+                            contentsMap.getOrDefault(readModel.id(), Collections.emptyList())
+                    );
+                })
                 .toList();
 
         String nextCursor = null;
@@ -141,7 +156,7 @@ public class PlaylistCompositeService {
                 nextCursor,
                 nextIdAfter,
                 slice.hasNext(),
-                0,
+                data.size(),
                 request.sortBy(),
                 SortDirection.valueOf(request.sortDirection())
         );

@@ -26,7 +26,6 @@ public class AccountCommandService implements RegisterAccountUseCase, AssignRole
     private final LoadAccountPort loadAccountPort;
     private final CreateProfilePort createProfilePort;
     private final SaveAccountPort saveAccountPort;
-    private final DeletePasswordResetPort deletePasswordResetPort;
     private final CreateFollowPort createFollowPort;
 
     @Override
@@ -78,9 +77,8 @@ public class AccountCommandService implements RegisterAccountUseCase, AssignRole
         // 새 비밀번호로 변경
         accountService.updatePassword(account, command.newPassword());
 
-        // 저장, 임시 비밀번호 삭제
+        // 저장
         saveAccountPort.save(account);
-        deletePasswordResetPort.deleteByAccountId(accountId);
     }
 
     @Override

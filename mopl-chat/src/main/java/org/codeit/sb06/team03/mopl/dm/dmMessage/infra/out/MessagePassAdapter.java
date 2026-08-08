@@ -26,7 +26,7 @@ public class MessagePassAdapter implements MessagePassPort{
                 receiver,
                 content
         );
-        String destination = "/sub/dm_chat_rooms/" + dmChatRoomId + "/direct-messages";
+        String destination = "/sub/conversations/" + dmChatRoomId + "/direct-messages";
         messagingTemplate.convertAndSend(destination, dto);
     }
 }

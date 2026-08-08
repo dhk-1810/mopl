@@ -99,7 +99,7 @@ public class StompAuthInboundInterceptor implements ChannelInterceptor {
                 null
         );
 
-        return new MoplUserDetails(userDto, null);
+        return new MoplUserDetails(userDto, "");
     }
 
     private String resolveToken(StompHeaderAccessor accessor) {

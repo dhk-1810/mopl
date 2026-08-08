@@ -1,6 +1,8 @@
 package org.codeit.sb06.team03.mopl.common.config;
 
 import org.codeit.sb06.team03.mopl.account.domain.vo.Role;
+import org.codeit.sb06.team03.mopl.account.domain.CustomOAuth2UserService;
+import org.codeit.sb06.team03.mopl.common.security.OAuth2SuccessHandler;
 import org.codeit.sb06.team03.mopl.common.security.LoginFailureHandler;
 import org.codeit.sb06.team03.mopl.common.security.MoplAccessDeniedHandler;
 import org.codeit.sb06.team03.mopl.common.security.MoplAuthenticationEntryPoint;
@@ -38,15 +40,11 @@ public class SecurityConfig {
             JwtAuthenticationFilter jwtAuthenticationFilter,
             MoplAuthenticationEntryPoint authenticationEntryPoint,
             MoplAccessDeniedHandler accessDeniedHandler,
-            JwtLogoutHandler logoutHandler
+            JwtLogoutHandler logoutHandler,
+            CustomOAuth2UserService customOAuth2UserService,
+            OAuth2SuccessHandler oAuth2SuccessHandler
     ) throws Exception {
         http
-//                .csrf(csrf -> csrf
-//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-//                        .csrfTokenRequestHandler(spaCsrfTokenRequestHandler)
-//                        .ignoringRequestMatchers("/h2-console/**")
-//                        .ignoringRequestMatchers("/v3/api-docs/**", "/swagger-ui/**")
-//                )
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
@@ -55,10 +53,12 @@ public class SecurityConfig {
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/", "/index.html", "/favicon.svg", "/assets/**").permitAll()
+                        .requestMatchers("/sign-in", "/oauth-redirect", "/oauth2/**", "/login/oauth2/**").permitAll()
                         //Websocket
                         .requestMatchers("/ws/**").permitAll()
                         // REST API
                         .requestMatchers(HttpMethod.POST, "/api/auth/sign-in").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
@@ -70,6 +70,12 @@ public class SecurityConfig {
                         .loginProcessingUrl("/api/auth/sign-in")
                         .successHandler(loginSuccessHandler)
                         .failureHandler(loginFailureHandler)
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(oAuth2SuccessHandler)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/sign-out")

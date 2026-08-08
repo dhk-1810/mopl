@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/dm_chat_rooms")
+@RequestMapping("/api/conversations")
 public class DMController implements DMApi {
 
     private final DMCompositeService dmCompositeService;
@@ -32,36 +32,36 @@ public class DMController implements DMApi {
     }
 
     @Override
-    @PostMapping("/{dmChatRoomId}/direct-messages/{directMessageId}/read")
+    @PostMapping("/{conversationId}/direct-messages/{directMessageId}/read")
     public ResponseEntity<Void> readDirectMessage(
-            @PathVariable UUID dmChatRoomId,
+            @PathVariable UUID conversationId,
             @PathVariable UUID directMessageId
     ) {
-        dmCompositeService.readDM(dmChatRoomId, directMessageId);
+        dmCompositeService.readDM(conversationId, directMessageId);
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    @GetMapping("/{dmChatRoomId}")
-    public ResponseEntity<DMChatRoomDto> getDMChatRoom(@PathVariable UUID dmChatRoomId) {
-        DMChatRoomDto response = dmCompositeService.getDMChatRoom(dmChatRoomId);
+    @GetMapping("/{conversationId}")
+    public ResponseEntity<DMChatRoomDto> getDMChatRoom(@PathVariable UUID conversationId) {
+        DMChatRoomDto response = dmCompositeService.getDMChatRoom(conversationId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Override
-    @GetMapping("/{dmChatRoomId}/direct-messages")
+    @GetMapping("/{conversationId}/direct-messages")
     public ResponseEntity<CursorResponseDirectMessageDto> getDirectMessages(
-            @PathVariable UUID dmChatRoomId,
+            @PathVariable UUID conversationId,
             @ModelAttribute CursorRequestDirectMessageDto request
     ) {
-        CursorResponseDirectMessageDto response = dmCompositeService.getDMs(dmChatRoomId, request);
+        CursorResponseDirectMessageDto response = dmCompositeService.getDMs(conversationId, request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Override
     @GetMapping("/with")
-    public ResponseEntity<DMChatRoomDto> getDMChatRoomWith(@RequestParam UUID partnerId) {
-        DMChatRoomDto response = dmCompositeService.getDMChatRoomWith(partnerId);
+    public ResponseEntity<DMChatRoomDto> getDMChatRoomWith(@RequestParam(name = "userId") UUID userId) {
+        DMChatRoomDto response = dmCompositeService.getDMChatRoomWith(userId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

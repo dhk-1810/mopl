@@ -1,6 +1,5 @@
 package org.codeit.sb06.team03.mopl.auth.infra.in;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

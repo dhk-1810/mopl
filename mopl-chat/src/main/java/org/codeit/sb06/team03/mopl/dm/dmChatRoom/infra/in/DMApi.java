@@ -37,7 +37,7 @@ public interface DMApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<Void> readDirectMessage(
-            @PathVariable UUID dmChatRoomId,
+            @PathVariable UUID conversationId,
             @PathVariable UUID directMessageId
     );
 
@@ -47,7 +47,7 @@ public interface DMApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "404", description = "해당 리소스 없음")
     @ApiResponse(responseCode = "500", description = "서버 오류")
-    ResponseEntity<DMChatRoomDto> getDMChatRoom(@PathVariable UUID dmChatRoomId);
+    ResponseEntity<DMChatRoomDto> getDMChatRoom(@PathVariable UUID conversationId);
 
     @Operation(summary = "DM 목록 조회 (커서 페이지네이션)")
     @ApiResponse(responseCode = "200", description = "성공")
@@ -55,7 +55,7 @@ public interface DMApi {
     @ApiResponse(responseCode = "401", description = "인증 오류")
     @ApiResponse(responseCode = "500", description = "서버 오류")
     ResponseEntity<CursorResponseDirectMessageDto> getDirectMessages(
-            @PathVariable UUID dmChatRoomId,
+            @PathVariable UUID conversationId,
             @ModelAttribute CursorRequestDirectMessageDto request
     );
 
