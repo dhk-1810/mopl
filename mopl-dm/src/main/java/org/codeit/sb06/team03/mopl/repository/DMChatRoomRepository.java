@@ -24,7 +24,7 @@ public interface DMChatRoomRepository extends QuerydslJpaRepository<DMChatRoom, 
                         .join(statA).on(statA.dmChatRoom.eq(conv).and(statA.accountId.eq(userId)))
                         .join(statB).on(statB.dmChatRoom.eq(conv).and(statB.accountId.eq(withUserId)))
                         .leftJoin(conv.dmChatRoomStats).fetchJoin()
-                        .fetchFirst()
+                        .fetchOne()
         );
     }
 
@@ -80,7 +80,7 @@ public interface DMChatRoomRepository extends QuerydslJpaRepository<DMChatRoom, 
                 select(conv).from(conv)
                         .leftJoin(conv.dmChatRoomStats, stat).fetchJoin()
                         .where(conv.id.eq(dmChatRoomId))
-                        .fetchFirst()
+                        .fetchOne()
         );
     }
 }
