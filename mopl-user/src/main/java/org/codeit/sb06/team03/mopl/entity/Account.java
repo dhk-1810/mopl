@@ -64,9 +64,6 @@ public class Account extends AbstractAggregateRoot<Account> {
     private boolean locked;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private PasswordReset passwordReset;
-
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private Profile profile;
 
     public static Account create(EmailAddress emailAddress, Password password) {
@@ -105,12 +102,12 @@ public class Account extends AbstractAggregateRoot<Account> {
             TempPasswordResetTimeoutPolicy tempPasswordResetTimeoutPolicy,
             PasswordEncryptionPolicy passwordEncryptionPolicy
     ) {
-        final String rawTempPassword = tempPasswordGenerationPolicy.generate(); // temporary1!!
+        final String rawTempPassword = tempPasswordGenerationPolicy.generate();
         final Instant expiresAt = tempPasswordResetTimeoutPolicy.createExpiresAt();
 
         Password encrypted = passwordEncryptionPolicy.apply(rawTempPassword);
 
-        this.passwordReset = PasswordReset.create(this, encrypted, expiresAt);
+        this.password = encrypted;
         this.registerEvent(new AccountEvent.PasswordResetedEvent(
                 emailAddress.value(), rawTempPassword, expiresAt.toString()
         ));

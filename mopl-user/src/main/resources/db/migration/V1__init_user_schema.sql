@@ -18,15 +18,6 @@ CREATE TABLE profiles (
     image_key VARCHAR(255)
 );
 
-CREATE TABLE password_resets (
-    account_id UUID PRIMARY KEY REFERENCES accounts(id) ON DELETE CASCADE,
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    version SMALLINT NOT NULL DEFAULT 0,
-    password VARCHAR(255) NOT NULL,
-    expires_at TIMESTAMP WITH TIME ZONE NOT NULL
-);
-
 CREATE TABLE followees (
     id UUID PRIMARY KEY,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,

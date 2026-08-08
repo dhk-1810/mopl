@@ -24,13 +24,13 @@ import java.io.IOException;
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    @Value("${mopl.oauth2.redirect-uri.success}")
+    @Value("${mopl.oauth2.redirect-uri.success:http://localhost:8080/oauth-redirect}")
     private String loginSuccessRedirectUri;
 
-    @Value("${mopl.oauth2.redirect-uri.failure}")
+    @Value("${mopl.oauth2.redirect-uri.failure:http://localhost:8080/sign-in}")
     private String loginFailureRedirectUri;
 
-    @Value("${mopl.jwt.refresh-token.expiration-ms}")
+    @Value("${mopl.jwt.refresh-token.expiration-ms:604800000}")
     private long refreshTokenExpirationInMs;
 
     private final JwtRegistry jwtRegistry;

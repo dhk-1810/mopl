@@ -86,10 +86,7 @@ mopl:
       secret: ${JWT_REFRESH_TOKEN_SECRET:sb06-mopl-team03-jwt-temporary-secret}
       expiration-ms: ${REFRESH_TOKEN_EXPIRATION_MS:604800000}
     max-session: ${JWT_MAX_SESSION:1}
-  oauth2:
-    redirect-uri:
-      success: ${OAUTH2_SUCCESS_REDIRECT_URI:http://localhost:8080/oauth-redirect}
-      failure: ${OAUTH2_FAILURE_REDIRECT_URI:http://localhost:8080/sign-in}
+
 
 management:
   endpoints:

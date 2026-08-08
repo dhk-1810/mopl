@@ -99,15 +99,4 @@ public class AccountControllerAdvice {
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
-
-    @ExceptionHandler(PasswordResetNotFound.class)
-    public ResponseEntity<ErrorResponse> handlePasswordResetNotFound(PasswordResetNotFound e) {
-        log.error(e.getMessage());
-        var errorResponse = new ErrorResponse(
-                e.getClass().getSimpleName(),
-                "PasswordReset을 찾을 수 없습니다.",
-                Collections.emptyList()
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-    }
 }

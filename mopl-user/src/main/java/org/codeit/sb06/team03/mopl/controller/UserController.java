@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.controller;
 
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.dto.request.*;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponseUserDto;
@@ -31,7 +32,7 @@ public class UserController implements UserApi {
 
     @Override
     @PatchMapping("/{userId}/password")
-    public ResponseEntity<Void> updatePassword(@PathVariable UUID userId, @RequestBody PasswordUpdateRequest request){
+    public ResponseEntity<Void> updatePassword(@PathVariable UUID userId, @Valid @RequestBody PasswordUpdateRequest request){
         userCompositeService.updatePassword(userId, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 

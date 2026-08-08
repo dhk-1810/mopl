@@ -12,7 +12,6 @@ import org.codeit.sb06.team03.mopl.exception.account.*;
 import org.codeit.sb06.team03.mopl.entity.Followee;
 import org.codeit.sb06.team03.mopl.entity.Profile;
 import org.codeit.sb06.team03.mopl.repository.AccountRepository;
-import org.codeit.sb06.team03.mopl.repository.PasswordResetRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +25,6 @@ public class AccountCommandService {
 
     private final AccountRepository accountRepository;
     private final ProfileCommandService profileCommandService;
-    private final PasswordResetRepository passwordResetRepository;
     private final FollowCommandService followCommandService;
     private final PasswordEncryptionPolicy passwordEncryptionPolicy;
     private final TempPasswordGenerationPolicy tempPasswordGenerationPolicy;
@@ -81,9 +79,8 @@ public class AccountCommandService {
         Password password = passwordEncryptionPolicy.apply(newPassword);
         account.updatePassword(password);
 
-        // 저장, 임시 비밀번호 삭제
+        // 저장
         accountRepository.save(account);
-        passwordResetRepository.deleteById(accountId);
     }
 
     @Transactional

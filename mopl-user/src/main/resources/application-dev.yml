@@ -24,3 +24,9 @@ spring:
             redirect-uri: "http://localhost:8080/login/oauth2/code/google"
           kakao:
             redirect-uri: "http://localhost:8080/login/oauth2/code/kakao"
+
+mopl:
+  oauth2:
+    redirect-uri:
+      success: "http://localhost:8080/oauth-redirect"
+      failure: "http://localhost:8080/sign-in"

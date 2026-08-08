@@ -43,7 +43,7 @@ public class UserCompositeService {
     }
 
     public void updatePassword(UUID userId, PasswordUpdateRequest request) {
-        accountCommandService.updatePassword(userId, request.newPassword());
+        accountCommandService.updatePassword(userId, request.password());
     }
 
     public void assignUserRole(UUID userId, UserRoleUpdateRequest request) {
