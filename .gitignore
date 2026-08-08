@@ -27,8 +27,8 @@ bin/
 /.nb-gradle/
 
 ### VS Code ###
-.vscode/
-
-# Others
+### Environment ###
 .env
 .env.local
+.env.*
+!.env.example

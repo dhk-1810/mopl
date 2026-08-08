@@ -3,7 +3,6 @@ package org.codeit.sb06.team03.mopl.account.domain;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.account.application.AccountCommandService;
 import org.codeit.sb06.team03.mopl.account.application.out.LoadAccountPort;
-import org.codeit.sb06.team03.mopl.account.domain.Account;
 import org.codeit.sb06.team03.mopl.account.domain.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.account.application.in.RegisterAccountCommand;
 import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
