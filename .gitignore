@@ -32,3 +32,5 @@ bin/
 .env.local
 .env.*
 !.env.example
+
+mopl-key-pair.pem

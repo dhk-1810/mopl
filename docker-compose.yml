@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: mopl-app:latest
+    image: kestrel71/mopl:latest
     container_name: mopl-app
     restart: always
     depends_on:
@@ -12,32 +12,24 @@ services:
       mopl-redis:
         condition: service_healthy
     ports:
-      - "80:8080"
+      - "80:8080" # EC2 80 -> Spring 8080
     env_file:
       - .env
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - DB_ENDPOINT=mopl-db
-      - DB_NAME=${DB_NAME}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - SPRING_DATA_REDIS_HOST=mopl-redis
-      - SPRING_DATA_REDIS_PORT=6379
 
   mopl-db:
     image: postgres:15-alpine
     container_name: mopl-db
     restart: always
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -46,8 +38,6 @@ services:
     image: redis:7-alpine
     container_name: mopl-redis
     restart: always
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
