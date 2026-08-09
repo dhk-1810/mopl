@@ -5,19 +5,19 @@ services:
       dockerfile: Dockerfile
     image: kestrel71/mopl:latest
     container_name: mopl-app
+    ports:
+      - "80:8080" # EC2 80 -> Spring 8080
     restart: always
     depends_on:
       mopl-db:
         condition: service_healthy
       mopl-redis:
         condition: service_healthy
-    ports:
-      - "80:8080" # EC2 80 -> Spring 8080
     env_file:
       - .env
 
   mopl-db:
-    image: postgres:15-alpine
+    image: postgres:17-alpine
     container_name: mopl-db
     restart: always
     env_file:
@@ -35,7 +35,7 @@ services:
       retries: 5
 
   mopl-redis:
-    image: redis:7-alpine
+    image: redis:7.2-alpine
     container_name: mopl-redis
     restart: always
     healthcheck:
