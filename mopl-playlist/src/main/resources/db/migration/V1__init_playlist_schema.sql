@@ -1,44 +1,46 @@
 -- V1__init_playlist_schema.sql
-CREATE TABLE curations (
-    id UUID PRIMARY KEY,
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    version SMALLINT NOT NULL DEFAULT 0,
-    user_id UUID NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    description TEXT
-);
-
 CREATE TABLE playlists (
     id UUID PRIMARY KEY,
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    owner_id UUID NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     version SMALLINT NOT NULL DEFAULT 0,
-    curation_id UUID NOT NULL REFERENCES curations(id) ON DELETE CASCADE,
+    subscriber_count BIGINT NOT NULL DEFAULT 0,
+    content_count BIGINT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE curations (
+    playlist_id UUID NOT NULL,
     content_id UUID NOT NULL,
-    sequence INT NOT NULL
+    content_title VARCHAR(255),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    PRIMARY KEY (playlist_id, content_id)
 );
 
 CREATE TABLE subscriptions (
-    id UUID PRIMARY KEY,
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    version SMALLINT NOT NULL DEFAULT 0,
+    playlist_id UUID NOT NULL,
     subscriber_id UUID NOT NULL,
-    curation_id UUID NOT NULL REFERENCES curations(id) ON DELETE CASCADE
+    PRIMARY KEY (playlist_id, subscriber_id)
 );
 
 CREATE TABLE external_user_views (
-    id UUID PRIMARY KEY,
-    name VARCHAR(255),
-    image_key VARCHAR(255)
+    user_id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    profile_image_key VARCHAR(255)
 );
 
 CREATE TABLE external_content_views (
-    id UUID PRIMARY KEY,
-    title VARCHAR(255),
-    type VARCHAR(50),
-    thumbnail_key VARCHAR(255)
+    content_id UUID PRIMARY KEY,
+    type VARCHAR(50) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    thumbnail_key VARCHAR(255),
+    tags TEXT,
+    average_rating DOUBLE PRECISION NOT NULL DEFAULT 0,
+    review_count BIGINT NOT NULL DEFAULT 0,
+    watcher_count BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE external_follow_views (
@@ -52,8 +54,4 @@ CREATE TABLE external_image_views (
     url TEXT
 );
 
--- Indexes
-CREATE INDEX idx_curations_user_id ON curations(user_id) WHERE is_deleted = FALSE;
-CREATE INDEX idx_playlists_curation_seq ON playlists(curation_id, sequence) WHERE is_deleted = FALSE;
-CREATE INDEX idx_subscriptions_subscriber ON subscriptions(subscriber_id) WHERE is_deleted = FALSE;
-CREATE INDEX idx_subscriptions_curation ON subscriptions(curation_id) WHERE is_deleted = FALSE;
+CREATE INDEX idx_playlists_updated_at ON playlists(updated_at, id);

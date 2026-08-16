@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.config;
 
 import io.github.openfeign.querydsl.jpa.spring.repository.config.EnableQuerydslRepositories;
+import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -40,7 +41,14 @@ public class ContentDbConfig {
 
     @Bean
     public DataSource contentDataSource() {
-        return contentDataSourceProperties().initializeDataSourceBuilder().build();
+        DataSource dataSource = contentDataSourceProperties().initializeDataSourceBuilder().build();
+        Flyway.configure()
+                .dataSource(dataSource)
+                .locations("classpath:db/migration")
+                .baselineOnMigrate(true)
+                .load()
+                .migrate();
+        return dataSource;
     }
 
     @Bean(name = "contentEntityManagerFactory")

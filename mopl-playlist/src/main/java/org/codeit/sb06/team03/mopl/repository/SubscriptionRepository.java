@@ -17,6 +17,10 @@ public interface SubscriptionRepository extends QuerydslJpaRepository<Subscripti
     void deleteById(SubscriptionId id);
 
     default Map<UUID, Boolean> findAllSubscribedMap(Collection<UUID> playlistIds, UUID viewerId) {
+        if (viewerId == null || playlistIds == null || playlistIds.isEmpty()) {
+            return playlistIds == null ? Collections.emptyMap() : playlistIds.stream().collect(Collectors.toMap(id -> id, id -> false));
+        }
+
         QSubscription subscription = QSubscription.subscription;
 
         List<UUID> subscribedIds =

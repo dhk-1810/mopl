@@ -34,8 +34,6 @@ services:
     ports:
       - "6379:6379"
     command: redis-server --requirepass ${REDIS_PASSWORD_USER:-mopluserpwd123} --appendonly yes
-    volumes:
-      - user-redis-data:/data
     restart: always
     deploy:
       resources:
@@ -48,8 +46,6 @@ services:
     ports:
       - "6380:6379"
     command: redis-server --requirepass ${REDIS_PASSWORD_CONTENT:-moplcontentpwd123} --appendonly yes
-    volumes:
-      - content-redis-data:/data
     restart: always
     deploy:
       resources:
@@ -62,8 +58,6 @@ services:
     ports:
       - "6381:6379"
     command: redis-server --requirepass ${REDIS_PASSWORD_WATCHING_SESSION:-moplwatchpwd123} --appendonly yes
-    volumes:
-      - watching-session-redis-data:/data
     restart: always
     deploy:
       resources:
@@ -76,8 +70,6 @@ services:
     ports:
       - "6382:6379"
     command: redis-server --requirepass ${REDIS_PASSWORD_PLAYLIST:-moplplaylistpwd123} --appendonly yes
-    volumes:
-      - playlist-redis-data:/data
     restart: always
     deploy:
       resources:
@@ -90,8 +82,6 @@ services:
     ports:
       - "6383:6379"
     command: redis-server --requirepass ${REDIS_PASSWORD_DM:-mopldmpwd123} --appendonly yes
-    volumes:
-      - dm-redis-data:/data
     restart: always
     deploy:
       resources:
@@ -104,8 +94,6 @@ services:
     ports:
       - "6384:6379"
     command: redis-server --requirepass ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --appendonly yes
-    volumes:
-      - notification-redis-data:/data
     restart: always
     deploy:
       resources:
@@ -186,6 +174,17 @@ services:
         limits:
           memory: 256M
 
+  dm-mongo:
+    image: mongo:7.0
+    container_name: mopl-dm-mongo
+    ports:
+      - "27017:27017" # TODO 운영 환경에선 제거
+    env_file:
+      - mopl-dm/.env.local
+    volumes:
+      - dm-mongo-data:/data/db
+    restart: always
+
   notification-db:
     image: postgres:15-alpine
     container_name: mopl-notification-db
@@ -233,16 +232,11 @@ services:
 
 # 데이터 영속성을 위한 Docker 볼륨 설정
 volumes:
-  user-redis-data:
-  content-redis-data:
-  playlist-redis-data:
-  dm-redis-data:
-  notification-redis-data:
-  watching-session-redis-data:
   user-db-data:
   content-db-data:
   playlist-db-data:
   dm-db-data:
+  dm-mongo-data:
   notification-db-data:
   image-db-data:
   batch-db-data:

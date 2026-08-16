@@ -29,17 +29,20 @@ public class DMQueryService {
     }
 
     public long countAll(UUID dmChatRoomId) {
-        return dmMessageRepository.count(dmChatRoomId);
+        return dmMessageRepository.countByDmChatRoomIdAndIsDeletedFalse(dmChatRoomId);
     }
 
     public Optional<DMMessage> findLatestByDMChatRoomId(UUID dmChatRoomId) {
-        return dmMessageRepository.findLatestByDMChatRoomId(dmChatRoomId);
+        return dmMessageRepository.findFirstByDmChatRoomIdAndIsDeletedFalseOrderByCreatedAtDescIdDesc(dmChatRoomId);
     }
 
     public Map<UUID, DMMessage> findLatestByDMChatRoomIds(Set<UUID> dmChatRoomIds) {
         return dmChatRoomIds.stream()
-                .map(id -> Map.entry(id, dmMessageRepository.findLatestByDMChatRoomId(id)))
-                .filter(e -> e.getValue().isPresent())
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get()));
+                .map(id -> {
+                    Optional<DMMessage> msg = dmMessageRepository.findFirstByDmChatRoomIdAndIsDeletedFalseOrderByCreatedAtDescIdDesc(id);
+                    return msg.map(dmMessage -> Map.entry(id, dmMessage)).orElse(null);
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.config;
 
 import io.github.openfeign.querydsl.jpa.spring.repository.config.EnableQuerydslRepositories;
+import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -8,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -43,7 +45,15 @@ public class UserDbConfig {
     @Primary
     @Bean
     public DataSource userDataSource() {
-        return userDataSourceProperties().initializeDataSourceBuilder().build();
+        DataSource dataSource = userDataSourceProperties().initializeDataSourceBuilder().build();
+        // Flyway 직접 강제 실행
+        Flyway.configure()
+                .dataSource(dataSource)
+                .locations("classpath:db/migration")
+                .baselineOnMigrate(true)
+                .load()
+                .migrate();
+        return dataSource;
     }
 
     @Primary

@@ -12,6 +12,10 @@ spring:
       username: ${POSTGRES_USER}
       password: ${POSTGRES_PASSWORD}
       driver-class-name: org.postgresql.Driver
+  data:
+    mongodb:
+      uri: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_INITDB_DATABASE}?authSource=admin
+      auto-index-creation: true
   jpa:
     dm:
       hibernate:

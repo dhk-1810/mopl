@@ -56,6 +56,7 @@ public class PlaylistQueryService {
 
     // 2. Subscription Queries
     public boolean isSubscribed(UUID playlistId, UUID viewerId) {
+        if (viewerId == null) return false;
         SubscriptionId id = new SubscriptionId(playlistId, viewerId);
         return subscriptionRepository.existsById(id);
     }

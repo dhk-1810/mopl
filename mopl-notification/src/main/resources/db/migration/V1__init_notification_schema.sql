@@ -2,17 +2,16 @@
 CREATE TABLE notifications (
     id UUID PRIMARY KEY,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     receiver_id UUID NOT NULL,
-    sender_id UUID,
-    type VARCHAR(50) NOT NULL,
-    content TEXT NOT NULL,
-    is_read BOOLEAN NOT NULL DEFAULT FALSE,
-    target_id UUID
+    title VARCHAR(255) NOT NULL,
+    content TEXT,
+    level VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    version SMALLINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE external_user_views (
-    id UUID PRIMARY KEY,
-    name VARCHAR(255),
-    image_key VARCHAR(255)
+    user_id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    profile_image_key VARCHAR(255)
 );
