@@ -2,6 +2,7 @@
 CREATE TABLE contents (
     id UUID PRIMARY KEY,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     version SMALLINT NOT NULL DEFAULT 0,
     type VARCHAR(50) NOT NULL,
@@ -27,36 +28,38 @@ CREATE TABLE reviews (
 
 CREATE TABLE tags (
     id UUID PRIMARY KEY,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     name VARCHAR(255) NOT NULL UNIQUE
 );
 
-CREATE TABLE content_tags (
+CREATE TABLE contents_tags (
     content_id UUID NOT NULL REFERENCES contents(id) ON DELETE CASCADE,
     tag_id UUID NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (content_id, tag_id)
 );
 
 CREATE TABLE live_chat_rooms (
-    id UUID PRIMARY KEY,
-    content_id UUID NOT NULL REFERENCES contents(id) ON DELETE CASCADE,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+    content_id UUID PRIMARY KEY REFERENCES contents(id) ON DELETE CASCADE,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    version SMALLINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE review_stats (
     content_id UUID PRIMARY KEY REFERENCES contents(id) ON DELETE CASCADE,
-    review_count BIGINT NOT NULL DEFAULT 0,
-    average_rating DOUBLE PRECISION NOT NULL DEFAULT 0.0
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    rating_sum BIGINT NOT NULL DEFAULT 0,
+    review_count INT NOT NULL DEFAULT 0,
+    version SMALLINT NOT NULL DEFAULT 0
 );
 
-CREATE TABLE external_user_views (
+CREATE TABLE timeout_images (
     id UUID PRIMARY KEY,
-    name VARCHAR(255),
-    image_key VARCHAR(255)
-);
-
-CREATE TABLE external_image_views (
-    image_key VARCHAR(255) PRIMARY KEY,
-    url TEXT
+    image_key VARCHAR(255) UNIQUE,
+    presigned_url VARCHAR(1024),
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    exp TIMESTAMP WITH TIME ZONE
 );
 
 -- Extensions & Special Indexes
@@ -70,4 +73,4 @@ CREATE INDEX idx_contents_type_created ON contents(type, created_at DESC) WHERE 
 CREATE INDEX idx_contents_title ON contents(title) WHERE is_deleted = FALSE;
 CREATE INDEX idx_reviews_content_created ON reviews(content_id, created_at DESC) WHERE is_deleted = FALSE;
 CREATE INDEX idx_reviews_author_id ON reviews(author_id) WHERE is_deleted = FALSE;
-CREATE INDEX idx_content_tags_tag_id ON content_tags(tag_id);
+CREATE INDEX idx_contents_tags_tag_id ON contents_tags(tag_id);

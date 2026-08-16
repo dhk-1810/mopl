@@ -14,12 +14,12 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "review_stats")
-@SQLDelete(sql = "UPDATE review_stats SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE review_stats SET is_deleted = true WHERE content_id = ?")
 @SQLRestriction("is_deleted = false")
 public class ReviewStats {
 
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "content_id", nullable = false)
     private UUID id;
 
     @Column(name = "is_deleted", nullable = false)
@@ -27,7 +27,7 @@ public class ReviewStats {
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id", nullable = false)
+    @JoinColumn(name = "content_id", nullable = false)
     private Content content;
 
     @Column(name = "rating_sum", nullable = false)
