@@ -1,7 +1,6 @@
 package org.codeit.sb06.team03.mopl.config;
 
 import io.github.openfeign.querydsl.jpa.spring.repository.config.EnableQuerydslRepositories;
-import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -30,7 +29,7 @@ import java.util.Map;
 )
 public class ImageDbConfig {
 
-    @Value("${spring.jpa.image.hibernate.ddl-auto:none}")
+    @Value("${spring.jpa.image.hibernate.ddl-auto:update}")
     private String ddlAuto;
 
     @Bean
@@ -41,14 +40,7 @@ public class ImageDbConfig {
 
     @Bean
     public DataSource imageDataSource() {
-        DataSource dataSource = imageDataSourceProperties().initializeDataSourceBuilder().build();
-        Flyway.configure()
-                .dataSource(dataSource)
-                .locations("classpath:db/migration")
-                .baselineOnMigrate(true)
-                .load()
-                .migrate();
-        return dataSource;
+        return imageDataSourceProperties().initializeDataSourceBuilder().build();
     }
 
     @Bean(name = "imageEntityManagerFactory")

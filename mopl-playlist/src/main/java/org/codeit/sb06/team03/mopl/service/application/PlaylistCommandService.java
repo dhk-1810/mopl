@@ -9,6 +9,7 @@ import org.codeit.sb06.team03.mopl.repository.CurationRepository;
 import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalUserViewRepository;
 import org.codeit.sb06.team03.mopl.repository.PlaylistRepository;
 import org.codeit.sb06.team03.mopl.repository.SubscriptionRepository;
+import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public class PlaylistCommandService {
     private final SubscriptionRepository subscriptionRepository;
     private final CurationRepository curationRepository;
     private final ExternalUserViewRepository externalUserViewRepository;
+    private final ExternalUserQueryService externalUserQueryService;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -100,8 +102,10 @@ public class PlaylistCommandService {
     public void subscribe(UUID playlistId, UUID userId) {
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
-        ExternalUserView subscriber = externalUserViewRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+        ExternalUserView subscriber = externalUserQueryService.getProfile(userId);
+        if (subscriber == null) {
+            throw new UserNotFoundException(userId);
+        }
 
         SubscriptionId id = new SubscriptionId(playlistId, userId);
         if (subscriptionRepository.existsById(id)){

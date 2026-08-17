@@ -5,7 +5,7 @@ import org.codeit.sb06.team03.mopl.entity.Account;
 import org.codeit.sb06.team03.mopl.entity.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.dto.request.ResetPasswordRequest;
 import org.codeit.sb06.team03.mopl.dto.response.UserDto;
-import org.codeit.sb06.team03.mopl.service.ImageQueryService;
+import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -16,7 +16,7 @@ public class AuthCompositeService {
 
     private final AccountCommandService accountCommandService;
     private final AccountQueryService accountQueryService;
-    private final ImageQueryService imageQueryService;
+    private final ExternalImageQueryService imageQueryService;
 
     public void resetPassword(ResetPasswordRequest request) {
         accountCommandService.resetPassword(new EmailAddress(request.email()));

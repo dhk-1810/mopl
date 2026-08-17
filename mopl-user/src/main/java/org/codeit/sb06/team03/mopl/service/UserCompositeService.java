@@ -10,6 +10,7 @@ import org.codeit.sb06.team03.mopl.entity.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.entity.Account;
 import org.codeit.sb06.team03.mopl.entity.Profile;
 import org.codeit.sb06.team03.mopl.cache.ProfileImageCache;
+import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
 import org.springframework.data.domain.Slice;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class UserCompositeService {
     private final ProfileQueryService profileQueryService;
 
     private final ProfileImageCache profileImageCache;
-    private final ImageQueryService imageQueryService;
+    private final ExternalImageQueryService imageQueryService;
 
     public UserDto registerAccount(UserCreateRequest request) {
         Account newAccount = accountCommandService.register(request.name(), new EmailAddress(request.email()), request.password());

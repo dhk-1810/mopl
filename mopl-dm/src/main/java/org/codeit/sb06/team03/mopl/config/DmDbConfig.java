@@ -1,7 +1,6 @@
 package org.codeit.sb06.team03.mopl.config;
 
 import io.github.openfeign.querydsl.jpa.spring.repository.config.EnableQuerydslRepositories;
-import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -30,7 +29,7 @@ import java.util.Map;
 )
 public class DmDbConfig {
 
-    @Value("${spring.jpa.dm.hibernate.ddl-auto:none}")
+    @Value("${spring.jpa.dm.hibernate.ddl-auto:update}")
     private String ddlAuto;
 
     @Bean
@@ -41,14 +40,7 @@ public class DmDbConfig {
 
     @Bean
     public DataSource dmDataSource() {
-        DataSource dataSource = dmDataSourceProperties().initializeDataSourceBuilder().build();
-        Flyway.configure()
-                .dataSource(dataSource)
-                .locations("classpath:db/migration")
-                .baselineOnMigrate(true)
-                .load()
-                .migrate();
-        return dataSource;
+        return dmDataSourceProperties().initializeDataSourceBuilder().build();
     }
 
     @Bean(name = "dmEntityManagerFactory")

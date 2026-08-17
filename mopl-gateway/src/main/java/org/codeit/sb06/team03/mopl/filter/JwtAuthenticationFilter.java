@@ -123,15 +123,27 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             return bearerToken.substring(7);
         }
 
-        // Query Parameter ?token=... or ?access_token=... (EventSource SSE 호환)
-        List<String> queryParamKeys = List.of("token", "access_token", "accessToken");
-        for (String key : queryParamKeys) {
+        // Query Parameter ?token=... or ?access_token=... (EventSource SSE / SockJS 호환)
+        List<String> tokenKeys = List.of("token", "access_token", "accessToken");
+        for (String key : tokenKeys) {
             String queryToken = request.getQueryParams().getFirst(key);
             if (StringUtils.hasText(queryToken)) {
                 if (queryToken.startsWith("Bearer ")) {
                     return queryToken.substring(7);
                 }
                 return queryToken;
+            }
+        }
+
+        // Cookie에서 access_token / accessToken / token 추출 (SockJS / Browser Request 호환)
+        for (String key : tokenKeys) {
+            org.springframework.http.HttpCookie cookie = request.getCookies().getFirst(key);
+            if (cookie != null && StringUtils.hasText(cookie.getValue())) {
+                String val = cookie.getValue();
+                if (val.startsWith("Bearer ")) {
+                    return val.substring(7);
+                }
+                return val;
             }
         }
 

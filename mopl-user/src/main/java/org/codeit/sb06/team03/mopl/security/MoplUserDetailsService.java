@@ -5,7 +5,7 @@ import org.codeit.sb06.team03.mopl.entity.Account;
 import org.codeit.sb06.team03.mopl.exception.account.AccountNotFoundException;
 import org.codeit.sb06.team03.mopl.entity.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.repository.AccountRepository;
-import org.codeit.sb06.team03.mopl.service.ImageQueryService;
+import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
 import org.codeit.sb06.team03.mopl.entity.Profile;
 import org.codeit.sb06.team03.mopl.dto.response.UserDto;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +21,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class MoplUserDetailsService implements UserDetailsService {
     private final AccountRepository accountRepository;
-    private final ImageQueryService imageQueryService;
+    private final ExternalImageQueryService imageQueryService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

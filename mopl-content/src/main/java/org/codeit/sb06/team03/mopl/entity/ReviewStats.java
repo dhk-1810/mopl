@@ -14,7 +14,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "review_stats")
-@SQLDelete(sql = "UPDATE review_stats SET is_deleted = true WHERE content_id = ?")
+@SQLDelete(sql = "UPDATE review_stats SET is_deleted = true WHERE content_id = ? AND version = ?")
 @SQLRestriction("is_deleted = false")
 public class ReviewStats {
 

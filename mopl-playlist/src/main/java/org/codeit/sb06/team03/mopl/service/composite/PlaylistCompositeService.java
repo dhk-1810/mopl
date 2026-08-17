@@ -51,14 +51,10 @@ public class PlaylistCompositeService {
 
         List<UUID> ownerIds = readModels.stream().map(PlaylistReadModel::ownerId).toList();
         Map<UUID, ExternalUserView> ownersMap = externalUserQueryService.getProfiles(ownerIds);
-        Map<UUID, UserSummary> owners = ownersMap.entrySet().stream()
+        Map<UUID, UserSummary> owners = ownerIds.stream().distinct()
                 .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> {
-                            ExternalUserView profile = entry.getValue();
-                            String url = imageQueryService.getPresignedUrl(profile.getProfileImageKey());
-                            return new UserSummary(profile.getId(), profile.getName(), url);
-                        }
+                        id -> id,
+                        id -> getUserSummary(ownersMap.get(id), id)
                 ));
 
         Set<UUID> playlistIds = readModels.stream().map(PlaylistReadModel::id).collect(Collectors.toSet());
@@ -112,10 +108,22 @@ public class PlaylistCompositeService {
                         }
                 ));
 
+        if (readModels.isEmpty()) {
+            return new CursorResponsePlaylistDto(
+                    Collections.emptyList(),
+                    null,
+                    null,
+                    false,
+                    0,
+                    request.sortBy(),
+                    SortDirection.parse(request.sortDirection())
+            );
+        }
+
         List<PlaylistDto> data = readModels.stream()
                 .map(readModel -> PlaylistDto.toDto(
                         readModel,
-                        owners.get(readModel.ownerId()),
+                        owners.computeIfAbsent(readModel.ownerId(), this::getUserSummary),
                         subscribedByMe.getOrDefault(readModel.id(), false),
                         contentsMap.getOrDefault(readModel.id(), Collections.emptyList())
                 ))
@@ -134,22 +142,16 @@ public class PlaylistCompositeService {
                 nextCursor,
                 nextIdAfter,
                 slice.hasNext(),
-                1,
+                data.size(),
                 request.sortBy(),
-                SortDirection.valueOf(request.sortDirection())
+                SortDirection.parse(request.sortDirection())
         );
     }
 
     public PlaylistDto get(UUID playlistId, UUID viewerId) {
         PlaylistReadModel readModel = playlistQueryService.getPlaylist(playlistId, viewerId);
 
-        ExternalUserView ownerProfile = externalUserQueryService.getProfile(readModel.ownerId());
-        UserSummary owner = null;
-        if (ownerProfile != null) {
-            String url = imageQueryService.getPresignedUrl(ownerProfile.getProfileImageKey());
-            owner = new UserSummary(ownerProfile.getId(), ownerProfile.getName(), url);
-        }
-
+        UserSummary owner = getUserSummary(readModel.ownerId());
         boolean subscribedByMe = playlistQueryService.isSubscribed(playlistId, viewerId);
         List<ContentDto> contentDtos = getContentDtos(readModel.id());
         return PlaylistDto.toDto(readModel, owner, subscribedByMe, contentDtos);
@@ -247,6 +249,10 @@ public class PlaylistCompositeService {
 
     private UserSummary getUserSummary(UUID ownerId) {
         ExternalUserView ownerProfile = externalUserQueryService.getProfile(ownerId);
+        return getUserSummary(ownerProfile, ownerId);
+    }
+
+    private UserSummary getUserSummary(ExternalUserView ownerProfile, UUID ownerId) {
         String ownerName = "Unknown User";
         String ownerUrl = null;
         if (ownerProfile != null) {

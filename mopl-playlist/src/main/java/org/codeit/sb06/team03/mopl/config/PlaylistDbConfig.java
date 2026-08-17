@@ -1,7 +1,6 @@
 package org.codeit.sb06.team03.mopl.config;
 
 import io.github.openfeign.querydsl.jpa.spring.repository.config.EnableQuerydslRepositories;
-import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -30,7 +29,7 @@ import java.util.Map;
 )
 public class PlaylistDbConfig {
 
-    @Value("${spring.jpa.playlist.hibernate.ddl-auto:none}")
+    @Value("${spring.jpa.playlist.hibernate.ddl-auto:update}")
     private String ddlAuto;
 
     @Bean
@@ -41,14 +40,7 @@ public class PlaylistDbConfig {
 
     @Bean
     public DataSource playlistDataSource() {
-        DataSource dataSource = playlistDataSourceProperties().initializeDataSourceBuilder().build();
-        Flyway.configure()
-                .dataSource(dataSource)
-                .locations("classpath:db/migration")
-                .baselineOnMigrate(true)
-                .load()
-                .migrate();
-        return dataSource;
+        return playlistDataSourceProperties().initializeDataSourceBuilder().build();
     }
 
     @Bean(name = "playlistEntityManagerFactory")

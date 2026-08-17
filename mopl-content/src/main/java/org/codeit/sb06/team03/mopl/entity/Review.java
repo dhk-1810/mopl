@@ -24,7 +24,7 @@ import java.util.UUID;
                 )
         }
 )
-@SQLDelete(sql = "UPDATE reviews SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE reviews SET is_deleted = true WHERE id = ? AND version = ?")
 @SQLRestriction("is_deleted = false")
 public class Review {
 

@@ -1,7 +1,6 @@
 package org.codeit.sb06.team03.mopl.config;
 
 import io.github.openfeign.querydsl.jpa.spring.repository.config.EnableQuerydslRepositories;
-import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -32,7 +31,7 @@ import java.util.Map;
 )
 public class UserDbConfig {
 
-    @Value("${spring.jpa.user.hibernate.ddl-auto:none}")
+    @Value("${spring.jpa.user.hibernate.ddl-auto:update}")
     private String ddlAuto;
 
     @Primary
@@ -45,15 +44,7 @@ public class UserDbConfig {
     @Primary
     @Bean
     public DataSource userDataSource() {
-        DataSource dataSource = userDataSourceProperties().initializeDataSourceBuilder().build();
-        // Flyway 직접 강제 실행
-        Flyway.configure()
-                .dataSource(dataSource)
-                .locations("classpath:db/migration")
-                .baselineOnMigrate(true)
-                .load()
-                .migrate();
-        return dataSource;
+        return userDataSourceProperties().initializeDataSourceBuilder().build();
     }
 
     @Primary

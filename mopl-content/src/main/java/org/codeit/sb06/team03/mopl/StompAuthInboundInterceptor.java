@@ -27,31 +27,50 @@ public class StompAuthInboundInterceptor implements ChannelInterceptor {
         }
 
         StompCommand command = accessor.getCommand();
-        if (command == null) {
-            return message;
-        }
-
-        if (command == StompCommand.CONNECT) {
-            log.info("StompAuthInboundInterceptor CONNECT incoming request");
-            // 1순위: Gateway가 HTTP Upgrade 요청에 주입한 X-User-Id (HandshakeInterceptor → session attributes)
-            Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
-            String userId = sessionAttributes != null
-                    ? (String) sessionAttributes.get(UserIdHandshakeInterceptor.USER_ID_ATTR)
-                    : null;
-            log.info("StompAuthInboundInterceptor 1st priority: userId={}", userId);
-
-
-            if (userId == null || userId.isBlank()) {
-                log.error("StompAuthInboundInterceptor failed: Missing user identity in CONNECT");
-                throw new IllegalArgumentException("Missing user identity in WebSocket CONNECT");
+        if (command == StompCommand.CONNECT || command == StompCommand.SEND || command == StompCommand.SUBSCRIBE) {
+            if (accessor.getUser() == null) {
+                String userId = resolveUserId(accessor);
+                if (userId != null && !userId.isBlank()) {
+                    final String finalUserId = userId;
+                    accessor.setUser((Principal) () -> finalUserId);
+                    log.info("STOMP authenticated: userId={} for command={}", finalUserId, command);
+                }
             }
-
-            final String finalUserId = userId;
-            accessor.setUser((Principal) () -> finalUserId);
-            log.info("StompAuthInboundInterceptor success: user set to {}", finalUserId);
         }
 
         return message;
     }
 
+    private String resolveUserId(StompHeaderAccessor accessor) {
+        // 1. HandshakeInterceptor 세션 특성
+        Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+        if (sessionAttributes != null) {
+            String userId = (String) sessionAttributes.get(UserIdHandshakeInterceptor.USER_ID_ATTR);
+            if (userId != null && !userId.isBlank()) {
+                return userId;
+            }
+        }
+
+        // 2. STOMP Native Header X-User-Id / userId / user-id
+        String nativeUserId = accessor.getFirstNativeHeader("X-User-Id");
+        if (nativeUserId == null) nativeUserId = accessor.getFirstNativeHeader("userId");
+        if (nativeUserId == null) nativeUserId = accessor.getFirstNativeHeader("user-id");
+        if (nativeUserId != null && !nativeUserId.isBlank()) {
+            return nativeUserId;
+        }
+
+        // 3. STOMP Native Header Authorization / passcode / token / access_token (JWT payload sub)
+        String token = accessor.getFirstNativeHeader("Authorization");
+        if (token == null) token = accessor.getFirstNativeHeader("passcode");
+        if (token == null) token = accessor.getFirstNativeHeader("token");
+        if (token == null) token = accessor.getFirstNativeHeader("access_token");
+        if (token != null && !token.isBlank()) {
+            String extracted = UserIdHandshakeInterceptor.extractUserIdFromJwt(token);
+            if (extracted != null && !extracted.isBlank()) {
+                return extracted;
+            }
+        }
+
+        return null;
+    }
 }
