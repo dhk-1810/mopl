@@ -226,8 +226,8 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
         if (sortDirection == SortDirection.ASCENDING) { order =  Order.ASC; }
         return switch (sortBy) {
             case SortContentBy.createdAt -> new OrderSpecifier<>(order, content.createdAt);
-            case SortContentBy.watcherCount -> new OrderSpecifier<>(order, content.averageRating);
-            default -> new OrderSpecifier<>(order, content.watcherCount);
+            case SortContentBy.watcherCount -> new OrderSpecifier<>(order, content.watcherCount);
+            case SortContentBy.rate -> new OrderSpecifier<>(order, content.averageRating);
         };
     }
 }

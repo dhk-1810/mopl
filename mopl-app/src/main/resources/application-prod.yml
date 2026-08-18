@@ -19,11 +19,11 @@ spring:
       client:
         registration:
           google:
-            redirect-uri: "http://localhost:8080/login/oauth2/code/google"
+            redirect-uri: "https://d3p5f5p9oh782p.cloudfront.net/login/oauth2/code/google"
           kakao:
-            redirect-uri: "http://localhost:8080/login/oauth2/code/kakao"
+            redirect-uri: "https://d3p5f5p9oh782p.cloudfront.net/login/oauth2/code/kakao"
 mopl:
   oauth2:
     redirect-uri:
-      success: "http://localhost:8080/oauth-redirect"
-      failure: "http://localhost:8080/sign-in"
+      success: "https://d3p5f5p9oh782p.cloudfront.net/oauth-redirect"
+      failure: "https://d3p5f5p9oh782p.cloudfront.net/sign-in"
