@@ -20,7 +20,7 @@ public class UserProfileEventListener {
     @Transactional(value = "dmTransactionManager")
     public void handleProfileCreated(UserEvent.UserProfileCreatedEvent event) {
         log.info("Received UserProfileCreatedEvent from RabbitMQ in mopl-dm: {}", event);
-        ExternalUserView userView = ExternalUserView.create(event.getUserId(), event.getName(), event.getImageKey());
+        ExternalUserView userView = ExternalUserView.create(event.userId(), event.name(), event.imageKey());
         externalUserViewRepository.save(userView);
     }
 
@@ -28,9 +28,9 @@ public class UserProfileEventListener {
     @Transactional(value = "dmTransactionManager")
     public void handleProfileUpdated(UserEvent.UserProfileUpdatedEvent event) {
         log.info("Received UserProfileUpdatedEvent from RabbitMQ in mopl-dm: {}", event);
-        ExternalUserView userView = externalUserViewRepository.findById(event.getUserId())
-                .orElseGet(() -> ExternalUserView.create(event.getUserId(), event.getName(), event.getImageKey()));
-        userView.update(event.getName(), event.getImageKey());
+        ExternalUserView userView = externalUserViewRepository.findById(event.userId())
+                .orElseGet(() -> ExternalUserView.create(event.userId(), event.name(), event.imageKey()));
+        userView.update(event.name(), event.imageKey());
         externalUserViewRepository.save(userView);
     }
 }

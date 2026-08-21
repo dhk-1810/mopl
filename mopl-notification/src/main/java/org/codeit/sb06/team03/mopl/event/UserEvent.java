@@ -1,12 +1,10 @@
 package org.codeit.sb06.team03.mopl.event;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-
 import java.util.UUID;
 
-public class UserEvent {
+public final class UserEvent {
+
+    private UserEvent() {}
 
     public interface UserEventInterface {
         UUID userId();
@@ -24,19 +22,13 @@ public class UserEvent {
             String imageKey
     ) implements UserEventInterface {}
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static final class RoleUpdatedEvent extends UserEvent {
-        private UUID accountId;
-        private String role;
-    }
+    public record RoleUpdatedEvent(
+            UUID userId,
+            String role
+    ) implements UserEventInterface {}
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static final class FollowedEvent extends UserEvent {
-        private UUID followeeId;
-        private UUID followerId;
-    }
+    public record FollowedEvent(
+            UUID userId,
+            UUID followerId
+    ) implements UserEventInterface {}
 }

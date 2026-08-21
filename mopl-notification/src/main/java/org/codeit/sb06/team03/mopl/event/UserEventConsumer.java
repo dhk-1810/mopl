@@ -32,28 +32,28 @@ public class UserEventConsumer {
     public void handleRoleUpdatedEvent(UserEvent.RoleUpdatedEvent event) {
         log.info("Received RoleUpdatedEvent from RabbitMQ: {}", event);
         NotificationDto notificationDto = notificationCommandService.create(
-                event.getAccountId(),
-                "권한이 %s(으)로 변경되었어요.".formatted(event.getRole()),
+                event.userId(),
+                "권한이 %s(으)로 변경되었어요.".formatted(event.role()),
                 null,
                 NotificationLevel.INFO
         );
-        sseService.send(notificationDto, EVENT_NAME, event.getAccountId());
+        sseService.send(notificationDto, EVENT_NAME, event.userId());
     }
 
     @RabbitListener(queues = RabbitConfig.USER_FOLLOWED_QUEUE)
     public void handleFollowedEvent(UserEvent.FollowedEvent event) {
         log.info("Received FollowedEvent from RabbitMQ: {}", event);
 
-        ExternalUserView profile = externalUserQueryService.getProfile(event.getFollowerId());
+        ExternalUserView profile = externalUserQueryService.getProfile(event.followerId());
         String name = (profile != null) ? profile.getName() : "누군가";
 
         NotificationDto notificationDto = notificationCommandService.create(
-                event.getFolloweeId(),
+                event.userId(),
                 "%s님이 팔로우했어요.".formatted(name),
                 null,
                 NotificationLevel.INFO
         );
-        sseService.send(notificationDto, EVENT_NAME, event.getFolloweeId());
+        sseService.send(notificationDto, EVENT_NAME, event.userId());
     }
 
     /**
