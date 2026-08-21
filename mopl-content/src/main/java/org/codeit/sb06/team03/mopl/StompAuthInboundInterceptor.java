@@ -53,17 +53,23 @@ public class StompAuthInboundInterceptor implements ChannelInterceptor {
 
         // 2. STOMP Native Header X-User-Id / userId / user-id
         String nativeUserId = accessor.getFirstNativeHeader("X-User-Id");
-        if (nativeUserId == null) nativeUserId = accessor.getFirstNativeHeader("userId");
-        if (nativeUserId == null) nativeUserId = accessor.getFirstNativeHeader("user-id");
+        if (nativeUserId == null)
+            nativeUserId = accessor.getFirstNativeHeader("userId");
+        if (nativeUserId == null)
+            nativeUserId = accessor.getFirstNativeHeader("user-id");
         if (nativeUserId != null && !nativeUserId.isBlank()) {
             return nativeUserId;
         }
 
-        // 3. STOMP Native Header Authorization / passcode / token / access_token (JWT payload sub)
+        // 3. STOMP Native Header Authorization / passcode / token / access_token (JWT
+        // payload sub)
         String token = accessor.getFirstNativeHeader("Authorization");
-        if (token == null) token = accessor.getFirstNativeHeader("passcode");
-        if (token == null) token = accessor.getFirstNativeHeader("token");
-        if (token == null) token = accessor.getFirstNativeHeader("access_token");
+        if (token == null)
+            token = accessor.getFirstNativeHeader("passcode");
+        if (token == null)
+            token = accessor.getFirstNativeHeader("token");
+        if (token == null)
+            token = accessor.getFirstNativeHeader("access_token");
         if (token != null && !token.isBlank()) {
             String extracted = UserIdHandshakeInterceptor.extractUserIdFromJwt(token);
             if (extracted != null && !extracted.isBlank()) {

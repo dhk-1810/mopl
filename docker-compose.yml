@@ -1,12 +1,10 @@
 # -------------------------------------------------------------
 # 로컬 테스트만을 위한 DB, Redis, RabbitMQ 구성임.
 # -------------------------------------------------------------
-version: '3.8'
-
 services:
-#  # -------------------------------------------------------------
-#  # Nginx Service (API Gateway / Reverse Proxy) - Replaced by Spring Cloud Gateway (mopl-gateway)
-#  # -------------------------------------------------------------
+  # -------------------------------------------------------------
+  # Nginx Service (API Gateway / Reverse Proxy) - SCG와 CloudFront로 대체
+  # -------------------------------------------------------------
 #  nginx:
 #    image: nginx:1.25-alpine
 #    container_name: mopl-nginx
@@ -14,7 +12,7 @@ services:
 #      - "80:80"
 #      - "443:443"
 #    volumes:
-#      - ./nginx.conf.pem:/etc/nginx/nginx.conf.pem:ro
+#      - ./nginx.conf.bak:/etc/nginx/nginx.conf.bak:ro
 #      - ./html:/usr/share/nginx/html:ro
 #    extra_hosts:
 #      - "host.docker.internal:host-gateway"
@@ -40,59 +38,11 @@ services:
         limits:
           memory: 256M
 
-  content-redis:
-    image: redis:7.2-alpine
-    container_name: mopl-content-redis
-    ports:
-      - "6380:6379"
-    command: redis-server --requirepass ${REDIS_PASSWORD_CONTENT:-moplcontentpwd123} --appendonly yes
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-
   watching-session-redis:
     image: redis:7.2-alpine
     container_name: mopl-watching-session-redis
     ports:
       - "6381:6379"
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-
-  playlist-redis:
-    image: redis:7.2-alpine
-    container_name: mopl-playlist-redis
-    ports:
-      - "6382:6379"
-    command: redis-server --requirepass ${REDIS_PASSWORD_PLAYLIST:-moplplaylistpwd123} --appendonly yes
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-
-  dm-redis:
-    image: redis:7.2-alpine
-    container_name: mopl-dm-redis
-    ports:
-      - "6383:6379"
-    command: redis-server --requirepass ${REDIS_PASSWORD_DM:-mopldmpwd123} --appendonly yes
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-
-  notification-redis:
-    image: redis:7.2-alpine
-    container_name: mopl-notification-redis
-    ports:
-      - "6384:6379"
-    command: redis-server --requirepass ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --appendonly yes
     restart: always
     deploy:
       resources:
@@ -114,7 +64,7 @@ services:
   # PostgreSQL Databases (Database-per-service 격리)
   # -------------------------------------------------------------
   user-db:
-    image: postgres:15-alpine
+    image: postgres:18-alpine
     container_name: mopl-user-db
     ports:
       - "5432:5432"
@@ -129,7 +79,7 @@ services:
           memory: 256M
 
   content-db:
-    image: postgres:15-alpine
+    image: postgres:18-alpine
     container_name: mopl-content-db
     ports:
       - "5433:5432"
@@ -144,7 +94,7 @@ services:
           memory: 256M
 
   playlist-db:
-    image: postgres:15-alpine
+    image: postgres:18-alpine
     container_name: mopl-playlist-db
     ports:
       - "5434:5432"
@@ -159,7 +109,7 @@ services:
           memory: 256M
 
   dm-db:
-    image: postgres:15-alpine
+    image: postgres:18-alpine
     container_name: mopl-dm-db
     ports:
       - "5435:5432"
@@ -185,7 +135,7 @@ services:
     restart: always
 
   notification-db:
-    image: postgres:15-alpine
+    image: postgres:18-alpine
     container_name: mopl-notification-db
     ports:
       - "5436:5432"
@@ -200,7 +150,7 @@ services:
           memory: 256M
 
   image-db:
-    image: postgres:15-alpine
+    image: postgres:18-alpine
     container_name: mopl-image-db
     ports:
       - "5437:5432"
@@ -215,7 +165,7 @@ services:
           memory: 256M
 
   batch-db:
-    image: postgres:15-alpine
+    image: postgres:18-alpine
     container_name: mopl-batch-db
     ports:
       - "5438:5432"
