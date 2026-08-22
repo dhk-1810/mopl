@@ -6,8 +6,6 @@ services:
       dockerfile: mopl-notification/Dockerfile
     ports:
       - "8086:8086"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
     env_file:
       - .env
     depends_on:

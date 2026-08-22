@@ -6,8 +6,6 @@ services:
       dockerfile: mopl-image/Dockerfile
     ports:
       - "8087:8087"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
     env_file:
       - .env
     depends_on:

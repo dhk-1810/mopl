@@ -2,8 +2,8 @@ package org.codeit.sb06.team03.mopl.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.StompAuthInboundInterceptor;
-import org.codeit.sb06.team03.mopl.StompContentInboundInterceptor;
+import org.codeit.sb06.team03.mopl.websocket.StompAuthInboundInterceptor;
+import org.codeit.sb06.team03.mopl.websocket.StompContentInboundInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -19,7 +19,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import org.springframework.web.socket.handler.WebSocketHandlerDecorator;
-import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.CloseStatus;
 import org.codeit.sb06.team03.mopl.websocket.WebSocketSessionManager;

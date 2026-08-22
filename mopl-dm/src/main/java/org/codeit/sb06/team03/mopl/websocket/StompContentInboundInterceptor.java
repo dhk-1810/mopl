@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl;
+package org.codeit.sb06.team03.mopl.websocket;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.util.DestinationUtils;

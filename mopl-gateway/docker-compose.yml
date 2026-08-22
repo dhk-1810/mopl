@@ -6,8 +6,6 @@ services:
       dockerfile: mopl-gateway/Dockerfile
     ports:
       - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
     env_file:
       - .env
     restart: always

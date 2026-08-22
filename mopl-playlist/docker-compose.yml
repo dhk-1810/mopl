@@ -6,8 +6,6 @@ services:
       dockerfile: mopl-playlist/Dockerfile
     ports:
       - "8084:8084"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
     env_file:
       - .env
     depends_on:
