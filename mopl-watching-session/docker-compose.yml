@@ -1,0 +1,30 @@
+services:
+  mopl-watching-session-app:
+    container_name: mopl-watching-session-app
+    build:
+      context: ..
+      dockerfile: mopl-watching-session/Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    env_file:
+      - .env
+    depends_on:
+      - mopl-watching-session-redis
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  mopl-watching-session-redis:
+    image: redis:7.2-alpine
+    container_name: mopl-watching-session-redis
+    ports:
+      - "6381:6379"
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M

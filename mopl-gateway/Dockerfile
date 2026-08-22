@@ -18,19 +18,19 @@ COPY mopl-user/build.gradle mopl-user/
 COPY mopl-watching-session/build.gradle mopl-watching-session/
 
 # 의존성 다운로드 캐싱
-RUN chmod +x ./gradlew && ./gradlew :mopl-content:dependencies --no-daemon
+RUN chmod +x ./gradlew && ./gradlew :mopl-gateway:dependencies --no-daemon
 
 # 소스 코드 복사 및 애플리케이션 빌드
-COPY mopl-content/src mopl-content/src
-RUN ./gradlew :mopl-content:bootJar -x test --no-daemon
+COPY mopl-gateway/src mopl-gateway/src
+RUN ./gradlew :mopl-gateway:bootJar -x test --no-daemon
 
 # 2. 실행 스테이지
 FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/mopl-content/build/libs/*.jar app.jar
+COPY --from=builder /app/mopl-gateway/build/libs/*.jar app.jar
 
-EXPOSE 8082
+EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,0 +1,43 @@
+services:
+  mopl-image-app:
+    container_name: mopl-image-app
+    build:
+      context: ..
+      dockerfile: mopl-image/Dockerfile
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    env_file:
+      - .env
+    depends_on:
+      mopl-image-postgres:
+        condition: service_healthy
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  mopl-image-postgres:
+    image: postgres:18-alpine
+    container_name: mopl-image-postgres
+    ports:
+      - "5437:5432"
+    env_file:
+      - .env
+    volumes:
+      - mopl-image-postgres-data:/var/lib/postgresql
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mopl-image-postgres-data:

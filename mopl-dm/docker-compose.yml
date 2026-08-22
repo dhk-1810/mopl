@@ -1,0 +1,57 @@
+services:
+  mopl-dm-app:
+    container_name: mopl-dm-app
+    build:
+      context: ..
+      dockerfile: mopl-dm/Dockerfile
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    env_file:
+      - .env
+    depends_on:
+      mopl-dm-postgres:
+        condition: service_healthy
+      mopl-dm-mongo:
+        condition: service_started
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  mopl-dm-postgres:
+    image: postgres:18-alpine
+    container_name: mopl-dm-postgres
+    ports:
+      - "5435:5432"
+    env_file:
+      - .env
+    volumes:
+      - mopl-dm-postgres-data:/var/lib/postgresql
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mopl-dm-mongo:
+    image: mongo:7.0
+    container_name: mopl-dm-mongo
+    ports:
+      - "27017:27017"
+    env_file:
+      - .env
+    volumes:
+      - mopl-dm-mongo-data:/data/db
+    restart: always
+
+volumes:
+  mopl-dm-postgres-data:
+  mopl-dm-mongo-data:
