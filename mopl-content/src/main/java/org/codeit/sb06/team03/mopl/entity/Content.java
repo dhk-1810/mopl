@@ -31,6 +31,9 @@ public class Content {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
     @Version
     @Column(name = "version", nullable = false)
     private short version;
@@ -94,6 +97,7 @@ public class Content {
     public void update(String title, String description) {
         this.title = title;
         this.description = description;
+        this.updatedAt = Instant.now();
     }
 
     public void addReview(int rating) {
@@ -125,14 +129,17 @@ public class Content {
 
     public void markAsDeleting() {
         this.status = ContentStatus.DELETING;
+        this.updatedAt = Instant.now();
     }
 
     public void markAsDeleted() {
         this.status = ContentStatus.DELETED;
+        this.updatedAt = Instant.now();
     }
 
     public void restoreActive() {
         this.status = ContentStatus.ACTIVE;
+        this.updatedAt = Instant.now();
     }
 
     public boolean isActive() {

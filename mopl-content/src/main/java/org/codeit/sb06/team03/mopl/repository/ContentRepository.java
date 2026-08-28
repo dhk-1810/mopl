@@ -29,6 +29,8 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
 
     boolean existsByTitleAndType(String title, ContentType type);
 
+    List<Content> findAllByStatusAndUpdatedAtBefore(ContentStatus status, Instant threshold);
+
     default Optional<ContentReadModel> findByIdWithTags(UUID id) {
 
         // transform()은 Map을 반환하므로 단건이더라도 Map 사용. Key-Value는 한 쌍만 담김.
