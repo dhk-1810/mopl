@@ -7,8 +7,10 @@ import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.enums.ContentType;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalContentView;
 import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalContentViewRepository;
+import org.codeit.sb06.team03.mopl.service.application.InboxService;
 import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
@@ -24,7 +26,8 @@ public class ContentEventListener {
 
     private final ExternalContentViewRepository externalContentViewRepository;
     private final PlaylistCommandService playlistCommandService;
-    private final org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
+    private final RabbitTemplate rabbitTemplate;
+    private final InboxService inboxService;
 
     private void sendSagaResponse(ContentDeletionSagaEvent event) {
         org.springframework.amqp.rabbit.connection.CorrelationData correlationData =
@@ -103,15 +106,28 @@ public class ContentEventListener {
             @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
     ) throws IOException {
         log.info("Received ContentDeletionSagaEvent START in mopl-playlist: {}", event);
+
+        String messageId = "saga-start-" + event.sagaId() + "-playlist";
+        if (inboxService.isAlreadyProcessed(messageId)) {
+            log.info("[Inbox] Saga start already processed in playlist. Skipping duplicate message: {}", messageId);
+            // 멱등성 보장을 위해 이전 성공 응답 재전송 후 ACK
+            sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "PLAYLIST"));
+            channel.basicAck(deliveryTag, false);
+            return;
+        }
+
         try {
             // 1. 플레이리스트 연관 항목 및 CQRS View 뷰 삭제
             playlistCommandService.deleteCurationByContentId(event.contentId());
             externalContentViewRepository.deleteById(event.contentId());
 
-            // 2. 성공 이벤트 응답 (mopl-content에 전달)
+            // 2. Inbox 테이블에 처리 완료 기록
+            inboxService.recordProcessed(messageId, "CONTENT_SAGA", "ContentDeletionSagaEvent", event.toString());
+
+            // 3. 성공 이벤트 응답 (mopl-content에 전달)
             sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "PLAYLIST"));
 
-            // 3. 비즈니스 로직 및 응답 발행 성공 후 RabbitMQ에 ACK 전송
+            // 4. 비즈니스 로직 및 응답 발행 성공 후 RabbitMQ에 ACK 전송
             channel.basicAck(deliveryTag, false);
         } catch (Exception e) {
             log.error("Failed to delete playlist curation for contentId: {}", event.contentId(), e);

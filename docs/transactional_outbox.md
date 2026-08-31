@@ -33,11 +33,29 @@
 
 ---
 
+### 4) Transactional Outbox Pattern (아웃박스 테이블 & 폴링 릴레이)
+- **적용**: `mopl-content` 모듈의 `OutboxEvent`, `OutboxService`, `OutboxPublisherScheduler`, `OutboxCleanupScheduler`.
+- **동작**:
+    - **동일 트랜잭션 내 Outbox 영속화**: 도메인 상태 변경(컨텐츠 수정/삭제, Saga 시작 등) 시, 메시지 브로커 전송 전 Spring 트랜잭션 커밋 직전(`BEFORE_COMMIT` 또는 서비스 트랜잭션 내부)에 `outbox_events` 테이블에 이벤트 페이로드(JSON) 및 메타데이터를 `PENDING` 상태로 저장.
+    - **장애 안전성 (At-Least-Once Delivery)**: 트랜잭션 커밋 직후 네트워크 오류나 RabbitMQ 브로커 일시 장애로 즉시 발행이 실패하더라도, DB에 안전하게 보관됨.
+    - **Poller Scheduler 기반 비동기 릴레이**: `OutboxPublisherScheduler`가 3초 주기로 `PENDING` 상태의 아웃박스 이벤트를 조회하여 RabbitMQ로 재발행 및 ACK 수신 후 `PUBLISHED` 상태로 갱신 (최대 5회 재시도 및 실패 시 `FAILED` 마킹).
+    - **데이터 정리 스케줄러**: `OutboxCleanupScheduler`를 통해 7일 이상 경과한 `PUBLISHED` 이벤트를 매일 주기적으로 자동 정리하여 테이블 용량 최적화.
+
+### 5) Transactional Inbox Pattern (인박스 테이블 및 멱등성 보장)
+- **적용**:
+    - `mopl-content`: `InboxEvent`, `InboxService`, `ContentSagaEventListener`, `InboxCleanupScheduler`
+    - `mopl-playlist`: `InboxEvent`, `InboxService`, `ContentEventListener`, `InboxCleanupScheduler`
+    - `mopl-watching-session`: `WatchingSessionEventListener` (Redis 기반 `setIfAbsent` Inbox 키 관리)
+- **동작**:
+    - **Saga 참가자(Playlist/WatchingSession)의 중복 수신 방지**: RabbitMQ의 At-Least-Once 전달 특성상 네트워크 재시도로 동일한 `ContentDeletionSagaEvent (START)`가 재유입되더라도, `inbox_events` 테이블(또는 Redis)의 유니크 `messageId`(`saga-start-${sagaId}`) 조회를 통해 중복 작업을 즉시 차단하고 기존 성공 응답을 재전송 후 ACK.
+    - **Saga 오케스트레이터(Content)의 응답 멱등성 보장**: 참가자 서비스들로부터 전달되는 `ContentDeletionSagaEvent (RESPONSE)`에 대해 `saga-resp-${sagaId}-${participant}` 키로 중복 처리를 방지하여 보상 트랜잭션(`restoreActive`) 및 완료 확정(`markAsDeleted`)의 다중 실행을 원천 차단.
+    - **데이터 정리 스케줄러**: 7일 이상 경과한 Inbox 이벤트를 주기적으로 자동 정리하여 DB 저장 용량 최적화.
+
+---
+
 ## 3. 추후 개선 가능성
 
-1. **Transactional Outbox Table & Debezium (CDC) 도입**
-   - 현재의 Timeout 기반 롤백 방식에서 더 나아가, "브로커 장애 시에도 메시지 발행 자체를 100% 무손실 보장"해야 하는 요구사항이 강화될 경우 로컬 Outbox 테이블 + CDC(또는 Poller) 구조로 점진적 고도화.
-2. **컨슈머 멱등성(Idempotency) 전용 저장소 도입**
-   - At-least-once 전달 특성으로 인한 중복 메시지 유입에 대비하여, Redis 또는 DB 기반의 `Message-ID` 중복 소비 방지 필터 도입.
-3. **Dead Letter Queue (DLQ) 및 재시도 백오프(Retry Backoff) 세분화**
+1. **Debezium 기반 Change Data Capture (CDC) 엔진 연동**
+   - 현재 Polling 기반 스케줄러에서 DB 부하를 더욱 최소화하고 준실시간 스트리밍 처리가 필요한 경우 Debezium 등 CDC 파이프라인으로 전환 가능.
+2. **Dead Letter Queue (DLQ) 및 재시도 백오프(Retry Backoff) 세분화**
    - 일시적 장애와 비즈니스 오류를 구분하여 지연 큐(TTL 기반 Retry) 및 최종 DLQ 라우팅 파이프라인 구축.

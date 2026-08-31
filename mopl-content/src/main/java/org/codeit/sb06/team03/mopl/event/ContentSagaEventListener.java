@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;
+import org.codeit.sb06.team03.mopl.service.application.InboxService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -20,6 +21,7 @@ import java.io.IOException;
 public class ContentSagaEventListener {
 
     private final ContentRepository contentRepository;
+    private final InboxService inboxService;
 
     @RabbitListener(queues = RabbitConfig.CONTENT_SAGA_RESPONSE_QUEUE)
     @Transactional("contentTransactionManager")
@@ -30,10 +32,18 @@ public class ContentSagaEventListener {
     ) throws IOException {
         log.info("Received ContentDeletionSagaEvent response from [{}]: {}", event.participant(), event);
 
+        String messageId = "saga-resp-" + event.sagaId() + "-" + event.participant() + "-" + event.status();
+        if (inboxService.isAlreadyProcessed(messageId)) {
+            log.info("[Inbox] Saga response already processed. Skipping duplicate message: {}", messageId);
+            channel.basicAck(deliveryTag, false);
+            return;
+        }
+
         try {
             Content content = contentRepository.findById(event.contentId()).orElse(null);
             if (content == null) {
                 log.warn("Content not found for saga response, contentId: {}", event.contentId());
+                inboxService.recordProcessed(messageId, "CONTENT_SAGA", "ContentDeletionSagaEvent", event.toString());
                 channel.basicAck(deliveryTag, false);
                 return;
             }
@@ -50,6 +60,9 @@ public class ContentSagaEventListener {
                 content.markAsDeleted();
                 contentRepository.save(content);
             }
+
+            // Inbox 처리 기록
+            inboxService.recordProcessed(messageId, "CONTENT_SAGA", "ContentDeletionSagaEvent", event.toString());
 
             // 비즈니스 로직 성공 후 RabbitMQ에 ACK 전송
             channel.basicAck(deliveryTag, false);

@@ -19,6 +19,7 @@ public class WatchingSessionEventListener {
 
     private final WatchingSessionCommandService watchingSessionCommandService;
     private final org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
+    private final org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
 
     @RabbitListener(queues = RabbitConfig.WS_CREATE_QUEUE)
     public void handleWatchingSessionCreate(
@@ -70,6 +71,16 @@ public class WatchingSessionEventListener {
             @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
     ) throws IOException {
         log.info("Received ContentDeletionSagaEvent START in mopl-watching-session: {}", event);
+
+        String inboxKey = "inbox:saga-start:" + event.sagaId() + ":watching-session";
+        Boolean isFirst = redisTemplate.opsForValue().setIfAbsent(inboxKey, "PROCESSED", java.time.Duration.ofDays(7));
+        if (Boolean.FALSE.equals(isFirst)) {
+            log.info("[Inbox] Saga start already processed in watching-session. Skipping duplicate message: {}", inboxKey);
+            sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "WATCHING_SESSION"));
+            channel.basicAck(deliveryTag, false);
+            return;
+        }
+
         try {
             // 해당 contentId와 연관된 시청 세션 정리 (LiveChatRoom 단위 삭제 또는 watcher 삭제 연동)
             // mopl-watching-session 은 Redis 데이터를 기반으로 세션을 삭제
@@ -82,6 +93,8 @@ public class WatchingSessionEventListener {
             channel.basicAck(deliveryTag, false);
         } catch (Exception e) {
             log.error("Failed to delete watching session for contentId: {}", event.contentId(), e);
+            // 실패 시 inbox 키 제거하여 재시도 허용
+            redisTemplate.delete(inboxKey);
             // 실패 응답 전송
             sendSagaResponse(ContentDeletionSagaEvent.failed(event.sagaId(), event.contentId(), "WATCHING_SESSION", e.getMessage()));
             // 비즈니스 실패 처리가 완료되었으므로 메시지 버림(requeue=false)
