@@ -55,15 +55,6 @@ public class PersistentJwtRegistry implements JwtRegistry {
     }
 
     @Override
-    public boolean hasActiveAccessToken(String accessToken) {
-        if (!jwtTokenProvider.validateAccessToken(accessToken)) {
-            return false;
-        }
-        UUID accessTokenId = jwtTokenProvider.getTokenId(accessToken);
-        return tokenSessionRepository.existsByAccessTokenId(accessTokenId);
-    }
-
-    @Override
     public boolean hasActiveRefreshToken(String refreshToken) {
         if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
             return false;

@@ -13,8 +13,6 @@ public interface TokenSessionRepository extends JpaRepository<TokenSession, UUID
 
     void deleteByAccountId(UUID accountId);
 
-    boolean existsByAccessTokenId(UUID accessTokenId);
-
     @Modifying
     @Query(value = """
             DELETE FROM TokenSession t

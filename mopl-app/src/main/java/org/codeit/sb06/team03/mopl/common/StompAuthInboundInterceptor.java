@@ -5,7 +5,6 @@ import org.codeit.sb06.team03.mopl.common.security.MoplUserDetails;
 import org.codeit.sb06.team03.mopl.common.security.jwt.JwtClaims;
 import org.codeit.sb06.team03.mopl.common.security.jwt.JwtTokenProvider;
 import org.codeit.sb06.team03.mopl.common.security.jwt.exception.InvalidTokenException;
-import org.codeit.sb06.team03.mopl.common.security.jwt.registry.JwtRegistry;
 import org.codeit.sb06.team03.mopl.profile.infra.in.UserDto;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -23,7 +22,6 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class StompAuthInboundInterceptor implements ChannelInterceptor {
 
-    private final JwtRegistry jwtRegistry;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
@@ -52,7 +50,7 @@ public class StompAuthInboundInterceptor implements ChannelInterceptor {
     private Message<?> handleConnect(StompHeaderAccessor accessor, Message<?> message) {
         String accessToken = resolveToken(accessor);
 
-        if (accessToken == null || !jwtRegistry.hasActiveAccessToken(accessToken)) {
+        if (accessToken == null || !jwtTokenProvider.validateAccessToken(accessToken)) {
             throw new InvalidTokenException();
         }
 
@@ -71,7 +69,7 @@ public class StompAuthInboundInterceptor implements ChannelInterceptor {
         String accessToken = accessor.getSessionAttributes() != null ?
                 accessor.getSessionAttributes().get("accessToken").toString() : null;
 
-        if (accessToken == null || !jwtRegistry.hasActiveAccessToken(accessToken)) {
+        if (accessToken == null || !jwtTokenProvider.validateAccessToken(accessToken)) {
             throw new InvalidTokenException();
         }
 
@@ -81,7 +79,7 @@ public class StompAuthInboundInterceptor implements ChannelInterceptor {
     private Message<?> handleSubscribe(StompHeaderAccessor accessor, Message<?> message) {
         String accessToken = accessor.getSessionAttributes().get("accessToken").toString(); //null 일 수 없음
 
-        if (!jwtRegistry.hasActiveAccessToken(accessToken)) {
+        if (!jwtTokenProvider.validateAccessToken(accessToken)) {
             throw new InvalidTokenException();
         }
 

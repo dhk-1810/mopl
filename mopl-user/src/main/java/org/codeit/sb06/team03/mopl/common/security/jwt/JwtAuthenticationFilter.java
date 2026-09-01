@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.common.error.ErrorResponse;
-import org.codeit.sb06.team03.mopl.common.security.jwt.registry.JwtRegistry;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -28,7 +27,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtRegistry jwtRegistry;
     private final ObjectMapper objectMapper;
     private final UserDetailsService userDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
@@ -42,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String accessToken = resolveToken(request);
             if (StringUtils.hasText(accessToken)) {
-                if (jwtRegistry.hasActiveAccessToken(accessToken)) {
+                if (jwtTokenProvider.validateAccessToken(accessToken)) {
                     JwtClaims jwtClaims = jwtTokenProvider.getClaims(accessToken);
 
                     UserDetails userDetails = userDetailsService.loadUserByUsername(jwtClaims.email());
