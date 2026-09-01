@@ -10,6 +10,7 @@ import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalContentViewRepository
 import org.codeit.sb06.team03.mopl.service.application.InboxService;
 import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -30,8 +31,8 @@ public class ContentEventListener {
     private final InboxService inboxService;
 
     private void sendSagaResponse(ContentDeletionSagaEvent event) {
-        org.springframework.amqp.rabbit.connection.CorrelationData correlationData =
-                new org.springframework.amqp.rabbit.connection.CorrelationData("playlist-saga-response-" + event.sagaId() + "-" + event.status());
+        CorrelationData correlationData =
+                new CorrelationData("playlist-saga-response-" + event.sagaId() + "-" + event.status());
         rabbitTemplate.convertAndSend(
                 RabbitConfig.CONTENT_EXCHANGE,
                 RabbitConfig.ROUTING_KEY_SAGA_RESPONSE,

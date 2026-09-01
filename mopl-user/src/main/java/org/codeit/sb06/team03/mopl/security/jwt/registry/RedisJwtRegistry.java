@@ -19,7 +19,6 @@ public class RedisJwtRegistry implements JwtRegistry {
     private final JwtTokenProvider jwtTokenProvider;
 
     private static final String REFRESH_KEY_PREFIX = "token:refresh:";
-    private static final String ACCESS_KEY_PREFIX = "token:access:";
     private static final String USER_SESSIONS_PREFIX = "token:user:";
 
     public RedisJwtRegistry(
@@ -49,26 +48,13 @@ public class RedisJwtRegistry implements JwtRegistry {
         }
 
         String refreshIdStr = refreshToken.id().toString();
-        String accessIdStr = accessToken.id().toString();
-
         long refreshTtlSec = Math.max(0, Duration.between(Instant.now(), refreshToken.expiresAt()).getSeconds());
-        long accessTtlSec = Math.max(0, Duration.between(Instant.now(), accessToken.expiresAt()).getSeconds());
 
-        // Redis 저장
-        redisTemplate.opsForValue().set(REFRESH_KEY_PREFIX + refreshIdStr, accessIdStr + ":" + userIdStr, Duration.ofSeconds(refreshTtlSec));
-        redisTemplate.opsForValue().set(ACCESS_KEY_PREFIX + accessIdStr, userIdStr, Duration.ofSeconds(accessTtlSec));
+        // Redis 저장 (RefreshToken 및 유저 세션 Set만 관리)
+        redisTemplate.opsForValue().set(REFRESH_KEY_PREFIX + refreshIdStr, userIdStr, Duration.ofSeconds(refreshTtlSec));
         redisTemplate.opsForSet().add(userSessionsKey, refreshIdStr);
 
         return new TokenPair(refreshToken.token(), accessToken.token());
-    }
-
-    @Override
-    public boolean hasActiveAccessToken(String accessToken) {
-        if (!jwtTokenProvider.validateAccessToken(accessToken)) {
-            return false;
-        }
-        UUID accessTokenId = jwtTokenProvider.getTokenId(accessToken);
-        return Boolean.TRUE.equals(redisTemplate.hasKey(ACCESS_KEY_PREFIX + accessTokenId));
     }
 
     @Override
@@ -120,14 +106,6 @@ public class RedisJwtRegistry implements JwtRegistry {
     }
 
     private void invalidateByRefreshTokenId(String refreshIdStr, String userIdStr) {
-        String value = redisTemplate.opsForValue().get(REFRESH_KEY_PREFIX + refreshIdStr);
-        if (value != null) {
-            String[] parts = value.split(":");
-            if (parts.length > 0) {
-                String accessIdStr = parts[0];
-                redisTemplate.delete(ACCESS_KEY_PREFIX + accessIdStr);
-            }
-        }
         redisTemplate.delete(REFRESH_KEY_PREFIX + refreshIdStr);
         redisTemplate.opsForSet().remove(USER_SESSIONS_PREFIX + userIdStr, refreshIdStr);
     }

@@ -7,8 +7,6 @@ public interface JwtRegistry {
 
     TokenPair register(JwtClaims jwtClaims);
 
-    boolean hasActiveAccessToken(String accessToken);
-
     boolean hasActiveRefreshToken(String refreshToken);
 
     void invalidateAll(JwtClaims jwtClaims);
