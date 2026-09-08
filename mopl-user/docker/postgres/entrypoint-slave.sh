@@ -4,7 +4,7 @@ set -e
 # Master DB가 준비될 때까지 대기
 PGDATA="${PGDATA:-/var/lib/postgresql/data}"
 echo "Waiting for master database to be ready (PGDATA: $PGDATA)..."
-until pg_isready -h ${MASTER_HOST:-user-db} -p 5432 -U "${POSTGRES_USER:-mopl_user_user}"; do
+until pg_isready -h ${MASTER_HOST:-user-db} -p 5432 -d "${POSTGRES_DB:-mopl_user}" -U "${POSTGRES_USER:-mopl_user_user}"; do
   echo "Master DB is not ready yet. Waiting..."
   sleep 2
 done
