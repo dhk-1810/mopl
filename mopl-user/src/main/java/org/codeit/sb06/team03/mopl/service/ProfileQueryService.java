@@ -6,6 +6,7 @@ import org.codeit.sb06.team03.mopl.entity.Profile;
 import org.codeit.sb06.team03.mopl.exception.profile.ProfileNotFoundException;
 import org.codeit.sb06.team03.mopl.repository.ProfileRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class ProfileQueryService {
 
     private final ProfileRepository profileRepository;

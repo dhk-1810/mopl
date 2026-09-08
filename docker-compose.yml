@@ -68,10 +68,44 @@ services:
     container_name: mopl-user-db
     ports:
       - "5432:5432"
+    command: >
+      postgres
+      -c wal_level=replica
+      -c max_wal_senders=10
+      -c max_replication_slots=10
+      -c hot_standby=on
     env_file:
       - mopl-user/.env.local
     volumes:
       - user-db-data:/var/lib/postgresql
+      - ./mopl-user/docker/postgres/init-master.sh:/docker-entrypoint-initdb.d/init-master.sh:ro
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  user-slave-db:
+    image: postgres:18-alpine
+    container_name: mopl-user-slave-db
+    ports:
+      - "5431:5432"
+    env_file:
+      - mopl-user/.env.local
+    environment:
+      - MASTER_HOST=user-db
+    volumes:
+      - user-slave-db-data:/var/lib/postgresql
+      - ./mopl-user/docker/postgres/entrypoint-slave.sh:/entrypoint-slave.sh:ro
+    entrypoint: ["/bin/sh", "/entrypoint-slave.sh"]
+    depends_on:
+      user-db:
+        condition: service_healthy
     restart: always
     deploy:
       resources:
@@ -182,6 +216,7 @@ services:
 # 데이터 영속성을 위한 Docker 볼륨 설정
 volumes:
   user-db-data:
+  user-slave-db-data:
   content-db-data:
   playlist-db-data:
   dm-db-data:

@@ -37,10 +37,7 @@ public class UserCompositeService {
 
     public UserDto registerAccount(UserCreateRequest request) {
         Account newAccount = accountCommandService.register(request.name(), new EmailAddress(request.email()), request.password());
-
-        Account account = accountQueryService.getById(newAccount.getId());
-        String presignedUrl = imageQueryService.getPresignedUrl(account.getProfile().getImageKey());
-        return UserDto.from(account, account.getProfile(), presignedUrl);
+        return UserDto.from(newAccount, newAccount.getProfile(), null);
     }
 
     public void updatePassword(UUID userId, PasswordUpdateRequest request) {

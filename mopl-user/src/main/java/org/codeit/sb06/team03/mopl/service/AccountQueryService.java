@@ -1,6 +1,6 @@
 package org.codeit.sb06.team03.mopl.service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.entity.Account;
 import org.codeit.sb06.team03.mopl.exception.account.AccountNotFoundException;
@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class AccountQueryService {
 
     private final AccountRepository accountRepository;

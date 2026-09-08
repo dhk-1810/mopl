@@ -8,10 +8,16 @@ spring:
       on-profile: dev
   datasource:
     user:
-      driver-class-name: org.postgresql.Driver
-      url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB}
-      username: ${POSTGRES_USER}
-      password: ${POSTGRES_PASSWORD}
+      master:
+        driver-class-name: org.postgresql.Driver
+        url: jdbc:postgresql://${DB_MASTER_HOST:localhost}:${DB_MASTER_PORT:5432}/${POSTGRES_DB}
+        username: ${POSTGRES_USER}
+        password: ${POSTGRES_PASSWORD}
+      slave:
+        driver-class-name: org.postgresql.Driver
+        url: jdbc:postgresql://${DB_SLAVE_HOST:localhost}:${DB_SLAVE_PORT:5431}/${POSTGRES_DB}
+        username: ${POSTGRES_USER}
+        password: ${POSTGRES_PASSWORD}
   security:
     oauth2:
       client:
@@ -26,3 +32,9 @@ mopl:
     redirect-uri:
       success: "http://localhost:8080/oauth-redirect"
       failure: "http://localhost:8080/sign-in"
+
+logging:
+  level:
+    root: INFO
+    org.codeit.sb06.team03.mopl: DEBUG
+    org.springframework.jdbc.datasource: DEBUG

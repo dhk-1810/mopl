@@ -24,17 +24,51 @@ services:
     container_name: mopl-user-postgres
     ports:
       - "5432:5432"
+    command: >
+      postgres
+      -c wal_level=replica
+      -c max_wal_senders=10
+      -c max_replication_slots=10
+      -c hot_standby=on
     env_file:
       - .env
     volumes:
       - mopl-user-postgres-data:/var/lib/postgresql
+      - ./docker/postgres/init-master.sh:/docker-entrypoint-initdb.d/init-master.sh:ro
     restart: always
     deploy:
       resources:
         limits:
           memory: 256M
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mopl-user-postgres-slave:
+    image: postgres:18-alpine
+    container_name: mopl-user-postgres-slave
+    ports:
+      - "5431:5432"
+    env_file:
+      - .env
+    environment:
+      - MASTER_HOST=mopl-user-postgres
+    volumes:
+      - mopl-user-postgres-slave-data:/var/lib/postgresql
+      - ./docker/postgres/entrypoint-slave.sh:/entrypoint-slave.sh:ro
+    entrypoint: ["/bin/sh", "/entrypoint-slave.sh"]
+    depends_on:
+      mopl-user-postgres:
+        condition: service_healthy
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -53,3 +87,4 @@ services:
 
 volumes:
   mopl-user-postgres-data:
+  mopl-user-postgres-slave-data:

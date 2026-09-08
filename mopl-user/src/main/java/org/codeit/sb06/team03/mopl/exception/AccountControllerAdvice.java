@@ -99,4 +99,15 @@ public class AccountControllerAdvice {
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGeneralException(Exception e) {
+        log.error("Unhandled exception occurred: {}", e.getMessage(), e);
+        var errorResponse = new ErrorResponse(
+                e.getClass().getSimpleName(),
+                "서버 내부 오류가 발생했습니다: " + e.getMessage(),
+                Collections.emptyList()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
 }
