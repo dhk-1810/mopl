@@ -3,7 +3,7 @@
 # Debezium Outbox 커넥터 자동 등록 스크립트
 # ==============================================================================
 
-CONNECT_URL="http://localhost:8083"
+CONNECT_URL="http://localhost:8089"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONNECTOR_CONFIG="${SCRIPT_DIR}/content-outbox-connector.json"
 

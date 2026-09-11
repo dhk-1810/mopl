@@ -16,8 +16,6 @@ spring:
     consumer:
       group-id: playlist-service-group
       auto-offset-reset: earliest
-      key-deserializer: StringDeserializer
-      value-deserializer: StringDeserializer
       enable-auto-commit: true
 
 mopl:

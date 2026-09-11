@@ -21,6 +21,7 @@ import java.util.UUID;
 public class UserHeaderAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String USER_ID_HEADER = "X-User-Id";
+    private static final String USER_ROLE_HEADER = "X-User-Role";
 
     @Override
     protected void doFilterInternal(
@@ -29,17 +30,21 @@ public class UserHeaderAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
         String userIdHeader = request.getHeader(USER_ID_HEADER);
+        String userRoleHeader = request.getHeader(USER_ROLE_HEADER);
 
         if (StringUtils.hasText(userIdHeader)) {
             try {
                 UUID userId = UUID.fromString(userIdHeader);
 
-                // DB 추가 조회 없이 Header에서 넘어온 userId 기반으로 Simple UserPrincipal 생성
+                String role = StringUtils.hasText(userRoleHeader) ? userRoleHeader.trim() : "USER";
+                String authority = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+
+                // Gateway Header에서 넘어온 userId 및 Role 기반으로 Authentication 생성
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userId,
                                 null,
-                                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                List.of(new SimpleGrantedAuthority(authority))
                         );
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);

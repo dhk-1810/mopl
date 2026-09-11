@@ -75,14 +75,17 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
                     if (expiration != null && expiration.after(new Date())) {
                         String userId = claimsSet.getSubject();
-                        log.debug("JWT verification success for path {}. UserId: {}", path, userId);
+                        String role = claimsSet.getStringClaim("role");
+                        log.debug("JWT verification success for path {}. UserId: {}, Role: {}", path, userId, role);
 
-                        // Request Header에 X-User-Id 주입
-                        ServerHttpRequest modifiedRequest = request.mutate()
-                                .header("X-User-Id", userId)
-                                .build();
+                        // Request Header에 X-User-Id 및 X-User-Role 주입
+                        ServerHttpRequest.Builder requestBuilder = request.mutate()
+                                .header("X-User-Id", userId);
+                        if (StringUtils.hasText(role)) {
+                            requestBuilder.header("X-User-Role", role);
+                        }
 
-                        return chain.filter(exchange.mutate().request(modifiedRequest).build());
+                        return chain.filter(exchange.mutate().request(requestBuilder.build()).build());
                     } else {
                         log.warn("JWT token expired for path {}", path);
                     }

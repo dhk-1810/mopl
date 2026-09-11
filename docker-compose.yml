@@ -49,6 +49,18 @@ services:
         limits:
           memory: 256M
 
+  notification-redis:
+    image: redis:7.2-alpine
+    container_name: mopl-notification-redis
+    ports:
+      - "6384:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD_NOTIFICATION:-Hhhickam22} --appendonly yes
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
   # -------------------------------------------------------------
   # RabbitMQ Service
   # -------------------------------------------------------------
@@ -94,7 +106,7 @@ services:
     image: quay.io/debezium/connect:2.6
     container_name: mopl-kafka-connect
     ports:
-      - "8083:8083" # 커넥터 생성/조회/삭제를 위한 REST API 포트
+      - "8089:8083" # 커넥터 생성/조회/삭제를 위한 REST API 포트 (watching-session 8083 충돌 방지)
     environment:
       BOOTSTRAP_SERVERS: kafka:9092 # 연결할 Kafka 브로커 주소
       GROUP_ID: 1 # Connect 클러스터 그룹 식별자

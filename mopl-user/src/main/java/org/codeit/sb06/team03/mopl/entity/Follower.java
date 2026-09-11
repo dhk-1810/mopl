@@ -15,12 +15,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Setter
 @Entity
 @Table(name = "followers")
-@SQLDelete(sql = "UPDATE followers SET is_deleted = true WHERE followee_id = ? AND follower_id = ?")
-@SQLRestriction("is_deleted = false")
 public class Follower {
-
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
 
     @EmbeddedId
     private FollowerId id;
