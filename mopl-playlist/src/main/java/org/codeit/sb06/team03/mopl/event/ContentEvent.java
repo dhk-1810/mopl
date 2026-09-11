@@ -25,9 +25,4 @@ public abstract sealed class ContentEvent {
         private final long watcherCount;
     }
 
-    @Getter
-    @RequiredArgsConstructor
-    public static final class ContentDeletedEvent extends ContentEvent {
-        private final UUID contentId;
-    }
 }

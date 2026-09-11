@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Slf4j
-@Component
+// @Component -- Debezium CDC 도입으로 인한 비활성화
 @RequiredArgsConstructor
 public class OutboxPublisherScheduler {
 

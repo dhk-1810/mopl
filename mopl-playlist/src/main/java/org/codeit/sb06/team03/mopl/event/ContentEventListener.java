@@ -1,5 +1,6 @@
 package org.codeit.sb06.team03.mopl.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,7 @@ public class ContentEventListener {
     private final PlaylistCommandService playlistCommandService;
     private final RabbitTemplate rabbitTemplate;
     private final InboxService inboxService;
+    private final ObjectMapper objectMapper;
 
     private void sendSagaResponse(ContentDeletionSagaEvent event) {
         CorrelationData correlationData =
@@ -79,41 +82,24 @@ public class ContentEventListener {
         }
     }
 
-    @RabbitListener(queues = RabbitConfig.CONTENT_DELETE_QUEUE)
+    @KafkaListener(topics = RabbitConfig.ROUTING_KEY_SAGA_START, groupId = "playlist-service-group")
     @Transactional(value = "playlistTransactionManager")
-    public void handleContentDeleted(
-            ContentEvent.ContentDeletedEvent event,
-            Channel channel,
-            @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
-    ) throws IOException {
-        log.info("Received ContentDeletedEvent from RabbitMQ: {}", event);
-        try {
-            // 1. Delete curation entries containing this content
-            playlistCommandService.deleteCurationByContentId(event.getContentId());
-            // 2. Delete local read model
-            externalContentViewRepository.deleteById(event.getContentId());
-            channel.basicAck(deliveryTag, false);
-        } catch (Exception e) {
-            log.error("Failed to delete content in playlist: {}", e.getMessage(), e);
-            channel.basicReject(deliveryTag, false);
-        }
-    }
+    public void handleContentDeletionSaga(String payload) {
+        log.info("Received ContentDeletionSagaEvent START from Kafka in mopl-playlist: {}", payload);
 
-    @RabbitListener(queues = RabbitConfig.CONTENT_SAGA_START_QUEUE)
-    @Transactional(value = "playlistTransactionManager")
-    public void handleContentDeletionSaga(
-            ContentDeletionSagaEvent event,
-            Channel channel,
-            @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
-    ) throws IOException {
-        log.info("Received ContentDeletionSagaEvent START in mopl-playlist: {}", event);
+        ContentDeletionSagaEvent event;
+        try {
+            event = objectMapper.readValue(payload, ContentDeletionSagaEvent.class);
+        } catch (Exception e) {
+            log.error("Failed to deserialize ContentDeletionSagaEvent from Kafka payload: {}", payload, e);
+            return;
+        }
 
         String messageId = "saga-start-" + event.sagaId() + "-playlist";
         if (inboxService.isAlreadyProcessed(messageId)) {
             log.info("[Inbox] Saga start already processed in playlist. Skipping duplicate message: {}", messageId);
-            // 멱등성 보장을 위해 이전 성공 응답 재전송 후 ACK
+            // 멱등성 보장을 위해 이전 성공 응답 재전송
             sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "PLAYLIST"));
-            channel.basicAck(deliveryTag, false);
             return;
         }
 
@@ -127,15 +113,11 @@ public class ContentEventListener {
 
             // 3. 성공 이벤트 응답 (mopl-content에 전달)
             sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "PLAYLIST"));
-
-            // 4. 비즈니스 로직 및 응답 발행 성공 후 RabbitMQ에 ACK 전송
-            channel.basicAck(deliveryTag, false);
         } catch (Exception e) {
             log.error("Failed to delete playlist curation for contentId: {}", event.contentId(), e);
             // 실패 응답 전송
             sendSagaResponse(ContentDeletionSagaEvent.failed(event.sagaId(), event.contentId(), "PLAYLIST", e.getMessage()));
-            // 비즈니스 실패 처리가 완료되었으므로 메시지 버림(requeue=false)
-            channel.basicReject(deliveryTag, false);
+            throw new RuntimeException("Error processing ContentDeletionSagaEvent in playlist", e);
         }
     }
 

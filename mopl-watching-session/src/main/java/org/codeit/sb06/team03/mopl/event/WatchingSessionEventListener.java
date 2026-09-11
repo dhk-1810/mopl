@@ -1,5 +1,6 @@
 package org.codeit.sb06.team03.mopl.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,7 @@ import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.service.application.WatchingSessionCommandService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,7 @@ public class WatchingSessionEventListener {
     private final WatchingSessionCommandService watchingSessionCommandService;
     private final org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
     private final org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
+    private final ObjectMapper objectMapper;
 
     @RabbitListener(queues = RabbitConfig.WS_CREATE_QUEUE)
     public void handleWatchingSessionCreate(
@@ -64,20 +67,23 @@ public class WatchingSessionEventListener {
         }
     }
 
-    @RabbitListener(queues = RabbitConfig.WS_CONTENT_SAGA_START_QUEUE)
-    public void handleContentDeletionSaga(
-            ContentDeletionSagaEvent event,
-            Channel channel,
-            @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
-    ) throws IOException {
-        log.info("Received ContentDeletionSagaEvent START in mopl-watching-session: {}", event);
+    @KafkaListener(topics = RabbitConfig.ROUTING_KEY_SAGA_START, groupId = "watching-session-group")
+    public void handleContentDeletionSaga(String payload) {
+        log.info("Received ContentDeletionSagaEvent START from Kafka in mopl-watching-session: {}", payload);
+
+        ContentDeletionSagaEvent event;
+        try {
+            event = objectMapper.readValue(payload, ContentDeletionSagaEvent.class);
+        } catch (Exception e) {
+            log.error("Failed to deserialize ContentDeletionSagaEvent from Kafka payload: {}", payload, e);
+            return;
+        }
 
         String inboxKey = "inbox:saga-start:" + event.sagaId() + ":watching-session";
         Boolean isFirst = redisTemplate.opsForValue().setIfAbsent(inboxKey, "PROCESSED", java.time.Duration.ofDays(7));
         if (Boolean.FALSE.equals(isFirst)) {
             log.info("[Inbox] Saga start already processed in watching-session. Skipping duplicate message: {}", inboxKey);
             sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "WATCHING_SESSION"));
-            channel.basicAck(deliveryTag, false);
             return;
         }
 
@@ -88,17 +94,13 @@ public class WatchingSessionEventListener {
 
             // Saga 성공 이벤트 응답 (mopl-content로 전파)
             sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "WATCHING_SESSION"));
-
-            // 비즈니스 로직 및 응답 발행 성공 후 RabbitMQ에 ACK 전송
-            channel.basicAck(deliveryTag, false);
         } catch (Exception e) {
             log.error("Failed to delete watching session for contentId: {}", event.contentId(), e);
             // 실패 시 inbox 키 제거하여 재시도 허용
             redisTemplate.delete(inboxKey);
             // 실패 응답 전송
             sendSagaResponse(ContentDeletionSagaEvent.failed(event.sagaId(), event.contentId(), "WATCHING_SESSION", e.getMessage()));
-            // 비즈니스 실패 처리가 완료되었으므로 메시지 버림(requeue=false)
-            channel.basicReject(deliveryTag, false);
+            throw new RuntimeException("Error processing ContentDeletionSagaEvent in watching session", e);
         }
     }
 
