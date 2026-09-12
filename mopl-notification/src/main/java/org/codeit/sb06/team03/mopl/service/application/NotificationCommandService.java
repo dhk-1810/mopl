@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional("notificationTransactionManager")
+@Transactional
 public class NotificationCommandService {
 
     private final NotificationRepository notificationRepository;

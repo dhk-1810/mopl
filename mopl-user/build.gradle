@@ -1,4 +1,6 @@
 dependencies {
+    implementation project(':mopl-image')
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -6,7 +8,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
-    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
     implementation 'com.nimbusds:nimbus-jose-jwt:10.7'
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
@@ -16,12 +17,4 @@ dependencies {
     annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:${querydslVersion}:jakarta"
 
     runtimeOnly 'org.postgresql:postgresql'
-}
-
-bootJar {
-    enabled = true
-}
-
-jar {
-    enabled = false
 }

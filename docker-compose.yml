@@ -1,295 +1,48 @@
-# -------------------------------------------------------------
-# 로컬 테스트만을 위한 DB, Redis, RabbitMQ 구성임.
-# -------------------------------------------------------------
 services:
-  # -------------------------------------------------------------
-  # Nginx Service (API Gateway / Reverse Proxy) - SCG와 CloudFront로 대체
-  # -------------------------------------------------------------
-#  nginx:
-#    image: nginx:1.25-alpine
-#    container_name: mopl-nginx
-#    ports:
-#      - "80:80"
-#      - "443:443"
-#    volumes:
-#      - ./nginx.conf.bak:/etc/nginx/nginx.conf.bak:ro
-#      - ./html:/usr/share/nginx/html:ro
-#    extra_hosts:
-#      - "host.docker.internal:host-gateway"
-#    restart: always
-#    logging:
-#      driver: "json-file"
-#      options:
-#        max-size: "10m"
-#        max-file: "3"
-
-  # -------------------------------------------------------------
-  # Redis Services (각 마이크로서비스별 독립 인스턴스)
-  # -------------------------------------------------------------
-  user-redis:
-    image: redis:7.2-alpine
-    container_name: mopl-user-redis
+  mopl-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kestrel71/mopl:latest
+    container_name: mopl-app
     ports:
-      - "6379:6379"
-    command: redis-server --requirepass ${REDIS_PASSWORD_USER:-mopluserpwd123} --appendonly yes
+      - "80:8080" # EC2 80 -> Spring 8080
     restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-
-  watching-session-redis:
-    image: redis:7.2-alpine
-    container_name: mopl-watching-session-redis
-    ports:
-      - "6380:6379"
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-
-  notification-redis:
-    image: redis:7.2-alpine
-    container_name: mopl-notification-redis
-    ports:
-      - "6381:6379"
-    command: redis-server --requirepass ${REDIS_PASSWORD_NOTIFICATION:-Hhhickam22} --appendonly yes
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-
-  # -------------------------------------------------------------
-  # RabbitMQ Service
-  # -------------------------------------------------------------
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: mopl-rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    restart: always
-
-  # -------------------------------------------------------------
-  # Kafka & Debezium Connect (KRaft Mode for CDC & Event Streaming)
-  # -------------------------------------------------------------
-  kafka:
-    image: confluentinc/cp-kafka:7.6.0  # Zookeeper 없이 자체 Raft 합의 알고리즘(KRaft)으로 브로커와 컨트롤러 역할을 단일 노드로 통합 실행
-    container_name: mopl-kafka
-    ports:
-      - "9092:9092"    # Docker 컨테이너 내부 네트워크용 포트 (kafka:9092)
-      - "29092:29092"  # 호스트 머신(로컬 개발 환경) 접속용 포트 (localhost:29092)
-    environment:
-      KAFKA_NODE_ID: 1 # 클러스터 내 브로커 고유 식별 번호
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT' # 리스너별 보안 프로토콜 매핑
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092' # 외부 클라이언트가 접속할 주소 (도커 내부 / 호스트 로컬)
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 # 컨슈머 오프셋 토픽 복제본 수 (단일 브로커이므로 1)
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0 # 컨슈머 그룹 초기 리밸런싱 대기 시간(ms)
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1 # 트랜잭션 상태 로그 최소 동기화 복제본 수
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1 # 트랜잭션 상태 토픽 복제본 수
-      KAFKA_PROCESS_ROLES: 'broker,controller' # KRaft 모드에서 브로커 및 컨트롤러 역할 동시 수행
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093' # 컨트롤러 정족수 투표자 주소 (NodeID@Host:Port)
-      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092' # 바인딩할 네트워크 리스너 목록
-      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT' # 브로커 간 내부 통신에 사용할 리스너
-      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER' # 컨트롤러 간 통신에 사용할 리스너
-      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs' # 카프카 로그 및 이벤트 데이터 저장 디렉토리
-      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk' # KRaft 클러스터 고유 식별자 (Base64 UUID)
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-
-  kafka-connect: # DB(PostgreSQL WAL) 변경 로그를 감지하여 Kafka Topic으로 자동 발행하는 Debezium CDC 연동 서버
-    image: quay.io/debezium/connect:2.6
-    container_name: mopl-kafka-connect
-    ports:
-      - "8089:8083" # 커넥터 생성/조회/삭제를 위한 REST API 포트 (watching-session 8083 충돌 방지)
-    environment:
-      BOOTSTRAP_SERVERS: kafka:9092 # 연결할 Kafka 브로커 주소
-      GROUP_ID: 1 # Connect 클러스터 그룹 식별자
-      CONFIG_STORAGE_TOPIC: connect_configs # 커넥터 설정을 영속 저장할 내부 토픽
-      OFFSET_STORAGE_TOPIC: connect_offsets # CDC 소스 오프셋(Binlog/WAL 위치)을 저장할 내부 토픽
-      STATUS_STORAGE_TOPIC: connect_statuses # 커넥터 및 태스크 상태를 저장할 내부 토픽
-      CONFIG_STORAGE_REPLICATION_FACTOR: 1 # 단일 브로커 환경용 복제본 수 (1)
-      OFFSET_STORAGE_REPLICATION_FACTOR: 1
-      STATUS_STORAGE_REPLICATION_FACTOR: 1
-      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter # 메시지 Key 직렬화 포맷 (JSON)
-      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter # 메시지 Value 직렬화 포맷 (JSON)
-      ENABLE_DEBEZIUM_SCRIPTING: "false" # 커스텀 스크립팅 기능 비활성화 (보안 및 리소스 최적화)
     depends_on:
-      - kafka
-      - content-db
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-
-  # -------------------------------------------------------------
-  # PostgreSQL Databases (Database-per-service 격리)
-  # -------------------------------------------------------------
-  user-db:
-    image: postgres:18-alpine
-    container_name: mopl-user-db
-    ports:
-      - "5432:5432"
-    command: >
-      postgres
-      -c wal_level=replica
-      -c max_wal_senders=10
-      -c max_replication_slots=10
-      -c hot_standby=on
+      mopl-db:
+        condition: service_healthy
+      mopl-redis:
+        condition: service_healthy
     env_file:
-      - mopl-user/.env.local
-    volumes:
-      - user-db-data:/var/lib/postgresql
-      - ./mopl-user/docker/postgres/init-master.sh:/docker-entrypoint-initdb.d/init-master.sh:ro
+      - .env
+
+  mopl-db:
+    image: postgres:18-alpine
+    container_name: mopl-db
     restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  user-slave-db:
-    image: postgres:18-alpine
-    container_name: mopl-user-slave-db
-    ports:
-      - "5431:5432"
-    env_file:
-      - mopl-user/.env.local
-    environment:
-      - MASTER_HOST=user-db
-    volumes:
-      - user-slave-db-data:/var/lib/postgresql
-      - ./mopl-user/docker/postgres/entrypoint-slave.sh:/entrypoint-slave.sh:ro
-    entrypoint: ["/bin/sh", "/entrypoint-slave.sh"]
-    depends_on:
-      user-db:
-        condition: service_healthy
+  mopl-redis:
+    image: redis:7.2-alpine
+    container_name: mopl-redis
     restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  content-db:
-    image: postgres:18-alpine
-    container_name: mopl-content-db
-    command: ["postgres", "-c", "wal_level=logical"]
-    ports:
-      - "5433:5432"
-    env_file:
-      - mopl-content/.env.local
-    volumes:
-      - content-db-data:/var/lib/postgresql
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-
-  playlist-db:
-    image: postgres:18-alpine
-    container_name: mopl-playlist-db
-    ports:
-      - "5434:5432"
-    env_file:
-      - mopl-playlist/.env.local
-    volumes:
-      - playlist-db-data:/var/lib/postgresql
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-
-  dm-db:
-    image: postgres:18-alpine
-    container_name: mopl-dm-db
-    ports:
-      - "5435:5432"
-    env_file:
-      - mopl-dm/.env.local
-    volumes:
-      - dm-db-data:/var/lib/postgresql
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-
-  dm-mongo:
-    image: mongo:7.0
-    container_name: mopl-dm-mongo
-    ports:
-      - "27017:27017"
-    env_file:
-      - mopl-dm/.env.local
-    volumes:
-      - dm-mongo-data:/data/db
-    restart: always
-
-  notification-db:
-    image: postgres:18-alpine
-    container_name: mopl-notification-db
-    ports:
-      - "5436:5432"
-    env_file:
-      - mopl-notification/.env.local
-    volumes:
-      - notification-db-data:/var/lib/postgresql
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-
-  image-db:
-    image: postgres:18-alpine
-    container_name: mopl-image-db
-    ports:
-      - "5437:5432"
-    env_file:
-      - mopl-image/.env.local
-    volumes:
-      - image-db-data:/var/lib/postgresql
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-
-  batch-db:
-    image: postgres:18-alpine
-    container_name: mopl-batch-db
-    ports:
-      - "5438:5432"
-    env_file:
-      - mopl-batch/.env.local
-    volumes:
-      - batch-db-data:/var/lib/postgresql
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-
-# 데이터 영속성을 위한 Docker 볼륨 설정
 volumes:
-  user-db-data:
-  user-slave-db-data:
-  content-db-data:
-  playlist-db-data:
-  dm-db-data:
-  dm-mongo-data:
-  notification-db-data:
-  image-db-data:
-  batch-db-data:
+  postgres_data:

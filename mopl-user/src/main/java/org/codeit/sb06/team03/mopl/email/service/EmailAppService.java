@@ -11,14 +11,14 @@ import java.time.Instant;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(value = "userTransactionManager", readOnly = true)
+@Transactional(readOnly = true)
 public class EmailAppService implements SendEmailUseCase {
 
     private final ApplicationEventPublisher eventPublisher;
     private final EmailService emailService;
 
     @Override
-    @Transactional("userTransactionManager")
+    @Transactional
     public void sendEmail(String emailAddress, String rawTempPassword, Instant expireDate) {
         Email email = emailService.send(emailAddress, rawTempPassword, expireDate);
 

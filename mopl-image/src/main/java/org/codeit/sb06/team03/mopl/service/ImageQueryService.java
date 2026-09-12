@@ -28,7 +28,7 @@ public class ImageQueryService {
         this.presignedUrlTimeoutPolicy = presignedUrlTimeoutPolicy;
     }
 
-    @Transactional("imageTransactionManager")
+    @Transactional
     public String getPresignedUrl(String key) {
         if (key == null || key.isBlank()) {
             return null;
@@ -57,7 +57,7 @@ public class ImageQueryService {
         return timeoutImage.getPresignedUrl();
     }
 
-    @Transactional("imageTransactionManager")
+    @Transactional
     public Map<String, String> getPresignedUrls(List<String> keys) {
         if (keys == null || keys.isEmpty()) {
             return Collections.emptyMap();

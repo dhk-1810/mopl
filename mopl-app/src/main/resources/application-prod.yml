@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_ENDPOINT}:5432/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+      show-sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            redirect-uri: "https://d3p5f5p9oh782p.cloudfront.net/login/oauth2/code/google"
+          kakao:
+            redirect-uri: "https://d3p5f5p9oh782p.cloudfront.net/login/oauth2/code/kakao"
+mopl:
+  oauth2:
+    redirect-uri:
+      success: "https://d3p5f5p9oh782p.cloudfront.net/oauth-redirect"
+      failure: "https://d3p5f5p9oh782p.cloudfront.net/sign-in"

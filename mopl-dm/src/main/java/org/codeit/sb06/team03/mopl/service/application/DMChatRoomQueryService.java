@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(value = "dmTransactionManager", readOnly = true)
+@Transactional( readOnly = true)
 public class DMChatRoomQueryService {
 
     private final DMChatRoomRepository dmChatRoomRepository;

@@ -8,17 +8,16 @@ import org.codeit.sb06.team03.mopl.event.ContentUpdatedEvent;
 import org.codeit.sb06.team03.mopl.dto.response.ContentDto;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestContentDto;
 import org.codeit.sb06.team03.mopl.dto.request.ContentCreateRequest;
-import org.codeit.sb06.team03.mopl.dto.response.ContentMapper;
 import org.codeit.sb06.team03.mopl.dto.request.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponseContentDto;
 import org.codeit.sb06.team03.mopl.s3.S3Service;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.codeit.sb06.team03.mopl.event.ImageUploadEvent;
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.service.ImageQueryService;
 import org.codeit.sb06.team03.mopl.service.application.LiveChatRoomCommandService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -30,47 +29,28 @@ import org.codeit.sb06.team03.mopl.dto.request.ContentCreateInternalRequest;
 @Service
 public class ContentCompositeService {
 
-    private final ContentMapper contentMapper;
     private final ContentCommandService contentCommandService;
     private final ContentQueryService contentQueryService;
 
     private final LiveChatRoomCommandService liveChatRoomCommandService;
 
-    private final ExternalImageQueryService imageQueryService;
+    private final ImageQueryService imageQueryService;
     private final ApplicationEventPublisher eventPublisher;
     
     private final S3Service s3Service;
-    private final RabbitTemplate rabbitTemplate;
-
-    private static final String IMAGE_EXCHANGE = "mopl.image.exchange";
-    private static final String IMAGE_ROUTING_KEY = "mopl.image.upload";
 
     public ContentDto createInternal(ContentCreateInternalRequest request) {
-        CreateContentCommand command = new CreateContentCommand(request.type(), request.title(), request.description(), request.tags());
-        ContentReadModel readModel = contentCommandService.create(command, request.thumbnailKey());
+        ContentReadModel readModel = contentCommandService.createInternal(request);
         liveChatRoomCommandService.create(readModel.id());
 
         return ContentDto.from(readModel, getPresignedUrl(request.thumbnailKey()));
     }
 
     public ContentDto create(ContentCreateRequest request, MultipartFile image) {
-        String thumbnailKey = null;
-        if (image != null && !image.isEmpty()) {
-            thumbnailKey = "contents/" + UUID.randomUUID().toString();
-            try {
-                // 1. 직접 S3 업로드
-                s3Service.uploadFile(thumbnailKey, image);
+        UUID contentId = UUID.randomUUID();
+        String thumbnailKey = uploadImage(contentId, image);
 
-                // 2. RabbitMQ로 이미지 서비스에 메타데이터 생성 위임
-                ImageUploadEvent event = new ImageUploadEvent(thumbnailKey, image.getContentType());
-                rabbitTemplate.convertAndSend(IMAGE_EXCHANGE, IMAGE_ROUTING_KEY, event);
-            } catch (IOException e) {
-                throw new RuntimeException("S3 direct upload failed in content-service", e);
-            }
-        }
-
-        CreateContentCommand command = contentMapper.toCommand(request);
-        ContentReadModel readModel = contentCommandService.create(command, thumbnailKey);
+        ContentReadModel readModel = contentCommandService.create(contentId, request, thumbnailKey);
         liveChatRoomCommandService.create(readModel.id());
         
         return ContentDto.from(readModel, getPresignedUrl(thumbnailKey));
@@ -124,9 +104,10 @@ public class ContentCompositeService {
         return ContentDto.from(readModel, getPresignedUrl(readModel.thumbnailKey()));
     }
 
-    public ContentDto update(UUID contentId, ContentUpdateRequest request) {
-        UpdateContentCommand command = contentMapper.toCommand(request);
-        ContentReadModel readModel = contentCommandService.update(contentId, command);
+    public ContentDto update(UUID contentId, ContentUpdateRequest request, MultipartFile image) {
+        String thumbnailKey = uploadImage(contentId, image);
+
+        ContentReadModel readModel = contentCommandService.update(contentId, request, thumbnailKey);
         
         eventPublisher.publishEvent(new ContentUpdatedEvent(
                 readModel.id(),
@@ -141,6 +122,30 @@ public class ContentCompositeService {
         ));
         
         return ContentDto.from(readModel, getPresignedUrl(readModel.thumbnailKey()));
+    }
+
+    private String uploadImage(UUID contentId, MultipartFile image) {
+        if (image == null || image.isEmpty()) {
+            return null;
+        }
+        try {
+            String originalFilename = image.getOriginalFilename();
+            String extension = (originalFilename != null && !originalFilename.isBlank())
+                    ? StringUtils.getFilenameExtension(originalFilename)
+                    : null;
+            String fileIdentifier = (extension != null && !extension.isBlank())
+                    ? UUID.randomUUID() + "." + extension.toLowerCase()
+                    : UUID.randomUUID().toString();
+            String key = "contents/" + contentId + "/" + fileIdentifier;
+
+            s3Service.uploadFile(key, image);
+
+            ImageUploadEvent event = new ImageUploadEvent(key, image.getContentType());
+            eventPublisher.publishEvent(event);
+            return key;
+        } catch (IOException e) {
+            throw new RuntimeException("S3 direct upload failed in content-service", e);
+        }
     }
 
     public void delete(UUID contentId) {

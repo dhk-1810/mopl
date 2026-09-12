@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.service.application.NotificationCommandService;
 import org.codeit.sb06.team03.mopl.enums.NotificationLevel;
-import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.dto.response.NotificationDto;
 import org.codeit.sb06.team03.mopl.sse.service.SseService;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -20,9 +19,9 @@ public class DMEventConsumer {
 
     private static final String EVENT_NAME_NOTIFICATION = "notifications";
 
-    @RabbitListener(queues = RabbitConfig.DM_NOTIFICATION_REQUIRED_QUEUE)
+    @EventListener
     public void handleDMNotificationRequired(DMEvent.NewMessageMarkEvent event) {
-        log.info("Received NewMessageMarkEvent from RabbitMQ: {}", event);
+        log.info("Received NewMessageMarkEvent: {}", event);
         NotificationDto notificationDto = notificationCommandService.create(
                 event.getReceiverId(),
                 "[DM]" + event.getSenderName(),

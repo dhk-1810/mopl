@@ -3,11 +3,10 @@ package org.codeit.sb06.team03.mopl.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.enums.NotificationLevel;
-import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.dto.response.NotificationDto;
 import org.codeit.sb06.team03.mopl.sse.service.SseService;
 import org.codeit.sb06.team03.mopl.service.application.NotificationCommandService;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public class PlaylistEventConsumer {
 
     private static final String EVENT_NAME = "notifications";
 
-    @RabbitListener(queues = RabbitConfig.PLAYLIST_SUBSCRIBED_QUEUE)
+    @EventListener
     public void consumeSubscriptionCreatedEvent(PlaylistEvent.SubscriptionCreatedEvent event) {
         log.info("Received playlist subscription message: playlistId={}, subscriberName={}",
                 event.getPlaylistId(), event.getSubscriberName());
@@ -40,15 +39,19 @@ public class PlaylistEventConsumer {
         sseService.send(notificationDto, EVENT_NAME, event.getOwnerId());
     }
 
-    @RabbitListener(queues = RabbitConfig.PLAYLIST_CREATED_QUEUE)
+    @EventListener
     public void consumePlaylistCreatedEvent(PlaylistEvent.PlaylistCreatedEvent event) {
-        log.info("Received PlaylistCreatedEvent from RabbitMQ: playlistId={}", event.getPlaylistId());
+        log.info("Received PlaylistCreatedEvent: playlistId={}", event.getPlaylistId());
+
+        if (event.getFollowerIds() == null || event.getFollowerIds().isEmpty()) {
+            return;
+        }
 
         final String notificationTitle = "%s 님이 새 플레이리스트 '%s'를 생성했어요."
                 .formatted(event.getOwnerName(), event.getPlaylistTitle());
 
         List<NotificationDto> notifications = notificationCommandService.createAll(
-                event.getFollowerIds(),
+                event.getFollowerIds().stream().toList(),
                 notificationTitle,
                 null,
                 NotificationLevel.INFO
@@ -58,9 +61,13 @@ public class PlaylistEventConsumer {
         sseService.sendAll(data, EVENT_NAME);
     }
 
-    @RabbitListener(queues = RabbitConfig.CURATION_ADDED_QUEUE)
+    @EventListener
     public void consumeCurationAddedEvent(PlaylistEvent.CurationAddedEvent event) {
-        log.info("Received CurationAddedEvent from RabbitMQ: playlistId={}", event.getPlaylistId());
+        log.info("Received CurationAddedEvent: playlistId={}", event.getPlaylistId());
+
+        if (event.getSubscriberIds() == null || event.getSubscriberIds().isEmpty()) {
+            return;
+        }
 
         final String notificationTitle = "%s 플레이리스트에 컨텐츠가 추가되었어요."
                 .formatted(event.getPlaylistTitle());

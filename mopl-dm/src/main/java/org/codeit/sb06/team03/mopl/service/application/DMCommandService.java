@@ -15,7 +15,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@Transactional("dmTransactionManager")
+ @Transactional
 public class DMCommandService {
 
     private final DMMessageRepository dmMessageRepository;

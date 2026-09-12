@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional("dmTransactionManager")
+ @Transactional
 public class DMChatRoomCommandService {
 
     private final DMChatRoomRepository dmChatRoomRepository;

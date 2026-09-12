@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.service.ImageQueryService;
 
 import java.util.UUID;
 
@@ -23,7 +23,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final AccountQueryService accountQueryService;
     private final AccountCommandService accountCommandService;
-    private final ExternalImageQueryService imageQueryService;
+    private final ImageQueryService imageQueryService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {

@@ -1,19 +1,18 @@
 package org.codeit.sb06.team03.mopl.service.composite;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.dto.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.codeit.sb06.team03.mopl.dto.response.WatchingSessionDto;
+import org.codeit.sb06.team03.mopl.entity.Profile;
 import org.codeit.sb06.team03.mopl.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponseWatchingSessionDto;
 import org.codeit.sb06.team03.mopl.dto.request.CursorWatchingSessionRequest;
-import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
-import org.codeit.sb06.team03.mopl.profile.domain.entity.ExternalProfileView;
-import org.codeit.sb06.team03.mopl.profile.domain.ProfileReadModel;
-import org.codeit.sb06.team03.mopl.profile.service.ProfileQueryService;
+import org.codeit.sb06.team03.mopl.service.ImageQueryService;
+import org.codeit.sb06.team03.mopl.service.ProfileQueryService;
 import org.codeit.sb06.team03.mopl.dto.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.service.application.WatchingSessionQueryService;
 import org.springframework.data.domain.Slice;
-import org.codeit.sb06.team03.mopl.exception.WatchingSessionAccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,7 +26,7 @@ public class WatchingSessionCompositeService {
 
     private final WatchingSessionQueryService watchingSessionQueryService;
     private final ProfileQueryService profileQueryService;
-    private final ExternalImageQueryService imageQueryService;
+    private final ImageQueryService imageQueryService;
 
     public WatchingSessionDto getByWatcherId(UUID watcherId, String authenticatedUserId) {
 
@@ -35,7 +34,11 @@ public class WatchingSessionCompositeService {
         WatchingSessionReadModel watchingSession = watchingSessionQueryService.getByContentId(watcherId);
         if (watchingSession == null) return null;
 
-        ProfileReadModel profile = profileQueryService.getProfileReadModels(List.of(watcherId)).get(watcherId);
+        ProfileReadModel profile = null;
+        try {
+            profile = profileQueryService.getProfileReadModel(watcherId);
+        } catch (Exception ignored) {
+        }
         String url = (profile != null) ? imageQueryService.getPresignedUrl(profile.imageKey()) : null;
         String name = (profile != null) ? profile.name() : "Unknown";
 
@@ -54,7 +57,7 @@ public class WatchingSessionCompositeService {
         if (request.watcherNameLike() != null && !request.watcherNameLike().isBlank()) {
             filteredWatcherIds = profileQueryService.loadByNameContaining(request.watcherNameLike())
                     .stream()
-                    .map(ExternalProfileView::getAccountId)
+                    .map(Profile::getAccountId)
                     .toList();
         }
 

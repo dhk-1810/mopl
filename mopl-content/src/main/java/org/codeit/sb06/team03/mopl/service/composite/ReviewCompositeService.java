@@ -3,16 +3,17 @@ package org.codeit.sb06.team03.mopl.service.composite;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.codeit.sb06.team03.mopl.enums.SortReviewBy;
-import org.codeit.sb06.team03.mopl.service.application.*;
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
+import org.codeit.sb06.team03.mopl.service.ProfileQueryService;
+import org.codeit.sb06.team03.mopl.service.ImageQueryService;
+import org.codeit.sb06.team03.mopl.entity.Profile;
 import org.codeit.sb06.team03.mopl.entity.Review;
-import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestReviewDto;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponseReviewDto;
 import org.codeit.sb06.team03.mopl.dto.request.ReviewCreateRequest;
 import org.codeit.sb06.team03.mopl.dto.response.ReviewDto;
 import org.codeit.sb06.team03.mopl.dto.request.ReviewUpdateRequest;
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.service.application.ReviewCommandService;
+import org.codeit.sb06.team03.mopl.service.application.ReviewQueryService;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
@@ -25,36 +26,23 @@ public class ReviewCompositeService {
 
     private final ReviewCommandService reviewCommandService;
     private final ReviewQueryService reviewQueryService;
-    private final ExternalUserQueryService externalUserQueryService;
-    private final ExternalImageQueryService imageQueryService;
+    private final ProfileQueryService profileQueryService;
+    private final ImageQueryService imageQueryService;
 
     public ReviewDto createReview(ReviewCreateRequest request, UUID authorId) {
-        Review review = reviewCommandService.create(new CreateReviewCommand(
-                request.contentId(),
-                authorId,
-                request.text(),
-                request.rating()
-        ));
+        Review review = reviewCommandService.create(request, authorId);
 
         return getReviewDto(authorId, review);
     }
 
     public ReviewDto updateReview(UUID reviewId, ReviewUpdateRequest request, UUID authorId) {
-        Review review = reviewCommandService.update(new UpdateReviewCommand(
-                reviewId,
-                authorId,
-                request.text(),
-                request.rating()
-        ));
+        Review review = reviewCommandService.update(reviewId, request, authorId);
 
         return getReviewDto(authorId, review);
     }
 
     public void deleteReview(UUID reviewId, UUID authorId) {
-        reviewCommandService.delete(new DeleteReviewCommand(
-                reviewId,
-                authorId
-        ));
+        reviewCommandService.delete(reviewId, authorId);
     }
 
     public CursorResponseReviewDto getReviews(CursorRequestReviewDto request) {
@@ -100,12 +88,15 @@ public class ReviewCompositeService {
     }
 
     private ReviewDto getReviewDto(UUID authorId, Review review) {
-        ExternalUserView profile = externalUserQueryService.getProfile(authorId);
         String name = "Unknown User";
         String imageKey = null;
-        if (profile != null) {
-            name = profile.getName();
-            imageKey = profile.getProfileImageKey();
+        try {
+            Profile profile = profileQueryService.getById(authorId);
+            if (profile != null) {
+                name = profile.getName();
+                imageKey = profile.getImageKey();
+            }
+        } catch (Exception ignored) {
         }
         String profileUrl = imageQueryService.getPresignedUrl(imageKey);
         UserSummary author = new UserSummary(authorId, name, profileUrl);

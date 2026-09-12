@@ -1,15 +1,14 @@
 package org.codeit.sb06.team03.mopl.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.entity.TimeoutImage;
 import org.codeit.sb06.team03.mopl.entity.policy.PresignedUrlTimeoutPolicy;
 import org.codeit.sb06.team03.mopl.event.ImagePresignedUrlCreatedEvent;
 import org.codeit.sb06.team03.mopl.event.ImageUploadEvent;
 import org.codeit.sb06.team03.mopl.repository.ImageRepository;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,24 +21,24 @@ public class ImageUploadListener {
     private final S3Service s3Service;
     private final ImageRepository imageRepository;
     private final PresignedUrlTimeoutPolicy presignedUrlTimeoutPolicy;
-    private final RabbitTemplate rabbitTemplate;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ImageUploadListener(
             S3Service s3Service,
             ImageRepository imageRepository,
             @Qualifier("imageBasicPresignedUrlTimeoutPolicy") PresignedUrlTimeoutPolicy presignedUrlTimeoutPolicy,
-            RabbitTemplate rabbitTemplate
+            ApplicationEventPublisher eventPublisher
     ) {
         this.s3Service = s3Service;
         this.imageRepository = imageRepository;
         this.presignedUrlTimeoutPolicy = presignedUrlTimeoutPolicy;
-        this.rabbitTemplate = rabbitTemplate;
+        this.eventPublisher = eventPublisher;
     }
 
-    @Transactional("imageTransactionManager")
-    @RabbitListener(queues = RabbitConfig.QUEUE_NAME)
+    @Transactional
+    @EventListener
     public void handleImageUpload(ImageUploadEvent event) {
-        log.info("Received image metadata registration event via RabbitMQ. key: {}", event.key());
+        log.info("Received image metadata registration event. key: {}", event.key());
         try {
             // 1. S3 Presigned URL 생성 및 이미지 DB 저장
             Instant exp = presignedUrlTimeoutPolicy.createExp(Instant.now());
@@ -49,17 +48,13 @@ public class ImageUploadListener {
             imageRepository.save(timeoutImage);
             log.info("Successfully created cache metadata for pre-uploaded S3 key: {}", event.key());
 
-            // 2. Presigned URL 생성 완료 이벤트를 RabbitMQ로 브로드캐스팅 (User 등 타 서비스 복제뷰 갱신용)
+            // 2. Presigned URL 생성 완료 이벤트를 Spring Event로 발행
             ImagePresignedUrlCreatedEvent urlCreatedEvent = new ImagePresignedUrlCreatedEvent(
                     event.key(),
                     presignedUrl,
                     exp
             );
-            rabbitTemplate.convertAndSend(
-                    RabbitConfig.EXCHANGE_NAME,
-                    RabbitConfig.IMAGE_PRESIGNED_URL_CREATED_ROUTING_KEY,
-                    urlCreatedEvent
-            );
+            eventPublisher.publishEvent(urlCreatedEvent);
             log.info("Published ImagePresignedUrlCreatedEvent for key: {}", event.key());
         } catch (Exception e) {
             log.error("Failed to process async metadata cache creation for key: {}", event.key(), e);

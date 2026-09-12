@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 @Service
-@Transactional(value = "contentTransactionManager", readOnly = true)
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class LiveChatRoomCommandService {
 
@@ -55,7 +55,7 @@ public class LiveChatRoomCommandService {
         messagingTemplate.convertAndSend(command.destination(), response);
     }
 
-    @Transactional("contentTransactionManager")
+    @Transactional
     public void create(UUID contentId) {
         if (liveChatRoomRepository.existsById(contentId)) {
             throw LiveChatRoomDuplicateException.fromId(contentId);
@@ -65,7 +65,7 @@ public class LiveChatRoomCommandService {
         liveChatRoomRepository.save(liveChatRoom);
     }
 
-    @Transactional("contentTransactionManager")
+    @Transactional
     public void delete(UUID contentId) {
         liveChatRoomRepository.deleteById(contentId);
     }

@@ -9,7 +9,7 @@ import java.util.*;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(value = "playlistTransactionManager", readOnly = true)
+@Transactional( readOnly = true)
 public class CurationQueryService {
 
     private final CurationRepository curationRepository;

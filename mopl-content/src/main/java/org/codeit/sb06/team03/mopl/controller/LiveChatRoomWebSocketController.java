@@ -5,11 +5,11 @@ import org.codeit.sb06.team03.mopl.dto.request.LiveChatRoomSendRequest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
-import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
+import org.codeit.sb06.team03.mopl.service.ProfileQueryService;
+import org.codeit.sb06.team03.mopl.entity.Profile;
 import org.codeit.sb06.team03.mopl.service.application.LiveChatRoomCommandService;
 import org.codeit.sb06.team03.mopl.service.application.SendLiveChatRoomMessageCommand;
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.service.ImageQueryService;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -25,8 +25,8 @@ import java.util.UUID;
 public class LiveChatRoomWebSocketController implements LiveChatRoomApi {
 
     private final LiveChatRoomCommandService liveChatRoomCommandService;
-    private final ExternalUserQueryService externalUserQueryService;
-    private final ExternalImageQueryService imageQueryService;
+    private final ProfileQueryService profileQueryService;
+    private final ImageQueryService imageQueryService;
 
     @Override
     @MessageMapping("/contents/{contentId}/chat")
@@ -43,9 +43,16 @@ public class LiveChatRoomWebSocketController implements LiveChatRoomApi {
         }
 
         UUID userId = UUID.fromString(userIdStr);
-        ExternalUserView userView = externalUserQueryService.getProfile(userId);
-        String name = userView != null ? userView.getName() : "Unknown User";
-        String imageKey = userView != null ? userView.getProfileImageKey() : null;
+        String name = "Unknown User";
+        String imageKey = null;
+        try {
+            Profile profile = profileQueryService.getById(userId);
+            if (profile != null) {
+                name = profile.getName();
+                imageKey = profile.getImageKey();
+            }
+        } catch (Exception ignored) {
+        }
 
         String destination = DestinationUtils.liveChatRoomSendResponseDestinationFormat.formatted(contentId);
 

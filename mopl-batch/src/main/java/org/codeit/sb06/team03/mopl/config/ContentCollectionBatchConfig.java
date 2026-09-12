@@ -10,7 +10,6 @@ import org.codeit.sb06.team03.mopl.dto.CursorResponseContentDto;
 import org.codeit.sb06.team03.mopl.client.TmdbClient;
 import org.codeit.sb06.team03.mopl.client.SportsDbClient;
 import org.codeit.sb06.team03.mopl.client.ContentClient;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -38,7 +37,6 @@ public class ContentCollectionBatchConfig {
     private final TmdbClient tmdbClient;
     private final SportsDbClient sportsDbClient;
     private final ContentClient contentClient;
-    private final RabbitTemplate rabbitTemplate;
     private final MeterRegistry meterRegistry;
 
     @Bean
@@ -140,14 +138,14 @@ public class ContentCollectionBatchConfig {
         return chunk -> {
             List<? extends ContentCreateRequest> items = chunk.getItems();
             for (ContentCreateRequest item : items) {
-                rabbitTemplate.convertAndSend(
-                        RabbitConfig.CONTENT_EXCHANGE,
-                        RabbitConfig.ROUTING_KEY_CONTENT_BATCH_INFO,
-                        item
-                );
-                successCounter.increment();
+                try {
+                    contentClient.createInternal(item);
+                    successCounter.increment();
+                } catch (Exception e) {
+                    log.error("Failed to save content from batch: {}", item.title(), e);
+                }
             }
-            log.info("Published {} content messages to RabbitMQ from {}", items.size(), source);
+            log.info("Saved {} content items directly from {}", items.size(), source);
         };
     }
 }

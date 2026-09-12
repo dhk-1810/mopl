@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(value = "playlistTransactionManager", readOnly = true)
+@Transactional( readOnly = true)
 public class SubscriptionQueryService {
 
     private final SubscriptionRepository subscriptionRepository;

@@ -1,9 +1,10 @@
 dependencies {
+    implementation project(':mopl-user')
+    implementation project(':mopl-image')
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.boot:spring-boot-starter-amqp'
-    implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.7'
 
@@ -12,9 +13,9 @@ dependencies {
 }
 
 bootJar {
-    enabled = true
+    enabled = false
 }
 
 jar {
-    enabled = false
+    enabled = true
 }

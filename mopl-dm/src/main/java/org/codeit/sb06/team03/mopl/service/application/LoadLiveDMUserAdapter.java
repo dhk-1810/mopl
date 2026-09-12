@@ -1,9 +1,9 @@
 package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
-import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
-import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.service.ProfileQueryService;
+import org.codeit.sb06.team03.mopl.entity.Profile;
+import org.codeit.sb06.team03.mopl.service.ImageQueryService;
 import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.springframework.stereotype.Component;
 
@@ -13,16 +13,19 @@ import java.util.UUID;
 @Component
 public class LoadLiveDMUserAdapter {
 
-    private final ExternalUserQueryService externalUserQueryService;
-    private final ExternalImageQueryService imageQueryService;
+    private final ProfileQueryService profileQueryService;
+    private final ImageQueryService imageQueryService;
 
     public UserSummary findByUserId(UUID userId) {
-        ExternalUserView profile = externalUserQueryService.getProfile(userId);
         String name = "Unknown User";
         String imageKey = null;
-        if (profile != null) {
-            name = profile.getName();
-            imageKey = profile.getProfileImageKey();
+        try {
+            Profile profile = profileQueryService.getById(userId);
+            if (profile != null) {
+                name = profile.getName();
+                imageKey = profile.getImageKey();
+            }
+        } catch (Exception ignored) {
         }
         String url = imageQueryService.getPresignedUrl(imageKey);
         return new UserSummary(userId, name, url);

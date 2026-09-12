@@ -2,6 +2,7 @@ package org.codeit.sb06.team03.mopl.service.composite;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.codeit.sb06.team03.mopl.dto.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.codeit.sb06.team03.mopl.enums.ContentType;
 import org.codeit.sb06.team03.mopl.enums.SortDirection;
@@ -13,18 +14,12 @@ import org.codeit.sb06.team03.mopl.dto.response.CursorResponsePlaylistDto;
 import org.codeit.sb06.team03.mopl.dto.response.PlaylistDto;
 import org.codeit.sb06.team03.mopl.dto.response.ContentDto;
 import org.codeit.sb06.team03.mopl.entity.Playlist;
-import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalContentView;
-import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
-import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalContentViewRepository;
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.service.ImageQueryService;
+import org.codeit.sb06.team03.mopl.service.ProfileQueryService;
 import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalContentQueryService;
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.service.PlaylistQueryService;
-import org.codeit.sb06.team03.mopl.config.RabbitConfig;
-import org.codeit.sb06.team03.mopl.event.CurationContentRequestEvent;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.core.ParameterizedTypeReference;
+import org.codeit.sb06.team03.mopl.service.application.ContentQueryService;
+import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
@@ -38,11 +33,9 @@ public class PlaylistCompositeService {
 
     private final PlaylistCommandService playlistCommandService;
     private final PlaylistQueryService playlistQueryService;
-    private final ExternalUserQueryService externalUserQueryService;
-    private final ExternalContentQueryService externalContentQueryService;
-    private final ExternalContentViewRepository externalContentViewRepository;
-    private final ExternalImageQueryService imageQueryService;
-    private final RabbitTemplate rabbitTemplate;
+    private final ProfileQueryService profileQueryService;
+    private final ImageQueryService imageQueryService;
+    private final ContentQueryService contentQueryService;
 
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
         Playlist playlist = playlistCommandService.create(request.title(), request.description(), ownerId);
@@ -56,7 +49,7 @@ public class PlaylistCompositeService {
         List<PlaylistReadModel> readModels = slice.getContent();
 
         List<UUID> ownerIds = readModels.stream().map(PlaylistReadModel::ownerId).toList();
-        Map<UUID, ExternalUserView> ownersMap = externalUserQueryService.getProfiles(ownerIds);
+        Map<UUID, ProfileReadModel> ownersMap = profileQueryService.getProfileReadModels(ownerIds);
         Map<UUID, UserSummary> owners = ownerIds.stream().distinct()
                 .collect(Collectors.toMap(
                         id -> id,
@@ -74,39 +67,30 @@ public class PlaylistCompositeService {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        List<ExternalContentView> contentViews = new ArrayList<>(externalContentQueryService.getContents(allContentIds));
-        Set<UUID> foundIds = contentViews.stream().map(ExternalContentView::getId).collect(Collectors.toSet());
-        for (UUID contentId : allContentIds) {
-            if (!foundIds.contains(contentId)) {
-                ExternalContentView fetched = fetchAndSaveContentViaRpc(contentId);
-                if (fetched != null) {
-                    contentViews.add(fetched);
-                }
-            }
-        }
+        List<ContentReadModel> contents = allContentIds.isEmpty() ? Collections.emptyList() : contentQueryService.getByIds(allContentIds);
 
-        List<String> s3Keys = contentViews.stream()
-                .map(ExternalContentView::getThumbnailKey)
+        List<String> s3Keys = contents.stream()
+                .map(ContentReadModel::thumbnailKey)
                 .filter(key -> key != null && !key.startsWith("http://") && !key.startsWith("https://"))
                 .toList();
         Map<String, String> urls = imageQueryService.getPresignedUrls(s3Keys);
 
-        List<ContentDto> contentDtos = contentViews.stream()
-                .map(cv -> {
-                    String key = cv.getThumbnailKey();
+        List<ContentDto> contentDtos = contents.stream()
+                .map(c -> {
+                    String key = c.thumbnailKey();
                     String url = (key != null && (key.startsWith("http://") || key.startsWith("https://")))
                             ? key
                             : urls.get(key);
                     return new ContentDto(
-                            cv.getId(),
-                            cv.getType(),
-                            cv.getTitle(),
-                            cv.getDescription(),
+                            c.id(),
+                            c.type(),
+                            c.title(),
+                            c.description(),
                             url,
-                            parseTags(cv.getTags()),
-                            cv.getAverageRating(),
-                            cv.getReviewCount(),
-                            cv.getWatcherCount()
+                            c.tags() != null ? c.tags() : Collections.emptySet(),
+                            c.averageRating(),
+                            c.reviewCount(),
+                            c.watcherCount()
                     );
                 })
                 .toList();
@@ -185,11 +169,12 @@ public class PlaylistCompositeService {
     }
 
     public void addContentToPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
-        ExternalContentView content = externalContentQueryService.getContent(contentId);
-        if (content == null) {
-            content = fetchAndSaveContentViaRpc(contentId);
+        ContentReadModel content = null;
+        try {
+            content = contentQueryService.get(contentId);
+        } catch (Exception ignored) {
         }
-        String title = content != null ? content.getTitle() : "Unknown Content";
+        String title = content != null ? content.title() : "Unknown Content";
         playlistCommandService.addContentToPlaylist(playlistId, contentId, title, ownerId);
     }
 
@@ -212,95 +197,55 @@ public class PlaylistCompositeService {
             return Collections.emptyList();
         }
 
-        List<ExternalContentView> contentViews = new ArrayList<>(externalContentQueryService.getContents(contentIds));
-        Set<UUID> foundIds = contentViews.stream().map(ExternalContentView::getId).collect(Collectors.toSet());
+        List<ContentReadModel> contents = contentQueryService.getByIds(new HashSet<>(contentIds));
 
-        for (UUID contentId : contentIds) {
-            if (!foundIds.contains(contentId)) {
-                ExternalContentView fetched = fetchAndSaveContentViaRpc(contentId);
-                if (fetched != null) {
-                    contentViews.add(fetched);
-                }
-            }
-        }
-
-        List<String> s3Keys = contentViews.stream()
-                .map(ExternalContentView::getThumbnailKey)
+        List<String> s3Keys = contents.stream()
+                .map(ContentReadModel::thumbnailKey)
                 .filter(key -> key != null && !key.startsWith("http://") && !key.startsWith("https://"))
                 .toList();
         Map<String, String> urls = imageQueryService.getPresignedUrls(s3Keys);
 
-        return contentViews.stream()
-                .map(cv -> {
-                    String key = cv.getThumbnailKey();
+        return contents.stream()
+                .map(c -> {
+                    String key = c.thumbnailKey();
                     String url = (key != null && (key.startsWith("http://") || key.startsWith("https://")))
                             ? key
                             : urls.get(key);
                     return new ContentDto(
-                            cv.getId(),
-                            cv.getType(),
-                            cv.getTitle(),
-                            cv.getDescription(),
+                            c.id(),
+                            c.type(),
+                            c.title(),
+                            c.description(),
                             url,
-                            parseTags(cv.getTags()),
-                            cv.getAverageRating(),
-                            cv.getReviewCount(),
-                            cv.getWatcherCount()
+                            c.tags() != null ? c.tags() : Collections.emptySet(),
+                            c.averageRating(),
+                            c.reviewCount(),
+                            c.watcherCount()
                     );
                 })
                 .toList();
     }
 
-    private ExternalContentView fetchAndSaveContentViaRpc(UUID contentId) {
-        try {
-            ContentDto contentDto = rabbitTemplate.convertSendAndReceiveAsType(
-                    RabbitConfig.CONTENT_EXCHANGE,
-                    RabbitConfig.ROUTING_KEY_CONTENT_RPC,
-                    contentId,
-                    new ParameterizedTypeReference<ContentDto>() {}
-            );
-            if (contentDto != null) {
-                String tags = contentDto.tags() != null ? String.join(",", contentDto.tags()) : "";
-                ExternalContentView view = ExternalContentView.create(
-                        contentDto.id(),
-                        contentDto.type(),
-                        contentDto.title(),
-                        contentDto.description(),
-                        contentDto.thumbnailUrl(),
-                        tags,
-                        contentDto.averageRating(),
-                        contentDto.reviewCount(),
-                        contentDto.watcherCount()
-                );
-                return externalContentViewRepository.save(view);
-            }
-        } catch (Exception e) {
-            log.error("Failed to fetch content via RPC for contentId: {}", contentId, e);
-        }
-        return null;
-    }
-
-    private Set<String> parseTags(String tags) {
-        if (tags == null || tags.isBlank()) {
-            return Collections.emptySet();
-        }
-        return Arrays.stream(tags.split(","))
-                .map(String::trim)
-                .filter(tag -> !tag.isEmpty())
-                .collect(Collectors.toSet());
-    }
-
     private UserSummary getUserSummary(UUID ownerId) {
-        ExternalUserView ownerProfile = externalUserQueryService.getProfile(ownerId);
-        return getUserSummary(ownerProfile, ownerId);
+        String ownerName = "Unknown User";
+        String ownerUrl = null;
+        try {
+            ProfileReadModel ownerProfile = profileQueryService.getProfileReadModel(ownerId);
+            if (ownerProfile != null) {
+                ownerName = ownerProfile.name();
+                ownerUrl = imageQueryService.getPresignedUrl(ownerProfile.imageKey());
+            }
+        } catch (Exception ignored) {
+        }
+        return new UserSummary(ownerId, ownerName, ownerUrl);
     }
 
-    private UserSummary getUserSummary(ExternalUserView ownerProfile, UUID ownerId) {
+    private UserSummary getUserSummary(ProfileReadModel ownerProfile, UUID ownerId) {
         String ownerName = "Unknown User";
         String ownerUrl = null;
         if (ownerProfile != null) {
-            ownerName = ownerProfile.getName();
-            ownerUrl = imageQueryService.getPresignedUrl(ownerProfile.getProfileImageKey());
+            ownerName = ownerProfile.name();
+            ownerUrl = imageQueryService.getPresignedUrl(ownerProfile.imageKey());
         }
         return new UserSummary(ownerId, ownerName, ownerUrl);
     }

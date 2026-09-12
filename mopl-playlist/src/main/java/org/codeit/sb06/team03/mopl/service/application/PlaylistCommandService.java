@@ -2,14 +2,12 @@ package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.entity.*;
-import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.event.PlaylistEvent;
 import org.codeit.sb06.team03.mopl.exception.*;
 import org.codeit.sb06.team03.mopl.repository.CurationRepository;
-import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalUserViewRepository;
 import org.codeit.sb06.team03.mopl.repository.PlaylistRepository;
 import org.codeit.sb06.team03.mopl.repository.SubscriptionRepository;
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
+import org.codeit.sb06.team03.mopl.service.ProfileQueryService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,14 +16,13 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional("playlistTransactionManager")
+ @Transactional
 public class PlaylistCommandService {
 
     private final PlaylistRepository playlistRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final CurationRepository curationRepository;
-    private final ExternalUserViewRepository externalUserViewRepository;
-    private final ExternalUserQueryService externalUserQueryService;
+    private final ProfileQueryService profileQueryService;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -102,8 +99,13 @@ public class PlaylistCommandService {
     public void subscribe(UUID playlistId, UUID userId) {
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
-        ExternalUserView subscriber = externalUserQueryService.getProfile(userId);
-        if (subscriber == null) {
+        String subscriberName = "Unknown User";
+        try {
+            org.codeit.sb06.team03.mopl.entity.Profile subscriber = profileQueryService.getById(userId);
+            if (subscriber != null) {
+                subscriberName = subscriber.getName();
+            }
+        } catch (Exception e) {
             throw new UserNotFoundException(userId);
         }
 
@@ -125,7 +127,7 @@ public class PlaylistCommandService {
                 playlistId,
                 playlist.getTitle(),
                 userId,
-                subscriber.getName(),
+                subscriberName,
                 playlist.getOwnerId()
         ));
     }

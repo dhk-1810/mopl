@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -18,5 +19,9 @@ public class FolloweeQueryService {
 
     public Optional<Followee> findById(UUID id) {
         return jpaFollowRepository.findById(id);
+    }
+
+    public Set<UUID> getFollowerIds(UUID followeeId) {
+        return jpaFollowRepository.findFollowerIdsByFolloweeId(followeeId);
     }
 }

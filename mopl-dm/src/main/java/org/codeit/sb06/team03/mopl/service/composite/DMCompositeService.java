@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.service.composite;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.dto.ProfileReadModel;
 import org.codeit.sb06.team03.mopl.dto.response.DirectMessageDto;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponseDMChatRoomDto;
 import org.codeit.sb06.team03.mopl.dto.response.DMChatRoomDto;
@@ -13,13 +14,10 @@ import org.codeit.sb06.team03.mopl.entity.DMChatRoom;
 import org.codeit.sb06.team03.mopl.entity.DMChatRoomStat;
 import org.codeit.sb06.team03.mopl.entity.DMMessage;
 import org.codeit.sb06.team03.mopl.exception.DMChatRoomNotFoundException;
+import org.codeit.sb06.team03.mopl.service.ProfileQueryService;
+import org.codeit.sb06.team03.mopl.service.ImageQueryService;
 import org.codeit.sb06.team03.mopl.service.application.*;
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
-import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
-import org.codeit.sb06.team03.mopl.service.application.DMCommandService;
-import org.codeit.sb06.team03.mopl.service.application.DMQueryService;
 import org.codeit.sb06.team03.mopl.dto.request.MessageSendRequest;
-import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
 import org.codeit.sb06.team03.mopl.enums.SortDirection;
 import org.springframework.stereotype.Service;
 
@@ -35,8 +33,8 @@ public class DMCompositeService {
     private final DMChatRoomQueryService dmChatRoomQueryService;
     private final DMCommandService dmCommandService;
     private final DMQueryService dmQueryService;
-    private final ExternalUserQueryService externalUserQueryService;
-    private final ExternalImageQueryService imageQueryService;
+    private final ProfileQueryService profileQueryService;
+    private final ImageQueryService imageQueryService;
 
     public DMChatRoomDto createDMChatRoom(DMChatRoomCreateRequest request, UUID userId) {
         DMChatRoom dmChatRoom = dmChatRoomCommandService.create(userId, request.withUserId());
@@ -82,14 +80,14 @@ public class DMCompositeService {
             userIds.add(msg.getReceiverId());
         });
 
-        Map<UUID, ExternalUserView> profilesMap = externalUserQueryService.getProfiles(userIds);
+        Map<UUID, ProfileReadModel> profilesMap = profileQueryService.getProfileReadModels(new ArrayList<>(userIds));
         Map<UUID, UserSummary> userMap = profilesMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> {
-                            ExternalUserView profile = entry.getValue();
-                            String url = imageQueryService.getPresignedUrl(profile.getProfileImageKey());
-                            return new UserSummary(profile.getId(), profile.getName(), url);
+                            ProfileReadModel profile = entry.getValue();
+                            String url = imageQueryService.getPresignedUrl(profile.imageKey());
+                            return new UserSummary(profile.userId(), profile.name(), url);
                         }
                 ));
 
@@ -152,14 +150,14 @@ public class DMCompositeService {
         Set<UUID> userIds = page.stream()
                 .flatMap(msg -> Stream.of(msg.getSenderId(), msg.getReceiverId()))
                 .collect(Collectors.toSet());
-        Map<UUID, ExternalUserView> profilesMap = externalUserQueryService.getProfiles(userIds);
+        Map<UUID, ProfileReadModel> profilesMap = profileQueryService.getProfileReadModels(new ArrayList<>(userIds));
         Map<UUID, UserSummary> userMap = profilesMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> {
-                            ExternalUserView profile = entry.getValue();
-                            String url = imageQueryService.getPresignedUrl(profile.getProfileImageKey());
-                            return new UserSummary(profile.getId(), profile.getName(), url);
+                            ProfileReadModel profile = entry.getValue();
+                            String url = imageQueryService.getPresignedUrl(profile.imageKey());
+                            return new UserSummary(profile.userId(), profile.name(), url);
                         }
                 ));
 
@@ -195,24 +193,30 @@ public class DMCompositeService {
 
     private DMChatRoomDto toDMChatRoomDto(DMChatRoom dmChatRoom, UUID userId, Optional<DMMessage> dmMessage) {
         UUID withUserId = dmChatRoom.getOtherParticipant(userId);
-        ExternalUserView withProfile = externalUserQueryService.getProfile(withUserId);
         String withName = "Unknown User";
         String withImageKey = null;
-        if (withProfile != null) {
-            withName = withProfile.getName();
-            withImageKey = withProfile.getProfileImageKey();
+        try {
+            ProfileReadModel withProfile = profileQueryService.getProfileReadModel(withUserId);
+            if (withProfile != null) {
+                withName = withProfile.name();
+                withImageKey = withProfile.imageKey();
+            }
+        } catch (Exception ignored) {
         }
         String withUrl = imageQueryService.getPresignedUrl(withImageKey);
         UserSummary with = new UserSummary(withUserId, withName, withUrl);
 
         DirectMessageDto latestMessage = dmMessage
                 .map(msg -> {
-                    ExternalUserView myProfile = externalUserQueryService.getProfile(userId);
                     String myName = "Unknown User";
                     String myImageKey = null;
-                    if (myProfile != null) {
-                        myName = myProfile.getName();
-                        myImageKey = myProfile.getProfileImageKey();
+                    try {
+                        ProfileReadModel myProfile = profileQueryService.getProfileReadModel(userId);
+                        if (myProfile != null) {
+                            myName = myProfile.name();
+                            myImageKey = myProfile.imageKey();
+                        }
+                    } catch (Exception ignored) {
                     }
                     String myUrl = imageQueryService.getPresignedUrl(myImageKey);
                     UserSummary me = new UserSummary(userId, myName, myUrl);

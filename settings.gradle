@@ -1,6 +1,5 @@
 rootProject.name = 'mopl'
 
-include 'mopl-gateway'
 include 'mopl-image'
 include 'mopl-user'
 include 'mopl-content'
@@ -9,4 +8,6 @@ include 'mopl-dm'
 include 'mopl-notification'
 include 'mopl-batch'
 include 'mopl-watching-session'
+include 'mopl-app'
+
 

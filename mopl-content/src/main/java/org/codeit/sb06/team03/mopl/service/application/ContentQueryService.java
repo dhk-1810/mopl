@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(value = "contentTransactionManager", readOnly = true)
+@Transactional(readOnly = true)
 public class ContentQueryService {
 
     private final ContentRepository contentRepository;

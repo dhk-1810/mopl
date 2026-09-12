@@ -32,7 +32,7 @@ public class ImageCommandService {
         this.presignedUrlTimeoutPolicy = presignedUrlTimeoutPolicy;
     }
 
-    @Transactional("imageTransactionManager")
+    @Transactional
     public String register(MultipartFile image) {
         if (image == null || image.isEmpty()) {
             return null;
@@ -50,7 +50,7 @@ public class ImageCommandService {
         }
     }
 
-    @Transactional("imageTransactionManager")
+    @Transactional
     public void deleteByKey(String key) {
         imageRepository.findByKey(key).ifPresent(imageRepository::delete);
     }

@@ -53,13 +53,14 @@ public class ContentController {
                 .body(contentCompositeService.create(request, thumbnail));
     }
 
-    @PatchMapping("/{contentId}")
+    @PatchMapping(value = "/{contentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed("ADMIN")
     public ResponseEntity<ContentDto> update(
             @PathVariable UUID contentId,
-            @RequestBody ContentUpdateRequest request
+            @RequestPart(name = "request") ContentUpdateRequest request,
+            @RequestPart(name = "thumbnail", required = false) MultipartFile thumbnail
     ) {
-        return ResponseEntity.ok(contentCompositeService.update(contentId, request));
+        return ResponseEntity.ok(contentCompositeService.update(contentId, request, thumbnail));
     }
 
     @DeleteMapping("/{contentId}")
