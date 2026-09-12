@@ -29,7 +29,7 @@ public class ProfileCommandService {
 
         String imageKey = null;
         if (image != null && !image.isEmpty()) {
-            imageKey = imageCommandService.register(image);
+            imageKey = imageCommandService.register(accountId, image);
         }
 
         Profile updated = profile.update(name, imageKey);

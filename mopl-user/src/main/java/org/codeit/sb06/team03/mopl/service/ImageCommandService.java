@@ -5,6 +5,7 @@ import org.codeit.sb06.team03.mopl.event.ImageUploadEvent;
 import org.codeit.sb06.team03.mopl.s3.S3Service;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -20,13 +21,20 @@ public class ImageCommandService {
     private static final String EXCHANGE_NAME = "mopl.image.exchange";
     private static final String ROUTING_KEY = "mopl.image.upload";
 
-    public String register(MultipartFile image) {
+    public String register(UUID userId, MultipartFile image) {
         if (image == null || image.isEmpty()) {
             return null;
         }
         try {
-            // 1. 이미지 S3 Key 선제 생성
-            String key = "profiles/" + UUID.randomUUID().toString();
+            // 1. 이미지 S3 Key 생성 (profiles/{userId}/{UUID}.{확장자})
+            String originalFilename = image.getOriginalFilename();
+            String extension = (originalFilename != null && !originalFilename.isBlank())
+                    ? StringUtils.getFilenameExtension(originalFilename)
+                    : null;
+            String fileIdentifier = (extension != null && !extension.isBlank())
+                    ? UUID.randomUUID() + "." + extension.toLowerCase()
+                    : UUID.randomUUID().toString();
+            String key = "profiles/" + userId + "/" + fileIdentifier;
 
             // 2. 유저 서비스에서 직접 S3 업로드 수행 (통신 오버헤드 감소)
             s3Service.uploadFile(key, image);
