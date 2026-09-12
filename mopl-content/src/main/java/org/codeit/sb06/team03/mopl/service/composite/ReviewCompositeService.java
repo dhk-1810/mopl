@@ -29,32 +29,19 @@ public class ReviewCompositeService {
     private final ExternalImageQueryService imageQueryService;
 
     public ReviewDto createReview(ReviewCreateRequest request, UUID authorId) {
-        Review review = reviewCommandService.create(new CreateReviewCommand(
-                request.contentId(),
-                authorId,
-                request.text(),
-                request.rating()
-        ));
+        Review review = reviewCommandService.create(request, authorId);
 
         return getReviewDto(authorId, review);
     }
 
     public ReviewDto updateReview(UUID reviewId, ReviewUpdateRequest request, UUID authorId) {
-        Review review = reviewCommandService.update(new UpdateReviewCommand(
-                reviewId,
-                authorId,
-                request.text(),
-                request.rating()
-        ));
+        Review review = reviewCommandService.update(reviewId, request, authorId);
 
         return getReviewDto(authorId, review);
     }
 
     public void deleteReview(UUID reviewId, UUID authorId) {
-        reviewCommandService.delete(new DeleteReviewCommand(
-                reviewId,
-                authorId
-        ));
+        reviewCommandService.delete(reviewId, authorId);
     }
 
     public CursorResponseReviewDto getReviews(CursorRequestReviewDto request) {

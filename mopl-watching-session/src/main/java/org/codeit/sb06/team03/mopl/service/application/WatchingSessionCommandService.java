@@ -14,10 +14,7 @@ public class WatchingSessionCommandService {
 
     private final WatchingSessionRepository watchingSessionRepository;
 
-    public void create(CreateWatchingSessionCommand command) {
-        UUID liveChatRoomId = command.liveChatRoomId();
-        UUID watcherId = command.watcherId();
-
+    public void create(UUID liveChatRoomId, UUID watcherId) {
         if (watchingSessionRepository.existsByLiveChatRoomIdAndWatcherId(liveChatRoomId, watcherId)) {
             throw WatchingSessionDuplicateException.fromLiveChatRoomIdAndAccountId(liveChatRoomId, watcherId);
         }

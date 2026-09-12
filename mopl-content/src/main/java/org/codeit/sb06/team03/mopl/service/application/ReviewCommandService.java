@@ -1,6 +1,8 @@
 package org.codeit.sb06.team03.mopl.service.application;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.dto.request.ReviewCreateRequest;
+import org.codeit.sb06.team03.mopl.dto.request.ReviewUpdateRequest;
 import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.entity.Review;
 import org.codeit.sb06.team03.mopl.exception.ContentNotFoundException;
@@ -11,6 +13,8 @@ import org.codeit.sb06.team03.mopl.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @Service
 @Transactional(value = "contentTransactionManager", readOnly = true)
@@ -20,33 +24,33 @@ public class ReviewCommandService {
     private final ContentRepository contentRepository;
 
     @Transactional("contentTransactionManager")
-    public Review create(CreateReviewCommand command) {
-        if (reviewRepository.existsByContentIdAndAuthorId(command.contentId(), command.authorId())) {
-            throw ReviewAlreadyExistsException.fromContentIdAndAuthorId(command.contentId(), command.authorId());
+    public Review create(ReviewCreateRequest request, UUID authorId) {
+        if (reviewRepository.existsByContentIdAndAuthorId(request.contentId(), authorId)) {
+            throw ReviewAlreadyExistsException.fromContentIdAndAuthorId(request.contentId(), authorId);
         }
 
-        Content content = contentRepository.findById(command.contentId())
-                .orElseThrow(() -> ContentNotFoundException.fromId(command.contentId()));
+        Content content = contentRepository.findById(request.contentId())
+                .orElseThrow(() -> ContentNotFoundException.fromId(request.contentId()));
 
-        int ratingInt = (int) command.rating();
+        int ratingInt = (int) request.rating();
         content.addReview(ratingInt);
         contentRepository.save(content);
 
-        Review review = Review.create(content, command.authorId(), command.text(), ratingInt);
+        Review review = Review.create(content, authorId, request.text(), ratingInt);
         return reviewRepository.save(review);
     }
 
     @Transactional("contentTransactionManager")
-    public Review update(UpdateReviewCommand command) {
-        Review review = reviewRepository.findById(command.reviewId())
-                .orElseThrow(() -> ReviewNotFoundException.fromId(command.reviewId()));
+    public Review update(UUID reviewId, ReviewUpdateRequest request, UUID authorId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> ReviewNotFoundException.fromId(reviewId));
 
-        if (!review.getAuthorId().equals(command.authorId())) {
+        if (!review.getAuthorId().equals(authorId)) {
             throw new IllegalArgumentException("You are not the author of this review");
         }
 
-        if (command.rating() != null) {
-            int newRating = (int) (double) command.rating();
+        if (request.rating() != null) {
+            int newRating = (int) (double) request.rating();
             if (newRating != review.getRating()) {
                 Content content = review.getContent();
                 content.updateReview(review.getRating(), newRating);
@@ -54,16 +58,16 @@ public class ReviewCommandService {
             }
         }
 
-        review.update(command.text(), command.rating() != null ? (int) (double) command.rating() : null);
+        review.update(request.text(), request.rating() != null ? (int) (double) request.rating() : null);
         return reviewRepository.save(review);
     }
 
     @Transactional("contentTransactionManager")
-    public void delete(DeleteReviewCommand command) {
-        Review review = reviewRepository.findById(command.reviewId())
-                .orElseThrow(() -> ReviewNotFoundException.fromId(command.reviewId()));
+    public void delete(UUID reviewId, UUID authorId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> ReviewNotFoundException.fromId(reviewId));
 
-        if (!review.getAuthorId().equals(command.authorId())) {
+        if (!review.getAuthorId().equals(authorId)) {
             throw new IllegalArgumentException("You are not the author of this review");
         }
 
@@ -71,6 +75,6 @@ public class ReviewCommandService {
         content.removeReview(review.getRating());
         contentRepository.save(content);
 
-        reviewRepository.deleteById(command.reviewId());
+        reviewRepository.deleteById(reviewId);
     }
 }

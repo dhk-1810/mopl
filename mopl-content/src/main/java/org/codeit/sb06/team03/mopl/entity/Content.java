@@ -73,8 +73,8 @@ public class Content {
     @Column(name = "watcher_count", nullable = false)
     private long watcherCount; // TODO
 
-    private Content(ContentType type, String title, String description, String thumbnailKey) {
-        this.id = UUID.randomUUID();
+    private Content(UUID id, ContentType type, String title, String description, String thumbnailKey) {
+        this.id = id != null ? id : UUID.randomUUID();
         this.createdAt = Instant.now();
         this.status = ContentStatus.ACTIVE;
         this.type = type;
@@ -85,8 +85,20 @@ public class Content {
         this.reviewCount = 0;
     }
 
+    // TODO 파라미터로 id 받는거 맘에 안들음.
+    public static Content create(UUID id, ContentType contentType, String title, String description, String thumbnailKey) {
+        return new Content(
+                id,
+                contentType,
+                title,
+                description,
+                thumbnailKey
+        );
+    }
+
     public static Content create(ContentType contentType, String title, String description, String thumbnailKey) {
         return new Content(
+                UUID.randomUUID(),
                 contentType,
                 title,
                 description,
@@ -95,8 +107,25 @@ public class Content {
     }
 
     public void update(String title, String description) {
-        this.title = title;
-        this.description = description;
+        if (title != null && !title.isBlank()) {
+            this.title = title;
+        }
+        if (description != null && !description.isBlank()) {
+            this.description = description;
+        }
+        this.updatedAt = Instant.now();
+    }
+
+    public void update(String title, String description, String thumbnailKey) {
+        if (title != null && !title.isBlank()) {
+            this.title = title;
+        }
+        if (description != null && !description.isBlank()) {
+            this.description = description;
+        }
+        if (thumbnailKey != null && !thumbnailKey.isBlank()) {
+            this.thumbnailKey = thumbnailKey;
+        }
         this.updatedAt = Instant.now();
     }
 

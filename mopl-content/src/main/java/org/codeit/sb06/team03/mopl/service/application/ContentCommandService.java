@@ -1,10 +1,13 @@
 package org.codeit.sb06.team03.mopl.service.application;
-import org.codeit.sb06.team03.mopl.entity.ContentTagService;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.dto.request.ContentCreateInternalRequest;
+import org.codeit.sb06.team03.mopl.dto.request.ContentCreateRequest;
+import org.codeit.sb06.team03.mopl.dto.request.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.codeit.sb06.team03.mopl.entity.ContentService;
+import org.codeit.sb06.team03.mopl.entity.ContentTagService;
 import org.codeit.sb06.team03.mopl.exception.ContentNotFoundException;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;
 import org.springframework.stereotype.Service;
@@ -23,22 +26,40 @@ public class ContentCommandService {
     private final ContentTagService contentTagService;
     private final org.codeit.sb06.team03.mopl.event.ContentEventPublisher contentEventPublisher;
 
-    public ContentReadModel create(CreateContentCommand command, String thumbnailKey) {
+    public ContentReadModel create(ContentCreateRequest request, String thumbnailKey) {
         Content content = contentService.create(
-                command.type(), command.title(), command.description(), thumbnailKey);
+                request.type(), request.title(), request.description(), thumbnailKey);
         contentRepository.save(content);
 
-        Set<String> tags = contentTagService.create(content.getId(), command.tags());
+        Set<String> tags = contentTagService.create(content.getId(), request.tags());
         return ContentReadModel.from(content, tags);
     }
 
-    public ContentReadModel update(UUID contentId, UpdateContentCommand command) {
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> ContentNotFoundException.fromId(contentId));
-        contentService.update(content, command.title(), command.description());
+    public ContentReadModel create(UUID contentId, ContentCreateRequest request, String thumbnailKey) {
+        Content content = contentService.create(
+                contentId, request.type(), request.title(), request.description(), thumbnailKey);
         contentRepository.save(content);
 
-        Set<String> tags = contentTagService.create(content.getId(), command.tags());
+        Set<String> tags = contentTagService.create(content.getId(), request.tags());
+        return ContentReadModel.from(content, tags);
+    }
+
+    public ContentReadModel createInternal(ContentCreateInternalRequest request) {
+        Content content = contentService.create(
+                request.type(), request.title(), request.description(), request.thumbnailKey());
+        contentRepository.save(content);
+
+        Set<String> tags = contentTagService.create(content.getId(), request.tags());
+        return ContentReadModel.from(content, tags);
+    }
+
+    public ContentReadModel update(UUID contentId, ContentUpdateRequest request, String thumbnailKey) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> ContentNotFoundException.fromId(contentId));
+        contentService.update(content, request.title(), request.description(), thumbnailKey);
+        contentRepository.save(content);
+
+        Set<String> tags = contentTagService.create(content.getId(), request.tags());
         return ContentReadModel.from(content, tags);
     }
 
