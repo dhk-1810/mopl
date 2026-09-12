@@ -27,17 +27,17 @@ public class PlaylistEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handlePlaylistCreatedEvent(PlaylistEvent.PlaylistCreatedEvent event) {
-        Set<UUID> followerIds = externalFollowQueryService.getFollowerIds(event.getOwnerId());
+    public void handlePlaylistCreatedEvent(PlaylistCreatedEvent event) {
+        Set<UUID> followerIds = externalFollowQueryService.getFollowerIds(event.ownerId());
 
         rabbitTemplate.convertAndSend(
                 RabbitConfig.PLAYLIST_EXCHANGE,
                 RabbitConfig.ROUTING_KEY_PLAYLIST_CREATED,
-                new PlaylistEvent.PlaylistCreatedEvent(
-                        event.getOwnerId(),
-                        event.getOwnerName(),
-                        event.getPlaylistId(),
-                        event.getPlaylistTitle(),
+                new PlaylistCreatedEvent(
+                        event.ownerId(),
+                        event.ownerName(),
+                        event.playlistId(),
+                        event.playlistTitle(),
                         followerIds
                 )
         );
@@ -45,7 +45,7 @@ public class PlaylistEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleSubscriptionCreatedEvent(PlaylistEvent.SubscriptionCreatedEvent event) {
+    public void handleSubscriptionCreatedEvent(SubscriptionCreatedEvent event) {
         rabbitTemplate.convertAndSend(
                 RabbitConfig.PLAYLIST_EXCHANGE,
                 "playlist.subscribed",
@@ -55,16 +55,16 @@ public class PlaylistEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleCurationAddedEvent(PlaylistEvent.CurationAddedEvent event) {
-        List<UUID> subscriberIds = playlistQueryService.getSubscriberIds(event.getPlaylistId());
+    public void handleCurationAddedEvent(CurationAddedEvent event) {
+        List<UUID> subscriberIds = playlistQueryService.getSubscriberIds(event.playlistId());
 
         rabbitTemplate.convertAndSend(
                 RabbitConfig.PLAYLIST_EXCHANGE,
                 RabbitConfig.ROUTING_KEY_CURATION_ADDED,
-                new PlaylistEvent.CurationAddedEvent(
-                        event.getPlaylistId(),
-                        event.getPlaylistTitle(),
-                        event.getContentTitle(),
+                new CurationAddedEvent(
+                        event.playlistId(),
+                        event.playlistTitle(),
+                        event.contentTitle(),
                         subscriberIds
                 )
         );
@@ -72,7 +72,7 @@ public class PlaylistEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handlePlaylistDeletedEvent(PlaylistEvent.PlaylistDeletedEvent event) {
-        playlistCommandService.deleteCurationByContentId(event.getPlaylistId());
+    public void handlePlaylistDeletedEvent(PlaylistDeletedEvent event) {
+        playlistCommandService.deleteCurationByContentId(event.playlistId());
     }
 }

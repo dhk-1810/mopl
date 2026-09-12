@@ -3,18 +3,16 @@ package org.codeit.sb06.team03.mopl.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.codeit.sb06.team03.mopl.event.FollowEvent.FollowedEvent;
-import org.codeit.sb06.team03.mopl.event.FollowEvent.FolloweeCreatedEvent;
-import org.springframework.data.domain.AbstractAggregateRoot;
-
+import org.codeit.sb06.team03.mopl.event.FolloweeCreatedEvent;
+import org.codeit.sb06.team03.mopl.event.FollowedEvent;
+import org.codeit.sb06.team03.mopl.event.UnfollowedEvent;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.springframework.data.domain.AbstractAggregateRoot;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-
-import static org.codeit.sb06.team03.mopl.event.FollowEvent.UnfollowedEvent;
 
 @Getter
 @Setter

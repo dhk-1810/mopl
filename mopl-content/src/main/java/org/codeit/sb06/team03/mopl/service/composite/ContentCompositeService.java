@@ -160,9 +160,20 @@ public class ContentCompositeService {
     }
 
     private String getPresignedUrl(String thumbnailKey) {
-        if (thumbnailKey != null && (thumbnailKey.startsWith("http://") || thumbnailKey.startsWith("https://"))) {
+        if (thumbnailKey == null || thumbnailKey.isBlank()) {
+            return null;
+        }
+        if (thumbnailKey.startsWith("http://") || thumbnailKey.startsWith("https://")) {
             return thumbnailKey;
         }
-        return imageQueryService.getPresignedUrl(thumbnailKey);
+        String presignedUrl = imageQueryService.getPresignedUrl(thumbnailKey);
+        if (presignedUrl != null && !presignedUrl.equals(thumbnailKey)) {
+            return presignedUrl;
+        }
+        try {
+            return s3Service.createPresignedUrl(thumbnailKey, java.time.Duration.ofHours(1));
+        } catch (Exception e) {
+            return thumbnailKey;
+        }
     }
 }

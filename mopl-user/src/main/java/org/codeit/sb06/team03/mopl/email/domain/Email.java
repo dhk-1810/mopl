@@ -2,11 +2,10 @@ package org.codeit.sb06.team03.mopl.email.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.email.domain.event.EmailSentEvent;
 import org.codeit.sb06.team03.mopl.email.domain.policy.EmailSenderPolicy;
 import org.codeit.sb06.team03.mopl.email.domain.vo.EmailVO;
 import org.springframework.data.domain.AbstractAggregateRoot;
-
-import static org.codeit.sb06.team03.mopl.email.domain.event.EmailEvent.EmailSentEvent;
 
 @RequiredArgsConstructor
 @Getter

@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.codeit.sb06.team03.mopl.event.UserEvent.UserProfileCreatedEvent;
-import org.codeit.sb06.team03.mopl.event.UserEvent.UserProfileUpdatedEvent;
+import org.codeit.sb06.team03.mopl.event.UserProfileCreatedEvent;
+import org.codeit.sb06.team03.mopl.event.UserProfileUpdatedEvent;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.lang.Nullable;
 

@@ -3,7 +3,9 @@ package org.codeit.sb06.team03.mopl.service.application;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.entity.*;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
-import org.codeit.sb06.team03.mopl.event.PlaylistEvent;
+import org.codeit.sb06.team03.mopl.event.CurationAddedEvent;
+import org.codeit.sb06.team03.mopl.event.PlaylistDeletedEvent;
+import org.codeit.sb06.team03.mopl.event.SubscriptionCreatedEvent;
 import org.codeit.sb06.team03.mopl.exception.*;
 import org.codeit.sb06.team03.mopl.repository.CurationRepository;
 import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalUserViewRepository;
@@ -56,7 +58,7 @@ public class PlaylistCommandService {
         }
         playlistRepository.deleteById(playlistId);
 
-        eventPublisher.publishEvent(new PlaylistEvent.PlaylistDeletedEvent(playlistId));
+        eventPublisher.publishEvent(new PlaylistDeletedEvent(playlistId));
     }
 
     public void addContentToPlaylist(UUID playlistId, UUID contentId, String contentTitle, UUID ownerId) {
@@ -75,7 +77,7 @@ public class PlaylistCommandService {
         playlist.increaseContentCount();
         playlistRepository.save(playlist);
 
-        eventPublisher.publishEvent(new PlaylistEvent.CurationAddedEvent(playlist.getId(), playlist.getTitle(), curation.getContentTitle()));
+        eventPublisher.publishEvent(new CurationAddedEvent(playlist.getId(), playlist.getTitle(), curation.getContentTitle()));
     }
 
     public void deleteContentFromPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
@@ -121,7 +123,7 @@ public class PlaylistCommandService {
         playlist.increaseSubscriberCount();
         playlistRepository.save(playlist);
 
-        eventPublisher.publishEvent(new PlaylistEvent.SubscriptionCreatedEvent(
+        eventPublisher.publishEvent(new SubscriptionCreatedEvent(
                 playlistId,
                 playlist.getTitle(),
                 userId,

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.codeit.sb06.team03.mopl.event.WatchingSessionEvent.WatchingSessionCreatedEvent;
+import org.codeit.sb06.team03.mopl.event.WatchingSessionCreatedEvent;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
 import java.time.Instant;

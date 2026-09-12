@@ -24,7 +24,7 @@ public class UserProfileEventListener {
     @RabbitListener(queues = RabbitConfig.USER_PROFILE_CREATE_QUEUE)
     @Transactional(value = "playlistTransactionManager")
     public void handleProfileCreated(
-            UserEvent.UserProfileCreatedEvent event,
+            UserProfileCreatedEvent event,
             Channel channel,
             @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
     ) throws IOException {
@@ -42,7 +42,7 @@ public class UserProfileEventListener {
     @RabbitListener(queues = RabbitConfig.USER_PROFILE_UPDATE_QUEUE)
     @Transactional(value = "playlistTransactionManager")
     public void handleProfileUpdated(
-            UserEvent.UserProfileUpdatedEvent event,
+            UserProfileUpdatedEvent event,
             Channel channel,
             @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
     ) throws IOException {

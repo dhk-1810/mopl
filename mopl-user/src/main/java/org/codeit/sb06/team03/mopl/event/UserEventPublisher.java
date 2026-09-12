@@ -2,14 +2,11 @@ package org.codeit.sb06.team03.mopl.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.event.AccountEvent;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
-import org.codeit.sb06.team03.mopl.event.UserEvent.UserProfileCreatedEvent;
-import org.codeit.sb06.team03.mopl.event.UserEvent.UserProfileUpdatedEvent;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -24,7 +21,7 @@ public class UserEventPublisher {
     public static final String ROUTING_KEY_PROFILE_UPDATED = "user.profile-updated";
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleRoleUpdatedEvent(AccountEvent.RoleUpdatedEvent event) {
+    public void handleRoleUpdatedEvent(RoleUpdatedEvent event) {
         log.info("Publishing RoleUpdatedEvent to RabbitMQ: {}", event);
         rabbitTemplate.convertAndSend(
                 RabbitConfig.USER_EXCHANGE,
@@ -34,7 +31,7 @@ public class UserEventPublisher {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleFollowedEvent(FollowEvent.FollowedEvent event) {
+    public void handleFollowedEvent(FollowedEvent event) {
         log.info("Publishing FollowedEvent to RabbitMQ: {}", event);
         rabbitTemplate.convertAndSend(
                 RabbitConfig.USER_EXCHANGE,

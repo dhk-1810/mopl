@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.dto.UserSummary;
 import org.codeit.sb06.team03.mopl.entity.DMMessage;
-import org.codeit.sb06.team03.mopl.event.DMEvent;
+import org.codeit.sb06.team03.mopl.event.MessageSentEvent;
 import org.codeit.sb06.team03.mopl.repository.DMMessageRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class DMCommandService {
 
         dmChatRoomCommandService.markAsUnread(dmChatRoomId, receiverId);
 
-        eventPublisher.publishEvent(new DMEvent.MessageSentEvent(
+        eventPublisher.publishEvent(new MessageSentEvent(
                 savedMessage.getId(),
                 savedMessage.getDmChatRoomId(),
                 savedMessage.getSenderId(),

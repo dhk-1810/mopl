@@ -47,32 +47,32 @@ public class ContentEventListener {
     @RabbitListener(queues = RabbitConfig.CONTENT_UPDATE_QUEUE)
     @Transactional(value = "playlistTransactionManager")
     public void handleContentUpdated(
-            ContentEvent.ContentUpdatedEvent event,
+            ContentUpdatedEvent event,
             Channel channel,
             @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
     ) throws IOException {
         log.info("Received ContentUpdatedEvent from RabbitMQ: {}", event);
         try {
-            ExternalContentView contentView = externalContentViewRepository.findById(event.getContentId())
+            ExternalContentView contentView = externalContentViewRepository.findById(event.contentId())
                     .orElseGet(() -> ExternalContentView.create(
-                            event.getContentId(),
-                            ContentType.valueOf(event.getType()),
-                            event.getTitle(),
-                            event.getDescription(),
-                            event.getThumbnailKey(),
-                            joinTags(event.getTags()),
-                            event.getAverageRating(),
-                            event.getReviewCount(),
-                            event.getWatcherCount()
+                            event.contentId(),
+                            ContentType.valueOf(event.type()),
+                            event.title(),
+                            event.description(),
+                            event.thumbnailKey(),
+                            joinTags(event.tags()),
+                            event.averageRating(),
+                            event.reviewCount(),
+                            event.watcherCount()
                     ));
             contentView.update(
-                    event.getTitle(),
-                    event.getDescription(),
-                    event.getThumbnailKey(),
-                    joinTags(event.getTags()),
-                    event.getAverageRating(),
-                    event.getReviewCount(),
-                    event.getWatcherCount()
+                    event.title(),
+                    event.description(),
+                    event.thumbnailKey(),
+                    joinTags(event.tags()),
+                    event.averageRating(),
+                    event.reviewCount(),
+                    event.watcherCount()
             );
             externalContentViewRepository.save(contentView);
             channel.basicAck(deliveryTag, false);

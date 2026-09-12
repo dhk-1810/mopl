@@ -3,12 +3,12 @@ package org.codeit.sb06.team03.mopl.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
+import org.codeit.sb06.team03.mopl.dto.response.NotificationDto;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.enums.NotificationLevel;
-import org.codeit.sb06.team03.mopl.dto.response.NotificationDto;
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.service.application.ExternalUserCommandService;
 import org.codeit.sb06.team03.mopl.service.application.NotificationCommandService;
+import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.sse.service.SseService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
@@ -29,20 +29,30 @@ public class UserEventConsumer {
      * 알림 발송
      */
     @RabbitListener(queues = RabbitConfig.USER_ROLE_UPDATED_QUEUE)
-    public void handleRoleUpdatedEvent(UserEvent.RoleUpdatedEvent event) {
+    public void handleRoleUpdatedEvent(RoleUpdatedEvent event) {
         log.info("Received RoleUpdatedEvent from RabbitMQ: {}", event);
+        if (event.userId() == null) {
+            log.warn("RoleUpdatedEvent userId is null: {}", event);
+            return;
+        }
         NotificationDto notificationDto = notificationCommandService.create(
                 event.userId(),
                 "권한이 %s(으)로 변경되었어요.".formatted(event.role()),
                 null,
                 NotificationLevel.INFO
         );
-        sseService.send(notificationDto, EVENT_NAME, event.userId());
+        if (notificationDto != null) {
+            sseService.send(notificationDto, EVENT_NAME, event.userId());
+        }
     }
 
     @RabbitListener(queues = RabbitConfig.USER_FOLLOWED_QUEUE)
-    public void handleFollowedEvent(UserEvent.FollowedEvent event) {
+    public void handleFollowedEvent(FollowedEvent event) {
         log.info("Received FollowedEvent from RabbitMQ: {}", event);
+        if (event.userId() == null) {
+            log.warn("FollowedEvent userId is null: {}", event);
+            return;
+        }
 
         ExternalUserView profile = externalUserQueryService.getProfile(event.followerId());
         String name = (profile != null) ? profile.getName() : "누군가";
@@ -53,21 +63,31 @@ public class UserEventConsumer {
                 null,
                 NotificationLevel.INFO
         );
-        sseService.send(notificationDto, EVENT_NAME, event.userId());
+        if (notificationDto != null) {
+            sseService.send(notificationDto, EVENT_NAME, event.userId());
+        }
     }
 
     /**
      * CQRS
      */
     @RabbitListener(queues = RabbitConfig.USER_PROFILE_CREATE_QUEUE)
-    public void handleProfileCreated(UserEvent.UserProfileCreatedEvent event) {
+    public void handleProfileCreated(UserProfileCreatedEvent event) {
         log.info("Received UserProfileCreatedEvent from RabbitMQ in mopl-notification: {}", event);
+        if (event.userId() == null) {
+            log.warn("UserProfileCreatedEvent userId is null: {}", event);
+            return;
+        }
         externalUserCommandService.createOrUpdateProfile(event.userId(), event.name(), event.imageKey());
     }
 
     @RabbitListener(queues = RabbitConfig.USER_PROFILE_UPDATE_QUEUE)
-    public void handleProfileUpdated(UserEvent.UserProfileUpdatedEvent event) {
+    public void handleProfileUpdated(UserProfileUpdatedEvent event) {
         log.info("Received UserProfileUpdatedEvent from RabbitMQ in mopl-notification: {}", event);
+        if (event.userId() == null) {
+            log.warn("UserProfileUpdatedEvent userId is null: {}", event);
+            return;
+        }
         externalUserCommandService.createOrUpdateProfile(event.userId(), event.name(), event.imageKey());
     }
 }

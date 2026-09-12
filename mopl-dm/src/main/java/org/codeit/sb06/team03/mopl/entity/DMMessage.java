@@ -1,56 +1,57 @@
 package org.codeit.sb06.team03.mopl.entity;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.codeit.sb06.team03.mopl.dto.UserSummary;
-import org.codeit.sb06.team03.mopl.event.DMEvent;
+import org.codeit.sb06.team03.mopl.event.MessagePassedEvent;
+import org.codeit.sb06.team03.mopl.event.MessageReceivedEvent;
+import org.codeit.sb06.team03.mopl.event.MessageSentEvent;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.AbstractAggregateRoot;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.util.UUID;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Document(collection = "dm_messages")
-@CompoundIndex(name = "chatroom_createdat_idx", def = "{'dmChatRoomId': 1, 'createdAt': -1, '_id': -1}") // 복합 인덱스
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "dm_messages")
+@SQLDelete(sql = "UPDATE dm_messages SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class DMMessage extends AbstractAggregateRoot<DMMessage> {
 
     @Id
+    @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Field("is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
     @NotNull
     @CreatedDate
-    @Field("created_at")
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @NotNull
-    @Field("dm_chat_room_id")
+    @Column(name = "dm_chat_room_id", nullable = false)
     private UUID dmChatRoomId;
 
-    @NotNull
-    @Field("sender_id")
+    @Column(name = "sender_id", nullable = false)
     private UUID senderId;
 
-    @NotNull
-    @Field("receiver_id")
+    @Column(name = "receiver_id", nullable = false)
     private UUID receiverId;
 
-    @NotNull
-    @Field("content")
+    @Column(name = "content", nullable = false)
     private String content;
 
-    @NotNull
-    @Field("has_unread")
+    @Column(name = "has_unread", nullable = false)
     private boolean hasUnread;
 
     public static DMMessage create(UUID dmChatRoomId, UUID senderId, UUID receiverId, String content, UserSummary sender, UserSummary receiver) {
@@ -62,7 +63,7 @@ public class DMMessage extends AbstractAggregateRoot<DMMessage> {
         dmMessage.receiverId = receiverId;
         dmMessage.content = content;
         dmMessage.hasUnread = true;
-        dmMessage.registerEvent(new DMEvent.MessageSentEvent(dmMessage.id, dmChatRoomId, senderId, receiverId, content, dmMessage.createdAt, sender, receiver));
+        dmMessage.registerEvent(new MessageSentEvent(dmMessage.id, dmChatRoomId, senderId, receiverId, content, dmMessage.createdAt, sender, receiver));
         return dmMessage;
     }
 
@@ -71,11 +72,11 @@ public class DMMessage extends AbstractAggregateRoot<DMMessage> {
     }
 
     public void receive() {
-        this.registerEvent(new DMEvent.MessageReceivedEvent(this.id, this.dmChatRoomId, this.senderId, this.receiverId));
+        this.registerEvent(new MessageReceivedEvent(this.id, this.dmChatRoomId, this.senderId, this.receiverId));
     }
 
     public void pass() {
-        this.registerEvent(new DMEvent.MessagePassedEvent(this.id, this.dmChatRoomId, this.receiverId, this.content));
+        this.registerEvent(new MessagePassedEvent(this.id, this.dmChatRoomId, this.receiverId, this.content));
     }
 
     public void delete() {

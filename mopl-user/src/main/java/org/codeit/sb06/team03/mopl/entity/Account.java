@@ -5,24 +5,24 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.codeit.sb06.team03.mopl.event.AccountEvent;
 import org.codeit.sb06.team03.mopl.entity.policy.PasswordEncryptionPolicy;
 import org.codeit.sb06.team03.mopl.entity.policy.TempPasswordGenerationPolicy;
 import org.codeit.sb06.team03.mopl.entity.policy.TempPasswordResetTimeoutPolicy;
 import org.codeit.sb06.team03.mopl.entity.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.entity.vo.Password;
 import org.codeit.sb06.team03.mopl.entity.vo.Role;
+import org.codeit.sb06.team03.mopl.event.AccountLockUpdatedEvent;
+import org.codeit.sb06.team03.mopl.event.AccountRegisteredEvent;
+import org.codeit.sb06.team03.mopl.event.PasswordResetedEvent;
+import org.codeit.sb06.team03.mopl.event.RoleUpdatedEvent;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
-
 import java.time.Instant;
 import java.util.UUID;
-
-import static org.codeit.sb06.team03.mopl.event.AccountEvent.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -108,7 +108,7 @@ public class Account extends AbstractAggregateRoot<Account> {
         Password encrypted = passwordEncryptionPolicy.apply(rawTempPassword);
 
         this.password = encrypted;
-        this.registerEvent(new AccountEvent.PasswordResetedEvent(
+        this.registerEvent(new PasswordResetedEvent(
                 emailAddress.value(), rawTempPassword, expiresAt.toString()
         ));
         return this;
