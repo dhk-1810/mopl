@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl.image.domain.entity;
+package org.codeit.sb06.team03.mopl.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

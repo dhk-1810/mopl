@@ -32,39 +32,39 @@ public class ContentBatchInfoListener {
             @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
     ) throws IOException {
         log.info("Received ContentBatchInfoEvent from RabbitMQ: {} items",
-                event.getContents() != null ? event.getContents().size() : 0);
+                event.contents() != null ? event.contents().size() : 0);
 
         try {
-            if (event.getContents() == null || event.getContents().isEmpty()) {
+            if (event.contents() == null || event.contents().isEmpty()) {
                 channel.basicAck(deliveryTag, false);
                 return;
             }
 
-            List<ExternalContentView> views = event.getContents().stream()
+            List<ExternalContentView> views = event.contents().stream()
                     .map(dto -> {
-                        ExternalContentView existing = externalContentViewRepository.findById(dto.getContentId()).orElse(null);
+                        ExternalContentView existing = externalContentViewRepository.findById(dto.contentId()).orElse(null);
                         if (existing != null) {
                             existing.update(
-                                    dto.getTitle(),
-                                    dto.getDescription(),
-                                    dto.getThumbnailKey(),
-                                    joinTags(dto.getTags()),
-                                    dto.getAverageRating(),
-                                    dto.getReviewCount(),
-                                    dto.getWatcherCount()
+                                    dto.title(),
+                                    dto.description(),
+                                    dto.thumbnailKey(),
+                                    joinTags(dto.tags()),
+                                    dto.averageRating(),
+                                    dto.reviewCount(),
+                                    dto.watcherCount()
                             );
                             return existing;
                         } else {
                             return ExternalContentView.create(
-                                    dto.getContentId(),
-                                    ContentType.valueOf(dto.getType()),
-                                    dto.getTitle(),
-                                    dto.getDescription(),
-                                    dto.getThumbnailKey(),
-                                    joinTags(dto.getTags()),
-                                    dto.getAverageRating(),
-                                    dto.getReviewCount(),
-                                    dto.getWatcherCount()
+                                    dto.contentId(),
+                                    ContentType.valueOf(dto.type()),
+                                    dto.title(),
+                                    dto.description(),
+                                    dto.thumbnailKey(),
+                                    joinTags(dto.tags()),
+                                    dto.averageRating(),
+                                    dto.reviewCount(),
+                                    dto.watcherCount()
                             );
                         }
                     })

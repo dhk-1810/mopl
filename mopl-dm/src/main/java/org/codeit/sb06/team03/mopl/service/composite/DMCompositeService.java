@@ -19,7 +19,7 @@ import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.service.application.DMCommandService;
 import org.codeit.sb06.team03.mopl.service.application.DMQueryService;
 import org.codeit.sb06.team03.mopl.dto.request.MessageSendRequest;
-import org.codeit.sb06.team03.mopl.image.service.ExternalImageQueryService;
+import org.codeit.sb06.team03.mopl.service.ExternalImageQueryService;
 import org.codeit.sb06.team03.mopl.enums.SortDirection;
 import org.springframework.stereotype.Service;
 

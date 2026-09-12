@@ -1,8 +1,8 @@
-package org.codeit.sb06.team03.mopl.image.service;
+package org.codeit.sb06.team03.mopl.service;
 
 import lombok.RequiredArgsConstructor;
-import org.codeit.sb06.team03.mopl.image.domain.entity.ExternalImageView;
-import org.codeit.sb06.team03.mopl.image.repository.ExternalImageViewRepository;
+import org.codeit.sb06.team03.mopl.entity.ExternalImageView;
+import org.codeit.sb06.team03.mopl.repository.ExternalImageViewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

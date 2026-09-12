@@ -13,6 +13,11 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import org.codeit.sb06.team03.mopl.repository.DMMessageCustomRepository;
+import org.codeit.sb06.team03.mopl.repository.DMMessageRepository;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+
 import javax.sql.DataSource;
 import jakarta.persistence.EntityManagerFactory;
 import java.util.HashMap;
@@ -22,8 +27,12 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableQuerydslRepositories(
         basePackages = {
-                "org.codeit.sb06.team03.mopl"
+                "org.codeit.sb06.team03.mopl.repository"
         },
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ASSIGNABLE_TYPE,
+                classes = {DMMessageRepository.class, DMMessageCustomRepository.class}
+        ),
         entityManagerFactoryRef = "dmEntityManagerFactory",
         transactionManagerRef = "dmTransactionManager"
 )

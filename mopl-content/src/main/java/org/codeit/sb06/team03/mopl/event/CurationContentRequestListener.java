@@ -55,8 +55,8 @@ public class CurationContentRequestListener {
             }
 
             List<ContentReadModel> contents = contentQueryService.getByIds(uuids);
-            List<ContentBatchInfoEvent.ContentInfoDto> dtos = contents.stream()
-                    .map(c -> new ContentBatchInfoEvent.ContentInfoDto(
+            List<ContentInfoDto> dtos = contents.stream()
+                    .map(c -> new ContentInfoDto(
                             c.id(),
                             c.type() != null ? c.type().name() : null,
                             c.title(),
