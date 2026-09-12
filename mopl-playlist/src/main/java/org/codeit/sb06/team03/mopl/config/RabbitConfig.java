@@ -134,6 +134,8 @@ public class RabbitConfig {
                 .with(ROUTING_KEY_PROFILE_UPDATED);
     }
 
+    public static final String ROUTING_KEY_CONTENT_RPC = "content.rpc.get-by-id";
+
     @Bean
     public MessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
@@ -143,6 +145,7 @@ public class RabbitConfig {
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter());
+        rabbitTemplate.setReplyTimeout(5000L); // RPC 응답 대기 5초
         rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
             String msgId = correlationData != null ? correlationData.getId() : "null";
             if (ack) {

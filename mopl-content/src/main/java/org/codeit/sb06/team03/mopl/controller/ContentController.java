@@ -9,6 +9,7 @@ import org.codeit.sb06.team03.mopl.service.composite.ContentCompositeService;
 import org.codeit.sb06.team03.mopl.dto.response.ContentDto;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestContentDto;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,11 +43,11 @@ public class ContentController {
                 .body(contentCompositeService.createInternal(request));
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed("ADMIN")
     public ResponseEntity<ContentDto> create(
-            @RequestBody ContentCreateRequest request,
-            @RequestPart(name = "thumbnail") MultipartFile thumbnail
+            @RequestPart(name = "request") ContentCreateRequest request,
+            @RequestPart(name = "thumbnail", required = false) MultipartFile thumbnail
     ){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(contentCompositeService.create(request, thumbnail));

@@ -98,6 +98,21 @@ public class RabbitConfig {
                 .with(ROUTING_KEY_CONTENT_BATCH_INFO);
     }
 
+    public static final String ROUTING_KEY_CONTENT_RPC = "content.rpc.get-by-id";
+    public static final String CONTENT_RPC_QUEUE = "content.rpc.get-by-id.queue";
+
+    @Bean
+    public Queue contentRpcQueue() {
+        return new Queue(CONTENT_RPC_QUEUE, true);
+    }
+
+    @Bean
+    public Binding contentRpcBinding() {
+        return BindingBuilder.bind(contentRpcQueue())
+                .to(contentExchange())
+                .with(ROUTING_KEY_CONTENT_RPC);
+    }
+
     @Bean
     public Queue contentSagaResponseQueue() {
         return new Queue(CONTENT_SAGA_RESPONSE_QUEUE, true);

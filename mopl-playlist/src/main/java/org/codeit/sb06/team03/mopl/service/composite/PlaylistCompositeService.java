@@ -1,7 +1,9 @@
 package org.codeit.sb06.team03.mopl.service.composite;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.dto.UserSummary;
+import org.codeit.sb06.team03.mopl.enums.ContentType;
 import org.codeit.sb06.team03.mopl.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.dto.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestPlaylistDto;
@@ -13,6 +15,7 @@ import org.codeit.sb06.team03.mopl.dto.response.ContentDto;
 import org.codeit.sb06.team03.mopl.entity.Playlist;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalContentView;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
+import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalContentViewRepository;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
 import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalContentQueryService;
@@ -21,12 +24,14 @@ import org.codeit.sb06.team03.mopl.service.PlaylistQueryService;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.event.CurationContentRequestEvent;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class PlaylistCompositeService {
@@ -35,6 +40,7 @@ public class PlaylistCompositeService {
     private final PlaylistQueryService playlistQueryService;
     private final ExternalUserQueryService externalUserQueryService;
     private final ExternalContentQueryService externalContentQueryService;
+    private final ExternalContentViewRepository externalContentViewRepository;
     private final ExternalImageQueryService imageQueryService;
     private final RabbitTemplate rabbitTemplate;
 
@@ -68,7 +74,16 @@ public class PlaylistCompositeService {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        List<ExternalContentView> contentViews = externalContentQueryService.getContents(allContentIds);
+        List<ExternalContentView> contentViews = new ArrayList<>(externalContentQueryService.getContents(allContentIds));
+        Set<UUID> foundIds = contentViews.stream().map(ExternalContentView::getId).collect(Collectors.toSet());
+        for (UUID contentId : allContentIds) {
+            if (!foundIds.contains(contentId)) {
+                ExternalContentView fetched = fetchAndSaveContentViaRpc(contentId);
+                if (fetched != null) {
+                    contentViews.add(fetched);
+                }
+            }
+        }
 
         List<String> s3Keys = contentViews.stream()
                 .map(ExternalContentView::getThumbnailKey)
@@ -103,7 +118,7 @@ public class PlaylistCompositeService {
                         playlistId -> {
                             List<UUID> contentIds = contentIdsMap.getOrDefault(playlistId, Collections.emptyList());
                             return contentDtos.stream()
-                                    .filter(dto -> contentIds.contains(dto.id()))
+                                     .filter(dto -> contentIds.contains(dto.id()))
                                     .toList();
                         }
                 ));
@@ -171,6 +186,9 @@ public class PlaylistCompositeService {
 
     public void addContentToPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
         ExternalContentView content = externalContentQueryService.getContent(contentId);
+        if (content == null) {
+            content = fetchAndSaveContentViaRpc(contentId);
+        }
         String title = content != null ? content.getTitle() : "Unknown Content";
         playlistCommandService.addContentToPlaylist(playlistId, contentId, title, ownerId);
     }
@@ -194,20 +212,16 @@ public class PlaylistCompositeService {
             return Collections.emptyList();
         }
 
-        List<ExternalContentView> contentViews = externalContentQueryService.getContents(contentIds);
+        List<ExternalContentView> contentViews = new ArrayList<>(externalContentQueryService.getContents(contentIds));
         Set<UUID> foundIds = contentViews.stream().map(ExternalContentView::getId).collect(Collectors.toSet());
 
-        List<String> missingIds = contentIds.stream()
-                .filter(id -> !foundIds.contains(id))
-                .map(UUID::toString)
-                .toList();
-
-        if (!missingIds.isEmpty()) {
-            rabbitTemplate.convertAndSend(
-                    RabbitConfig.PLAYLIST_EXCHANGE,
-                    RabbitConfig.ROUTING_KEY_CURATION_CONTENT_REQUEST,
-                    new CurationContentRequestEvent(missingIds)
-            );
+        for (UUID contentId : contentIds) {
+            if (!foundIds.contains(contentId)) {
+                ExternalContentView fetched = fetchAndSaveContentViaRpc(contentId);
+                if (fetched != null) {
+                    contentViews.add(fetched);
+                }
+            }
         }
 
         List<String> s3Keys = contentViews.stream()
@@ -235,6 +249,35 @@ public class PlaylistCompositeService {
                     );
                 })
                 .toList();
+    }
+
+    private ExternalContentView fetchAndSaveContentViaRpc(UUID contentId) {
+        try {
+            ContentDto contentDto = rabbitTemplate.convertSendAndReceiveAsType(
+                    RabbitConfig.CONTENT_EXCHANGE,
+                    RabbitConfig.ROUTING_KEY_CONTENT_RPC,
+                    contentId,
+                    new ParameterizedTypeReference<ContentDto>() {}
+            );
+            if (contentDto != null) {
+                String tags = contentDto.tags() != null ? String.join(",", contentDto.tags()) : "";
+                ExternalContentView view = ExternalContentView.create(
+                        contentDto.id(),
+                        contentDto.type(),
+                        contentDto.title(),
+                        contentDto.description(),
+                        contentDto.thumbnailUrl(),
+                        tags,
+                        contentDto.averageRating(),
+                        contentDto.reviewCount(),
+                        contentDto.watcherCount()
+                );
+                return externalContentViewRepository.save(view);
+            }
+        } catch (Exception e) {
+            log.error("Failed to fetch content via RPC for contentId: {}", contentId, e);
+        }
+        return null;
     }
 
     private Set<String> parseTags(String tags) {

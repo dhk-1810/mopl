@@ -24,8 +24,6 @@ public class Playlist extends AbstractAggregateRoot<Playlist> {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-
-
     @Column(name = "owner_id", nullable = false)
     private UUID ownerId;
 

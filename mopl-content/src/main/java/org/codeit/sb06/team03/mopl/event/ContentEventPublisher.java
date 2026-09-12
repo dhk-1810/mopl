@@ -24,19 +24,6 @@ public class ContentEventPublisher {
     public static final String ROUTING_KEY_CONTENT_DELETED = "content.deleted";
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
-    public void handleContentUpdatedBeforeCommit(ContentUpdatedEvent event) {
-        log.info("Saving ContentUpdatedEvent to Outbox table: {}", event);
-        outboxService.saveEvent(
-                "CONTENT",
-                event.contentId().toString(),
-                ContentUpdatedEvent.class.getName(),
-                RabbitConfig.CONTENT_EXCHANGE,
-                ROUTING_KEY_CONTENT_UPDATED,
-                event
-        );
-    }
-
-    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleContentDeletedBeforeCommit(ContentDeletedEvent event) {
         log.info("Saving ContentDeletedEvent to Outbox table: {}", event);
         outboxService.saveEvent(
@@ -64,7 +51,7 @@ public class ContentEventPublisher {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleContentUpdatedAfterCommit(ContentUpdatedEvent event) {
         try {
-            log.info("Attempting immediate publish for ContentUpdatedEvent to RabbitMQ: {}", event);
+            log.info("Publishing ContentUpdatedEvent to RabbitMQ: {}", event);
             CorrelationData correlationData = new CorrelationData("content-updated-" + event.contentId() + "-" + UUID.randomUUID());
             rabbitTemplate.convertAndSend(
                     RabbitConfig.CONTENT_EXCHANGE,
@@ -73,7 +60,7 @@ public class ContentEventPublisher {
                     correlationData
             );
         } catch (Exception e) {
-            log.warn("Immediate publish failed for ContentUpdatedEvent. Outbox poller will retry. Cause: {}", e.getMessage());
+            log.error("Failed to publish ContentUpdatedEvent to RabbitMQ: {}", e.getMessage(), e);
         }
     }
 

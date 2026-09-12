@@ -2,6 +2,7 @@ package org.codeit.sb06.team03.mopl.repository;
 
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
 import org.codeit.sb06.team03.mopl.dto.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.entity.Playlist;
@@ -48,7 +49,6 @@ public interface PlaylistRepository extends QuerydslJpaRepository<Playlist, UUID
                     playlist.contentCount
                 ))
                 .from(playlist)
-                .leftJoin(subscription).on(subscription.id.playlistId.eq(playlist.id))
                 .where(predicates)
                 .orderBy(orderByExpressions(sortDirection, sortBy))
                 .limit(limit + 1)
@@ -81,7 +81,11 @@ public interface PlaylistRepository extends QuerydslJpaRepository<Playlist, UUID
         if (subscriberId == null) {
             return null;
         }
-        return subscription.id.subscriberId.eq(subscriberId);
+        return playlist.id.in(
+                JPAExpressions.select(subscription.id.playlistId)
+                        .from(subscription)
+                        .where(subscription.id.subscriberId.eq(subscriberId))
+        );
     }
 
     private static BooleanExpression cursorExpressionPredicate(

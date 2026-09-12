@@ -7,6 +7,7 @@ import org.codeit.sb06.team03.mopl.entity.CurationId;
 import org.codeit.sb06.team03.mopl.entity.QCuration;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public interface CurationRepository extends QuerydslJpaRepository<Curation, CurationId> {
 
@@ -46,13 +47,15 @@ public interface CurationRepository extends QuerydslJpaRepository<Curation, Cura
         }
 
         QCuration curation = QCuration.curation;
-        return select(curation.id.contentId)
+        List<Curation> curations = select(curation)
                 .from(curation)
                 .where(curation.id.playlistId.in(playlistIds))
-                .transform(
-                        GroupBy.groupBy(curation.id.playlistId)
-                                .as(GroupBy.list(curation.id.contentId))
-                );
-    }
+                .fetch();
 
+        return curations.stream()
+                .collect(Collectors.groupingBy(
+                        c -> c.getId().getPlaylistId(),
+                        Collectors.mapping(c -> c.getId().getContentId(), Collectors.toList())
+                ));
+    }
 }
