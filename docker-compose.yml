@@ -49,17 +49,61 @@ services:
         limits:
           memory: 256M
 
-  notification-redis:
+  notification-redis-1:
     image: redis:7.2-alpine
-    container_name: mopl-notification-redis
+    container_name: mopl-notification-redis-1
     ports:
-      - "6381:6379"
-    command: redis-server --requirepass ${REDIS_PASSWORD_NOTIFICATION:-Hhhickam22} --appendonly yes
+      - "7001:7001"
+      - "17001:17001"
+    command: redis-server --port 7001 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --requirepass ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --masterauth ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --cluster-announce-ip 127.0.0.1 --cluster-announce-port 7001 --cluster-announce-bus-port 17001
     restart: always
     deploy:
       resources:
         limits:
           memory: 256M
+
+  notification-redis-2:
+    image: redis:7.2-alpine
+    container_name: mopl-notification-redis-2
+    ports:
+      - "7002:7002"
+      - "17002:17002"
+    command: redis-server --port 7002 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --requirepass ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --masterauth ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --cluster-announce-ip 127.0.0.1 --cluster-announce-port 7002 --cluster-announce-bus-port 17002
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  notification-redis-3:
+    image: redis:7.2-alpine
+    container_name: mopl-notification-redis-3
+    ports:
+      - "7003:7003"
+      - "17003:17003"
+    command: redis-server --port 7003 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --requirepass ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --masterauth ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --cluster-announce-ip 127.0.0.1 --cluster-announce-port 7003 --cluster-announce-bus-port 17003
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  notification-redis-cluster-init:
+    image: redis:7.2-alpine
+    container_name: mopl-notification-redis-cluster-init
+    depends_on:
+      - notification-redis-1
+      - notification-redis-2
+      - notification-redis-3
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Waiting for Redis cluster nodes to start...' &&
+      sleep 3 &&
+      redis-cli -a $${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --cluster create host.docker.internal:7001 host.docker.internal:7002 host.docker.internal:7003 --cluster-yes || true
+      "
+
 
   # -------------------------------------------------------------
   # RabbitMQ Service

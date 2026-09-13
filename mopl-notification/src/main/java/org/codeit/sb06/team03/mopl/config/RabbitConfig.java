@@ -149,6 +149,30 @@ public class RabbitConfig {
                 .with(DM_NOTIFICATION_REQUIRED_ROUTING_KEY);
     }
 
+    // 분산 SSE 라우팅 빈
+    public static final String NOTIFICATION_SSE_EXCHANGE = "mopl.notification.sse.exchange";
+
+    @Bean
+    public org.springframework.amqp.core.DirectExchange notificationSseExchange() {
+        return new org.springframework.amqp.core.DirectExchange(NOTIFICATION_SSE_EXCHANGE);
+    }
+
+    @Bean
+    public Queue notificationInstanceQueue(org.codeit.sb06.team03.mopl.sse.NotificationInstanceId instanceId) {
+        // 인스턴스 전용 비영속, 자동삭제(auto-delete) 큐
+        return new Queue("notification.instance." + instanceId.getId(), false, false, true);
+    }
+
+    @Bean
+    public Binding bindingNotificationInstanceQueue(
+            Queue notificationInstanceQueue,
+            org.springframework.amqp.core.DirectExchange notificationSseExchange,
+            org.codeit.sb06.team03.mopl.sse.NotificationInstanceId instanceId) {
+        return BindingBuilder.bind(notificationInstanceQueue)
+                .to(notificationSseExchange)
+                .with("notification.instance." + instanceId.getId());
+    }
+
     @Bean
     public MessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();

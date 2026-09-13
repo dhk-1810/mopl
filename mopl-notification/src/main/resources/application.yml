@@ -3,8 +3,10 @@ spring:
     name: mopl-notification
   data:
     redis:
-      host: ${SPRING_DATA_REDIS_HOST:localhost}
-      port: ${SPRING_DATA_REDIS_PORT:6381}
+      cluster:
+        nodes:
+          - ${SPRING_DATA_REDIS_CLUSTER_NODES:localhost:7001,localhost:7002,localhost:7003}
+        max-redirects: 3
       password: ${SPRING_DATA_REDIS_PASSWORD:moplnotificationpwd123}
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST:localhost}
