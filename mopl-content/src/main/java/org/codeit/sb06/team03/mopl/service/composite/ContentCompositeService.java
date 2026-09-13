@@ -32,14 +32,12 @@ public class ContentCompositeService {
 
     private final ContentCommandService contentCommandService;
     private final ContentQueryService contentQueryService;
-
     private final LiveChatRoomCommandService liveChatRoomCommandService;
-
     private final ExternalImageQueryService imageQueryService;
-    private final ApplicationEventPublisher eventPublisher;
-    
     private final S3Service s3Service;
+
     private final RabbitTemplate rabbitTemplate;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final String IMAGE_EXCHANGE = "mopl.image.exchange";
     private static final String IMAGE_ROUTING_KEY = "mopl.image.upload";
@@ -154,9 +152,8 @@ public class ContentCompositeService {
     }
 
     public void delete(UUID contentId) {
-        contentCommandService.delete(contentId);
+        contentCommandService.deleteSaga(contentId);
         liveChatRoomCommandService.delete(contentId);
-        eventPublisher.publishEvent(new ContentDeletedEvent(contentId));
     }
 
     private String getPresignedUrl(String thumbnailKey) {

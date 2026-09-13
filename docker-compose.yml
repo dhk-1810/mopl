@@ -96,6 +96,8 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER' # 컨트롤러 간 통신에 사용할 리스너
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs' # 카프카 로그 및 이벤트 데이터 저장 디렉토리
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk' # KRaft 클러스터 고유 식별자 (Base64 UUID)
+    volumes:
+      - kafka-data:/tmp/kraft-combined-logs
     restart: always
     deploy:
       resources:
@@ -284,6 +286,7 @@ services:
 
 # 데이터 영속성을 위한 Docker 볼륨 설정
 volumes:
+  kafka-data:
   user-db-data:
   user-slave-db-data:
   content-db-data:
