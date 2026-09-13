@@ -8,7 +8,6 @@ import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.enums.NotificationLevel;
 import org.codeit.sb06.team03.mopl.service.application.ExternalUserCommandService;
 import org.codeit.sb06.team03.mopl.service.application.NotificationCommandService;
-import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.sse.service.SseService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
@@ -21,7 +20,6 @@ public class UserEventConsumer {
     private final NotificationCommandService notificationCommandService;
     private final SseService sseService;
     private final ExternalUserCommandService externalUserCommandService;
-    private final ExternalUserQueryService externalUserQueryService;
 
     private static final String EVENT_NAME = "notifications";
 
@@ -54,12 +52,9 @@ public class UserEventConsumer {
             return;
         }
 
-        ExternalUserView profile = externalUserQueryService.getProfile(event.followerId());
-        String name = (profile != null) ? profile.getName() : "누군가";
-
         NotificationDto notificationDto = notificationCommandService.create(
                 event.userId(),
-                "%s님이 팔로우했어요.".formatted(name),
+                "%s님이 팔로우했어요.".formatted(event.followerName()),
                 null,
                 NotificationLevel.INFO
         );

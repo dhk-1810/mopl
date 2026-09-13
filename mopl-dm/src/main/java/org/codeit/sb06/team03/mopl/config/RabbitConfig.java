@@ -25,6 +25,10 @@ public class RabbitConfig {
     public static final String USER_PROFILE_UPDATE_QUEUE = "dm.user-profile-update.queue";
     public static final String TOKEN_EXPIRED_QUEUE = "dm.token-expired.queue";
 
+    public static final String IMAGE_UPLOAD_EXCHANGE = "mopl.image.exchange";
+    public static final String IMAGE_PRESIGNED_URL_CREATED_QUEUE = "dm.image-presigned-url-created.queue";
+    public static final String IMAGE_PRESIGNED_URL_CREATED_ROUTING_KEY = "mopl.image.presigned-url-created";
+
     @Bean
     public TopicExchange dmExchange() {
         return new TopicExchange(DM_EXCHANGE);
@@ -33,6 +37,11 @@ public class RabbitConfig {
     @Bean
     public TopicExchange userExchange() {
         return new TopicExchange(USER_EXCHANGE);
+    }
+
+    @Bean
+    public TopicExchange imageUploadExchange() {
+        return new TopicExchange(IMAGE_UPLOAD_EXCHANGE);
     }
 
     @Bean
@@ -48,6 +57,11 @@ public class RabbitConfig {
     @Bean
     public Queue tokenExpiredQueue() {
         return new Queue(TOKEN_EXPIRED_QUEUE, true);
+    }
+
+    @Bean
+    public Queue imagePresignedUrlCreatedQueue() {
+        return new Queue(IMAGE_PRESIGNED_URL_CREATED_QUEUE, true);
     }
 
     @Bean
@@ -69,6 +83,13 @@ public class RabbitConfig {
         return BindingBuilder.bind(tokenExpiredQueue())
                 .to(userExchange())
                 .with(ROUTING_KEY_TOKEN_EXPIRED);
+    }
+
+    @Bean
+    public Binding imagePresignedUrlCreatedBinding() {
+        return BindingBuilder.bind(imagePresignedUrlCreatedQueue())
+                .to(imageUploadExchange())
+                .with(IMAGE_PRESIGNED_URL_CREATED_ROUTING_KEY);
     }
 
     @Bean

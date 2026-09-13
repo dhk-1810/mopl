@@ -31,4 +31,23 @@ public class ExternalImageView {
 
     @Column(name = "exp")
     private Instant exp;
+
+    public static ExternalImageView create(String imageKey, String presignedUrl, Instant exp) {
+        ExternalImageView view = new ExternalImageView();
+        view.id = UUID.randomUUID();
+        view.imageKey = imageKey;
+        view.presignedUrl = presignedUrl;
+        view.exp = exp;
+        view.isDeleted = false;
+        return view;
+    }
+
+    public void update(String presignedUrl, Instant exp) {
+        this.presignedUrl = presignedUrl;
+        this.exp = exp;
+    }
+
+    public boolean isExpired() {
+        return exp != null && Instant.now().isAfter(exp);
+    }
 }

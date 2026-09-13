@@ -16,6 +16,7 @@ import java.util.UUID;
 public class FollowCommandService {
 
     private final JpaFollowRepository jpaFollowRepository;
+    private final ProfileQueryService profileQueryService;
 
     public Followee create(UUID accountId) {
         Followee followee = Followee.create(accountId);
@@ -40,7 +41,8 @@ public class FollowCommandService {
     public FollowDto follow(UUID followeeId, UUID followerId) {
         Followee followee = jpaFollowRepository.findById(followeeId)
                 .orElseThrow(() -> new FolloweeNotFoundException(followeeId));
-        followee.addFollower(followerId);
+        String followerName = profileQueryService.getById(followerId).getName();
+        followee.addFollower(followerId, followerName);
         Followee saved = jpaFollowRepository.save(followee);
         return new FollowDto(saved.getId(), followeeId, followerId);
     }

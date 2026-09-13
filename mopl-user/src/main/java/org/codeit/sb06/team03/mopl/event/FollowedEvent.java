@@ -4,5 +4,6 @@ import java.util.UUID;
 
 public record FollowedEvent(
         UUID followeeId,
-        UUID followerId
+        UUID followerId,
+        String followerName
 ) {}
