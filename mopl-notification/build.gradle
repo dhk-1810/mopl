@@ -8,6 +8,8 @@ dependencies {
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
     implementation "io.github.openfeign.querydsl:querydsl-jpa-spring:${querydslVersion}"
+    implementation project(':mopl-proto')
+    implementation "net.devh:grpc-client-spring-boot-starter:${grpcSpringBootVersion}"
 
     annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:${querydslVersion}:jakarta"
 

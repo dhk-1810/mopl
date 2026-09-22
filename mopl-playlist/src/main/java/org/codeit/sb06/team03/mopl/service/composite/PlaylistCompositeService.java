@@ -36,9 +36,7 @@ public class PlaylistCompositeService {
     private final PlaylistQueryService playlistQueryService;
     private final ExternalUserQueryService externalUserQueryService;
     private final ExternalContentQueryService externalContentQueryService;
-    private final ExternalContentViewRepository externalContentViewRepository;
     private final ExternalImageQueryService imageQueryService;
-    private final ContentGrpcClient contentGrpcClient;
 
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
         Playlist playlist = playlistCommandService.create(request.title(), request.description(), ownerId);
@@ -70,16 +68,7 @@ public class PlaylistCompositeService {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        List<ExternalContentView> contentViews = new ArrayList<>(externalContentQueryService.getContents(allContentIds));
-        Set<UUID> foundIds = contentViews.stream().map(ExternalContentView::getId).collect(Collectors.toSet());
-        for (UUID contentId : allContentIds) {
-            if (!foundIds.contains(contentId)) {
-                ExternalContentView fetched = fetchAndSaveContentViaRpc(contentId);
-                if (fetched != null) {
-                    contentViews.add(fetched);
-                }
-            }
-        }
+        List<ExternalContentView> contentViews = externalContentQueryService.getContents(allContentIds);
 
         List<String> s3Keys = contentViews.stream()
                 .map(ExternalContentView::getThumbnailKey)
@@ -182,9 +171,6 @@ public class PlaylistCompositeService {
 
     public void addContentToPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
         ExternalContentView content = externalContentQueryService.getContent(contentId);
-        if (content == null) {
-            content = fetchAndSaveContentViaRpc(contentId);
-        }
         String title = content != null ? content.getTitle() : "Unknown Content";
         playlistCommandService.addContentToPlaylist(playlistId, contentId, title, ownerId);
     }
@@ -208,17 +194,7 @@ public class PlaylistCompositeService {
             return Collections.emptyList();
         }
 
-        List<ExternalContentView> contentViews = new ArrayList<>(externalContentQueryService.getContents(contentIds));
-        Set<UUID> foundIds = contentViews.stream().map(ExternalContentView::getId).collect(Collectors.toSet());
-
-        for (UUID contentId : contentIds) {
-            if (!foundIds.contains(contentId)) {
-                ExternalContentView fetched = fetchAndSaveContentViaRpc(contentId);
-                if (fetched != null) {
-                    contentViews.add(fetched);
-                }
-            }
-        }
+        List<ExternalContentView> contentViews = externalContentQueryService.getContents(contentIds);
 
         List<String> s3Keys = contentViews.stream()
                 .map(ExternalContentView::getThumbnailKey)
@@ -245,30 +221,6 @@ public class PlaylistCompositeService {
                     );
                 })
                 .toList();
-    }
-
-    private ExternalContentView fetchAndSaveContentViaRpc(UUID contentId) {
-        try {
-            ContentDto contentDto = contentGrpcClient.getContentById(contentId);
-            if (contentDto != null) {
-                String tags = contentDto.tags() != null ? String.join(",", contentDto.tags()) : "";
-                ExternalContentView view = ExternalContentView.create(
-                        contentDto.id(),
-                        contentDto.type(),
-                        contentDto.title(),
-                        contentDto.description(),
-                        contentDto.thumbnailUrl(),
-                        tags,
-                        contentDto.averageRating(),
-                        contentDto.reviewCount(),
-                        contentDto.watcherCount()
-                );
-                return externalContentViewRepository.save(view);
-            }
-        } catch (Exception e) {
-            log.error("Failed to fetch content via gRPC for contentId: {}", contentId, e);
-        }
-        return null;
     }
 
     private Set<String> parseTags(String tags) {

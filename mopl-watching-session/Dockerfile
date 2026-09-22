@@ -22,6 +22,7 @@ COPY mopl-proto/build.gradle mopl-proto/
 RUN chmod +x ./gradlew && ./gradlew :mopl-watching-session:dependencies --no-daemon
 
 # 소스 코드 복사 및 애플리케이션 빌드
+COPY mopl-proto/src mopl-proto/src
 COPY mopl-watching-session/src mopl-watching-session/src
 RUN ./gradlew :mopl-watching-session:bootJar -x test --no-daemon
 

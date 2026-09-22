@@ -22,6 +22,7 @@ COPY mopl-proto/build.gradle mopl-proto/
 RUN chmod +x ./gradlew && ./gradlew :mopl-notification:dependencies --no-daemon
 
 # 소스 코드 복사 및 애플리케이션 빌드
+COPY mopl-proto/src mopl-proto/src
 COPY mopl-notification/src mopl-notification/src
 RUN ./gradlew :mopl-notification:bootJar -x test --no-daemon
 
