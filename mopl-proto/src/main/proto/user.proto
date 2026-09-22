@@ -1,0 +1,43 @@
+// Protocol Buffers 버전 3 문법 사용 선언
+syntax = "proto3";
+
+// Protobuf 내 네임스페이스 정의 (다른 proto 파일과의 타입 이름 충돌 방지)
+package org.codeit.sb06.team03.mopl.grpc.user;
+
+// 컴파일 시 각 메시지와 서비스별로 개별적인 .java 파일로 분리 생성
+option java_multiple_files = true;
+
+// 생성될 Java 클래스들이 위치할 패키지 경로 지정
+option java_package = "org.codeit.sb06.team03.mopl.grpc.user";
+
+// 개별 파일 외 메타데이터를 담는 외부 래퍼 클래스의 이름 지정
+option java_outer_classname = "UserProto";
+
+/**
+ * 사용자 정보 동기 조회를 위한 gRPC 서비스
+ * - 대상 서비스: mopl-user (서버), mopl-content/playlist/dm (클라이언트)
+ * - CQRS 로컬 복제 테이블(ExternalUserView) Cache-Miss 발생 시 Fallback 조회용으로 사용
+ */
+service UserService {
+  rpc GetUser (GetUserRequest) returns (UserResponse); // 사용자 ID를 기반으로 단건 사용자 상세 정보를 조회
+}
+
+/**
+ * 사용자 조회 요청 메시지
+ */
+message GetUserRequest {
+  string user_id = 1; // 조회할 대상 사용자 id
+}
+
+/**
+ * 사용자 상세 정보 응답 메시지
+ */
+message UserResponse {
+  string id = 1;
+  string email = 2;
+  string name = 3;
+  string profile_image_url = 4;
+  string role = 5;
+  bool locked = 6;
+  string created_at = 7;
+}

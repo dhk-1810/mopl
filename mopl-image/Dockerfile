@@ -16,6 +16,7 @@ COPY mopl-notification/build.gradle mopl-notification/
 COPY mopl-playlist/build.gradle mopl-playlist/
 COPY mopl-user/build.gradle mopl-user/
 COPY mopl-watching-session/build.gradle mopl-watching-session/
+COPY mopl-proto/build.gradle mopl-proto/
 
 # 의존성 다운로드 캐싱
 RUN chmod +x ./gradlew && ./gradlew :mopl-image:dependencies --no-daemon

@@ -134,8 +134,6 @@ public class RabbitConfig {
                 .with(ROUTING_KEY_PROFILE_UPDATED);
     }
 
-    public static final String ROUTING_KEY_CONTENT_RPC = "content.rpc.get-by-id";
-
     @Bean
     public MessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();

@@ -2,7 +2,7 @@ package org.codeit.sb06.team03.mopl.service.cqrs;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.client.UserClient;
+import org.codeit.sb06.team03.mopl.client.UserGrpcClient;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalUserViewRepository;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class ExternalUserQueryService {
 
     private final ExternalUserViewRepository externalUserViewRepository;
-    private final UserClient userClient;
+    private final UserGrpcClient userGrpcClient;
 
     @Transactional(value = "playlistTransactionManager", readOnly = true)
     public Map<UUID, ExternalUserView> getProfiles(Collection<UUID> userIds) {
@@ -50,9 +50,9 @@ public class ExternalUserQueryService {
     }
 
     private ExternalUserView fetchAndSaveProfile(UUID userId) {
-        UserClient.UserDto userDto = userClient.getUserById(userId);
+        UserGrpcClient.UserDto userDto = userGrpcClient.getUserById(userId);
         if (userDto == null) {
-            log.warn("Failed to fetch user info via REST for userId: {}", userId);
+            log.warn("Failed to fetch user info via gRPC for userId: {}", userId);
             return null;
         }
         ExternalUserView view = ExternalUserView.create(userDto.id(), userDto.name(), userDto.profileImageUrl());

@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.10' apply false
     id 'io.spring.dependency-management' version '1.1.7' apply false
+    id 'com.google.protobuf' version '0.9.4' apply false
 }
 
 ext {
@@ -9,6 +10,9 @@ ext {
     querydslVersion = '7.1'
     springCloudVersion = '2025.0.1'
     springCloudAwsVersion = '3.4.2'
+    grpcVersion = '1.69.0'
+    protobufVersion = '3.25.5'
+    grpcSpringBootVersion = '3.1.0.RELEASE'
 }
 
 allprojects {

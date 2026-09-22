@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package org.codeit.sb06.team03.mopl.grpc.content;
+
+option java_multiple_files = true;
+option java_package = "org.codeit.sb06.team03.mopl.grpc.content";
+option java_outer_classname = "ContentProto";
+
+service ContentService {
+  rpc GetContent (GetContentRequest) returns (ContentResponse);
+}
+
+message GetContentRequest {
+  string content_id = 1;
+}
+
+message ContentResponse {
+  string id = 1;
+  string type = 2;
+  string title = 3;
+  string description = 4;
+  string thumbnail_url = 5;
+  repeated string tags = 6;
+  double average_rating = 7;
+  int64 review_count = 8;
+  int64 watcher_count = 9;
+}

@@ -3,7 +3,6 @@ package org.codeit.sb06.team03.mopl.service.composite;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.dto.UserSummary;
-import org.codeit.sb06.team03.mopl.enums.ContentType;
 import org.codeit.sb06.team03.mopl.enums.SortDirection;
 import org.codeit.sb06.team03.mopl.dto.PlaylistReadModel;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestPlaylistDto;
@@ -21,10 +20,7 @@ import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalContentQueryService;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.service.PlaylistQueryService;
-import org.codeit.sb06.team03.mopl.config.RabbitConfig;
-import org.codeit.sb06.team03.mopl.event.CurationContentRequestEvent;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.core.ParameterizedTypeReference;
+import org.codeit.sb06.team03.mopl.client.ContentGrpcClient;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +38,7 @@ public class PlaylistCompositeService {
     private final ExternalContentQueryService externalContentQueryService;
     private final ExternalContentViewRepository externalContentViewRepository;
     private final ExternalImageQueryService imageQueryService;
-    private final RabbitTemplate rabbitTemplate;
+    private final ContentGrpcClient contentGrpcClient;
 
     public PlaylistDto createPlaylist(PlaylistCreateRequest request, UUID ownerId) {
         Playlist playlist = playlistCommandService.create(request.title(), request.description(), ownerId);
@@ -253,12 +249,7 @@ public class PlaylistCompositeService {
 
     private ExternalContentView fetchAndSaveContentViaRpc(UUID contentId) {
         try {
-            ContentDto contentDto = rabbitTemplate.convertSendAndReceiveAsType(
-                    RabbitConfig.CONTENT_EXCHANGE,
-                    RabbitConfig.ROUTING_KEY_CONTENT_RPC,
-                    contentId,
-                    new ParameterizedTypeReference<ContentDto>() {}
-            );
+            ContentDto contentDto = contentGrpcClient.getContentById(contentId);
             if (contentDto != null) {
                 String tags = contentDto.tags() != null ? String.join(",", contentDto.tags()) : "";
                 ExternalContentView view = ExternalContentView.create(
@@ -275,7 +266,7 @@ public class PlaylistCompositeService {
                 return externalContentViewRepository.save(view);
             }
         } catch (Exception e) {
-            log.error("Failed to fetch content via RPC for contentId: {}", contentId, e);
+            log.error("Failed to fetch content via gRPC for contentId: {}", contentId, e);
         }
         return null;
     }

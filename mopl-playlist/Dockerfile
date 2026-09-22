@@ -16,11 +16,13 @@ COPY mopl-notification/build.gradle mopl-notification/
 COPY mopl-playlist/build.gradle mopl-playlist/
 COPY mopl-user/build.gradle mopl-user/
 COPY mopl-watching-session/build.gradle mopl-watching-session/
+COPY mopl-proto/build.gradle mopl-proto/
 
 # 의존성 다운로드 캐싱
 RUN chmod +x ./gradlew && ./gradlew :mopl-playlist:dependencies --no-daemon
 
 # 소스 코드 복사 및 애플리케이션 빌드
+COPY mopl-proto/src mopl-proto/src
 COPY mopl-playlist/src mopl-playlist/src
 RUN ./gradlew :mopl-playlist:bootJar -x test --no-daemon
 
