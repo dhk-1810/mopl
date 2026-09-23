@@ -20,6 +20,7 @@ public class ExternalUserQueryService {
 
     private final ExternalUserViewRepository externalUserViewRepository;
     private final UserGrpcClient userGrpcClient;
+    private final ExternalUserWriter externalUserWriter;
 
     @Transactional(value = "playlistTransactionManager", readOnly = true)
     public Map<UUID, ExternalUserView> getProfiles(Collection<UUID> userIds) {
@@ -55,12 +56,11 @@ public class ExternalUserQueryService {
             log.warn("Failed to fetch user info via gRPC for userId: {}", userId);
             return null;
         }
-        ExternalUserView view = ExternalUserView.create(userDto.id(), userDto.name(), userDto.profileImageUrl());
         try {
-            return externalUserViewRepository.save(view);
+            return externalUserWriter.saveFromDto(userDto);
         } catch (Exception e) {
             log.error("Failed to save replicated ExternalUserView for userId: {}", userId, e);
-            return view;
+            return ExternalUserView.create(userDto.id(), userDto.name(), userDto.profileImageUrl());
         }
     }
 }

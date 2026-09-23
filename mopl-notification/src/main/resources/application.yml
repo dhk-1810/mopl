@@ -32,5 +32,5 @@ management:
 grpc:
   client:
     user-service:
-      address: "static://${GRPC_USER_HOST:localhost}:${GRPC_USER_PORT:9091}"
+      address: "static://${GRPC_USER_HOST:localhost}:${GRPC_USER_PORT:8181}"
       negotiation-type: plaintext

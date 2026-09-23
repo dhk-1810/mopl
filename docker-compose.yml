@@ -138,10 +138,10 @@ services:
       KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092' # 바인딩할 네트워크 리스너 목록
       KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT' # 브로커 간 내부 통신에 사용할 리스너
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER' # 컨트롤러 간 통신에 사용할 리스너
-      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs' # 카프카 로그 및 이벤트 데이터 저장 디렉토리
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data' # 카프카 로그 및 이벤트 데이터 저장 디렉토리
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk' # KRaft 클러스터 고유 식별자 (Base64 UUID)
     volumes:
-      - kafka-data:/tmp/kraft-combined-logs
+      - kafka-data:/var/lib/kafka/data
     restart: always
     deploy:
       resources:

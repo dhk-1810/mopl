@@ -21,6 +21,7 @@ public class ExternalContentQueryService {
 
     private final ExternalContentViewRepository externalContentViewRepository;
     private final ContentGrpcClient contentGrpcClient;
+    private final ExternalContentWriter externalContentWriter;
 
     @Transactional(value = "playlistTransactionManager", readOnly = true)
     public List<ExternalContentView> getContents(Collection<UUID> contentIds) {
@@ -55,19 +56,7 @@ public class ExternalContentQueryService {
         try {
             ContentDto contentDto = contentGrpcClient.getContentById(contentId);
             if (contentDto != null) {
-                String tags = contentDto.tags() != null ? String.join(",", contentDto.tags()) : "";
-                ExternalContentView view = ExternalContentView.create(
-                        contentDto.id(),
-                        contentDto.type(),
-                        contentDto.title(),
-                        contentDto.description(),
-                        contentDto.thumbnailUrl(),
-                        tags,
-                        contentDto.averageRating(),
-                        contentDto.reviewCount(),
-                        contentDto.watcherCount()
-                );
-                return externalContentViewRepository.save(view);
+                return externalContentWriter.saveFromDto(contentDto);
             }
         } catch (Exception e) {
             log.error("Failed to fetch and save content via gRPC for contentId: {}", contentId, e);

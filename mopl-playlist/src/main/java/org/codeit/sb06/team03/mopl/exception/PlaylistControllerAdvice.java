@@ -90,4 +90,15 @@ public class PlaylistControllerAdvice {
         );
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
+
+    @ExceptionHandler(ContentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleContentNotFoundException(ContentNotFoundException e) {
+        log.error(e.getMessage());
+        var errorResponse = new ErrorResponse(
+                e.getClass().getSimpleName(),
+                "존재하지 않는 컨텐츠입니다.",
+                Collections.emptyList()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
 }

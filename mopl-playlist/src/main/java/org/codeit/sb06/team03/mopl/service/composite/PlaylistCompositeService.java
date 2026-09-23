@@ -20,6 +20,7 @@ import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalContentQueryService;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.service.PlaylistQueryService;
+import org.codeit.sb06.team03.mopl.exception.ContentNotFoundException;
 import org.codeit.sb06.team03.mopl.client.ContentGrpcClient;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -171,8 +172,10 @@ public class PlaylistCompositeService {
 
     public void addContentToPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {
         ExternalContentView content = externalContentQueryService.getContent(contentId);
-        String title = content != null ? content.getTitle() : "Unknown Content";
-        playlistCommandService.addContentToPlaylist(playlistId, contentId, title, ownerId);
+        if (content == null) {
+            throw new ContentNotFoundException(contentId);
+        }
+        playlistCommandService.addContentToPlaylist(playlistId, contentId, content.getTitle(), ownerId);
     }
 
     public void deleteContentFromPlaylist(UUID playlistId, UUID contentId, UUID ownerId) {

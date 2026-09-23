@@ -10,7 +10,7 @@ ext {
     querydslVersion = '7.1'
     springCloudVersion = '2025.0.1'
     springCloudAwsVersion = '3.4.2'
-    grpcVersion = '1.69.0'
+    grpcVersion = '1.63.0'
     protobufVersion = '3.25.5'
     grpcSpringBootVersion = '3.1.0.RELEASE'
 }
