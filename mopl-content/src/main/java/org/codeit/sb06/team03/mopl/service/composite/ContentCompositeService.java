@@ -14,7 +14,6 @@ import org.codeit.sb06.team03.mopl.s3.S3Service;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.codeit.sb06.team03.mopl.event.ImageUploadEvent;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
-import org.codeit.sb06.team03.mopl.service.application.LiveChatRoomCommandService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,6 @@ public class ContentCompositeService {
 
     private final ContentCommandService contentCommandService;
     private final ContentQueryService contentQueryService;
-    private final LiveChatRoomCommandService liveChatRoomCommandService;
     private final ExternalImageQueryService imageQueryService;
     private final S3Service s3Service;
 
@@ -44,7 +42,6 @@ public class ContentCompositeService {
 
     public ContentDto createInternal(ContentCreateInternalRequest request) {
         ContentReadModel readModel = contentCommandService.createInternal(request);
-        liveChatRoomCommandService.create(readModel.id());
 
         return ContentDto.from(readModel, getPresignedUrl(request.thumbnailKey()));
     }
@@ -54,7 +51,6 @@ public class ContentCompositeService {
         String thumbnailKey = uploadImage(contentId, image);
 
         ContentReadModel readModel = contentCommandService.create(contentId, request, thumbnailKey);
-        liveChatRoomCommandService.create(readModel.id());
         
         return ContentDto.from(readModel, getPresignedUrl(thumbnailKey));
     }
@@ -153,7 +149,6 @@ public class ContentCompositeService {
 
     public void delete(UUID contentId) {
         contentCommandService.deleteSaga(contentId);
-        liveChatRoomCommandService.delete(contentId);
     }
 
     private String getPresignedUrl(String thumbnailKey) {

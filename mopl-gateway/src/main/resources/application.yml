@@ -37,9 +37,9 @@ spring:
           predicates:
             - Path=/api/sse
 
-        # 3. WebSocket (Content Service)
+        # 3. WebSocket (Watching Session / Live Chat Service)
         - id: websocket-content-route
-          uri: http://${CONTENT_HOST:localhost}:8082
+          uri: http://${WATCHING_SESSION_HOST:localhost}:8083
           predicates:
             - Path=/ws/contents/**
 

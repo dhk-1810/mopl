@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl;
+package org.codeit.sb06.team03.mopl.interceptor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,8 +61,7 @@ public class StompAuthInboundInterceptor implements ChannelInterceptor {
             return nativeUserId;
         }
 
-        // 3. STOMP Native Header Authorization / passcode / token / access_token (JWT
-        // payload sub)
+        // 3. STOMP Native Header Authorization / passcode / token / access_token (JWT payload sub)
         String token = accessor.getFirstNativeHeader("Authorization");
         if (token == null)
             token = accessor.getFirstNativeHeader("passcode");

@@ -13,6 +13,9 @@ import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.codeit.sb06.team03.mopl.enums.SortContentBy;
 import org.codeit.sb06.team03.mopl.enums.ContentType;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.lang.Nullable;
 
 import java.time.Instant;
@@ -30,6 +33,13 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
     boolean existsByTitleAndType(String title, ContentType type);
 
     List<Content> findAllByStatusAndUpdatedAtBefore(ContentStatus status, Instant threshold);
+
+    @Query("SELECT c.id FROM Content c WHERE c.watcherCount > 0")
+    List<UUID> findIdsByWatcherCountGreaterThanZero();
+
+    @Modifying
+    @Query("UPDATE Content c SET c.watcherCount = :watcherCount WHERE c.id = :id AND c.watcherCount != :watcherCount")
+    int updateWatcherCount(@Param("id") UUID id, @Param("watcherCount") long watcherCount);
 
     default Optional<ContentReadModel> findByIdWithTags(UUID id) {
 

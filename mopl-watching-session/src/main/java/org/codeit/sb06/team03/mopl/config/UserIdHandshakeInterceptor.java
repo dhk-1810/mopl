@@ -38,7 +38,7 @@ public class UserIdHandshakeInterceptor implements HandshakeInterceptor {
                 MultiValueMap<String, String> queryParams = UriComponentsBuilder.fromUri(request.getURI()).build().getQueryParams();
                 userId = queryParams.getFirst("X-User-Id");
                 if (userId == null) userId = queryParams.getFirst("userId");
-                if (userId == null) userId = queryParams.getFirst("user-id");
+                if (userId == null) queryParams.getFirst("user-id");
                 if (userId == null) {
                     String token = queryParams.getFirst("token");
                     if (token == null) token = queryParams.getFirst("access_token");

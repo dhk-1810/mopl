@@ -1,4 +1,4 @@
-package org.codeit.sb06.team03.mopl;
+package org.codeit.sb06.team03.mopl.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

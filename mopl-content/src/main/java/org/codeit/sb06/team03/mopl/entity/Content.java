@@ -25,7 +25,7 @@ public class Content {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private ContentStatus status = ContentStatus.ACTIVE;
+    private ContentStatus status;
 
     @NotNull
     @Column(name = "created_at", nullable = false)
