@@ -79,13 +79,13 @@ public class RabbitConfig {
         rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
             String msgId = correlationData != null ? correlationData.getId() : "null";
             if (ack) {
-                log.info("[Publisher Confirm] Broker successfully received and persisted message in mopl-watching-session. id: {}", msgId);
+                log.info("[Publisher Confirm] Broker successfully received and persisted message in mopl-live-chat. id: {}", msgId);
             } else {
-                log.error("[Publisher Confirm] Broker NACK/FAILED in mopl-watching-session. id: {}, cause: {}", msgId, cause);
+                log.error("[Publisher Confirm] Broker NACK/FAILED in mopl-live-chat. id: {}, cause: {}", msgId, cause);
             }
         });
         rabbitTemplate.setReturnsCallback(returned -> {
-            log.warn("[Publisher Returns] Message unroutable in mopl-watching-session: replyCode={}, replyText={}, exchange={}, routingKey={}, message={}",
+            log.warn("[Publisher Returns] Message unroutable in mopl-live-chat: replyCode={}, replyText={}, exchange={}, routingKey={}, message={}",
                     returned.getReplyCode(), returned.getReplyText(), returned.getExchange(), returned.getRoutingKey(), returned.getMessage());
         });
         return rabbitTemplate;

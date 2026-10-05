@@ -1,7 +1,7 @@
 ### 1. Redis 사용처
 
 - mopl-user : JWT Refresh Token 저장, 이메일 인증번호/임시 비밀번호 캐싱
-- mopl-watching-session : Watching Session 상태 관리, Inbox 멱등성 키(inbox:saga-start:*) 관리
+- mopl-live-chat : Watching Session 및 Live Chat 상태 관리, Inbox 멱등성 키(inbox:saga-start:*) 관리
 - mopl-notification : SSE 연결 클라이언트 관리 및 알림 캐싱
 
 ### 2. Redis + RabbitMQ로 분산 환경에서의 SSE 알림 전파 구현하기

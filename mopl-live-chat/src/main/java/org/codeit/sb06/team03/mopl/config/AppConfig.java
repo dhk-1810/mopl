@@ -1,10 +1,10 @@
 package org.codeit.sb06.team03.mopl.config;
 
-import org.codeit.sb06.team03.mopl.WatchingSessionApplication;
+import org.codeit.sb06.team03.mopl.LiveChatApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationPropertiesScan(basePackageClasses = WatchingSessionApplication.class)
+@ConfigurationPropertiesScan(basePackageClasses = LiveChatApplication.class)
 public class AppConfig {
 }

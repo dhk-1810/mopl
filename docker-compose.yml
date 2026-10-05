@@ -38,9 +38,9 @@ services:
         limits:
           memory: 256M
 
-  watching-session-redis:
+  live-chat-redis:
     image: redis:7.2-alpine
-    container_name: mopl-watching-session-redis
+    container_name: mopl-live-chat-redis
     ports:
       - "6380:6379"
     restart: always
@@ -152,7 +152,7 @@ services:
     image: quay.io/debezium/connect:2.6
     container_name: mopl-kafka-connect
     ports:
-      - "8089:8083" # 커넥터 생성/조회/삭제를 위한 REST API 포트 (watching-session 8083 충돌 방지)
+      - "8089:8083" # 커넥터 생성/조회/삭제를 위한 REST API 포트 (live-chat 8083 충돌 방지)
     environment:
       BOOTSTRAP_SERVERS: kafka:9092 # 연결할 Kafka 브로커 주소
       GROUP_ID: 1 # Connect 클러스터 그룹 식별자

@@ -13,7 +13,7 @@ import org.codeit.sb06.team03.mopl.entity.vo.Password;
 import org.codeit.sb06.team03.mopl.entity.vo.Role;
 import org.codeit.sb06.team03.mopl.event.AccountLockUpdatedEvent;
 import org.codeit.sb06.team03.mopl.event.AccountRegisteredEvent;
-import org.codeit.sb06.team03.mopl.event.PasswordResetedEvent;
+import org.codeit.sb06.team03.mopl.event.PasswordResetEvent;
 import org.codeit.sb06.team03.mopl.event.RoleUpdatedEvent;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -108,7 +108,7 @@ public class Account extends AbstractAggregateRoot<Account> {
         Password encrypted = passwordEncryptionPolicy.apply(rawTempPassword);
 
         this.password = encrypted;
-        this.registerEvent(new PasswordResetedEvent(
+        this.registerEvent(new PasswordResetEvent(
                 emailAddress.value(), rawTempPassword, expiresAt.toString()
         ));
         return this;

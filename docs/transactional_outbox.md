@@ -23,7 +23,7 @@
 - **적용**:
     - `mopl-content`: `InboxEvent`, `InboxService`, `ContentSagaEventListener`, `InboxCleanupScheduler`
     - `mopl-playlist`: `InboxEvent`, `InboxService`, `ContentEventListener`, `InboxCleanupScheduler`
-    - `mopl-watching-session`: `WatchingSessionEventListener` (Redis 기반 `setIfAbsent` Inbox 키 관리)
+    - `mopl-live-chat`: `WatchingSessionEventListener` (Redis 기반 `setIfAbsent` Inbox 키 관리)
 - **동작**:
     - **Saga 참가자(Playlist/WatchingSession)의 중복 수신 방지**
       - RabbitMQ의 At-Least-Once 전달 특성상 네트워크 재시도로 동일한 `ContentDeletionSagaEvent (START)`가 재유입되더라도, 

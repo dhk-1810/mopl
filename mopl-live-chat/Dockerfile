@@ -15,23 +15,23 @@ COPY mopl-image/build.gradle mopl-image/
 COPY mopl-notification/build.gradle mopl-notification/
 COPY mopl-playlist/build.gradle mopl-playlist/
 COPY mopl-user/build.gradle mopl-user/
-COPY mopl-watching-session/build.gradle mopl-watching-session/
+COPY mopl-live-chat/build.gradle mopl-live-chat/
 COPY mopl-proto/build.gradle mopl-proto/
 
 # 의존성 다운로드 캐싱
-RUN chmod +x ./gradlew && ./gradlew :mopl-watching-session:dependencies --no-daemon
+RUN chmod +x ./gradlew && ./gradlew :mopl-live-chat:dependencies --no-daemon
 
 # 소스 코드 복사 및 애플리케이션 빌드
 COPY mopl-proto/src mopl-proto/src
-COPY mopl-watching-session/src mopl-watching-session/src
-RUN ./gradlew :mopl-watching-session:bootJar -x test --no-daemon
+COPY mopl-live-chat/src mopl-live-chat/src
+RUN ./gradlew :mopl-live-chat:bootJar -x test --no-daemon
 
 # 2. 실행 스테이지
 FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/mopl-watching-session/build/libs/*.jar app.jar
+COPY --from=builder /app/mopl-live-chat/build/libs/*.jar app.jar
 
 EXPOSE 8083
 

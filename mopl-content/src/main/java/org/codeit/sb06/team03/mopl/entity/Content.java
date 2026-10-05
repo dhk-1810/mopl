@@ -71,7 +71,7 @@ public class Content {
 
     @NotNull
     @Column(name = "watcher_count", nullable = false)
-    private long watcherCount; // TODO
+    private long watcherCount;
 
     private Content(UUID id, ContentType type, String title, String description, String thumbnailKey) {
         this.id = id != null ? id : UUID.randomUUID();

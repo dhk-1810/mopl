@@ -67,9 +67,9 @@ public class WatchingSessionEventListener {
         }
     }
 
-    @KafkaListener(topics = RabbitConfig.ROUTING_KEY_SAGA_START, groupId = "watching-session-group")
+    @KafkaListener(topics = RabbitConfig.ROUTING_KEY_SAGA_START, groupId = "${spring.kafka.consumer.group-id:live-chat-group}")
     public void handleContentDeletionSaga(String payload) {
-        log.info("Received ContentDeletionSagaEvent START from Kafka in mopl-watching-session: {}", payload);
+        log.info("Received ContentDeletionSagaEvent START from Kafka in mopl-live-chat: {}", payload);
 
         ContentDeletionSagaEvent event;
         try {

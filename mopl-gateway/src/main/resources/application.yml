@@ -20,14 +20,14 @@ spring:
             allowedHeaders: "*"
             allowCredentials: true
       routes:
-        # 1. Watching Session Service
-        - id: watching-session-user-route
-          uri: http://${WATCHING_SESSION_HOST:localhost}:8083
+        # 1. Live Chat / Watching Session Service
+        - id: live-chat-user-route
+          uri: http://${LIVE_CHAT_HOST:${WATCHING_SESSION_HOST:localhost}}:8083
           predicates:
             - Path=/api/users/{watcherId}/watching-sessions
 
-        - id: watching-session-content-route
-          uri: http://${WATCHING_SESSION_HOST:localhost}:8083
+        - id: live-chat-content-route
+          uri: http://${LIVE_CHAT_HOST:${WATCHING_SESSION_HOST:localhost}}:8083
           predicates:
             - Path=/api/contents/{contentId}/watching-sessions
 
@@ -37,9 +37,9 @@ spring:
           predicates:
             - Path=/api/sse
 
-        # 3. WebSocket (Watching Session / Live Chat Service)
+        # 3. WebSocket (Live Chat Service)
         - id: websocket-content-route
-          uri: http://${WATCHING_SESSION_HOST:localhost}:8083
+          uri: http://${LIVE_CHAT_HOST:${WATCHING_SESSION_HOST:localhost}}:8083
           predicates:
             - Path=/ws/contents/**
 

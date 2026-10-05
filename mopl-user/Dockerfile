@@ -15,7 +15,7 @@ COPY mopl-image/build.gradle mopl-image/
 COPY mopl-notification/build.gradle mopl-notification/
 COPY mopl-playlist/build.gradle mopl-playlist/
 COPY mopl-user/build.gradle mopl-user/
-COPY mopl-watching-session/build.gradle mopl-watching-session/
+COPY mopl-live-chat/build.gradle mopl-live-chat/
 COPY mopl-proto/build.gradle mopl-proto/
 
 # 의존성 다운로드 캐싱

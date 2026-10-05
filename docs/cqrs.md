@@ -29,6 +29,6 @@
 ### 5. mopl-notification (알림)
 * **external_user_views** (`ExternalUserView`): `mopl-user`의 알림 대상/행위자 프로필 복제
 
-### 6. mopl-watching-session (시청 세션)
+### 6. mopl-live-chat (라이브 채팅 및 시청 세션)
 * **external_profile_views** (`ExternalProfileView`): `mopl-user`의 시청자 프로필 정보 복제
 * **timeout_images** (`ExternalImageView`): `mopl-image`의 프로필 이미지 Presigned URL 동기화
