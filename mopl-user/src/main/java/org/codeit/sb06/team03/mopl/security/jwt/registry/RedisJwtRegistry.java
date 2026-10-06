@@ -1,7 +1,11 @@
 package org.codeit.sb06.team03.mopl.security.jwt.registry;
 
+import lombok.extern.slf4j.Slf4j;
+import org.codeit.sb06.team03.mopl.config.RabbitConfig;
+import org.codeit.sb06.team03.mopl.event.WatchingSessionDeleteRequestEvent;
 import org.codeit.sb06.team03.mopl.security.jwt.*;
 import org.codeit.sb06.team03.mopl.security.jwt.exception.InvalidTokenException;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -11,12 +15,14 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
+@Slf4j
 @Component
 public class RedisJwtRegistry implements JwtRegistry {
 
     private final int MAX_SESSION;
     private final StringRedisTemplate redisTemplate;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RabbitTemplate rabbitTemplate;
 
     private static final String REFRESH_KEY_PREFIX = "token:refresh:";
     private static final String USER_SESSIONS_PREFIX = "token:user:";
@@ -24,11 +30,13 @@ public class RedisJwtRegistry implements JwtRegistry {
     public RedisJwtRegistry(
             @Value("${mopl.jwt.max-session}") int maxSession,
             StringRedisTemplate redisTemplate,
-            JwtTokenProvider jwtTokenProvider
+            JwtTokenProvider jwtTokenProvider,
+            RabbitTemplate rabbitTemplate
     ) {
         this.MAX_SESSION = maxSession;
         this.redisTemplate = redisTemplate;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
@@ -39,20 +47,33 @@ public class RedisJwtRegistry implements JwtRegistry {
         String userIdStr = jwtClaims.id().toString();
         String userSessionsKey = USER_SESSIONS_PREFIX + userIdStr;
 
-        // 세션 개수 초과 시 가장 오래된 세션 만료 처리 (MAX_SESSION 제어)
-        Set<String> existingRefreshIds = redisTemplate.opsForSet().members(userSessionsKey);
-        if (existingRefreshIds != null && existingRefreshIds.size() >= MAX_SESSION) {
-            for (String oldRefreshId : existingRefreshIds) {
-                invalidateByRefreshTokenId(oldRefreshId, userIdStr);
+        // 세션 개수 초과 시 가장 오래된 세션 만료 처리 (FIFO 제어)
+        Long currentSessionCount = redisTemplate.opsForZSet().zCard(userSessionsKey);
+        if (currentSessionCount != null && currentSessionCount >= MAX_SESSION) {
+            long toRemoveCount = currentSessionCount - MAX_SESSION + 1;
+            Set<String> oldestRefreshIds = redisTemplate.opsForZSet().range(userSessionsKey, 0, toRemoveCount - 1);
+            if (oldestRefreshIds != null && !oldestRefreshIds.isEmpty()) {
+                log.info("Max session limit ({}) reached for user {}. Evicting {} oldest session(s): {}",
+                        MAX_SESSION, userIdStr, oldestRefreshIds.size(), oldestRefreshIds);
+                for (String oldRefreshId : oldestRefreshIds) {
+                    invalidateByRefreshTokenId(oldRefreshId, userIdStr);
+                }
+
+                // 동시 로그인 대수 초과로 인한 강제 세션 만료 시 워칭 세션 정리 이벤트 발행
+                rabbitTemplate.convertAndSend(
+                        RabbitConfig.WS_EXCHANGE,
+                        RabbitConfig.WS_DELETE_ROUTING,
+                        new WatchingSessionDeleteRequestEvent(jwtClaims.id())
+                );
             }
         }
 
         String refreshIdStr = refreshToken.id().toString();
         long refreshTtlSec = Math.max(0, Duration.between(Instant.now(), refreshToken.expiresAt()).getSeconds());
 
-        // Redis 저장 (RefreshToken 및 유저 세션 Set만 관리)
+        // Redis 저장 (RefreshToken String 및 유저 세션 ZSet score=현재 타임스탬프)
         redisTemplate.opsForValue().set(REFRESH_KEY_PREFIX + refreshIdStr, userIdStr, Duration.ofSeconds(refreshTtlSec));
-        redisTemplate.opsForSet().add(userSessionsKey, refreshIdStr);
+        redisTemplate.opsForZSet().add(userSessionsKey, refreshIdStr, (double) Instant.now().toEpochMilli());
 
         return new TokenPair(refreshToken.token(), accessToken.token());
     }
@@ -63,17 +84,17 @@ public class RedisJwtRegistry implements JwtRegistry {
             return false;
         }
         UUID refreshTokenId = jwtTokenProvider.getTokenId(refreshToken);
-        return Boolean.TRUE.equals(redisTemplate.hasKey(REFRESH_KEY_PREFIX + refreshTokenId));
+        return redisTemplate.hasKey(REFRESH_KEY_PREFIX + refreshTokenId);
     }
 
     @Override
-    public void invalidateAll(JwtClaims jwtClaims) {
-        String userIdStr = jwtClaims.id().toString();
+    public void invalidateAllByUserId(UUID userId) {
+        String userIdStr = userId.toString();
         String userSessionsKey = USER_SESSIONS_PREFIX + userIdStr;
-        Set<String> refreshIds = redisTemplate.opsForSet().members(userSessionsKey);
+        Set<String> refreshIds = redisTemplate.opsForZSet().range(userSessionsKey, 0, -1);
         if (refreshIds != null) {
             for (String refreshId : refreshIds) {
-                invalidateByRefreshTokenId(refreshId, userIdStr);
+                redisTemplate.delete(REFRESH_KEY_PREFIX + refreshId);
             }
         }
         redisTemplate.delete(userSessionsKey);
@@ -107,6 +128,6 @@ public class RedisJwtRegistry implements JwtRegistry {
 
     private void invalidateByRefreshTokenId(String refreshIdStr, String userIdStr) {
         redisTemplate.delete(REFRESH_KEY_PREFIX + refreshIdStr);
-        redisTemplate.opsForSet().remove(USER_SESSIONS_PREFIX + userIdStr, refreshIdStr);
+        redisTemplate.opsForZSet().remove(USER_SESSIONS_PREFIX + userIdStr, refreshIdStr);
     }
 }

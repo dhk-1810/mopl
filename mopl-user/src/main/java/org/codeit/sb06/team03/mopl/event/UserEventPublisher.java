@@ -3,6 +3,7 @@ package org.codeit.sb06.team03.mopl.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
+import org.codeit.sb06.team03.mopl.security.jwt.registry.JwtRegistry;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -14,6 +15,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class UserEventPublisher {
 
     private final RabbitTemplate rabbitTemplate;
+    private final JwtRegistry jwtRegistry;
 
     public static final String ROUTING_KEY_ROLE_UPDATED = "user.role-updated";
     public static final String ROUTING_KEY_FOLLOWED = "user.followed";
@@ -58,5 +60,18 @@ public class UserEventPublisher {
                 ROUTING_KEY_PROFILE_UPDATED,
                 event
         );
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleAccountLockUpdatedEvent(AccountLockUpdatedEvent event) {
+        log.info("Handling AccountLockUpdatedEvent: {}", event);
+        if (event.locked()) {
+            jwtRegistry.invalidateAllByUserId(event.accountId());
+            rabbitTemplate.convertAndSend(
+                    RabbitConfig.WS_EXCHANGE,
+                    RabbitConfig.WS_DELETE_ROUTING,
+                    new WatchingSessionDeleteRequestEvent(event.accountId())
+            );
+        }
     }
 }

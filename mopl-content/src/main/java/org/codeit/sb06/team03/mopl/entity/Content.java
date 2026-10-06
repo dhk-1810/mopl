@@ -85,7 +85,6 @@ public class Content {
         this.reviewCount = 0;
     }
 
-    // TODO 파라미터로 id 받는거 맘에 안들음.
     public static Content create(UUID id, ContentType contentType, String title, String description, String thumbnailKey) {
         return new Content(
                 id,

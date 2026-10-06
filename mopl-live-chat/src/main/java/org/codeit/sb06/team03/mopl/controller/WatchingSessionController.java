@@ -5,6 +5,7 @@ import org.codeit.sb06.team03.mopl.dto.response.WatchingSessionDto;
 import org.codeit.sb06.team03.mopl.service.composite.WatchingSessionCompositeService;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponseWatchingSessionDto;
 import org.codeit.sb06.team03.mopl.dto.request.CursorWatchingSessionRequest;
+import org.codeit.sb06.team03.mopl.exception.WatchingSessionAccessDeniedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,10 +21,13 @@ public class WatchingSessionController {
     @GetMapping("/users/{watcherId}/watching-sessions")
     public ResponseEntity<WatchingSessionDto> getByWatcherId(
             @PathVariable UUID watcherId,
-            @RequestHeader(value = "X-User-Id", required = false) String userId
+            @RequestHeader(value = "X-User-Id") UUID userId
     ) {
+        if (!watcherId.equals(userId)) {
+            throw new WatchingSessionAccessDeniedException();
+        }
         WatchingSessionDto sessionDetails = watchingSessionCompositeService
-                .getByWatcherId(watcherId, userId);
+                .getByWatcherId(watcherId);
         return ResponseEntity.ok(sessionDetails);
     }
 

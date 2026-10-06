@@ -22,7 +22,7 @@ public class WatchingSessionQueryService {
     private final WatchingSessionRepository watchingSessionRepository;
 
     @Nullable
-    public WatchingSessionReadModel getByContentId(UUID watcherId) {
+    public WatchingSessionReadModel getByWatcherId(UUID watcherId) {
         return watchingSessionRepository.findReadModelByWatcherId(watcherId)
                 .orElse(null);
     }

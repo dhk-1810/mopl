@@ -13,7 +13,7 @@ spring:
 mopl:
   services:
     content:
-      url: http://${CONTENT_HOST:localhost}:8082 # TODO .env파일에 추가 필요
+      url: http://${CONTENT_HOST:localhost}:8082
   api:
     tmdb:
       key: ${TMDB_API_KEY:mock}

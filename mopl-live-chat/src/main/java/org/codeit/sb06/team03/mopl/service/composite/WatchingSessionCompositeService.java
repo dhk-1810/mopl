@@ -13,7 +13,6 @@ import org.codeit.sb06.team03.mopl.profile.service.ProfileQueryService;
 import org.codeit.sb06.team03.mopl.dto.WatchingSessionReadModel;
 import org.codeit.sb06.team03.mopl.service.application.WatchingSessionQueryService;
 import org.springframework.data.domain.Slice;
-import org.codeit.sb06.team03.mopl.exception.WatchingSessionAccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,10 +28,9 @@ public class WatchingSessionCompositeService {
     private final ProfileQueryService profileQueryService;
     private final ExternalImageQueryService imageQueryService;
 
-    public WatchingSessionDto getByWatcherId(UUID watcherId, String authenticatedUserId) {
+    public WatchingSessionDto getByWatcherId(UUID watcherId) {
 
-        // TODO 자발/강제 로그아웃 시 워칭세션 삭제
-        WatchingSessionReadModel watchingSession = watchingSessionQueryService.getByContentId(watcherId);
+        WatchingSessionReadModel watchingSession = watchingSessionQueryService.getByWatcherId(watcherId);
         if (watchingSession == null) return null;
 
         ProfileReadModel profile = profileQueryService.getProfileReadModels(List.of(watcherId)).get(watcherId);

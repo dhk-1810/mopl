@@ -22,6 +22,9 @@ public class RabbitConfig {
     public static final String IMAGE_PRESIGNED_URL_CREATED_QUEUE = "user.image-presigned-url-created.queue";
     public static final String IMAGE_PRESIGNED_URL_CREATED_ROUTING_KEY = "mopl.image.presigned-url-created";
 
+    public static final String WS_EXCHANGE = "mopl.watching-session.exchange";
+    public static final String WS_DELETE_ROUTING = "watching-session.delete";
+
     @Bean
     public TopicExchange userExchange() {
         return new TopicExchange(USER_EXCHANGE);
