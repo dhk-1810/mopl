@@ -1,13 +1,13 @@
 package org.codeit.sb06.team03.mopl.sse.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.sse.NotificationInstanceId;
 import org.codeit.sb06.team03.mopl.sse.dto.NotificationSsePayload;
 import org.codeit.sb06.team03.mopl.sse.repository.NotificationSessionRepository;
 import org.codeit.sb06.team03.mopl.sse.repository.SseRepository;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -24,7 +24,8 @@ public class SseService {
     private final SseRepository sseRepository;
     private final NotificationSessionRepository sessionRedisRepository;
     private final NotificationInstanceId instanceId;
-    private final RabbitTemplate rabbitTemplate;
+    private final StringRedisTemplate redisTemplate;
+    private final ObjectMapper objectMapper;
 
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 30; // 30분
 
@@ -125,11 +126,8 @@ public class SseService {
     private void sendToRemoteInstance(String targetInstanceId, UUID receiverId, String eventName, Object data, String eventId) {
         try {
             NotificationSsePayload payload = new NotificationSsePayload(receiverId, eventName, data, eventId);
-            rabbitTemplate.convertAndSend(
-                    RabbitConfig.NOTIFICATION_SSE_EXCHANGE,
-                    "notification.instance." + targetInstanceId,
-                    payload
-            );
+            String jsonPayload = objectMapper.writeValueAsString(payload);
+            redisTemplate.convertAndSend("notification:instance:" + targetInstanceId, jsonPayload);
         } catch (Exception e) {
             log.error("Failed to forward SSE notification to instance {}: {}", targetInstanceId, e.getMessage(), e);
         }
