@@ -1,37 +1,62 @@
-## Saga 구현해보기
+## Saga 보상 트랜잭션 구현 (gRPC 동기 오케스트레이션)
 
-### 1. 필요성
-- MSA 도입으로 서버 간 트랜잭션 ACID 보장 불가
-- 컨텐츠 삭제 시, 플레이리스트 담음 정보(Curation), 시청세션도 원자적으로 삭제되어야 하나. `@Transactional`로 이들을 묶을 수 없음.
+### 1. 배경 및 필요성
+- MSA 환경에서 컨텐츠 삭제 시, 연관된 플레이리스트 담음 정보(Curation) 및 실시간 시청 세션(WatchingSession)이 원자적으로 정리되어야 함.
+- 단일 `@Transactional`로 다른 서비스들의 DB/Redis를 묶을 수 없으므로 분산 트랜잭션 및 보상 트랜잭션(Saga) 메커니즘 도입.
 
-### 2. 기본 구현
-- 컨텐츠 삭제 시 상태를 `DELETING`으로 변경, RabbitMQ로 연관 서비스로 이벤트 전파.
-- 연관 서비스의 삭제 실패 시 보상 트랜잭션을 트리거해, 컨텐츠 상태를 ACTIVE로 롤백 처리.
-  - 둘 모두 성공 응답 이벤트를 받았을 때 `DELETED`로 상태 변경, 하나라도 실패하면 `ACTIVE`로 롤백.
 
-### 3. 상태 고립(Zombie State) 방지
-- 컨텐츠 삭제 시 `mopl-content` DB는 `DELETING` 상태로 변경되었으나, 
-- 네트워크 지연/RabbitMQ 일시 장애로 인해 Saga 시작 이벤트 발행이 실패하면 해당 컨텐츠는 영원히 `DELETING` 상태로 고립될 수 있음.
+### 2. 아키텍처 전환 이유 (Message Broker vs gRPC)
+* **기존 비동기 브로커(RabbitMQ / Kafka CDC)의 한계**:
+  * 비동기 이벤트 분기(Fork) 후 결과 병합(Join) 과정에서 메시지 도착 순서 역전(Race Condition)으로 인한 상태 덮어쓰기 위험 존재.
+  * 3분 타임아웃 동안 컨텐츠가 좀비 상태로 고립되어 사용자 경험 저하.
+  * 복잡한 4중 인프라(Outbox + Debezium CDC + Kafka + RabbitMQ + Inbox)로 인한 운영 복잡도 과다.
+* **gRPC + Deadline 타임아웃 기반 순차 오케스트레이션 채택**:
+  * 컨텐츠 삭제 연관 서비스가 2개(`Playlist`, `LiveChat`)로 명확하고 빠른 삭제 작업이므로, **직접 gRPC 호출**을 통해 극적으로 단순화.
+  * 서비스 간 결합도(Coupling)를 방지하기 위해 `mopl-content`의 `ContentCompositeService`가 조율자가 되어 **순차 호출(Sequential Orchestration)** 수행.
+  * 2~3초 Deadline 타임아웃을 적용하여 장애 발생 시 즉각적인 감지 및 보상(Rollback) 수행.
 
-- Timeout 스케줄러 `ContentSagaTimeoutScheduler` 도입, 
-- `Content` 엔티티의 `updatedAt` 필드를 기준으로 `DELETING` 상태가 3분 이상 지속된 고립 데이터를 1분마다 주기적으로 감지.
-- 브로커 장애/네트워크 단절로 참여 서버의 응답이 누락되면 자동으로 `restoreActive()`를 실행 -> 상태를 원상 복구
 
-### 4. Consumer 서버 장애 시 메시지 유실 위험 차단
-- RabbitMQ의 Consumer는 메시지를 읽어갈 때 ACK을 보내고 큐에서 영구 삭제함. (기본 설정)
-- 컨슈머의 비즈니스 로직(DB 갱신 등) 도중 서버 다운(Crash), 예외 발생 시 메시지가 이미 큐에서 소비 처리되어 영구 유실될 수 있음.
+### 3. 트랜잭션 흐름 및 순차 체이닝
 
-- 컨슈머가 로컬 DB 트랜잭션 및 응답 이벤트 전송까지 완전히 완료한 후 `channel.basicAck(deliveryTag, false)` 전송.
-- 비즈니스 예외 발생 또는 처리 실패 시 `basicReject(deliveryTag, false)` 및 Saga FAILED 응답 전송.
-- 컨슈머 서버가 작업 도중 다운되면 Ack를 받지 못한 RabbitMQ 브로커가 메시지를 큐에 보존했다가 다른 컨슈머에게 안전하게 재전파(Redelivery).
+```text
+[정상 시나리오]
+ContentCompositeService.delete(contentId)
+  │
+  ├─ 1. gRPC DeleteCurations (Deadline 3s) ──> mopl-playlist (Curation & View 삭제 성공)
+  │
+  ├─ 2. gRPC DeleteWatchingSessions (Deadline 3s) ──> mopl-live-chat (세션 정리 성공)
+  │
+  └─ 3. 외부 작업 완료 후 로컬 DB markAsDeleted 커밋 (0.001초 짧은 트랜잭션) ──> 204 No Content
 
-### 5. RabbitMQ 자체 장애 대처
-- RabbitMQ 서버 다운 시 큐의 메시지는 전부 증발함.
+[Step 1 (Playlist) 실패 시]
+ContentCompositeService.delete(contentId) ──> Playlist 실패
+  │
+  └─ 로컬 DB는 수정하지 않고 즉시 500 예외 반환 (LiveChat은 미호출 상태이므로 안전)
 
-- Durable 큐 / Persistent 메시지 사용, 메시지를 디스크에 저장.
-- Publisher Confirm 및 Returns 활성화 (발행 확인, 디스크 영속성 보증)
-  - Publisher Confirm: 브로커가 디스크에 저장을 끝마쳤음을 발행자에게 확인해 주는 알림(ACK)
-  - Publisher Returns: 라우팅 키 오타 등으로 어떤 큐에도 들어가지 못한 메시지를 발행자에게 반송해 주는 알림(NACK)
-  - 결과(ACK/NACK)는 Correlation ID와 함께 로깅.
-- `spring.rabbitmq.publisher-confirm-type: correlated`, `publisher-returns: true` 적용.
-- RabbitTemplate에 `ConfirmCallback`과 `ReturnsCallback` 등록.
+[Step 2 (LiveChat) 실패 시 - 보상 트랜잭션 발동]
+ContentCompositeService.delete(contentId)
+  ├─ Playlist 성공
+  ├─ LiveChat 실패 / DeadlineExceeded
+  │
+  └─ [보상 트랜잭션 즉시 실행]
+       ├─ gRPC RestoreCurations ──> mopl-playlist (백업된 Curation & View 복구)
+       └─ 로컬 DB는 변경 없이 500 실패 예외 반환
+```
+
+
+### 4. 주요 특징 및 예외 대응
+
+1. **DB 커넥션 풀(HikariCP) 보호 & 트랜잭션 분리**:
+   * 외부 네트워크 gRPC 통신 중에는 DB 커넥션을 점유하지 않음.
+   * 모든 외부 통신이 성공한 시점에만 `contentCommandService.delete()`를 통해 0.001초 만에 로컬 DB 커밋.
+2. **단순화된 상태 머신 (Soft Lock `DELETING` 불필요)**:
+   * 동기 통신으로 1초 이내에 성공/실패가 판가름 나므로, 중간 상태인 `DELETING`을 두지 않고 `ACTIVE → DELETED`로 직관적 전이.
+   * 로컬 DB를 맨 마지막에 갱신하므로 중간 실패 시 로컬 DB 원복(`restoreActive`) 자체가 불필요.
+3. **동기식 즉각 보상(Immediate Compensation)**:
+   * 3분 스케줄러 대기 없이, Step 2 실패 즉시 `RestoreCurations`를 호출하여 Playlist 원상 복구.
+   * `mopl-playlist`는 삭제 직전 데이터를 캐시에 백업해 두어 보상 호출 시 완벽 복원.
+4. **네트워크 장애 및 지연 대응 (Deadline)**:
+   * 각 gRPC 호출에 3초 Deadline을 설정하여 상대 서버 장애 시 무한 대기(Hang) 방지.
+5. **인프라 극적 단순화**:
+   * 불필요해진 Debezium CDC, Kafka 브로커, Outbox 및 Inbox 테이블, 스케줄러 전면 제거.
+6. **ContentStatus.DELETING 제거**

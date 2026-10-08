@@ -17,16 +17,11 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitConfig {
 
     public static final String WS_EXCHANGE = "mopl.watching-session.exchange";
-    public static final String CONTENT_EXCHANGE = "mopl.content.exchange";
-
     public static final String WS_CREATE_ROUTING = "watching-session.create";
     public static final String WS_DELETE_ROUTING = "watching-session.delete";
-    public static final String ROUTING_KEY_SAGA_START = "content.saga.delete.start";
-    public static final String ROUTING_KEY_SAGA_RESPONSE = "content.saga.delete.response";
 
     public static final String WS_CREATE_QUEUE = "watching-session.create.queue";
     public static final String WS_DELETE_QUEUE = "watching-session.delete.queue";
-    public static final String WS_CONTENT_SAGA_START_QUEUE = "watching-session.content-saga-start.queue";
 
     @Bean
     public TopicExchange wsExchange() {
@@ -48,23 +43,6 @@ public class RabbitConfig {
         return BindingBuilder.bind(wsCreateQueue())
                 .to(wsExchange())
                 .with(WS_CREATE_ROUTING);
-    }
-
-    @Bean
-    public TopicExchange contentExchange() {
-        return new TopicExchange(CONTENT_EXCHANGE);
-    }
-
-    @Bean
-    public Queue wsContentSagaStartQueue() {
-        return new Queue(WS_CONTENT_SAGA_START_QUEUE, true);
-    }
-
-    @Bean
-    public Binding wsContentSagaStartBinding() {
-        return BindingBuilder.bind(wsContentSagaStartQueue())
-                .to(contentExchange())
-                .with(ROUTING_KEY_SAGA_START);
     }
 
     @Bean

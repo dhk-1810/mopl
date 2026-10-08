@@ -1,6 +1,5 @@
 package org.codeit.sb06.team03.mopl.repository;
 
-import com.querydsl.core.group.GroupBy;
 import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
 import org.codeit.sb06.team03.mopl.entity.Curation;
 import org.codeit.sb06.team03.mopl.entity.CurationId;
@@ -34,11 +33,19 @@ public interface CurationRepository extends QuerydslJpaRepository<Curation, Cura
                 .execute();
     }
 
-    default void deleteAllByContentId(UUID playlistId) {
+    default void deleteAllByContentId(UUID contentId) {
         QCuration curation = QCuration.curation;
         delete(curation)
-                .where(curation.id.contentId.eq(playlistId))
+                .where(curation.id.contentId.eq(contentId))
                 .execute();
+    }
+
+    default List<Curation> findAllByContentId(UUID contentId) {
+        QCuration curation = QCuration.curation;
+        return select(curation)
+                .from(curation)
+                .where(curation.id.contentId.eq(contentId))
+                .fetch();
     }
 
     default Map<UUID, List<UUID>> findAllByPlaylistIdsIn(Set<UUID> playlistIds) {

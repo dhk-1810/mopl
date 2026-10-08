@@ -16,6 +16,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -99,6 +100,18 @@ public class PlaylistCommandService {
 
     public void deleteCurationByContentId(UUID contentId) {
         curationRepository.deleteAllByContentId(contentId);
+    }
+
+    public List<Curation> deleteCurationByContentIdWithBackup(UUID contentId) {
+        List<Curation> curations = curationRepository.findAllByContentId(contentId);
+        curationRepository.deleteAllByContentId(contentId);
+        return curations;
+    }
+
+    public void restoreCurations(List<Curation> curations) {
+        if (curations != null && !curations.isEmpty()) {
+            curationRepository.saveAll(curations);
+        }
     }
 
     public void subscribe(UUID playlistId, UUID userId) {

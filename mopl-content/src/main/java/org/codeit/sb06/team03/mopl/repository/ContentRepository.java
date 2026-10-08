@@ -32,8 +32,6 @@ public interface ContentRepository extends QuerydslJpaRepository<Content, UUID> 
 
     boolean existsByTitleAndType(String title, ContentType type);
 
-    List<Content> findAllByStatusAndUpdatedAtBefore(ContentStatus status, Instant threshold);
-
     @Query("SELECT c.id FROM Content c WHERE c.watcherCount > 0")
     List<UUID> findIdsByWatcherCountGreaterThanZero();
 

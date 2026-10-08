@@ -155,27 +155,16 @@ public class Content {
         }
     }
 
-    public void markAsDeleting() {
-        this.status = ContentStatus.DELETING;
-        this.updatedAt = Instant.now();
-    }
-
     public void markAsDeleted() {
+        if (this.status == ContentStatus.DELETED) {
+            return;
+        }
         this.status = ContentStatus.DELETED;
-        this.updatedAt = Instant.now();
-    }
-
-    public void restoreActive() {
-        this.status = ContentStatus.ACTIVE;
         this.updatedAt = Instant.now();
     }
 
     public boolean isActive() {
         return this.status == ContentStatus.ACTIVE;
-    }
-
-    public boolean isDeleting() {
-        return this.status == ContentStatus.DELETING;
     }
 
     public boolean isDeleted() {

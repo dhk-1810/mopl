@@ -34,11 +34,6 @@ public class RabbitConfig {
     public static final String CURATION_CONTENT_REQUEST_QUEUE = "content.curation-content-request.queue";
     public static final String CONTENT_BATCH_INFO_QUEUE = "content.batch-info.queue";
 
-    public static final String ROUTING_KEY_SAGA_START = "content.saga.delete.start";
-    public static final String ROUTING_KEY_SAGA_RESPONSE = "content.saga.delete.response";
-    public static final String CONTENT_SAGA_RESPONSE_QUEUE = "content.saga-response.queue";
-    public static final String CONTENT_SAGA_START_QUEUE = "playlist.content-saga-start.queue";
-
     @Bean
     public TopicExchange contentExchange() {
         return new TopicExchange(CONTENT_EXCHANGE);
@@ -120,17 +115,7 @@ public class RabbitConfig {
     }
 
 
-    @Bean
-    public Queue contentSagaResponseQueue() {
-        return new Queue(CONTENT_SAGA_RESPONSE_QUEUE, true);
-    }
 
-    @Bean
-    public Binding contentSagaResponseBinding() {
-        return BindingBuilder.bind(contentSagaResponseQueue())
-                .to(contentExchange())
-                .with(ROUTING_KEY_SAGA_RESPONSE);
-    }
 
     @Bean
     public MessageConverter jackson2JsonMessageConverter() {

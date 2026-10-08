@@ -39,3 +39,9 @@ grpc:
     user-service:
       address: "static://${GRPC_USER_HOST:localhost}:${GRPC_USER_PORT:8181}"
       negotiation-type: plaintext
+    playlist-service:
+      address: "static://${GRPC_PLAYLIST_HOST:localhost}:${GRPC_PLAYLIST_PORT:8183}"
+      negotiation-type: plaintext
+    watching-session-service:
+      address: "static://${GRPC_LIVE_CHAT_HOST:localhost}:${GRPC_LIVE_CHAT_PORT:8184}"
+      negotiation-type: plaintext
