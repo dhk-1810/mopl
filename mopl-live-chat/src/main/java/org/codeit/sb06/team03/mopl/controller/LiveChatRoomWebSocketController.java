@@ -51,7 +51,7 @@ public class LiveChatRoomWebSocketController {
                 userId,
                 name,
                 profileImageUrl,
-                request.text(),
+                request.content(),
                 destination
         );
         liveChatRoomCommandService.sendLiveChatRoomMessage(command);

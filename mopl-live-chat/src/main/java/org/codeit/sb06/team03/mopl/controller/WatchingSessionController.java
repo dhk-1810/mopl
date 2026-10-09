@@ -21,11 +21,8 @@ public class WatchingSessionController {
     @GetMapping("/users/{watcherId}/watching-sessions")
     public ResponseEntity<WatchingSessionDto> getByWatcherId(
             @PathVariable UUID watcherId,
-            @RequestHeader(value = "X-User-Id") UUID userId
+            @RequestHeader(value = "X-User-Id", required = false) UUID userId
     ) {
-        if (!watcherId.equals(userId)) {
-            throw new WatchingSessionAccessDeniedException();
-        }
         WatchingSessionDto sessionDetails = watchingSessionCompositeService
                 .getByWatcherId(watcherId);
         return ResponseEntity.ok(sessionDetails);

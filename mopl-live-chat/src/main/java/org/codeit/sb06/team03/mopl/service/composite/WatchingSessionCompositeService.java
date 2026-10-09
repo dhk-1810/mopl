@@ -27,6 +27,7 @@ public class WatchingSessionCompositeService {
     private final WatchingSessionQueryService watchingSessionQueryService;
     private final ProfileQueryService profileQueryService;
     private final ExternalImageQueryService imageQueryService;
+    private final org.codeit.sb06.team03.mopl.client.ContentGrpcClient contentGrpcClient;
 
     public WatchingSessionDto getByWatcherId(UUID watcherId) {
 
@@ -38,11 +39,13 @@ public class WatchingSessionCompositeService {
         String name = (profile != null) ? profile.name() : "Unknown";
 
         UserSummary watcher = new UserSummary(watcherId, name, url);
+        org.codeit.sb06.team03.mopl.dto.ContentSummary content = contentGrpcClient.getContentSummary(watchingSession.liveChatRoomId());
 
         return new WatchingSessionDto(
                 watchingSession.id(),
                 watchingSession.createdAt(),
-                watcher
+                watcher,
+                content
         );
     }
 

@@ -6,7 +6,7 @@ public record SendLiveChatRoomMessageCommand(
         UUID accountId,
         String name,
         String profileImageUrl,
-        String text,
+        String content,
         String destination
 ) {
 }

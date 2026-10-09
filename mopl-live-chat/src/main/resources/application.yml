@@ -43,3 +43,6 @@ grpc:
     user-service:
       address: "static://${GRPC_USER_HOST:localhost}:${GRPC_USER_PORT:8181}"
       negotiation-type: plaintext
+    content-service:
+      address: "static://${GRPC_CONTENT_HOST:localhost}:${GRPC_CONTENT_PORT:8182}"
+      negotiation-type: plaintext

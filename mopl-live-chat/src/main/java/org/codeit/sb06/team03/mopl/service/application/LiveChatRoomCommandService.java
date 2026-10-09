@@ -40,7 +40,7 @@ public class LiveChatRoomCommandService {
 
     public void sendLiveChatRoomMessage(SendLiveChatRoomMessageCommand command) {
         UserSummary userSummary = new UserSummary(command.accountId(), command.name(), command.profileImageUrl());
-        LiveChatRoomMessageResponse response = new LiveChatRoomMessageResponse(userSummary, command.text());
+        LiveChatRoomMessageResponse response = new LiveChatRoomMessageResponse(userSummary, command.content());
         messagingTemplate.convertAndSend(command.destination(), response);
     }
 }

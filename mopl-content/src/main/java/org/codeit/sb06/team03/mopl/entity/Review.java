@@ -49,7 +49,7 @@ public class Review {
     private short version;
 
     @NotNull
-    @Column(name = "text", nullable = false)
+    @Column(name = "text", nullable = false, columnDefinition = "TEXT")
     private String text;
 
     @NotNull

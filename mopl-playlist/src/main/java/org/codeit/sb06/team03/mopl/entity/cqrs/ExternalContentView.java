@@ -25,10 +25,13 @@ public class ExternalContentView {
     @Column(nullable = false)
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(length = 1024)
     private String thumbnailKey;
 
+    @Column(columnDefinition = "TEXT")
     private String tags; // Comma-separated tag string
 
     private double averageRating;

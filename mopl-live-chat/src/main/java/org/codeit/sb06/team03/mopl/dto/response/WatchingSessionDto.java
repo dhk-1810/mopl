@@ -1,5 +1,6 @@
 package org.codeit.sb06.team03.mopl.dto.response;
 
+import org.codeit.sb06.team03.mopl.dto.ContentSummary;
 import org.codeit.sb06.team03.mopl.dto.UserSummary;
 
 import java.time.Instant;
@@ -8,7 +9,11 @@ import java.util.UUID;
 public record WatchingSessionDto(
         UUID id,
         Instant createdAt,
-        UserSummary watcher
+        UserSummary watcher,
+        ContentSummary content
 ) {
 
+    public WatchingSessionDto(UUID id, Instant createdAt, UserSummary watcher) {
+        this(id, createdAt, watcher, null);
+    }
 }
