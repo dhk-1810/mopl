@@ -74,6 +74,7 @@ public class RedisJwtRegistry implements JwtRegistry {
         // Redis 저장 (RefreshToken String 및 유저 세션 ZSet score=현재 타임스탬프)
         redisTemplate.opsForValue().set(REFRESH_KEY_PREFIX + refreshIdStr, userIdStr, Duration.ofSeconds(refreshTtlSec));
         redisTemplate.opsForZSet().add(userSessionsKey, refreshIdStr, (double) Instant.now().toEpochMilli());
+        redisTemplate.expire(userSessionsKey, Duration.ofSeconds(refreshTtlSec));
 
         return new TokenPair(refreshToken.token(), accessToken.token());
     }
