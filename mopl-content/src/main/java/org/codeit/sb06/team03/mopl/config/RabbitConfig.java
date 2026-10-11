@@ -23,7 +23,6 @@ public class RabbitConfig {
 
     public static final String ROUTING_KEY_PROFILE_CREATED = "user.profile-created";
     public static final String ROUTING_KEY_PROFILE_UPDATED = "user.profile-updated";
-    public static final String ROUTING_KEY_CURATION_CONTENT_REQUEST = "curation.content-request";
     public static final String ROUTING_KEY_CONTENT_BATCH_INFO = "content.batch-info";
 
     public static final String IMAGE_PRESIGNED_URL_CREATED_QUEUE = "content.image-presigned-url-created.queue";
@@ -31,8 +30,12 @@ public class RabbitConfig {
 
     public static final String USER_PROFILE_CREATE_QUEUE = "content.user-profile-create.queue";
     public static final String USER_PROFILE_UPDATE_QUEUE = "content.user-profile-update.queue";
-    public static final String CURATION_CONTENT_REQUEST_QUEUE = "content.curation-content-request.queue";
     public static final String CONTENT_BATCH_INFO_QUEUE = "content.batch-info.queue";
+
+    public static final String ROUTING_KEY_SAGA_START = "content.saga.delete.start";
+    public static final String ROUTING_KEY_SAGA_RESPONSE = "content.saga.delete.response";
+    public static final String CONTENT_SAGA_RESPONSE_QUEUE = "content.saga-response.queue";
+    public static final String CONTENT_SAGA_START_QUEUE = "playlist.content-saga-start.queue";
 
     @Bean
     public TopicExchange contentExchange() {
@@ -77,11 +80,6 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Queue curationContentRequestQueue() {
-        return new Queue(CURATION_CONTENT_REQUEST_QUEUE, true);
-    }
-
-    @Bean
     public Queue contentBatchInfoQueue() {
         return new Queue(CONTENT_BATCH_INFO_QUEUE, true);
     }
@@ -101,13 +99,6 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Binding curationContentRequestBinding() {
-        return BindingBuilder.bind(curationContentRequestQueue())
-                .to(playlistExchange())
-                .with(ROUTING_KEY_CURATION_CONTENT_REQUEST);
-    }
-
-    @Bean
     public Binding contentBatchInfoBinding() {
         return BindingBuilder.bind(contentBatchInfoQueue())
                 .to(contentExchange())
@@ -116,6 +107,18 @@ public class RabbitConfig {
 
 
 
+
+    @Bean
+    public Queue contentSagaResponseQueue() {
+        return new Queue(CONTENT_SAGA_RESPONSE_QUEUE, true);
+    }
+
+    @Bean
+    public Binding contentSagaResponseBinding() {
+        return BindingBuilder.bind(contentSagaResponseQueue())
+                .to(contentExchange())
+                .with(ROUTING_KEY_SAGA_RESPONSE);
+    }
 
     @Bean
     public MessageConverter jackson2JsonMessageConverter() {

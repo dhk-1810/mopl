@@ -7,13 +7,15 @@ import org.codeit.sb06.team03.mopl.entity.OutboxEvent;
 import org.codeit.sb06.team03.mopl.service.application.OutboxService;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Slf4j
-// @Component -- Debezium CDC 도입으로 인한 비활성화
+@Component
+@ConditionalOnProperty(name = "mopl.saga.type", havingValue = "outbox-polling")
 @RequiredArgsConstructor
 public class OutboxPublisherScheduler {
 

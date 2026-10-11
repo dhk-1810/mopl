@@ -1,15 +1,16 @@
 package org.codeit.sb06.team03.mopl.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.dto.response.NotificationDto;
-import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.enums.NotificationLevel;
 import org.codeit.sb06.team03.mopl.service.application.ExternalUserCommandService;
 import org.codeit.sb06.team03.mopl.service.application.NotificationCommandService;
 import org.codeit.sb06.team03.mopl.sse.service.SseService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -20,11 +21,12 @@ public class UserEventConsumer {
     private final NotificationCommandService notificationCommandService;
     private final SseService sseService;
     private final ExternalUserCommandService externalUserCommandService;
+    private final ObjectMapper objectMapper;
 
     private static final String EVENT_NAME = "notifications";
 
     /**
-     * 알림 발송
+     * 실시간 알림 발송 (RabbitMQ 유지)
      */
     @RabbitListener(queues = RabbitConfig.USER_ROLE_UPDATED_QUEUE)
     public void handleRoleUpdatedEvent(RoleUpdatedEvent event) {
@@ -64,7 +66,7 @@ public class UserEventConsumer {
     }
 
     /**
-     * CQRS
+     * CQRS 프로필 동기화 (RabbitMQ 리스너)
      */
     @RabbitListener(queues = RabbitConfig.USER_PROFILE_CREATE_QUEUE)
     public void handleProfileCreated(UserProfileCreatedEvent event) {
@@ -84,5 +86,21 @@ public class UserEventConsumer {
             return;
         }
         externalUserCommandService.createOrUpdateProfile(event.userId(), event.name(), event.imageKey());
+    }
+
+    /**
+     * CQRS 프로필 동기화 (Kafka 리스너)
+     */
+    @KafkaListener(topics = "user.profile.events", groupId = "notification-profile-group")
+    public void handleProfileEventsFromKafka(String payload) {
+        log.info("Received UserProfileKafkaEvent from Kafka in mopl-notification: {}", payload);
+        try {
+            UserProfileKafkaEvent event = objectMapper.readValue(payload, UserProfileKafkaEvent.class);
+            if (event.userId() != null) {
+                externalUserCommandService.createOrUpdateProfile(event.userId(), event.name(), event.imageKey());
+            }
+        } catch (Exception e) {
+            log.error("Failed to process UserProfileKafkaEvent in mopl-notification: {}", e.getMessage(), e);
+        }
     }
 }

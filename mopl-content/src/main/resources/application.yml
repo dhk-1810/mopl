@@ -16,8 +16,17 @@ spring:
     listener:
       simple:
         acknowledge-mode: manual
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    consumer:
+      group-id: content-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 mopl:
+  saga:
+    type: ${MOPL_SAGA_TYPE:grpc} # grpc | outbox-polling | cdc-kafka
   storage:
     aws:
       region: ${AWS_REGION:ap-northeast-2}
@@ -40,8 +49,8 @@ grpc:
       address: "static://${GRPC_USER_HOST:localhost}:${GRPC_USER_PORT:8181}"
       negotiation-type: plaintext
     playlist-service:
-      address: "static://${GRPC_PLAYLIST_HOST:localhost}:${GRPC_PLAYLIST_PORT:8183}"
+      address: "static://${GRPC_PLAYLIST_HOST:localhost}:${GRPC_PLAYLIST_PORT:8184}"
       negotiation-type: plaintext
     watching-session-service:
-      address: "static://${GRPC_LIVE_CHAT_HOST:localhost}:${GRPC_LIVE_CHAT_PORT:8184}"
+      address: "static://${GRPC_LIVE_CHAT_HOST:localhost}:${GRPC_LIVE_CHAT_PORT:8183}"
       negotiation-type: plaintext

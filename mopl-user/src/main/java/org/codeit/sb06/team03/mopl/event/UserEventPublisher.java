@@ -16,7 +16,9 @@ public class UserEventPublisher {
 
     private final RabbitTemplate rabbitTemplate;
     private final JwtRegistry jwtRegistry;
+    private final org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate;
 
+    public static final String KAFKA_TOPIC_PROFILE_EVENTS = "user.profile.events";
     public static final String ROUTING_KEY_ROLE_UPDATED = "user.role-updated";
     public static final String ROUTING_KEY_FOLLOWED = "user.followed";
     public static final String ROUTING_KEY_PROFILE_CREATED = "user.profile-created";
@@ -50,6 +52,13 @@ public class UserEventPublisher {
                 ROUTING_KEY_PROFILE_CREATED,
                 event
         );
+        try {
+            UserProfileKafkaEvent kafkaEvent = UserProfileKafkaEvent.created(event.userId(), event.name(), event.imageKey());
+            kafkaTemplate.send(KAFKA_TOPIC_PROFILE_EVENTS, event.userId().toString(), kafkaEvent);
+            log.info("Publishing UserProfileKafkaEvent (CREATED) to Kafka: {}", kafkaEvent);
+        } catch (Exception e) {
+            log.warn("Failed to publish UserProfileCreatedEvent to Kafka: {}", e.getMessage());
+        }
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -60,6 +69,13 @@ public class UserEventPublisher {
                 ROUTING_KEY_PROFILE_UPDATED,
                 event
         );
+        try {
+            UserProfileKafkaEvent kafkaEvent = UserProfileKafkaEvent.updated(event.userId(), event.name(), event.imageKey());
+            kafkaTemplate.send(KAFKA_TOPIC_PROFILE_EVENTS, event.userId().toString(), kafkaEvent);
+            log.info("Publishing UserProfileKafkaEvent (UPDATED) to Kafka: {}", kafkaEvent);
+        } catch (Exception e) {
+            log.warn("Failed to publish UserProfileUpdatedEvent to Kafka: {}", e.getMessage());
+        }
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

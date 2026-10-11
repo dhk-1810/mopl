@@ -3,7 +3,6 @@ package org.codeit.sb06.team03.mopl.service.composite;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.codeit.sb06.team03.mopl.service.application.*;
-import org.codeit.sb06.team03.mopl.event.ContentDeletedEvent;
 import org.codeit.sb06.team03.mopl.event.ContentUpdatedEvent;
 import org.codeit.sb06.team03.mopl.dto.response.ContentDto;
 import org.codeit.sb06.team03.mopl.dto.request.CursorRequestContentDto;
@@ -11,6 +10,7 @@ import org.codeit.sb06.team03.mopl.dto.request.ContentCreateRequest;
 import org.codeit.sb06.team03.mopl.dto.request.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponseContentDto;
 import org.codeit.sb06.team03.mopl.s3.S3Service;
+import org.codeit.sb06.team03.mopl.service.saga.ContentDeletionSagaStrategy;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.codeit.sb06.team03.mopl.event.ImageUploadEvent;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
@@ -26,9 +26,6 @@ import java.util.*;
 import org.codeit.sb06.team03.mopl.dto.request.ContentCreateInternalRequest;
 
 import lombok.extern.slf4j.Slf4j;
-import org.codeit.sb06.team03.mopl.client.PlaylistGrpcClient;
-import org.codeit.sb06.team03.mopl.client.WatchingSessionGrpcClient;
-
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -38,8 +35,7 @@ public class ContentCompositeService {
     private final ContentQueryService contentQueryService;
     private final ExternalImageQueryService imageQueryService;
     private final S3Service s3Service;
-    private final PlaylistGrpcClient playlistGrpcClient;
-    private final WatchingSessionGrpcClient watchingSessionGrpcClient;
+    private final ContentDeletionSagaStrategy contentDeletionSagaStrategy;
 
     private final RabbitTemplate rabbitTemplate;
     private final ApplicationEventPublisher eventPublisher;
@@ -155,32 +151,7 @@ public class ContentCompositeService {
     }
 
     public void delete(UUID contentId) {
-        // 1. 대상 컨텐츠 존재 여부 사전 확인 (없으면 ContentNotFoundException 발생)
-        contentQueryService.get(contentId);
-
-        boolean playlistDeleted = false;
-        try {
-            // Step 1: Playlist gRPC 호출 (Curation 및 View 삭제)
-            playlistGrpcClient.deleteCurations(contentId);
-            playlistDeleted = true;
-
-            // Step 2: LiveChat gRPC 호출 (WatchingSession 정리)
-            watchingSessionGrpcClient.deleteWatchingSessions(contentId);
-
-            // Step 3: 외부 마이크로서비스 정리 성공 후 로컬 DB 삭제 마킹 (0.001초 짧은 트랜잭션)
-            contentCommandService.delete(contentId);
-            log.info("Successfully deleted content via sequential gRPC orchestration: {}", contentId);
-
-        } catch (Exception e) {
-            log.error("Failed to delete content: {}. Triggering compensation...", contentId, e);
-
-            // 보상 트랜잭션: Step 1 성공 후 Step 2 실패 시 롤백 수행
-            if (playlistDeleted) {
-                playlistGrpcClient.restoreCurations(contentId);
-            }
-
-            throw new RuntimeException("Content deletion failed and compensated: " + e.getMessage(), e);
-        }
+        contentDeletionSagaStrategy.deleteContent(contentId);
     }
 
     private String getPresignedUrl(String thumbnailKey) {

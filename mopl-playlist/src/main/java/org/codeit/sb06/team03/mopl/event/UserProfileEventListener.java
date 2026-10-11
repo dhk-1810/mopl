@@ -1,5 +1,6 @@
 package org.codeit.sb06.team03.mopl.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalUserViewRepository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ import java.io.IOException;
 public class UserProfileEventListener {
 
     private final ExternalUserViewRepository externalUserViewRepository;
+    private final ObjectMapper objectMapper;
 
     @RabbitListener(queues = RabbitConfig.USER_PROFILE_CREATE_QUEUE)
     @Transactional(value = "playlistTransactionManager")
@@ -56,6 +59,26 @@ public class UserProfileEventListener {
         } catch (Exception e) {
             log.error("Failed to handle UserProfileUpdatedEvent: {}", e.getMessage(), e);
             channel.basicReject(deliveryTag, false);
+        }
+    }
+
+    @KafkaListener(topics = "user.profile.events", groupId = "playlist-profile-group")
+    @Transactional(value = "playlistTransactionManager")
+    public void handleProfileEventsFromKafka(String payload) {
+        log.info("Received UserProfileKafkaEvent from Kafka in mopl-playlist: {}", payload);
+        try {
+            UserProfileKafkaEvent event = objectMapper.readValue(payload, UserProfileKafkaEvent.class);
+            if ("CREATED".equals(event.eventType())) {
+                ExternalUserView userView = ExternalUserView.create(event.userId(), event.name(), event.imageKey());
+                externalUserViewRepository.save(userView);
+            } else if ("UPDATED".equals(event.eventType())) {
+                ExternalUserView userView = externalUserViewRepository.findById(event.userId())
+                        .orElseGet(() -> ExternalUserView.create(event.userId(), event.name(), event.imageKey()));
+                userView.update(event.name(), event.imageKey());
+                externalUserViewRepository.save(userView);
+            }
+        } catch (Exception e) {
+            log.error("Failed to process UserProfileKafkaEvent in mopl-playlist: {}", e.getMessage(), e);
         }
     }
 }

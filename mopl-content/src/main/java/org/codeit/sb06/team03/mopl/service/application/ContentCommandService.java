@@ -8,6 +8,7 @@ import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.codeit.sb06.team03.mopl.entity.ContentService;
 import org.codeit.sb06.team03.mopl.entity.ContentTagService;
+import org.codeit.sb06.team03.mopl.event.ContentEventPublisher;
 import org.codeit.sb06.team03.mopl.exception.ContentNotFoundException;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class ContentCommandService {
     private final ContentRepository contentRepository;
     private final ContentService contentService;
     private final ContentTagService contentTagService;
+    private final ContentEventPublisher contentEventPublisher;
 
     public ContentReadModel create(ContentCreateRequest request, String thumbnailKey) {
         Content content = contentService.create(
@@ -67,6 +69,23 @@ public class ContentCommandService {
                 .orElseThrow(() -> ContentNotFoundException.fromId(id));
         content.markAsDeleted();
         contentRepository.save(content);
+    }
+
+    public UUID deleteSaga(UUID id) {
+        Content content = contentRepository.findById(id)
+                .orElseThrow(() -> ContentNotFoundException.fromId(id));
+
+        // 1. Soft lock state
+        content.markAsDeleting();
+        contentRepository.save(content);
+
+        // 2. Publish Saga Start Event (Outbox save)
+        UUID sagaId = UUID.randomUUID();
+        contentEventPublisher.publishContentDeletionSagaStart(
+                org.codeit.sb06.team03.mopl.event.ContentDeletionSagaEvent.start(sagaId, id)
+        );
+
+        return sagaId;
     }
 }
 
