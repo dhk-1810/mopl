@@ -2,6 +2,7 @@ package org.codeit.sb06.team03.mopl.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.codeit.sb06.team03.mopl.config.KafkaConfig;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.service.application.OutboxService;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -36,30 +37,6 @@ public class ContentEventPublisher {
         );
     }
 
-    public void publishContentDeletionSagaStart(ContentDeletionSagaEvent event) {
-        log.info("Saving ContentDeletionSagaEvent START to Outbox table: {}", event);
-        outboxService.saveEvent(
-                "CONTENT_SAGA",
-                event.sagaId().toString(),
-                ContentDeletionSagaEvent.class.getName(),
-                RabbitConfig.CONTENT_EXCHANGE,
-                RabbitConfig.ROUTING_KEY_SAGA_START,
-                event
-        );
-    }
-
-    public void publishContentDeletionSagaCompensate(ContentDeletionSagaEvent event) {
-        log.info("Saving ContentDeletionSagaEvent COMPENSATE to Outbox table: {}", event);
-        outboxService.saveEvent(
-                "CONTENT_SAGA",
-                event.sagaId().toString(),
-                ContentDeletionSagaEvent.class.getName(),
-                RabbitConfig.CONTENT_EXCHANGE,
-                RabbitConfig.ROUTING_KEY_SAGA_START,
-                event
-        );
-    }
-
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleContentUpdatedAfterCommit(ContentUpdatedEvent event) {
         try {
@@ -90,5 +67,30 @@ public class ContentEventPublisher {
         } catch (Exception e) {
             log.warn("Immediate publish failed for ContentDeletedEvent. Outbox poller will retry. Cause: {}", e.getMessage());
         }
+    }
+
+
+    public void publishContentDeletionSagaStart(ContentDeletionSagaEvent event) {
+        log.info("Saving ContentDeletionSagaEvent START to Outbox table: {}", event);
+        outboxService.saveEvent(
+                "CONTENT_SAGA",
+                event.sagaId().toString(),
+                ContentDeletionSagaEvent.class.getName(),
+                RabbitConfig.CONTENT_EXCHANGE,
+                KafkaConfig.TOPIC_SAGA_START,
+                event
+        );
+    }
+
+    public void publishContentDeletionSagaCompensate(ContentDeletionSagaEvent event) {
+        log.info("Saving ContentDeletionSagaEvent COMPENSATE to Outbox table: {}", event);
+        outboxService.saveEvent(
+                "CONTENT_SAGA",
+                event.sagaId().toString(),
+                ContentDeletionSagaEvent.class.getName(),
+                RabbitConfig.CONTENT_EXCHANGE,
+                KafkaConfig.TOPIC_SAGA_START,
+                event
+        );
     }
 }

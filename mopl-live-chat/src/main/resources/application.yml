@@ -32,7 +32,7 @@ spring:
 
 mopl:
   saga:
-    type: ${MOPL_SAGA_TYPE:grpc} # grpc | outbox-polling | cdc-kafka
+    type: ${MOPL_SAGA_TYPE:grpc} # grpc | cdc-kafka
   storage:
     aws:
       region: ${AWS_REGION:ap-northeast-2}

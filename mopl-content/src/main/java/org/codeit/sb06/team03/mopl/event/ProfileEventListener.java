@@ -68,7 +68,7 @@ public class ProfileEventListener {
     public void handleProfileEventsFromKafka(String payload) {
         log.info("Received UserProfileKafkaEvent from Kafka in mopl-content: {}", payload);
         try {
-            UserProfileKafkaEvent event = objectMapper.readValue(payload, UserProfileKafkaEvent.class);
+            ProfileKafkaEvent event = objectMapper.readValue(payload, ProfileKafkaEvent.class);
             if ("CREATED".equals(event.eventType())) {
                 ExternalUserView userView = ExternalUserView.create(event.userId(), event.name(), event.imageKey());
                 externalUserViewRepository.save(userView);

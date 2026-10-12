@@ -12,7 +12,7 @@ import java.time.Instant;
 
 @Slf4j
 @Component
-@ConditionalOnExpression("'${mopl.saga.type:grpc}' == 'outbox-polling' || '${mopl.saga.type:grpc}' == 'cdc-kafka'")
+@ConditionalOnExpression("'${mopl.saga.type:grpc}' == 'cdc-kafka'")
 @RequiredArgsConstructor
 public class InboxCleanupScheduler {
 

@@ -1,21 +1,16 @@
 package org.codeit.sb06.team03.mopl.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.KafkaConfig;
-import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.service.application.WatchingSessionCommandService;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -28,22 +23,6 @@ public class ContentEventListener {
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
     private final KafkaTemplate<String, String> kafkaTemplate;
-
-    @RabbitListener(queues = RabbitConfig.WS_CONTENT_SAGA_START_QUEUE)
-    public void handleContentDeletionSagaRabbit(
-            ContentDeletionSagaEvent event,
-            Channel channel,
-            @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
-    ) throws IOException {
-        log.info("Received ContentDeletionSagaEvent START from RabbitMQ in mopl-live-chat: {}", event);
-        try {
-            processContentDeletionSaga(event);
-            channel.basicAck(deliveryTag, false);
-        } catch (Exception e) {
-            log.error("Error in rabbit saga listener in live-chat: {}", e.getMessage(), e);
-            channel.basicReject(deliveryTag, false);
-        }
-    }
 
     @KafkaListener(topics = KafkaConfig.TOPIC_SAGA_START, groupId = "${spring.kafka.consumer.group-id:live-chat-group}", autoStartup = "#{ '${mopl.saga.type:grpc}' == 'cdc-kafka' }")
     public void handleContentDeletionSagaKafka(

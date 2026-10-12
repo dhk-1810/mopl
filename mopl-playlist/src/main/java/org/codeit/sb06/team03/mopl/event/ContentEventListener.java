@@ -90,23 +90,6 @@ public class ContentEventListener {
         }
     }
 
-    @RabbitListener(queues = RabbitConfig.CONTENT_SAGA_START_QUEUE)
-    @Transactional(value = "playlistTransactionManager")
-    public void handleContentDeletionSagaRabbit(
-            ContentDeletionSagaEvent event,
-            Channel channel,
-            @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
-    ) throws IOException {
-        log.info("Received ContentDeletionSagaEvent START from RabbitMQ in mopl-playlist: {}", event);
-        try {
-            processContentDeletionSaga(event);
-            channel.basicAck(deliveryTag, false);
-        } catch (Exception e) {
-            log.error("Error in rabbit saga listener: {}", e.getMessage(), e);
-            channel.basicReject(deliveryTag, false);
-        }
-    }
-
     @KafkaListener(topics = KafkaConfig.TOPIC_SAGA_START, groupId = "${spring.kafka.consumer.group-id:playlist-service-group}", autoStartup = "#{ '${mopl.saga.type:grpc}' == 'cdc-kafka' }")
     @Transactional(value = "playlistTransactionManager")
     public void handleContentDeletionSagaKafka(

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.KafkaConfig;
-import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.entity.SagaInstance;
 import org.codeit.sb06.team03.mopl.enums.ContentStatus;
@@ -13,8 +12,6 @@ import org.codeit.sb06.team03.mopl.event.ContentDeletionSagaEvent;
 import org.codeit.sb06.team03.mopl.event.ContentEventPublisher;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;
 import org.codeit.sb06.team03.mopl.repository.SagaInstanceRepository;
-import org.springframework.amqp.rabbit.connection.CorrelationData;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,14 +25,13 @@ import java.util.UUID;
 
 @Slf4j
 @Component
-@ConditionalOnExpression("'${mopl.saga.type:grpc}' == 'outbox-polling' || '${mopl.saga.type:grpc}' == 'cdc-kafka'")
+@ConditionalOnExpression("'${mopl.saga.type:grpc}' == 'cdc-kafka'")
 @RequiredArgsConstructor
 public class ContentSagaTimeoutScheduler {
 
     private final ContentRepository contentRepository;
     private final SagaInstanceRepository sagaInstanceRepository;
     private final ContentEventPublisher contentEventPublisher;
-    private final RabbitTemplate rabbitTemplate;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
@@ -82,20 +78,11 @@ public class ContentSagaTimeoutScheduler {
         try {
             ContentDeletionSagaEvent compensateEvent = ContentDeletionSagaEvent.compensate(sagaId, contentId);
 
-            // Kafka 보상 이벤트 전송
+            // 1. Kafka 보상 이벤트 전송
             String payload = objectMapper.writeValueAsString(compensateEvent);
             kafkaTemplate.send(KafkaConfig.TOPIC_SAGA_START, sagaId.toString(), payload);
 
-            // RabbitMQ 보상 이벤트 발행
-            CorrelationData correlationData = new CorrelationData("saga-timeout-compensate-" + sagaId);
-            rabbitTemplate.convertAndSend(
-                    RabbitConfig.CONTENT_EXCHANGE,
-                    RabbitConfig.ROUTING_KEY_SAGA_START,
-                    compensateEvent,
-                    correlationData
-            );
-
-            // Outbox/CDC를 위해 Outbox 테이블에도 저장
+            // 2. Outbox/CDC를 위해 Outbox 테이블에도 저장
             contentEventPublisher.publishContentDeletionSagaCompensate(compensateEvent);
 
             log.info("Successfully sent timeout COMPENSATE propagation for sagaId: {}, contentId: {}", sagaId, contentId);

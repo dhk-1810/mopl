@@ -11,30 +11,23 @@ import org.codeit.sb06.team03.mopl.entity.SagaInstance;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;
 import org.codeit.sb06.team03.mopl.repository.SagaInstanceRepository;
 import org.codeit.sb06.team03.mopl.service.application.InboxService;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.connection.CorrelationData;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @Slf4j
 @Component
-@ConditionalOnExpression("'${mopl.saga.type:grpc}' == 'outbox-polling' || '${mopl.saga.type:grpc}' == 'cdc-kafka'")
+@ConditionalOnExpression("'${mopl.saga.type:grpc}' == 'cdc-kafka'")
 @RequiredArgsConstructor
 public class ContentSagaEventListener {
 
     private final ContentRepository contentRepository;
     private final SagaInstanceRepository sagaInstanceRepository;
     private final InboxService inboxService;
-    private final RabbitTemplate rabbitTemplate;
     private final ContentEventPublisher contentEventPublisher;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
@@ -48,23 +41,6 @@ public class ContentSagaEventListener {
             processSagaResponse(event);
         } catch (Exception e) {
             log.error("Failed to deserialize saga response from Kafka: {}", payload, e);
-        }
-    }
-
-    @RabbitListener(queues = RabbitConfig.CONTENT_SAGA_RESPONSE_QUEUE)
-    @Transactional("contentTransactionManager")
-    public void handleSagaResponse(
-            ContentDeletionSagaEvent event,
-            Channel channel,
-            @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
-    ) throws IOException {
-        log.info("Received ContentDeletionSagaEvent response from RabbitMQ [{}]: {}", event.participant(), event);
-        try {
-            processSagaResponse(event);
-            channel.basicAck(deliveryTag, false);
-        } catch (Exception e) {
-            log.error("Error processing ContentDeletionSagaEvent response from RabbitMQ: {}", e.getMessage(), e);
-            channel.basicReject(deliveryTag, false);
         }
     }
 
@@ -146,16 +122,7 @@ public class ContentSagaEventListener {
             kafkaTemplate.send(KafkaConfig.TOPIC_SAGA_START, sagaId.toString(), payload);
             log.info("[Kafka] Sent COMPENSATE event for sagaId: {}, contentId: {}", sagaId, contentId);
 
-            // 2. RabbitMQ로 보상 이벤트 직접 발행
-            CorrelationData correlationData = new CorrelationData("saga-compensate-" + sagaId);
-            rabbitTemplate.convertAndSend(
-                    RabbitConfig.CONTENT_EXCHANGE,
-                    RabbitConfig.ROUTING_KEY_SAGA_START,
-                    compensateEvent,
-                    correlationData
-            );
-
-            // 3. Outbox/CDC를 위해 Outbox 테이블에도 저장
+            // 2. Outbox/CDC를 위해 Outbox 테이블에도 저장
             contentEventPublisher.publishContentDeletionSagaCompensate(compensateEvent);
 
             log.info("Successfully initiated COMPENSATE propagation for sagaId: {}, contentId: {}", sagaId, contentId);
