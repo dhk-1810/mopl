@@ -3,6 +3,7 @@ package org.codeit.sb06.team03.mopl.scheduler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.codeit.sb06.team03.mopl.config.KafkaConfig;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.entity.SagaInstance;
@@ -83,7 +84,7 @@ public class ContentSagaTimeoutScheduler {
 
             // Kafka 보상 이벤트 전송
             String payload = objectMapper.writeValueAsString(compensateEvent);
-            kafkaTemplate.send(RabbitConfig.ROUTING_KEY_SAGA_START, sagaId.toString(), payload);
+            kafkaTemplate.send(KafkaConfig.TOPIC_SAGA_START, sagaId.toString(), payload);
 
             // RabbitMQ 보상 이벤트 발행
             CorrelationData correlationData = new CorrelationData("saga-timeout-compensate-" + sagaId);

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class UserEventConsumer {
+public class UserEventListener {
 
     private final NotificationCommandService notificationCommandService;
     private final SseService sseService;

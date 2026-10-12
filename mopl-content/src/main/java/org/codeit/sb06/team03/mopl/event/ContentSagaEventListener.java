@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.codeit.sb06.team03.mopl.config.KafkaConfig;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.entity.SagaInstance;
@@ -38,7 +39,7 @@ public class ContentSagaEventListener {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = RabbitConfig.ROUTING_KEY_SAGA_RESPONSE, groupId = "${spring.kafka.consumer.group-id:content-service-group}")
+    @KafkaListener(topics = KafkaConfig.TOPIC_SAGA_RESPONSE, groupId = "${spring.kafka.consumer.group-id:content-service-group}")
     @Transactional("contentTransactionManager")
     public void handleSagaResponseKafka(String payload) {
         log.info("Received ContentDeletionSagaEvent response from Kafka in mopl-content: {}", payload);
@@ -142,7 +143,7 @@ public class ContentSagaEventListener {
 
             // 1. Kafka로 보상 이벤트 전송
             String payload = objectMapper.writeValueAsString(compensateEvent);
-            kafkaTemplate.send(RabbitConfig.ROUTING_KEY_SAGA_START, sagaId.toString(), payload);
+            kafkaTemplate.send(KafkaConfig.TOPIC_SAGA_START, sagaId.toString(), payload);
             log.info("[Kafka] Sent COMPENSATE event for sagaId: {}, contentId: {}", sagaId, contentId);
 
             // 2. RabbitMQ로 보상 이벤트 직접 발행

@@ -23,7 +23,7 @@ public class GrpcContentDeletionSagaStrategy implements ContentDeletionSagaStrat
     private final WatchingSessionGrpcClient watchingSessionGrpcClient;
 
     @Override
-    public void deleteContent(UUID contentId) {
+    public void delete(UUID contentId) {
         // 1. 대상 컨텐츠 존재 여부 사전 확인 (없으면 ContentNotFoundException 발생)
         contentQueryService.get(contentId);
 

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class DMEventConsumer {
+public class DMEventListener {
 
     private final NotificationCommandService notificationCommandService;
     private final SseService sseService;

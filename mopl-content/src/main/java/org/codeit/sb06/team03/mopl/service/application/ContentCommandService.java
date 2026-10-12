@@ -9,6 +9,7 @@ import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.codeit.sb06.team03.mopl.entity.ContentService;
 import org.codeit.sb06.team03.mopl.entity.ContentTagService;
 import org.codeit.sb06.team03.mopl.entity.SagaInstance;
+import org.codeit.sb06.team03.mopl.event.ContentDeletionSagaEvent;
 import org.codeit.sb06.team03.mopl.event.ContentEventPublisher;
 import org.codeit.sb06.team03.mopl.exception.ContentNotFoundException;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;
@@ -82,13 +83,13 @@ public class ContentCommandService {
         content.markAsDeleting();
         contentRepository.save(content);
 
-        // 2. Publish Saga Start Event (Outbox save)
+        // 2. Publish Saga Start Event
         UUID sagaId = UUID.randomUUID();
         SagaInstance sagaInstance = SagaInstance.create(sagaId, id);
         sagaInstanceRepository.save(sagaInstance);
 
-        contentEventPublisher.publishContentDeletionSagaStart(
-                org.codeit.sb06.team03.mopl.event.ContentDeletionSagaEvent.start(sagaId, id)
+        contentEventPublisher.publishContentDeletionSagaStart( // 여기서 Outbox 저장
+                ContentDeletionSagaEvent.start(sagaId, id)
         );
 
         return sagaId;

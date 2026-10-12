@@ -151,7 +151,7 @@ public class ContentCompositeService {
     }
 
     public void delete(UUID contentId) {
-        contentDeletionSagaStrategy.deleteContent(contentId);
+        contentDeletionSagaStrategy.delete(contentId); // 얘가 CommandService를 호출.
     }
 
     private String getPresignedUrl(String thumbnailKey) {

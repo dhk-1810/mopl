@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class PlaylistEventConsumer {
+public class PlaylistEventListener {
 
     private final NotificationCommandService notificationCommandService;
     private final SseService sseService;

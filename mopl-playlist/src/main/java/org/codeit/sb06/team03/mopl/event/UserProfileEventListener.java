@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.codeit.sb06.team03.mopl.config.KafkaConfig;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalUserViewRepository;
@@ -62,7 +63,7 @@ public class UserProfileEventListener {
         }
     }
 
-    @KafkaListener(topics = "user.profile.events", groupId = "playlist-profile-group")
+    @KafkaListener(topics = KafkaConfig.TOPIC_USER_PROFILE_EVENTS, groupId = "playlist-profile-group")
     @Transactional(value = "playlistTransactionManager")
     public void handleProfileEventsFromKafka(String payload) {
         log.info("Received UserProfileKafkaEvent from Kafka in mopl-playlist: {}", payload);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.codeit.sb06.team03.mopl.config.KafkaConfig;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.enums.ContentType;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalContentView;
@@ -44,7 +45,7 @@ public class ContentEventListener {
     private void sendSagaResponse(ContentDeletionSagaEvent event) {
         try {
             String payload = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(RabbitConfig.ROUTING_KEY_SAGA_RESPONSE, event.sagaId().toString(), payload);
+            kafkaTemplate.send(KafkaConfig.TOPIC_SAGA_RESPONSE, event.sagaId().toString(), payload);
             log.info("[Kafka] Sent saga response from playlist: {}", payload);
         } catch (Exception e) {
             log.error("[Kafka] Failed to send saga response from playlist for event: {}", event, e);
@@ -106,7 +107,7 @@ public class ContentEventListener {
         }
     }
 
-    @KafkaListener(topics = RabbitConfig.ROUTING_KEY_SAGA_START, groupId = "${spring.kafka.consumer.group-id:playlist-service-group}", autoStartup = "#{ '${mopl.saga.type:grpc}' == 'cdc-kafka' }")
+    @KafkaListener(topics = KafkaConfig.TOPIC_SAGA_START, groupId = "${spring.kafka.consumer.group-id:playlist-service-group}", autoStartup = "#{ '${mopl.saga.type:grpc}' == 'cdc-kafka' }")
     @Transactional(value = "playlistTransactionManager")
     public void handleContentDeletionSagaKafka(
             @org.springframework.messaging.handler.annotation.Payload String payload,

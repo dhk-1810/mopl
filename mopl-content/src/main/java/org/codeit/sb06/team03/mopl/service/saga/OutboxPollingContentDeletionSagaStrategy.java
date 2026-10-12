@@ -19,7 +19,7 @@ public class OutboxPollingContentDeletionSagaStrategy implements ContentDeletion
     private final ContentCommandService contentCommandService;
 
     @Override
-    public void deleteContent(UUID contentId) {
+    public void delete(UUID contentId) {
         // 1. 대상 컨텐츠 존재 여부 사전 확인
         contentQueryService.get(contentId);
 

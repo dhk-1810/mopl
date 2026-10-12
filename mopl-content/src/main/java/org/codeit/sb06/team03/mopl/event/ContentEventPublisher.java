@@ -36,8 +36,6 @@ public class ContentEventPublisher {
         );
     }
 
-
-
     public void publishContentDeletionSagaStart(ContentDeletionSagaEvent event) {
         log.info("Saving ContentDeletionSagaEvent START to Outbox table: {}", event);
         outboxService.saveEvent(
