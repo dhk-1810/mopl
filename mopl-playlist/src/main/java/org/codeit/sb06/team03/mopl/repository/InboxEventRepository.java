@@ -13,6 +13,8 @@ public interface InboxEventRepository extends JpaRepository<InboxEvent, UUID> {
 
     boolean existsByMessageId(String messageId);
 
+    java.util.Optional<InboxEvent> findByMessageId(String messageId);
+
     @Modifying
     @Query("DELETE FROM InboxEvent i WHERE i.processedAt < :threshold")
     int deleteByProcessedAtBefore(@Param("threshold") Instant threshold);

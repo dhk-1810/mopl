@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.entity.Content;
+import org.codeit.sb06.team03.mopl.entity.SagaInstance;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;
+import org.codeit.sb06.team03.mopl.repository.SagaInstanceRepository;
 import org.codeit.sb06.team03.mopl.service.application.InboxService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -29,6 +31,7 @@ import java.util.UUID;
 public class ContentSagaEventListener {
 
     private final ContentRepository contentRepository;
+    private final SagaInstanceRepository sagaInstanceRepository;
     private final InboxService inboxService;
     private final RabbitTemplate rabbitTemplate;
     private final ContentEventPublisher contentEventPublisher;
@@ -72,28 +75,57 @@ public class ContentSagaEventListener {
         }
 
         try {
-            Content content = contentRepository.findById(event.contentId()).orElse(null);
-            if (content == null) {
-                log.warn("Content not found for saga response, contentId: {}", event.contentId());
+            SagaInstance sagaInstance = sagaInstanceRepository.findById(event.sagaId()).orElse(null);
+            if (sagaInstance == null) {
+                log.warn("SagaInstance not found for saga response, sagaId: {}", event.sagaId());
                 inboxService.recordProcessed(messageId, "CONTENT_SAGA", "ContentDeletionSagaEvent", event.toString());
                 return;
             }
 
-            if ("FAILED".equals(event.status())) {
+            // [문제 3] 지연 메시지 방어: 이미 완료, 실패, 타임아웃된 Saga는 무시
+            if (sagaInstance.isFinished()) {
+                log.warn("Saga [{}] is already finished with status [{}]. Discarding late arrival response from [{}].",
+                        event.sagaId(), sagaInstance.getStatus(), event.participant());
+                inboxService.recordProcessed(messageId, "CONTENT_SAGA", "ContentDeletionSagaEvent", event.toString());
+                return;
+            }
+
+            // 참여자 응답 상태 기록
+            sagaInstance.updateParticipant(event.participant(), event.status());
+
+            Content content = contentRepository.findById(event.contentId()).orElse(null);
+
+            // [문제 1] 한 곳이라도 실패한 경우 -> 즉시 롤백 및 보상 트랜잭션 전파
+            if ("FAILED".equalsIgnoreCase(event.status()) || sagaInstance.isAnyFailed()) {
                 log.warn("Saga step failed in participant [{}]. Executing Compensating Transaction for contentId: {}",
                         event.participant(), event.contentId());
-                // Compensating Transaction: 롤백 (소프트 딜리트 취소 및 복구)
-                content.restoreActive();
-                contentRepository.save(content);
-                log.info("Successfully restored Content to ACTIVE status. ContentId: {}", event.contentId());
+                sagaInstance.markFailed();
+                sagaInstanceRepository.save(sagaInstance);
+
+                if (content != null) {
+                    content.restoreActive();
+                    contentRepository.save(content);
+                    log.info("Successfully restored Content to ACTIVE status. ContentId: {}", event.contentId());
+                }
 
                 // 타 서비스(Playlist 등)에 보상 트랜잭션 이벤트(COMPENSATE) 전파
                 publishCompensation(event.sagaId(), event.contentId());
-            } else if ("SUCCESS".equals(event.status())) {
-                log.info("Saga step succeeded in participant [{}]. Marking Content as DELETED for contentId: {}",
-                        event.participant(), event.contentId());
-                content.markAsDeleted();
-                contentRepository.save(content);
+            } else if (sagaInstance.isAllSuccess()) {
+                // [문제 1] 두 참여자 모두 SUCCESS인 경우에만 최종 DELETED 전이
+                log.info("All participants succeeded for saga [{}]. Marking Content as DELETED for contentId: {}",
+                        event.sagaId(), event.contentId());
+                sagaInstance.markCompleted();
+                sagaInstanceRepository.save(sagaInstance);
+
+                if (content != null) {
+                    content.markAsDeleted();
+                    contentRepository.save(content);
+                }
+            } else {
+                // 아직 다른 참여자 응답 대기 중
+                log.info("Participant [{}] succeeded for saga [{}]. Waiting for remaining participants...",
+                        event.participant(), event.sagaId());
+                sagaInstanceRepository.save(sagaInstance);
             }
 
             // Inbox 처리 기록

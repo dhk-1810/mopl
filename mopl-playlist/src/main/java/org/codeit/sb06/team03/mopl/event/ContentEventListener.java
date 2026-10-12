@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -107,7 +108,10 @@ public class ContentEventListener {
 
     @KafkaListener(topics = RabbitConfig.ROUTING_KEY_SAGA_START, groupId = "${spring.kafka.consumer.group-id:playlist-service-group}", autoStartup = "#{ '${mopl.saga.type:grpc}' == 'cdc-kafka' }")
     @Transactional(value = "playlistTransactionManager")
-    public void handleContentDeletionSagaKafka(String payload) {
+    public void handleContentDeletionSagaKafka(
+            @org.springframework.messaging.handler.annotation.Payload String payload,
+            @Header(value = org.springframework.kafka.support.KafkaHeaders.RECEIVED_KEY, required = false) String key
+    ) {
         log.info("Received ContentDeletionSagaEvent START from Kafka in mopl-playlist: {}", payload);
 
         ContentDeletionSagaEvent event;
@@ -115,10 +119,47 @@ public class ContentEventListener {
             event = objectMapper.readValue(payload, ContentDeletionSagaEvent.class);
         } catch (Exception e) {
             log.error("Failed to deserialize ContentDeletionSagaEvent from Kafka payload: {}", payload, e);
+            handleDeserializationFailure(payload, key, e.getMessage());
             return;
         }
 
         processContentDeletionSaga(event);
+    }
+
+    private void handleDeserializationFailure(String payload, String key, String errorMsg) {
+        try {
+            UUID sagaId = null;
+            if (key != null && !key.isBlank()) {
+                try {
+                    sagaId = UUID.fromString(key);
+                } catch (IllegalArgumentException ignored) {}
+            }
+            if (sagaId == null && payload != null) {
+                java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("\"sagaId\"\\s*:\\s*\"([0-9a-fA-F\\-]+)\"").matcher(payload);
+                if (matcher.find()) {
+                    sagaId = UUID.fromString(matcher.group(1));
+                }
+            }
+
+            UUID contentId = null;
+            if (payload != null) {
+                java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("\"contentId\"\\s*:\\s*\"([0-9a-fA-F\\-]+)\"").matcher(payload);
+                if (matcher.find()) {
+                    contentId = UUID.fromString(matcher.group(1));
+                }
+            }
+
+            if (sagaId != null && contentId != null) {
+                log.warn("[Playlist] Extracted sagaId [{}] and contentId [{}] from malformed payload. Sending immediate FAILED response.",
+                        sagaId, contentId);
+                sendSagaResponse(ContentDeletionSagaEvent.failed(sagaId, contentId, "PLAYLIST", "DESERIALIZATION_FAILURE: " + errorMsg));
+            } else {
+                log.warn("[Playlist] Cannot extract identifiers from malformed payload (sagaId={}, contentId={}). Relying on timeout scheduler.",
+                        sagaId, contentId);
+            }
+        } catch (Exception ex) {
+            log.error("[Playlist] Failed during deserialization fallback handling", ex);
+        }
     }
 
     private void processContentDeletionSaga(ContentDeletionSagaEvent event) {
@@ -128,10 +169,15 @@ public class ContentEventListener {
         }
 
         String messageId = "saga-start-" + event.sagaId() + "-playlist";
-        if (inboxService.isAlreadyProcessed(messageId)) {
-            log.info("[Inbox] Saga start already processed in playlist. Skipping duplicate message: {}", messageId);
-            // 멱등성 보장을 위해 이전 성공 응답 재전송
-            sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "PLAYLIST"));
+        java.util.Optional<org.codeit.sb06.team03.mopl.entity.InboxEvent> existingInbox = inboxService.findByMessageId(messageId);
+        if (existingInbox.isPresent()) {
+            String prevStatus = existingInbox.get().getEventType();
+            log.info("[Inbox] Saga start already processed in playlist with status [{}]. Resending response for: {}", prevStatus, messageId);
+            if ("FAILED".equalsIgnoreCase(prevStatus)) {
+                sendSagaResponse(ContentDeletionSagaEvent.failed(event.sagaId(), event.contentId(), "PLAYLIST", "Previously failed"));
+            } else {
+                sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "PLAYLIST"));
+            }
             return;
         }
 
@@ -143,16 +189,18 @@ public class ContentEventListener {
             playlistCommandService.deleteCurationByContentId(event.contentId());
             externalContentViewRepository.deleteById(event.contentId());
 
-            // 3. Inbox 테이블에 처리 완료 기록
-            inboxService.recordProcessed(messageId, "CONTENT_SAGA", "ContentDeletionSagaEvent", event.toString());
+            // 3. Inbox 테이블에 성공 처리 기록
+            inboxService.recordProcessed(messageId, "CONTENT_SAGA", "SUCCESS", event.toString());
 
             // 4. 성공 이벤트 응답 (Kafka 전송)
             sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "PLAYLIST"));
         } catch (Exception e) {
             log.error("Failed to delete playlist curation for contentId: {}", event.contentId(), e);
-            // 실패 응답 전송 (Kafka)
+            // 3. Inbox 테이블에 실패 처리 기록 (중복 재시도 시 FAILED 응답 일관성 유지)
+            inboxService.recordProcessed(messageId, "CONTENT_SAGA", "FAILED", e.getMessage() != null ? e.getMessage() : "Unknown error");
+            // 4. 실패 응답 전송 (Kafka)
             sendSagaResponse(ContentDeletionSagaEvent.failed(event.sagaId(), event.contentId(), "PLAYLIST", e.getMessage()));
-            throw new RuntimeException("Error processing ContentDeletionSagaEvent in playlist", e);
+            // 비즈니스 실패 통보 완료 후 정상 리턴하여 Kafka 재시도 에러 폭풍 차단
         }
     }
 

@@ -8,9 +8,11 @@ import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
 import org.codeit.sb06.team03.mopl.entity.ContentService;
 import org.codeit.sb06.team03.mopl.entity.ContentTagService;
+import org.codeit.sb06.team03.mopl.entity.SagaInstance;
 import org.codeit.sb06.team03.mopl.event.ContentEventPublisher;
 import org.codeit.sb06.team03.mopl.exception.ContentNotFoundException;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;
+import org.codeit.sb06.team03.mopl.repository.SagaInstanceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ public class ContentCommandService {
     private final ContentService contentService;
     private final ContentTagService contentTagService;
     private final ContentEventPublisher contentEventPublisher;
+    private final SagaInstanceRepository sagaInstanceRepository;
 
     public ContentReadModel create(ContentCreateRequest request, String thumbnailKey) {
         Content content = contentService.create(
@@ -81,6 +84,9 @@ public class ContentCommandService {
 
         // 2. Publish Saga Start Event (Outbox save)
         UUID sagaId = UUID.randomUUID();
+        SagaInstance sagaInstance = SagaInstance.create(sagaId, id);
+        sagaInstanceRepository.save(sagaInstance);
+
         contentEventPublisher.publishContentDeletionSagaStart(
                 org.codeit.sb06.team03.mopl.event.ContentDeletionSagaEvent.start(sagaId, id)
         );

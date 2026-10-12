@@ -21,6 +21,11 @@ public class InboxService {
         return inboxEventRepository.existsByMessageId(messageId);
     }
 
+    @Transactional(value = "playlistTransactionManager", readOnly = true)
+    public java.util.Optional<InboxEvent> findByMessageId(String messageId) {
+        return inboxEventRepository.findByMessageId(messageId);
+    }
+
     @Transactional(value = "playlistTransactionManager")
     public void recordProcessed(String messageId, String aggregateType, String eventType, String payload) {
         InboxEvent inboxEvent = InboxEvent.create(messageId, aggregateType, eventType, payload);
