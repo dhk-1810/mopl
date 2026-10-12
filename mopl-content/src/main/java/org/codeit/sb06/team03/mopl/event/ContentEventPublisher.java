@@ -50,6 +50,18 @@ public class ContentEventPublisher {
         );
     }
 
+    public void publishContentDeletionSagaCompensate(ContentDeletionSagaEvent event) {
+        log.info("Saving ContentDeletionSagaEvent COMPENSATE to Outbox table: {}", event);
+        outboxService.saveEvent(
+                "CONTENT_SAGA",
+                event.sagaId().toString(),
+                ContentDeletionSagaEvent.class.getName(),
+                RabbitConfig.CONTENT_EXCHANGE,
+                RabbitConfig.ROUTING_KEY_SAGA_START,
+                event
+        );
+    }
+
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleContentUpdatedAfterCommit(ContentUpdatedEvent event) {
         try {

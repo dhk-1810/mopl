@@ -156,6 +156,9 @@ public class Content {
     }
 
     public void markAsDeleting() {
+        if (this.status != ContentStatus.ACTIVE) {
+            throw new IllegalStateException("Only ACTIVE content can be marked as DELETING. Current: " + this.status);
+        }
         this.status = ContentStatus.DELETING;
         this.updatedAt = Instant.now();
     }
@@ -169,6 +172,9 @@ public class Content {
     }
 
     public void restoreActive() {
+        if (this.status != ContentStatus.DELETING) {
+            return;
+        }
         this.status = ContentStatus.ACTIVE;
         this.updatedAt = Instant.now();
     }

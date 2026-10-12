@@ -15,11 +15,10 @@ import org.codeit.sb06.team03.mopl.service.application.LiveChatRoomCommandServic
 import org.codeit.sb06.team03.mopl.service.application.SendPresenceMessageCommand;
 import org.codeit.sb06.team03.mopl.service.application.WatchingSessionCommandService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.connection.CorrelationData;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
@@ -39,9 +38,9 @@ public class WatchingSessionEventListener {
     private final LiveChatRoomCommandService liveChatRoomCommandService;
     private final ProfileQueryService profileQueryService;
     private final ExternalImageQueryService externalImageQueryService;
-    private final RabbitTemplate rabbitTemplate;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     @RabbitListener(queues = RabbitConfig.WS_CREATE_QUEUE)
     public void handleWatchingSessionCreate(
@@ -151,6 +150,11 @@ public class WatchingSessionEventListener {
     }
 
     private void processContentDeletionSaga(ContentDeletionSagaEvent event) {
+        if ("COMPENSATE".equalsIgnoreCase(event.action())) {
+            log.info("Received COMPENSATE action in watching-session. Live chat rooms / sessions do not require restoration. Skipping: {}", event.sagaId());
+            return;
+        }
+
         String inboxKey = "inbox:saga-start:" + event.sagaId() + ":watching-session";
         Boolean isFirst = redisTemplate.opsForValue().setIfAbsent(inboxKey, "PROCESSED", Duration.ofDays(7));
         if (Boolean.FALSE.equals(isFirst)) {
@@ -163,26 +167,25 @@ public class WatchingSessionEventListener {
             // 해당 contentId와 연관된 시청 세션 정리
             watchingSessionCommandService.deleteByLiveChatRoomId(event.contentId());
 
-            // Saga 성공 이벤트 응답 (mopl-content로 전파)
+            // Saga 성공 이벤트 응답 (Kafka를 통해 mopl-content로 전파)
             sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "WATCHING_SESSION"));
         } catch (Exception e) {
             log.error("Failed to delete watching session for contentId: {}", event.contentId(), e);
             // 실패 시 inbox 키 제거하여 재시도 허용
             redisTemplate.delete(inboxKey);
-            // 실패 응답 전송
+            // 실패 응답 전송 (Kafka)
             sendSagaResponse(ContentDeletionSagaEvent.failed(event.sagaId(), event.contentId(), "WATCHING_SESSION", e.getMessage()));
             throw new RuntimeException("Error processing ContentDeletionSagaEvent in watching session", e);
         }
     }
 
     private void sendSagaResponse(ContentDeletionSagaEvent event) {
-        CorrelationData correlationData =
-                new CorrelationData("ws-saga-response-" + event.sagaId() + "-" + event.status());
-        rabbitTemplate.convertAndSend(
-                RabbitConfig.CONTENT_EXCHANGE,
-                RabbitConfig.ROUTING_KEY_SAGA_RESPONSE,
-                event,
-                correlationData
-        );
+        try {
+            String payload = objectMapper.writeValueAsString(event);
+            kafkaTemplate.send(RabbitConfig.ROUTING_KEY_SAGA_RESPONSE, event.sagaId().toString(), payload);
+            log.info("[Kafka] Sent saga response from watching-session: {}", payload);
+        } catch (Exception e) {
+            log.error("[Kafka] Failed to send saga response from watching-session: {}", event, e);
+        }
     }
 }
