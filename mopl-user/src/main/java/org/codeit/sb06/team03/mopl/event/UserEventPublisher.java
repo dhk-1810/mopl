@@ -19,8 +19,6 @@ public class UserEventPublisher {
     private final RabbitTemplate rabbitTemplate;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public static final String ROUTING_KEY_ROLE_UPDATED = "user.role-updated";
-    public static final String ROUTING_KEY_FOLLOWED = "user.followed";
     public static final String KAFKA_TOPIC_PROFILE_EVENTS = "user.profile.events";
 
     /**
@@ -32,7 +30,7 @@ public class UserEventPublisher {
         log.info("Publishing RoleUpdatedEvent to RabbitMQ: {}", event);
         rabbitTemplate.convertAndSend(
                 RabbitConfig.USER_EXCHANGE,
-                ROUTING_KEY_ROLE_UPDATED,
+                RabbitConfig.USER_ROLE_UPDATED_ROUTING_KEY,
                 event
         );
     }
@@ -42,7 +40,7 @@ public class UserEventPublisher {
         log.info("Publishing FollowedEvent to RabbitMQ: {}", event);
         rabbitTemplate.convertAndSend(
                 RabbitConfig.USER_EXCHANGE,
-                ROUTING_KEY_FOLLOWED,
+                RabbitConfig.USER_FOLLOWED_ROUTING_KEY,
                 event
         );
         try {
@@ -71,8 +69,8 @@ public class UserEventPublisher {
         if (event.locked()) {
             jwtRegistry.invalidateAllByUserId(event.accountId());
             rabbitTemplate.convertAndSend(
-                    RabbitConfig.WS_EXCHANGE,
-                    RabbitConfig.WS_DELETE_ROUTING,
+                    RabbitConfig.WATCHING_SESSION_EXCHANGE,
+                    RabbitConfig.WATCHING_SESSION_DELETE_ROUTING_KEY,
                     new WatchingSessionDeleteRequestEvent(event.accountId())
             );
         }

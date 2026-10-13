@@ -35,7 +35,7 @@ public class WatchingSessionEventListener {
     private final ExternalImageQueryService externalImageQueryService;
 
 
-    @RabbitListener(queues = RabbitConfig.WS_DELETE_QUEUE)
+    @RabbitListener(queues = RabbitConfig.WATCHING_SESSION_DELETE_QUEUE)
     public void handleWatchingSessionDelete(
             WatchingSessionDeleteRequestEvent event,
             Channel channel,

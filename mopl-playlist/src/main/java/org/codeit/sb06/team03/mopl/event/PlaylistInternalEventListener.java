@@ -24,7 +24,7 @@ public class PlaylistInternalEventListener {
     public void handleSubscriptionCreatedEvent(SubscriptionCreatedEvent event) {
         rabbitTemplate.convertAndSend(
                 RabbitConfig.PLAYLIST_EXCHANGE,
-                "playlist.subscribed",
+                RabbitConfig.PLAYLIST_SUBSCRIBED_ROUTING_KEY,
                 event
         );
     }
@@ -36,7 +36,7 @@ public class PlaylistInternalEventListener {
 
         rabbitTemplate.convertAndSend(
                 RabbitConfig.PLAYLIST_EXCHANGE,
-                RabbitConfig.ROUTING_KEY_CURATION_ADDED,
+                RabbitConfig.CURATION_ADDED_ROUTING_KEY,
                 new CurationAddedEvent(
                         event.playlistId(),
                         event.playlistTitle(),

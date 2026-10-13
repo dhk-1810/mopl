@@ -36,7 +36,7 @@ public class ImageUploadListener {
     }
 
     @Transactional("imageTransactionManager")
-    @RabbitListener(queues = RabbitConfig.QUEUE_NAME)
+    @RabbitListener(queues = RabbitConfig.IMAGE_UPLOAD_QUEUE)
     public void handleImageUpload(ImageUploadEvent event) {
         log.info("Received image metadata registration event via RabbitMQ. key: {}", event.key());
         try {

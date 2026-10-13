@@ -1,6 +1,7 @@
 package org.codeit.sb06.team03.mopl.service;
 
 import lombok.RequiredArgsConstructor;
+import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.event.ImageUploadEvent;
 import org.codeit.sb06.team03.mopl.s3.S3Service;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -17,9 +18,6 @@ public class ImageCommandService {
 
     private final S3Service s3Service;
     private final RabbitTemplate rabbitTemplate;
-
-    private static final String EXCHANGE_NAME = "mopl.image.exchange";
-    private static final String ROUTING_KEY = "mopl.image.upload";
 
     public String register(UUID userId, MultipartFile image) {
         if (image == null || image.isEmpty()) {
@@ -44,7 +42,7 @@ public class ImageCommandService {
                     key,
                     image.getContentType()
             );
-            rabbitTemplate.convertAndSend(EXCHANGE_NAME, ROUTING_KEY, event);
+            rabbitTemplate.convertAndSend(RabbitConfig.IMAGE_EXCHANGE, RabbitConfig.IMAGE_UPLOAD_ROUTING_KEY, event);
 
             return key;
         } catch (IOException e) {

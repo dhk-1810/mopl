@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitConfig {
 
     public static final String DM_EXCHANGE = "mopl.dm.exchange";
+    public static final String DM_NOTIFICATION_REQUIRED_ROUTING_KEY = "mopl.dm.notification-required";
 
     @Bean
     public TopicExchange dmExchange() {

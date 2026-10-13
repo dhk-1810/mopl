@@ -61,8 +61,8 @@ public class RedisJwtRegistry implements JwtRegistry {
 
                 // 동시 로그인 대수 초과로 인한 강제 세션 만료 시 워칭 세션 정리 이벤트 발행
                 rabbitTemplate.convertAndSend(
-                        RabbitConfig.WS_EXCHANGE,
-                        RabbitConfig.WS_DELETE_ROUTING,
+                        RabbitConfig.WATCHING_SESSION_EXCHANGE,
+                        RabbitConfig.WATCHING_SESSION_DELETE_ROUTING_KEY,
                         new WatchingSessionDeleteRequestEvent(jwtClaims.id())
                 );
             }

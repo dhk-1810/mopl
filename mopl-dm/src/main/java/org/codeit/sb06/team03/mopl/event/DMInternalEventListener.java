@@ -56,7 +56,7 @@ public class DMInternalEventListener {
 
                 rabbitTemplate.convertAndSend(
                         RabbitConfig.DM_EXCHANGE,
-                        "dm.notification-required",
+                        RabbitConfig.DM_NOTIFICATION_REQUIRED_ROUTING_KEY,
                         mqEvent
                 );
             }

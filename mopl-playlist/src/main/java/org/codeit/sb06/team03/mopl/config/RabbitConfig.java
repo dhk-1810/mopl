@@ -1,8 +1,5 @@
 package org.codeit.sb06.team03.mopl.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -16,54 +13,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
 
-    // Exchanges
     public static final String PLAYLIST_EXCHANGE = "mopl.playlist.exchange";
-    public static final String CONTENT_EXCHANGE = "mopl.content.exchange";
-    // Routing Keys
-    public static final String ROUTING_KEY_CONTENT_DELETED = "content.deleted";
-    public static final String ROUTING_KEY_CONTENT_BATCH_INFO = "content.batch-info";
-
-    public static final String ROUTING_KEY_CURATION_ADDED = "curation.added";
-
-    // Queues
-    public static final String CONTENT_DELETE_QUEUE = "playlist.content-delete.queue";
-    public static final String CONTENT_BATCH_INFO_QUEUE = "playlist.content-batch-info.queue";
+    public static final String PLAYLIST_SUBSCRIBED_ROUTING_KEY = "mopl.playlist.subscribed";
+    public static final String CURATION_ADDED_ROUTING_KEY = "mopl.playlist.curation-added";
 
     @Bean
     public TopicExchange playlistExchange() {
         return new TopicExchange(PLAYLIST_EXCHANGE);
-    }
-
-    @Bean
-    public TopicExchange contentExchange() {
-        return new TopicExchange(CONTENT_EXCHANGE);
-    }
-
-    // Queues Beans
-
-    @Bean
-    public Queue contentDeleteQueue() {
-        return new Queue(CONTENT_DELETE_QUEUE, true);
-    }
-
-    @Bean
-    public Queue contentBatchInfoQueue() {
-        return new Queue(CONTENT_BATCH_INFO_QUEUE, true);
-    }
-
-
-    @Bean
-    public Binding contentDeleteBinding() {
-        return BindingBuilder.bind(contentDeleteQueue())
-                .to(contentExchange())
-                .with(ROUTING_KEY_CONTENT_DELETED);
-    }
-
-    @Bean
-    public Binding contentBatchInfoBinding() {
-        return BindingBuilder.bind(contentBatchInfoQueue())
-                .to(contentExchange())
-                .with(ROUTING_KEY_CONTENT_BATCH_INFO);
     }
 
     @Bean

@@ -13,17 +13,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
 
-    public static final String PLAYLIST_EXCHANGE = "mopl.playlist.exchange";
-    public static final String IMAGE_UPLOAD_EXCHANGE = "mopl.image.exchange";
+    public static final String IMAGE_EXCHANGE = "mopl.image.exchange";
+    public static final String IMAGE_UPLOAD_ROUTING_KEY = "mopl.image.upload";
 
     @Bean
-    public TopicExchange playlistExchange() {
-        return new TopicExchange(PLAYLIST_EXCHANGE);
-    }
-
-    @Bean
-    public TopicExchange imageUploadExchange() {
-        return new TopicExchange(IMAGE_UPLOAD_EXCHANGE);
+    public TopicExchange imageExchange() {
+        return new TopicExchange(IMAGE_EXCHANGE);
     }
 
 

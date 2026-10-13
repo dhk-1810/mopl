@@ -11,6 +11,7 @@ import org.codeit.sb06.team03.mopl.dto.request.ContentUpdateRequest;
 import org.codeit.sb06.team03.mopl.dto.response.CursorResponseContentDto;
 import org.codeit.sb06.team03.mopl.s3.S3Service;
 import org.codeit.sb06.team03.mopl.service.saga.ContentDeletionSagaStrategy;
+import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.codeit.sb06.team03.mopl.event.ImageUploadEvent;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalImageQueryService;
@@ -36,13 +37,10 @@ public class ContentCompositeService {
     private final ContentQueryService contentQueryService;
     private final ExternalImageQueryService imageQueryService;
     private final S3Service s3Service;
-    private final ContentDeletionSagaStrategy contentDeletionSagaStrategy;
-
     private final RabbitTemplate rabbitTemplate;
-    private final ApplicationEventPublisher eventPublisher;
 
-    private static final String IMAGE_EXCHANGE = "mopl.image.exchange";
-    private static final String IMAGE_ROUTING_KEY = "mopl.image.upload";
+    private final ContentDeletionSagaStrategy contentDeletionSagaStrategy;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ContentDto createInternal(ContentCreateInternalRequest request) {
         ContentReadModel readModel = contentCommandService.createInternal(request);
@@ -144,7 +142,7 @@ public class ContentCompositeService {
             s3Service.uploadFile(key, image);
 
             ImageUploadEvent event = new ImageUploadEvent(key, image.getContentType());
-            rabbitTemplate.convertAndSend(IMAGE_EXCHANGE, IMAGE_ROUTING_KEY, event);
+            rabbitTemplate.convertAndSend(RabbitConfig.IMAGE_EXCHANGE, RabbitConfig.IMAGE_UPLOAD_ROUTING_KEY, event);
             return key;
         } catch (IOException e) {
             throw new RuntimeException("S3 direct upload failed in content-service", e);

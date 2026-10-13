@@ -16,26 +16,25 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
 
-    public static final String WS_EXCHANGE = "mopl.watching-session.exchange";
-
-    public static final String WS_DELETE_ROUTING = "watching-session.delete";
-    public static final String WS_DELETE_QUEUE = "watching-session.delete.queue";
+    public static final String WATCHING_SESSION_EXCHANGE = "mopl.watching-session.exchange";
+    public static final String WATCHING_SESSION_DELETE_ROUTING_KEY = "mopl.watching-session.delete";
+    public static final String WATCHING_SESSION_DELETE_QUEUE = "mopl.live-chat.watching-session-delete.queue";
 
     @Bean
-    public TopicExchange wsExchange() {
-        return new TopicExchange(WS_EXCHANGE);
+    public TopicExchange watchingSessionExchange() {
+        return new TopicExchange(WATCHING_SESSION_EXCHANGE);
     }
 
     @Bean
-    public Queue wsDeleteQueue() {
-        return new Queue(WS_DELETE_QUEUE, true);
+    public Queue watchingSessionDeleteQueue() {
+        return new Queue(WATCHING_SESSION_DELETE_QUEUE, true);
     }
 
     @Bean
-    public Binding wsDeleteBinding() {
-        return BindingBuilder.bind(wsDeleteQueue())
-                .to(wsExchange())
-                .with(WS_DELETE_ROUTING);
+    public Binding watchingSessionDeleteBinding(Queue watchingSessionDeleteQueue, TopicExchange watchingSessionExchange) {
+        return BindingBuilder.bind(watchingSessionDeleteQueue)
+                .to(watchingSessionExchange)
+                .with(WATCHING_SESSION_DELETE_ROUTING_KEY);
     }
 
     @Bean

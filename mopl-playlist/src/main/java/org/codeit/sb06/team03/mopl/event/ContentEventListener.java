@@ -1,18 +1,14 @@
 package org.codeit.sb06.team03.mopl.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.KafkaConfig;
-import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.enums.ContentType;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalContentView;
 import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalContentViewRepository;
 import org.codeit.sb06.team03.mopl.service.application.InboxService;
 import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.support.AmqpHeaders;
 import org.codeit.sb06.team03.mopl.dto.PlaylistCurationBackupDto;
 import org.codeit.sb06.team03.mopl.entity.Curation;
 import org.codeit.sb06.team03.mopl.repository.CurationRepository;

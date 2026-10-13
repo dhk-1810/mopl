@@ -12,24 +12,23 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
 
-    public static final String QUEUE_NAME = "mopl.image.queue.upload";
-    public static final String EXCHANGE_NAME = "mopl.image.exchange";
-    public static final String ROUTING_KEY = "mopl.image.upload";
-
+    public static final String IMAGE_EXCHANGE = "mopl.image.exchange";
+    public static final String IMAGE_UPLOAD_ROUTING_KEY = "mopl.image.upload";
+    public static final String IMAGE_UPLOAD_QUEUE = "mopl.image.queue.upload";
 
     @Bean
-    public Queue queue() {
-        return new Queue(QUEUE_NAME, true);
+    public Queue imageUploadQueue() {
+        return new Queue(IMAGE_UPLOAD_QUEUE, true);
     }
 
     @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(EXCHANGE_NAME);
+    public TopicExchange imageExchange() {
+        return new TopicExchange(IMAGE_EXCHANGE);
     }
 
     @Bean
-    public Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY);
+    public Binding imageUploadBinding(Queue imageUploadQueue, TopicExchange imageExchange) {
+        return BindingBuilder.bind(imageUploadQueue).to(imageExchange).with(IMAGE_UPLOAD_ROUTING_KEY);
     }
 
     @Bean

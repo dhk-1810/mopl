@@ -1,8 +1,5 @@
 package org.codeit.sb06.team03.mopl.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -15,12 +12,14 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitConfig {
 
     public static final String USER_EXCHANGE = "mopl.user.exchange";
-    public static final String IMAGE_UPLOAD_QUEUE = "mopl.image.queue.upload";
-    public static final String IMAGE_UPLOAD_EXCHANGE = "mopl.image.exchange";
+    public static final String USER_ROLE_UPDATED_ROUTING_KEY = "mopl.user.role-updated";
+    public static final String USER_FOLLOWED_ROUTING_KEY = "mopl.user.followed";
+
+    public static final String IMAGE_EXCHANGE = "mopl.image.exchange";
     public static final String IMAGE_UPLOAD_ROUTING_KEY = "mopl.image.upload";
 
-    public static final String WS_EXCHANGE = "mopl.watching-session.exchange";
-    public static final String WS_DELETE_ROUTING = "watching-session.delete";
+    public static final String WATCHING_SESSION_EXCHANGE = "mopl.watching-session.exchange";
+    public static final String WATCHING_SESSION_DELETE_ROUTING_KEY = "mopl.watching-session.delete";
 
     @Bean
     public TopicExchange userExchange() {
@@ -28,18 +27,8 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Queue imageUploadQueue() {
-        return new Queue(IMAGE_UPLOAD_QUEUE, true);
-    }
-
-    @Bean
-    public TopicExchange imageUploadExchange() {
-        return new TopicExchange(IMAGE_UPLOAD_EXCHANGE);
-    }
-
-    @Bean
-    public Binding imageUploadBinding(Queue imageUploadQueue, TopicExchange imageUploadExchange) {
-        return BindingBuilder.bind(imageUploadQueue).to(imageUploadExchange).with(IMAGE_UPLOAD_ROUTING_KEY);
+    public TopicExchange imageExchange() {
+        return new TopicExchange(IMAGE_EXCHANGE);
     }
 
 
