@@ -18,10 +18,7 @@ public class RabbitConfig {
 
     public static final String WS_EXCHANGE = "mopl.watching-session.exchange";
 
-    public static final String WS_CREATE_ROUTING = "watching-session.create";
     public static final String WS_DELETE_ROUTING = "watching-session.delete";
-
-    public static final String WS_CREATE_QUEUE = "watching-session.create.queue";
     public static final String WS_DELETE_QUEUE = "watching-session.delete.queue";
 
     @Bean
@@ -30,20 +27,15 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Queue wsCreateQueue() {
-        return new Queue(WS_CREATE_QUEUE, true);
-    }
-
-    @Bean
     public Queue wsDeleteQueue() {
         return new Queue(WS_DELETE_QUEUE, true);
     }
 
     @Bean
-    public Binding wsCreateBinding() {
-        return BindingBuilder.bind(wsCreateQueue())
+    public Binding wsDeleteBinding() {
+        return BindingBuilder.bind(wsDeleteQueue())
                 .to(wsExchange())
-                .with(WS_CREATE_ROUTING);
+                .with(WS_DELETE_ROUTING);
     }
 
     @Bean

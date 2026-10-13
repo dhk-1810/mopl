@@ -5,14 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.codeit.sb06.team03.mopl.dto.UserSummary;
-import org.codeit.sb06.team03.mopl.event.MessagePassedEvent;
-import org.codeit.sb06.team03.mopl.event.MessageReceivedEvent;
-import org.codeit.sb06.team03.mopl.event.MessageSentEvent;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
@@ -25,7 +20,7 @@ import java.util.UUID;
 @Table(name = "dm_messages")
 @SQLDelete(sql = "UPDATE dm_messages SET is_deleted = true WHERE id = ?")
 @SQLRestriction("is_deleted = false")
-public class DMMessage extends AbstractAggregateRoot<DMMessage> {
+public class DMMessage {
 
     @Id
     @Column(name = "id", nullable = false)
@@ -54,7 +49,7 @@ public class DMMessage extends AbstractAggregateRoot<DMMessage> {
     @Column(name = "has_unread", nullable = false)
     private boolean hasUnread;
 
-    public static DMMessage create(UUID dmChatRoomId, UUID senderId, UUID receiverId, String content, UserSummary sender, UserSummary receiver) {
+    public static DMMessage create(UUID dmChatRoomId, UUID senderId, UUID receiverId, String content) {
         var dmMessage = new DMMessage();
         dmMessage.id = UUID.randomUUID();
         dmMessage.createdAt = Instant.now();
@@ -63,20 +58,11 @@ public class DMMessage extends AbstractAggregateRoot<DMMessage> {
         dmMessage.receiverId = receiverId;
         dmMessage.content = content;
         dmMessage.hasUnread = true;
-        dmMessage.registerEvent(new MessageSentEvent(dmMessage.id, dmChatRoomId, senderId, receiverId, content, dmMessage.createdAt, sender, receiver));
         return dmMessage;
     }
 
     public void markAsRead() {
         this.hasUnread = false;
-    }
-
-    public void receive() {
-        this.registerEvent(new MessageReceivedEvent(this.id, this.dmChatRoomId, this.senderId, this.receiverId));
-    }
-
-    public void pass() {
-        this.registerEvent(new MessagePassedEvent(this.id, this.dmChatRoomId, this.receiverId, this.content));
     }
 
     public void delete() {

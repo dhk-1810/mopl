@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.entity.*;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
 import org.codeit.sb06.team03.mopl.event.CurationAddedEvent;
-import org.codeit.sb06.team03.mopl.event.PlaylistDeletedEvent;
 import org.codeit.sb06.team03.mopl.event.SubscriptionCreatedEvent;
 import org.codeit.sb06.team03.mopl.exception.*;
 import org.codeit.sb06.team03.mopl.repository.CurationRepository;
@@ -57,9 +56,9 @@ public class PlaylistCommandService {
         if (!playlist.getOwnerId().equals(ownerId)) {
             throw new PlaylistAccessDeniedException(playlistId, ownerId);
         }
+        curationRepository.deleteAllByPlaylistId(playlistId);
+        subscriptionRepository.deleteAllByPlaylistId(playlistId);
         playlistRepository.deleteById(playlistId);
-
-        eventPublisher.publishEvent(new PlaylistDeletedEvent(playlistId));
     }
 
     public void addContentToPlaylist(UUID playlistId, UUID contentId, String contentTitle, UUID ownerId) {
@@ -159,8 +158,4 @@ public class PlaylistCommandService {
         playlistRepository.save(playlist);
     }
 
-    public void deleteCascadeByPlaylistId(UUID playlistId) {
-        curationRepository.deleteAllByPlaylistId(playlistId);
-        subscriptionRepository.deleteAllByPlaylistId(playlistId);
-    }
 }

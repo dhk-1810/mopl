@@ -30,8 +30,7 @@ public class DMCommandService {
 
         DMMessage message = DMMessage.create(
                 dmChatRoomId, senderId,
-                receiverId, content,
-                sender, receiver
+                receiverId, content
         );
         DMMessage savedMessage = dmMessageRepository.save(message);
         log.info("DMCommandService.send saved message: id={}, content={}", savedMessage.getId(), savedMessage.getContent());

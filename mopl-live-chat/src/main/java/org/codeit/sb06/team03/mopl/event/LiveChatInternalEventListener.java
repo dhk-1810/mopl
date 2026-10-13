@@ -26,7 +26,7 @@ import java.util.UUID;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class LiveChatRoomWebEventListener {
+public class LiveChatInternalEventListener {
 
     private final LiveChatRoomCommandService liveChatRoomCommandService;
     private final WatchingSessionCommandService watchingSessionCommandService;

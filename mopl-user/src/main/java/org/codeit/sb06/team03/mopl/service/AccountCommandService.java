@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 @Service
@@ -35,22 +34,18 @@ public class AccountCommandService {
         if (accountRepository.existsByEmailAddress(emailAddress)) {
             throw new EmailAddressAlreadyExistsException(emailAddress.value());
         }
-        Password password = passwordEncryptionPolicy.apply(rawPassword);
-        Account newAccount = Account.create(emailAddress, password);
-        CompletableFuture<Profile> profile = CompletableFuture.supplyAsync(() -> {
-            return profileCommandService.create(newAccount.getId(), name);
-        }).exceptionally(throwable -> {
-            throw new AccountRegistrationFailedException(throwable);
-        });
-        CompletableFuture<Followee> follow = CompletableFuture.supplyAsync(() -> {
-            return followCommandService.create(newAccount.getId());
-        });
-        CompletableFuture.allOf(profile, follow).join();
+        try {
+            Password password = passwordEncryptionPolicy.apply(rawPassword);
+            Account newAccount = Account.create(emailAddress, password);
+            Profile profile = profileCommandService.create(newAccount.getId(), name);
+            followCommandService.create(newAccount.getId());
 
-        newAccount.setProfile(profile.join());
-
-        accountRepository.save(newAccount);
-        return newAccount;
+            newAccount.setProfile(profile);
+            accountRepository.save(newAccount);
+            return newAccount;
+        } catch (Exception e) {
+            throw new AccountRegistrationFailedException(e);
+        }
     }
 
     @Transactional

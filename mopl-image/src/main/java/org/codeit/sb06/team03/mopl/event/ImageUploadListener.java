@@ -1,12 +1,11 @@
-package org.codeit.sb06.team03.mopl.service;
+package org.codeit.sb06.team03.mopl.event;
 
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.entity.TimeoutImage;
 import org.codeit.sb06.team03.mopl.entity.policy.PresignedUrlTimeoutPolicy;
-import org.codeit.sb06.team03.mopl.event.ImagePresignedUrlCreatedEvent;
-import org.codeit.sb06.team03.mopl.event.ImageUploadEvent;
 import org.codeit.sb06.team03.mopl.repository.ImageRepository;
+import org.codeit.sb06.team03.mopl.service.S3Service;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,9 +18,9 @@ import java.time.Instant;
 @Component
 public class ImageUploadListener {
 
-    private final S3Service s3Service;
     private final ImageRepository imageRepository;
     private final PresignedUrlTimeoutPolicy presignedUrlTimeoutPolicy;
+    private final S3Service s3Service;
     private final RabbitTemplate rabbitTemplate;
 
     public ImageUploadListener(
@@ -50,7 +49,7 @@ public class ImageUploadListener {
             log.info("Successfully created cache metadata for pre-uploaded S3 key: {}", event.key());
 
             // 2. Presigned URL 생성 완료 이벤트를 RabbitMQ로 브로드캐스팅 (User 등 타 서비스 복제뷰 갱신용)
-            ImagePresignedUrlCreatedEvent urlCreatedEvent = new ImagePresignedUrlCreatedEvent(
+            PresignedUrlUpdateEvent urlCreatedEvent = new PresignedUrlUpdateEvent(
                     event.key(),
                     presignedUrl,
                     exp

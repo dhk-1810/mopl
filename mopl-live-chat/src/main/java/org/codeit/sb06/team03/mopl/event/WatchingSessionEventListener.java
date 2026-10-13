@@ -28,33 +28,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class WatchingSessionEventListener {
 
-    private final WatchingSessionCommandService watchingSessionCommandService;
     private final WatchingSessionRepository watchingSessionRepository;
+    private final WatchingSessionCommandService watchingSessionCommandService;
     private final LiveChatRoomCommandService liveChatRoomCommandService;
     private final ProfileQueryService profileQueryService;
     private final ExternalImageQueryService externalImageQueryService;
 
-    @RabbitListener(queues = RabbitConfig.WS_CREATE_QUEUE)
-    public void handleWatchingSessionCreate(
-            WatchingSessionCreateRequestEvent event,
-            Channel channel,
-            @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
-    ) throws IOException {
-        log.info("Received WatchingSessionCreateRequestEvent from RabbitMQ: {}", event);
-        try {
-            watchingSessionCommandService.createWithId(
-                    event.sessionId(),
-                    event.contentId(),
-                    event.watcherId(),
-                    event.createdAt()
-            );
-            log.info("Successfully created watching session from queue for watcher: {}", event.watcherId());
-            channel.basicAck(deliveryTag, false);
-        } catch (Exception e) {
-            log.error("Failed to create watching session asynchronously from event: {}", event, e);
-            channel.basicReject(deliveryTag, false);
-        }
-    }
 
     @RabbitListener(queues = RabbitConfig.WS_DELETE_QUEUE)
     public void handleWatchingSessionDelete(

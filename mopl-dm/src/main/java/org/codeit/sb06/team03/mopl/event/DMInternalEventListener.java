@@ -16,7 +16,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class DMEventListener {
+public class DMInternalEventListener {
 
     private final DMMessagePassService dmMessagePassService;
     private final DMChatRoomQueryService dmChatRoomQueryService;

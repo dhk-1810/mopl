@@ -3,7 +3,6 @@ package org.codeit.sb06.team03.mopl.event;
 import lombok.RequiredArgsConstructor;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.service.PlaylistQueryService;
-import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalFollowQueryService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -17,12 +16,10 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Component
-public class PlaylistEventListener {
+public class PlaylistInternalEventListener {
 
     private final PlaylistQueryService playlistQueryService;
-    private final PlaylistCommandService playlistCommandService;
     private final ExternalFollowQueryService externalFollowQueryService;
-
     private final RabbitTemplate rabbitTemplate;
 
     @Async
@@ -68,11 +65,5 @@ public class PlaylistEventListener {
                         subscriberIds
                 )
         );
-    }
-
-    @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handlePlaylistDeletedEvent(PlaylistDeletedEvent event) {
-        playlistCommandService.deleteCurationByContentId(event.playlistId());
     }
 }

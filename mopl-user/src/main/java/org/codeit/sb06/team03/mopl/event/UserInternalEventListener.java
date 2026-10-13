@@ -11,7 +11,7 @@ import java.time.Instant;
 
 @RequiredArgsConstructor
 @Component
-public class EmailEventListener {
+public class UserInternalEventListener {
 
     private final EmailService emailService;
 
