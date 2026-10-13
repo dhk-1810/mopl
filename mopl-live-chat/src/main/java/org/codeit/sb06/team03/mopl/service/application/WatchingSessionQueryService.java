@@ -49,12 +49,4 @@ public class WatchingSessionQueryService {
         return watchingSessionRepository.findReadModelByContentId(query);
     }
 
-    public long countWatchersByContentId(UUID contentId) {
-        return watchingSessionRepository.countByContentId(contentId);
-    }
-
-    public Map<UUID, Long> countWatchersByContentIds(List<UUID> contentIds) {
-        return Map.of();
-    }
-
 }

@@ -64,12 +64,20 @@ public class WatchingSessionCompositeService {
 
         List<UUID> watcherIds = watchingSessions.stream().map(WatchingSessionReadModel::watcherId).toList();
         Map<UUID, ProfileReadModel> profilesMap = profileQueryService.getProfileReadModels(watcherIds);
+
+        List<String> imageKeys = profilesMap.values().stream()
+                .map(ProfileReadModel::imageKey)
+                .filter(key -> key != null && !key.isBlank())
+                .distinct()
+                .toList();
+        Map<String, String> urlMap = imageQueryService.getPresignedUrls(imageKeys);
+
         Map<UUID, UserSummary> watchers = profilesMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> {
                             ProfileReadModel profile = entry.getValue();
-                            String url = imageQueryService.getPresignedUrl(profile.imageKey());
+                            String url = profile.imageKey() != null ? urlMap.get(profile.imageKey()) : null;
                             return new UserSummary(profile.userId(), profile.name(), url);
                         }
                 ));
@@ -97,7 +105,7 @@ public class WatchingSessionCompositeService {
                 nextIdAfter,
                 slice.hasNext(),
                 0,
-                SortDirection.valueOf(request.sortDirection()),
+                SortDirection.parse(request.sortDirection()),
                 request.sortBy()
         );
     }

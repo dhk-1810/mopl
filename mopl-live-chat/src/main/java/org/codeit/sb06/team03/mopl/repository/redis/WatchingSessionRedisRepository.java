@@ -189,30 +189,6 @@ public class WatchingSessionRedisRepository implements WatchingSessionRepository
         return new SliceImpl<>(list, PageRequest.ofSize(limit), hasNext);
     }
 
-    // 객체 형태로 Application 계층에 보내줘야 할때 사용.
-    private WatchingSession reconstruct(RedisWatchingSessionDto dto) {
-        try {
-            java.lang.reflect.Constructor<WatchingSession> constructor = WatchingSession.class.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            WatchingSession session = constructor.newInstance();
-
-            setField(session, "id", UUID.fromString(dto.id()));
-            setField(session, "watcherId", UUID.fromString(dto.watcherId()));
-            setField(session, "liveChatRoomId", UUID.fromString(dto.liveChatRoomId()));
-            setField(session, "createdAt", Instant.ofEpochMilli(dto.createdAtEpochMilli()));
-
-            return session;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to reconstruct WatchingSession", e);
-        }
-    }
-
-    private void setField(Object target, String fieldName, Object value) throws Exception {
-        java.lang.reflect.Field field = WatchingSession.class.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(target, value);
-    }
-
     /**
      * 삭제
      */
