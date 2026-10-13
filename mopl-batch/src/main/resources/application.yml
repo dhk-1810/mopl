@@ -4,16 +4,8 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
-  rabbitmq:
-    host: ${SPRING_RABBITMQ_HOST:localhost}
-    port: ${SPRING_RABBITMQ_PORT:5672}
-    username: ${SPRING_RABBITMQ_USERNAME:guest}
-    password: ${SPRING_RABBITMQ_PASSWORD:guest}
 
 mopl:
-  services:
-    content:
-      url: http://${CONTENT_HOST:localhost}:8082
   api:
     tmdb:
       key: ${TMDB_API_KEY:mock}

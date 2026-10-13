@@ -1,8 +1,5 @@
 package org.codeit.sb06.team03.mopl.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -20,11 +17,6 @@ public class RabbitConfig {
     public static final String PLAYLIST_EXCHANGE = "mopl.playlist.exchange";
     public static final String IMAGE_UPLOAD_EXCHANGE = "mopl.image.exchange";
 
-    public static final String ROUTING_KEY_CONTENT_BATCH_INFO = "content.batch-info";
-
-
-    public static final String CONTENT_BATCH_INFO_QUEUE = "content.batch-info.queue";
-
     @Bean
     public TopicExchange contentExchange() {
         return new TopicExchange(CONTENT_EXCHANGE);
@@ -38,19 +30,6 @@ public class RabbitConfig {
     @Bean
     public TopicExchange imageUploadExchange() {
         return new TopicExchange(IMAGE_UPLOAD_EXCHANGE);
-    }
-
-
-    @Bean
-    public Queue contentBatchInfoQueue() {
-        return new Queue(CONTENT_BATCH_INFO_QUEUE, true);
-    }
-
-    @Bean
-    public Binding contentBatchInfoBinding() {
-        return BindingBuilder.bind(contentBatchInfoQueue())
-                .to(contentExchange())
-                .with(ROUTING_KEY_CONTENT_BATCH_INFO);
     }
 
 

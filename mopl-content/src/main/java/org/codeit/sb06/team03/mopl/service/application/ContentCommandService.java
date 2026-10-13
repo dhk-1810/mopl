@@ -17,6 +17,8 @@ import org.codeit.sb06.team03.mopl.repository.SagaInstanceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.codeit.sb06.team03.mopl.event.ContentUpdatedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,6 +32,7 @@ public class ContentCommandService {
     private final ContentTagService contentTagService;
     private final ContentEventPublisher contentEventPublisher;
     private final SagaInstanceRepository sagaInstanceRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ContentReadModel create(ContentCreateRequest request, String thumbnailKey) {
         Content content = contentService.create(
@@ -37,7 +40,9 @@ public class ContentCommandService {
         contentRepository.save(content);
 
         Set<String> tags = contentTagService.create(content.getId(), request.tags());
-        return ContentReadModel.from(content, tags);
+        ContentReadModel readModel = ContentReadModel.from(content, tags);
+        publishUpdatedEvent(readModel);
+        return readModel;
     }
 
     public ContentReadModel create(UUID contentId, ContentCreateRequest request, String thumbnailKey) {
@@ -46,7 +51,9 @@ public class ContentCommandService {
         contentRepository.save(content);
 
         Set<String> tags = contentTagService.create(content.getId(), request.tags());
-        return ContentReadModel.from(content, tags);
+        ContentReadModel readModel = ContentReadModel.from(content, tags);
+        publishUpdatedEvent(readModel);
+        return readModel;
     }
 
     public ContentReadModel createInternal(ContentCreateInternalRequest request) {
@@ -55,7 +62,23 @@ public class ContentCommandService {
         contentRepository.save(content);
 
         Set<String> tags = contentTagService.create(content.getId(), request.tags());
-        return ContentReadModel.from(content, tags);
+        ContentReadModel readModel = ContentReadModel.from(content, tags);
+        publishUpdatedEvent(readModel);
+        return readModel;
+    }
+
+    private void publishUpdatedEvent(ContentReadModel readModel) {
+        eventPublisher.publishEvent(new ContentUpdatedEvent(
+                readModel.id(),
+                readModel.type(),
+                readModel.title(),
+                readModel.description(),
+                readModel.thumbnailKey(),
+                readModel.tags(),
+                readModel.averageRating(),
+                readModel.reviewCount(),
+                readModel.watcherCount()
+        ));
     }
 
     public ContentReadModel update(UUID contentId, ContentUpdateRequest request, String thumbnailKey) {

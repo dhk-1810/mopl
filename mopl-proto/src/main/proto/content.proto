@@ -9,6 +9,7 @@ option java_outer_classname = "ContentProto";
 service ContentService {
   rpc GetContent (GetContentRequest) returns (ContentResponse);
   rpc CheckContentExists (CheckContentExistsRequest) returns (CheckContentExistsResponse);
+  rpc BatchCreateContents (BatchCreateContentsRequest) returns (BatchCreateContentsResponse);
 }
 
 message GetContentRequest {
@@ -22,6 +23,22 @@ message CheckContentExistsRequest {
 
 message CheckContentExistsResponse {
   bool exists = 1;
+}
+
+message CreateContentItem {
+  string type = 1;
+  string title = 2;
+  string description = 3;
+  string thumbnail_key = 4;
+  repeated string tags = 5;
+}
+
+message BatchCreateContentsRequest {
+  repeated CreateContentItem contents = 1;
+}
+
+message BatchCreateContentsResponse {
+  int32 created_count = 1;
 }
 
 message ContentResponse {
