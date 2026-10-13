@@ -76,7 +76,7 @@ public class UserController implements UserApi {
 
     @Override
     @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserDto> patchUserProfile(
+    public ResponseEntity<UserDto> patchProfile(
             @PathVariable UUID userId,
             @RequestPart UserUpdateRequest request,
             @Nullable @RequestPart(required = false) MultipartFile image

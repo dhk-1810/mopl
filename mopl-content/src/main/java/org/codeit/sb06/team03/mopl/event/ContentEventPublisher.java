@@ -1,5 +1,6 @@
 package org.codeit.sb06.team03.mopl.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.KafkaConfig;
@@ -7,6 +8,7 @@ import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.service.application.OutboxService;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -20,8 +22,9 @@ public class ContentEventPublisher {
 
     private final RabbitTemplate rabbitTemplate;
     private final OutboxService outboxService;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
 
-    public static final String ROUTING_KEY_CONTENT_UPDATED = "content.updated";
     public static final String ROUTING_KEY_CONTENT_DELETED = "content.deleted";
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
@@ -40,16 +43,15 @@ public class ContentEventPublisher {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleContentUpdatedAfterCommit(ContentUpdatedEvent event) {
         try {
-            log.info("Publishing ContentUpdatedEvent to RabbitMQ: {}", event);
-            CorrelationData correlationData = new CorrelationData("content-updated-" + event.contentId() + "-" + UUID.randomUUID());
-            rabbitTemplate.convertAndSend(
-                    RabbitConfig.CONTENT_EXCHANGE,
-                    ROUTING_KEY_CONTENT_UPDATED,
-                    event,
-                    correlationData
+            String payload = objectMapper.writeValueAsString(event);
+            kafkaTemplate.send(
+                    KafkaConfig.TOPIC_CONTENT_METADATA_EVENTS,
+                    event.contentId().toString(),
+                    payload
             );
+            log.info("Published ContentUpdatedEvent to Kafka for contentId: {}", event.contentId());
         } catch (Exception e) {
-            log.error("Failed to publish ContentUpdatedEvent to RabbitMQ: {}", e.getMessage(), e);
+            log.error("Failed to publish ContentUpdatedEvent to Kafka: {}", e.getMessage(), e);
         }
     }
 

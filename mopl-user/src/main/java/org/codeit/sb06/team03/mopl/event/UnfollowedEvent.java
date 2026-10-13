@@ -1,3 +1,9 @@
 package org.codeit.sb06.team03.mopl.event;
 
-public record UnfollowedEvent() {}
+import java.util.UUID;
+
+public record UnfollowedEvent(
+        UUID followeeId,
+        UUID followerId
+) {
+}

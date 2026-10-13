@@ -63,7 +63,7 @@ public interface UserApi {
 
     @Operation(summary = "프로필 변경", description = "본인의 프로필만 변경할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "성공")
-    ResponseEntity<UserDto> patchUserProfile(
+    ResponseEntity<UserDto> patchProfile(
             UUID userId,
             @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @Valid UserUpdateRequest request,
             @Nullable MultipartFile image

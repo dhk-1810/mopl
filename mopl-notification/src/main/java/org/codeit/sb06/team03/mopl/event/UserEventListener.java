@@ -65,42 +65,20 @@ public class UserEventListener {
         }
     }
 
-    /**
-     * CQRS 프로필 동기화 (RabbitMQ 리스너)
-     */
-    @RabbitListener(queues = RabbitConfig.USER_PROFILE_CREATE_QUEUE)
-    public void handleProfileCreated(UserProfileCreatedEvent event) {
-        log.info("Received UserProfileCreatedEvent from RabbitMQ in mopl-notification: {}", event);
-        if (event.userId() == null) {
-            log.warn("UserProfileCreatedEvent userId is null: {}", event);
-            return;
-        }
-        externalUserCommandService.createOrUpdateProfile(event.userId(), event.name(), event.imageKey());
-    }
-
-    @RabbitListener(queues = RabbitConfig.USER_PROFILE_UPDATE_QUEUE)
-    public void handleProfileUpdated(UserProfileUpdatedEvent event) {
-        log.info("Received UserProfileUpdatedEvent from RabbitMQ in mopl-notification: {}", event);
-        if (event.userId() == null) {
-            log.warn("UserProfileUpdatedEvent userId is null: {}", event);
-            return;
-        }
-        externalUserCommandService.createOrUpdateProfile(event.userId(), event.name(), event.imageKey());
-    }
 
     /**
      * CQRS 프로필 동기화 (Kafka 리스너)
      */
     @KafkaListener(topics = "user.profile.events", groupId = "notification-profile-group")
     public void handleProfileEventsFromKafka(String payload) {
-        log.info("Received UserProfileKafkaEvent from Kafka in mopl-notification: {}", payload);
+        log.info("Received ProfileKafkaEvent from Kafka in mopl-notification: {}", payload);
         try {
-            UserProfileKafkaEvent event = objectMapper.readValue(payload, UserProfileKafkaEvent.class);
+            ProfileKafkaEvent event = objectMapper.readValue(payload, ProfileKafkaEvent.class);
             if (event.userId() != null) {
                 externalUserCommandService.createOrUpdateProfile(event.userId(), event.name(), event.imageKey());
             }
         } catch (Exception e) {
-            log.error("Failed to process UserProfileKafkaEvent in mopl-notification: {}", e.getMessage(), e);
+            log.error("Failed to process ProfileKafkaEvent in mopl-notification: {}", e.getMessage(), e);
         }
     }
 }

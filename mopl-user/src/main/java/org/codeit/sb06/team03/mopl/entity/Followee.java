@@ -62,7 +62,7 @@ public class Followee extends AbstractAggregateRoot<Followee> {
         boolean removed = followers.removeIf(follower -> follower.getId().getFollowerId().equals(followerId));
         if (removed) {
             followerCount--;
-            super.registerEvent(new UnfollowedEvent());
+            super.registerEvent(new UnfollowedEvent(this.id, followerId));
         }
     }
 

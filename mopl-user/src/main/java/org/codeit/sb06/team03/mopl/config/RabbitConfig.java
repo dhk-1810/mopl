@@ -19,9 +19,6 @@ public class RabbitConfig {
     public static final String IMAGE_UPLOAD_EXCHANGE = "mopl.image.exchange";
     public static final String IMAGE_UPLOAD_ROUTING_KEY = "mopl.image.upload";
 
-    public static final String IMAGE_PRESIGNED_URL_CREATED_QUEUE = "user.image-presigned-url-created.queue";
-    public static final String IMAGE_PRESIGNED_URL_CREATED_ROUTING_KEY = "mopl.image.presigned-url-created";
-
     public static final String WS_EXCHANGE = "mopl.watching-session.exchange";
     public static final String WS_DELETE_ROUTING = "watching-session.delete";
 
@@ -45,15 +42,6 @@ public class RabbitConfig {
         return BindingBuilder.bind(imageUploadQueue).to(imageUploadExchange).with(IMAGE_UPLOAD_ROUTING_KEY);
     }
 
-    @Bean
-    public Queue imagePresignedUrlCreatedQueue() {
-        return new Queue(IMAGE_PRESIGNED_URL_CREATED_QUEUE, true);
-    }
-
-    @Bean
-    public Binding imagePresignedUrlCreatedBinding(Queue imagePresignedUrlCreatedQueue, TopicExchange imageUploadExchange) {
-        return BindingBuilder.bind(imagePresignedUrlCreatedQueue).to(imageUploadExchange).with(IMAGE_PRESIGNED_URL_CREATED_ROUTING_KEY);
-    }
 
     @Bean
     public MessageConverter jackson2JsonMessageConverter() {

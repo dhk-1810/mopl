@@ -52,15 +52,12 @@ public class ContentEventListener {
         }
     }
 
-    @RabbitListener(queues = RabbitConfig.CONTENT_UPDATE_QUEUE)
+    @KafkaListener(topics = KafkaConfig.TOPIC_CONTENT_METADATA_EVENTS, groupId = "playlist-content-group")
     @Transactional(value = "playlistTransactionManager")
-    public void handleContentUpdated(
-            ContentUpdatedEvent event,
-            Channel channel,
-            @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag
-    ) throws IOException {
-        log.info("Received ContentUpdatedEvent from RabbitMQ: {}", event);
+    public void handleContentUpdated(String payload) {
+        log.info("Received ContentUpdatedEvent from Kafka in mopl-playlist: {}", payload);
         try {
+            ContentUpdatedEvent event = objectMapper.readValue(payload, ContentUpdatedEvent.class);
             ExternalContentView contentView = externalContentViewRepository.findById(event.contentId())
                     .orElseGet(() -> ExternalContentView.create(
                             event.contentId(),
@@ -83,10 +80,9 @@ public class ContentEventListener {
                     event.watcherCount()
             );
             externalContentViewRepository.save(contentView);
-            channel.basicAck(deliveryTag, false);
+            log.info("Successfully updated ExternalContentView in mopl-playlist for contentId: {}", event.contentId());
         } catch (Exception e) {
-            log.error("Failed to update ExternalContentView: {}", e.getMessage(), e);
-            channel.basicReject(deliveryTag, false);
+            log.error("Failed to update ExternalContentView from Kafka payload: {}", payload, e);
         }
     }
 

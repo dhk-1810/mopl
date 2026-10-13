@@ -15,9 +15,24 @@
     - 복제본 수: 1
     - 파티션 키: `sagaId`
     - 주요 역할: 하위 서비스들의 Saga 처리 응답 이벤트
+- **`image.presigned-url.events`**
+    - 기본 파티션 수: 1 (기본값)
+    - 복제본 수: 1
+    - 파티션 키: `imageKey`
+    - 주요 역할: S3 Presigned URL 생성 완료 브로드캐스팅 (`mopl-image` -> 타 서비스들의 CQRS `ExternalImageView` 갱신)
+- **`content.metadata.events`**
+    - 기본 파티션 수: 1 (기본값)
+    - 복제본 수: 1
+    - 파티션 키: `contentId`
+    - 주요 역할: 콘텐츠 메타데이터 수정 이벤트 동기화 (`mopl-content` -> `mopl-playlist`의 `ExternalContentView` 갱신)
+- **`user.follow.events`**
+    - 기본 파티션 수: 1 (기본값)
+    - 복제본 수: 1
+    - 파티션 키: `followeeId`
+    - 주요 역할: 사용자 팔로우/언팔로우 이벤트 동기화 (`mopl-user` -> `mopl-playlist`의 `ExternalFollowView` 추가/삭제 반영)
 
 - **파티셔닝 설계 현황**:
-    - 프로듀서에서 `userId` 및 `sagaId`를 메시지 키로 전송하여 **동일 엔티티 기준 순서 보장(Ordering Guarantee)**의 기반은 갖추어져 있음.
+    - 프로듀서에서 `userId`, `sagaId`, `imageKey`, `contentId`, `followeeId`를 메시지 키로 전송하여 **동일 엔티티 기준 순서 보장(Ordering Guarantee)**의 기반은 갖추어져 있음.
     - 현재는 토픽 파티션 수가 1개로 운영되고 있어, 추후 처리량 확장 및 병렬 소비 실습을 위해 파티션 증설(예: 3개) 및 리스너 `concurrency` 조정 대상임.
 
 ### 2. 컨슈머 및 컨슈머 그룹 현황
@@ -25,18 +40,26 @@
 각 마이크로서비스는 목적에 따라 고유한 **Consumer Group ID**를 부여받아 독립적으로 이벤트를 소비(Pub/Sub 및 분산 트랜잭션)하고 있음.
 
 - **`user.profile.events`**
-  - `content-profile-group` (`mopl-content` / `ProfileEventListener`): 로컬 CQRS 유저 뷰 동기화
-  - `playlist-profile-group` (`mopl-playlist` / `UserProfileEventListener`): 플레이리스트 작성자 정보 동기화
-  - `dm-profile-group` (`mopl-dm` / `UserProfileEventListener`): DM 상대방 프로필 정보 동기화
+  - `content-profile-group` (`mopl-content` / `UserEventListener`): 로컬 CQRS 유저 뷰 동기화
+  - `playlist-profile-group` (`mopl-playlist` / `UserEventListener`): 플레이리스트 작성자 정보 동기화
+  - `dm-profile-group` (`mopl-dm` / `UserEventListener`): DM 상대방 프로필 정보 동기화
   - `notification-profile-group` (`mopl-notification` / `UserEventConsumer`): 알림 수신자 프로필 정보 동기화
 - **`content.saga.delete.start`**
   - `playlist-service-group` (`mopl-playlist` / `ContentEventListener`): 콘텐츠 삭제 시 재생목록 내 콘텐츠 정리
   - `live-chat-group` (`mopl-live-chat` / `WatchingSessionEventListener`): 콘텐츠 삭제 시 시청 세션 및 채팅방 정리
 - **`content.saga.delete.response`**
   - `content-service-group` (`mopl-content` / `ContentSagaEventListener`): 하위 서비스 결과 수신 및 Saga 완료 처리
+- **`image.presigned-url.events`**
+  - `user-image-group` (`mopl-user` / `ExternalImageEventListener`): 유저 서비스 이미지 캐시 뷰 동기화
+  - `content-image-group` (`mopl-content` / `ExternalImageEventListener`): 콘텐츠 서비스 이미지 캐시 뷰 동기화
+  - `dm-image-group` (`mopl-dm` / `ExternalImageEventListener`): DM 서비스 이미지 캐시 뷰 동기화
+- **`content.metadata.events`**
+  - `playlist-content-group` (`mopl-playlist` / `ContentEventListener`): 플레이리스트 서비스 콘텐츠 메타데이터 복제 뷰 동기화
+- **`user.follow.events`**
+  - `playlist-follow-group` (`mopl-playlist` / `FollowEventListener`): 플레이리스트 서비스 팔로우 관계 복제 뷰 동기화
 
 - **특징**
-  - 동일 토픽(`user.profile.events`)을 4개 그룹이 각각 구독하여 1:N Pub/Sub(브로드캐스팅) 보장.
+  - 동일 토픽(`user.profile.events`, `image.presigned-url.events`)을 다수 그룹이 각각 구독하여 1:N Pub/Sub(브로드캐스팅) 보장.
   - 모든 리스너의 동시성(`concurrency`)은 현재 기본값(1)으로 설정되어 단일 스레드로 동작.
 
 ### 3. 브로커 및 클러스터 인프라 현황

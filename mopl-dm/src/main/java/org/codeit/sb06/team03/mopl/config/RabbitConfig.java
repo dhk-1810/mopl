@@ -17,65 +17,13 @@ public class RabbitConfig {
     public static final String DM_EXCHANGE = "mopl.dm.exchange";
     public static final String USER_EXCHANGE = "mopl.user.exchange";
 
-    public static final String ROUTING_KEY_PROFILE_CREATED = "user.profile-created";
-    public static final String ROUTING_KEY_PROFILE_UPDATED = "user.profile-updated";
     public static final String ROUTING_KEY_TOKEN_EXPIRED = "user.token-expired";
 
-    public static final String USER_PROFILE_CREATE_QUEUE = "dm.user-profile-create.queue";
-    public static final String USER_PROFILE_UPDATE_QUEUE = "dm.user-profile-update.queue";
     public static final String TOKEN_EXPIRED_QUEUE = "dm.token-expired.queue";
-
-    public static final String IMAGE_UPLOAD_EXCHANGE = "mopl.image.exchange";
-    public static final String IMAGE_PRESIGNED_URL_CREATED_QUEUE = "dm.image-presigned-url-created.queue";
-    public static final String IMAGE_PRESIGNED_URL_CREATED_ROUTING_KEY = "mopl.image.presigned-url-created";
-
-    @Bean
-    public TopicExchange dmExchange() {
-        return new TopicExchange(DM_EXCHANGE);
-    }
-
-    @Bean
-    public TopicExchange userExchange() {
-        return new TopicExchange(USER_EXCHANGE);
-    }
-
-    @Bean
-    public TopicExchange imageUploadExchange() {
-        return new TopicExchange(IMAGE_UPLOAD_EXCHANGE);
-    }
-
-    @Bean
-    public Queue userProfileCreateQueue() {
-        return new Queue(USER_PROFILE_CREATE_QUEUE, true);
-    }
-
-    @Bean
-    public Queue userProfileUpdateQueue() {
-        return new Queue(USER_PROFILE_UPDATE_QUEUE, true);
-    }
 
     @Bean
     public Queue tokenExpiredQueue() {
         return new Queue(TOKEN_EXPIRED_QUEUE, true);
-    }
-
-    @Bean
-    public Queue imagePresignedUrlCreatedQueue() {
-        return new Queue(IMAGE_PRESIGNED_URL_CREATED_QUEUE, true);
-    }
-
-    @Bean
-    public Binding userProfileCreateBinding() {
-        return BindingBuilder.bind(userProfileCreateQueue())
-                .to(userExchange())
-                .with(ROUTING_KEY_PROFILE_CREATED);
-    }
-
-    @Bean
-    public Binding userProfileUpdateBinding() {
-        return BindingBuilder.bind(userProfileUpdateQueue())
-                .to(userExchange())
-                .with(ROUTING_KEY_PROFILE_UPDATED);
     }
 
     @Bean
@@ -86,10 +34,13 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Binding imagePresignedUrlCreatedBinding() {
-        return BindingBuilder.bind(imagePresignedUrlCreatedQueue())
-                .to(imageUploadExchange())
-                .with(IMAGE_PRESIGNED_URL_CREATED_ROUTING_KEY);
+    public TopicExchange dmExchange() {
+        return new TopicExchange(DM_EXCHANGE);
+    }
+
+    @Bean
+    public TopicExchange userExchange() {
+        return new TopicExchange(USER_EXCHANGE);
     }
 
     @Bean

@@ -1,23 +1,34 @@
 package org.codeit.sb06.team03.mopl.entity.cqrs;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLRestriction;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
 @Table(name = "followers")
-@SQLRestriction("is_deleted = false")
 public class ExternalFollowView {
 
     @EmbeddedId
     private ExternalFollowId id;
+
+    public ExternalFollowView(ExternalFollowId id) {
+        this.id = id;
+    }
+
+    public static ExternalFollowView create(UUID followeeId, UUID followerId) {
+        return new ExternalFollowView(new ExternalFollowId(followeeId, followerId));
+    }
 
     @NoArgsConstructor
     @Getter
@@ -34,6 +45,19 @@ public class ExternalFollowView {
         public ExternalFollowId(UUID followeeId, UUID followerId) {
             this.followeeId = followeeId;
             this.followerId = followerId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ExternalFollowId that = (ExternalFollowId) o;
+            return Objects.equals(followeeId, that.followeeId) && Objects.equals(followerId, that.followerId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(followeeId, followerId);
         }
     }
 }

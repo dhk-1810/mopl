@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.security.jwt.registry.JwtRegistry;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -14,15 +15,17 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class UserEventPublisher {
 
-    private final RabbitTemplate rabbitTemplate;
     private final JwtRegistry jwtRegistry;
-    private final org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate;
+    private final RabbitTemplate rabbitTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public static final String KAFKA_TOPIC_PROFILE_EVENTS = "user.profile.events";
     public static final String ROUTING_KEY_ROLE_UPDATED = "user.role-updated";
     public static final String ROUTING_KEY_FOLLOWED = "user.followed";
-    public static final String ROUTING_KEY_PROFILE_CREATED = "user.profile-created";
-    public static final String ROUTING_KEY_PROFILE_UPDATED = "user.profile-updated";
+    public static final String KAFKA_TOPIC_PROFILE_EVENTS = "user.profile.events";
+
+    /**
+     * 알림 발송
+     */
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleRoleUpdatedEvent(RoleUpdatedEvent event) {
@@ -42,39 +45,23 @@ public class UserEventPublisher {
                 ROUTING_KEY_FOLLOWED,
                 event
         );
-    }
-
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleProfileCreatedEvent(UserProfileCreatedEvent event) {
-        log.info("Publishing UserProfileCreatedEvent to RabbitMQ: {}", event);
-        rabbitTemplate.convertAndSend(
-                RabbitConfig.USER_EXCHANGE,
-                ROUTING_KEY_PROFILE_CREATED,
-                event
-        );
         try {
-            UserProfileKafkaEvent kafkaEvent = UserProfileKafkaEvent.created(event.userId(), event.name(), event.imageKey());
-            kafkaTemplate.send(KAFKA_TOPIC_PROFILE_EVENTS, event.userId().toString(), kafkaEvent);
-            log.info("Publishing UserProfileKafkaEvent (CREATED) to Kafka: {}", kafkaEvent);
+            FollowKafkaEvent kafkaEvent = FollowKafkaEvent.followed(event.followeeId(), event.followerId());
+            kafkaTemplate.send(org.codeit.sb06.team03.mopl.config.KafkaConfig.TOPIC_USER_FOLLOW_EVENTS, event.followeeId().toString(), kafkaEvent);
+            log.info("Publishing FollowKafkaEvent (FOLLOWED) to Kafka: {}", kafkaEvent);
         } catch (Exception e) {
-            log.warn("Failed to publish UserProfileCreatedEvent to Kafka: {}", e.getMessage());
+            log.warn("Failed to publish FollowedEvent to Kafka: {}", e.getMessage());
         }
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleProfileUpdatedEvent(UserProfileUpdatedEvent event) {
-        log.info("Publishing UserProfileUpdatedEvent to RabbitMQ: {}", event);
-        rabbitTemplate.convertAndSend(
-                RabbitConfig.USER_EXCHANGE,
-                ROUTING_KEY_PROFILE_UPDATED,
-                event
-        );
+    public void handleUnfollowedEvent(UnfollowedEvent event) {
         try {
-            UserProfileKafkaEvent kafkaEvent = UserProfileKafkaEvent.updated(event.userId(), event.name(), event.imageKey());
-            kafkaTemplate.send(KAFKA_TOPIC_PROFILE_EVENTS, event.userId().toString(), kafkaEvent);
-            log.info("Publishing UserProfileKafkaEvent (UPDATED) to Kafka: {}", kafkaEvent);
+            FollowKafkaEvent kafkaEvent = FollowKafkaEvent.unfollowed(event.followeeId(), event.followerId());
+            kafkaTemplate.send(org.codeit.sb06.team03.mopl.config.KafkaConfig.TOPIC_USER_FOLLOW_EVENTS, event.followeeId().toString(), kafkaEvent);
+            log.info("Publishing FollowKafkaEvent (UNFOLLOWED) to Kafka: {}", kafkaEvent);
         } catch (Exception e) {
-            log.warn("Failed to publish UserProfileUpdatedEvent to Kafka: {}", e.getMessage());
+            log.warn("Failed to publish UnfollowedEvent to Kafka: {}", e.getMessage());
         }
     }
 
@@ -90,4 +77,31 @@ public class UserEventPublisher {
             );
         }
     }
+
+    /**
+     * CQRS 복제테이블 동기화 (Kafka)
+     */
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleProfileCreatedEvent(ProfileCreatedEvent event) {
+        try {
+            ProfileKafkaEvent kafkaEvent = ProfileKafkaEvent.created(event.userId(), event.name(), event.imageKey());
+            kafkaTemplate.send(KAFKA_TOPIC_PROFILE_EVENTS, event.userId().toString(), kafkaEvent);
+            log.info("Publishing ProfileKafkaEvent (CREATED) to Kafka: {}", kafkaEvent);
+        } catch (Exception e) {
+            log.warn("Failed to publish ProfileCreatedEvent to Kafka: {}", e.getMessage());
+        }
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleProfileUpdatedEvent(ProfileUpdatedEvent event) {
+        try {
+            ProfileKafkaEvent kafkaEvent = ProfileKafkaEvent.updated(event.userId(), event.name(), event.imageKey());
+            kafkaTemplate.send(KAFKA_TOPIC_PROFILE_EVENTS, event.userId().toString(), kafkaEvent);
+            log.info("Publishing ProfileKafkaEvent (UPDATED) to Kafka: {}", kafkaEvent);
+        } catch (Exception e) {
+            log.warn("Failed to publish ProfileUpdatedEvent to Kafka: {}", e.getMessage());
+        }
+    }
+
 }

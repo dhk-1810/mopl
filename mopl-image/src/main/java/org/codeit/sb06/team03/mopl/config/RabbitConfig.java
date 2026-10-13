@@ -16,7 +16,6 @@ public class RabbitConfig {
     public static final String EXCHANGE_NAME = "mopl.image.exchange";
     public static final String ROUTING_KEY = "mopl.image.upload";
 
-    public static final String IMAGE_PRESIGNED_URL_CREATED_ROUTING_KEY = "mopl.image.presigned-url-created";
 
     @Bean
     public Queue queue() {

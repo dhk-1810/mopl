@@ -21,18 +21,18 @@ public class ImageUploadListener {
     private final ImageRepository imageRepository;
     private final PresignedUrlTimeoutPolicy presignedUrlTimeoutPolicy;
     private final S3Service s3Service;
-    private final RabbitTemplate rabbitTemplate;
+    private final org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate;
 
     public ImageUploadListener(
             S3Service s3Service,
             ImageRepository imageRepository,
             @Qualifier("imageBasicPresignedUrlTimeoutPolicy") PresignedUrlTimeoutPolicy presignedUrlTimeoutPolicy,
-            RabbitTemplate rabbitTemplate
+            org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate
     ) {
         this.s3Service = s3Service;
         this.imageRepository = imageRepository;
         this.presignedUrlTimeoutPolicy = presignedUrlTimeoutPolicy;
-        this.rabbitTemplate = rabbitTemplate;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Transactional("imageTransactionManager")
@@ -48,18 +48,18 @@ public class ImageUploadListener {
             imageRepository.save(timeoutImage);
             log.info("Successfully created cache metadata for pre-uploaded S3 key: {}", event.key());
 
-            // 2. Presigned URL 생성 완료 이벤트를 RabbitMQ로 브로드캐스팅 (User 등 타 서비스 복제뷰 갱신용)
-            PresignedUrlUpdateEvent urlCreatedEvent = new PresignedUrlUpdateEvent(
+            // 2. Presigned URL 생성 완료 이벤트를 Kafka로 브로드캐스팅 (User 등 타 서비스 복제뷰 갱신용)
+            ImagePresignedUrlKafkaEvent urlCreatedEvent = new ImagePresignedUrlKafkaEvent(
                     event.key(),
                     presignedUrl,
                     exp
             );
-            rabbitTemplate.convertAndSend(
-                    RabbitConfig.EXCHANGE_NAME,
-                    RabbitConfig.IMAGE_PRESIGNED_URL_CREATED_ROUTING_KEY,
+            kafkaTemplate.send(
+                    org.codeit.sb06.team03.mopl.config.KafkaConfig.TOPIC_IMAGE_PRESIGNED_URL_EVENTS,
+                    event.key(),
                     urlCreatedEvent
             );
-            log.info("Published ImagePresignedUrlCreatedEvent for key: {}", event.key());
+            log.info("Published ImagePresignedUrlKafkaEvent to Kafka for key: {}", event.key());
         } catch (Exception e) {
             log.error("Failed to process async metadata cache creation for key: {}", event.key(), e);
             throw new RuntimeException("Async metadata cache creation failed", e);
