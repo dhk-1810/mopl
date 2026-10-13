@@ -47,30 +47,6 @@ public class PlaylistEventListener {
         }
     }
 
-    @RabbitListener(queues = RabbitConfig.PLAYLIST_CREATED_QUEUE)
-    public void consumePlaylistCreatedEvent(PlaylistCreatedEvent event) {
-        log.info("Received PlaylistCreatedEvent from RabbitMQ: playlistId={}", event.playlistId());
-
-        if (event.followerIds() == null || event.followerIds().isEmpty()) {
-            return;
-        }
-
-        final String notificationTitle = "%s 님이 새 플레이리스트 '%s'를 생성했어요."
-                .formatted(event.ownerName(), event.playlistTitle());
-
-        List<NotificationDto> notifications = notificationCommandService.createAll(
-                event.followerIds(),
-                notificationTitle,
-                null,
-                NotificationLevel.INFO
-        );
-        Map<UUID, Object> data = notifications.stream()
-                .filter(dto -> dto.receiverId() != null)
-                .collect(Collectors.toMap(NotificationDto::receiverId, dto -> dto));
-        if (!data.isEmpty()) {
-            sseService.sendAll(data, EVENT_NAME);
-        }
-    }
 
     @RabbitListener(queues = RabbitConfig.CURATION_ADDED_QUEUE)
     public void consumeCurationAddedEvent(CurationAddedEvent event) {

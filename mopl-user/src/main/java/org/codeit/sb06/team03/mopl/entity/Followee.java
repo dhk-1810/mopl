@@ -3,7 +3,6 @@ package org.codeit.sb06.team03.mopl.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.codeit.sb06.team03.mopl.event.FolloweeCreatedEvent;
 import org.codeit.sb06.team03.mopl.event.FollowedEvent;
 import org.codeit.sb06.team03.mopl.event.UnfollowedEvent;
 import org.hibernate.annotations.SQLDelete;
@@ -39,7 +38,6 @@ public class Followee extends AbstractAggregateRoot<Followee> {
         var followee = new Followee();
         followee.id = id;
         followee.followerCount = 0;
-        followee.registerEvent(new FolloweeCreatedEvent());
         return followee;
     }
 

@@ -16,8 +16,6 @@ public class RabbitConfig {
     public static final String PLAYLIST_SUBSCRIBED_QUEUE = "mopl.notification.playlist-subscribed.queue";
     public static final String PLAYLIST_SUBSCRIBED_ROUTING_KEY = "playlist.subscribed";
 
-    public static final String PLAYLIST_CREATED_QUEUE = "notification.playlist-created.queue";
-    public static final String ROUTING_KEY_PLAYLIST_CREATED = "playlist.created";
 
     public static final String CURATION_ADDED_QUEUE = "notification.curation-added.queue";
     public static final String ROUTING_KEY_CURATION_ADDED = "curation.added";
@@ -49,17 +47,6 @@ public class RabbitConfig {
                 .with(PLAYLIST_SUBSCRIBED_ROUTING_KEY);
     }
 
-    @Bean
-    public Queue playlistCreatedQueue() {
-        return new Queue(PLAYLIST_CREATED_QUEUE, true);
-    }
-
-    @Bean
-    public Binding bindingPlaylistCreated(Queue playlistCreatedQueue, TopicExchange playlistExchange) {
-        return BindingBuilder.bind(playlistCreatedQueue)
-                .to(playlistExchange)
-                .with(ROUTING_KEY_PLAYLIST_CREATED);
-    }
 
     @Bean
     public Queue curationAddedQueue() {

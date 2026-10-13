@@ -23,7 +23,6 @@ public class RabbitConfig {
     public static final String ROUTING_KEY_CONTENT_DELETED = "content.deleted";
     public static final String ROUTING_KEY_CONTENT_BATCH_INFO = "content.batch-info";
 
-    public static final String ROUTING_KEY_PLAYLIST_CREATED = "playlist.created";
     public static final String ROUTING_KEY_CURATION_ADDED = "curation.added";
 
     // Queues

@@ -12,7 +12,6 @@ import org.codeit.sb06.team03.mopl.entity.vo.EmailAddress;
 import org.codeit.sb06.team03.mopl.entity.vo.Password;
 import org.codeit.sb06.team03.mopl.entity.vo.Role;
 import org.codeit.sb06.team03.mopl.event.AccountLockUpdatedEvent;
-import org.codeit.sb06.team03.mopl.event.AccountRegisteredEvent;
 import org.codeit.sb06.team03.mopl.event.PasswordResetEvent;
 import org.codeit.sb06.team03.mopl.event.RoleUpdatedEvent;
 import org.hibernate.annotations.SQLDelete;
@@ -73,7 +72,6 @@ public class Account extends AbstractAggregateRoot<Account> {
         account.password = password;
         account.role = Role.USER;
         account.locked = false;
-        account.registerEvent(new AccountRegisteredEvent());
         return account;
     }
 

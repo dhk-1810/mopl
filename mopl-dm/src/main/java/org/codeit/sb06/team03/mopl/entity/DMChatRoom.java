@@ -5,12 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.codeit.sb06.team03.mopl.event.ChatRoomCreatedEvent;
-import org.codeit.sb06.team03.mopl.event.ChatRoomJoinedEvent;
-import org.codeit.sb06.team03.mopl.event.ChatRoomLeftEvent;
-import org.codeit.sb06.team03.mopl.event.MessageReadEvent;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import org.hibernate.annotations.SQLDelete;
@@ -28,7 +23,7 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 @SQLDelete(sql = "UPDATE dm_chat_rooms SET is_deleted = true WHERE id = ? AND version = ?")
 @SQLRestriction("is_deleted = false")
-public class DMChatRoom extends AbstractAggregateRoot<DMChatRoom> {
+public class DMChatRoom {
 
     @Id
     @Column(name = "id", nullable = false)
@@ -55,7 +50,6 @@ public class DMChatRoom extends AbstractAggregateRoot<DMChatRoom> {
         dmChatRoom.id = UUID.randomUUID();
         dmChatRoom.addStat(withUserId);
         dmChatRoom.addStat(userId);
-        dmChatRoom.registerEvent(new ChatRoomCreatedEvent(dmChatRoom.id, userId, withUserId));
         return dmChatRoom;
     }
 
@@ -63,7 +57,6 @@ public class DMChatRoom extends AbstractAggregateRoot<DMChatRoom> {
         DMChatRoomStat stat = this.dmChatRoomStats.get(userId);
         if (stat != null) {
             stat.updateActivity(true);
-            registerEvent(new ChatRoomJoinedEvent(this.id, userId));
         }
     }
 
@@ -71,7 +64,6 @@ public class DMChatRoom extends AbstractAggregateRoot<DMChatRoom> {
         DMChatRoomStat stat = this.dmChatRoomStats.get(userId);
         if (stat != null) {
             stat.updateActivity(false);
-            registerEvent(new ChatRoomLeftEvent(this.id, userId));
         }
     }
 
@@ -79,7 +71,6 @@ public class DMChatRoom extends AbstractAggregateRoot<DMChatRoom> {
         DMChatRoomStat stat = this.dmChatRoomStats.get(userId);
         if (stat != null) {
             stat.markAsRead();
-            registerEvent(new MessageReadEvent(this.id, userId));
         }
     }
 

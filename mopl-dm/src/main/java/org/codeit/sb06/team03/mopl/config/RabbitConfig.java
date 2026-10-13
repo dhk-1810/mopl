@@ -15,33 +15,12 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitConfig {
 
     public static final String DM_EXCHANGE = "mopl.dm.exchange";
-    public static final String USER_EXCHANGE = "mopl.user.exchange";
-
-    public static final String ROUTING_KEY_TOKEN_EXPIRED = "user.token-expired";
-
-    public static final String TOKEN_EXPIRED_QUEUE = "dm.token-expired.queue";
-
-    @Bean
-    public Queue tokenExpiredQueue() {
-        return new Queue(TOKEN_EXPIRED_QUEUE, true);
-    }
-
-    @Bean
-    public Binding tokenExpiredBinding() {
-        return BindingBuilder.bind(tokenExpiredQueue())
-                .to(userExchange())
-                .with(ROUTING_KEY_TOKEN_EXPIRED);
-    }
 
     @Bean
     public TopicExchange dmExchange() {
         return new TopicExchange(DM_EXCHANGE);
     }
 
-    @Bean
-    public TopicExchange userExchange() {
-        return new TopicExchange(USER_EXCHANGE);
-    }
 
     @Bean
     public MessageConverter jackson2JsonMessageConverter() {
