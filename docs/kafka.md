@@ -44,19 +44,30 @@
   - `playlist-profile-group` (`mopl-playlist` / `UserEventListener`): 플레이리스트 작성자 정보 동기화
   - `dm-profile-group` (`mopl-dm` / `UserEventListener`): DM 상대방 프로필 정보 동기화
   - `notification-profile-group` (`mopl-notification` / `UserEventConsumer`): 알림 수신자 프로필 정보 동기화
+
+
 - **`content.saga.delete.start`**
   - `playlist-service-group` (`mopl-playlist` / `ContentEventListener`): 콘텐츠 삭제 시 재생목록 내 콘텐츠 정리
   - `live-chat-group` (`mopl-live-chat` / `WatchingSessionEventListener`): 콘텐츠 삭제 시 시청 세션 및 채팅방 정리
+
+
 - **`content.saga.delete.response`**
   - `content-service-group` (`mopl-content` / `ContentSagaEventListener`): 하위 서비스 결과 수신 및 Saga 완료 처리
+
+
 - **`image.presigned-url.events`**
   - `user-image-group` (`mopl-user` / `ExternalImageEventListener`): 유저 서비스 이미지 캐시 뷰 동기화
   - `content-image-group` (`mopl-content` / `ExternalImageEventListener`): 콘텐츠 서비스 이미지 캐시 뷰 동기화
   - `dm-image-group` (`mopl-dm` / `ExternalImageEventListener`): DM 서비스 이미지 캐시 뷰 동기화
+
+
 - **`content.metadata.events`**
   - `playlist-content-group` (`mopl-playlist` / `ContentEventListener`): 플레이리스트 서비스 콘텐츠 메타데이터 복제 뷰 동기화
+
+
 - **`user.follow.events`**
   - `playlist-follow-group` (`mopl-playlist` / `FollowEventListener`): 플레이리스트 서비스 팔로우 관계 복제 뷰 동기화
+
 
 - **특징**
   - 동일 토픽(`user.profile.events`, `image.presigned-url.events`)을 다수 그룹이 각각 구독하여 1:N Pub/Sub(브로드캐스팅) 보장.

@@ -1,11 +1,9 @@
 package org.codeit.sb06.team03.mopl.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.config.KafkaConfig;
-import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.entity.Content;
 import org.codeit.sb06.team03.mopl.entity.SagaInstance;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;

@@ -30,7 +30,7 @@ public class OutboxEvent {
     @Column(name = "event_type", nullable = false)
     private String eventType;
 
-    @Column(name = "exchange", nullable = false)
+    @Column(name = "exchange")
     private String exchange;
 
     @Column(name = "routing_key", nullable = false)
@@ -54,6 +54,10 @@ public class OutboxEvent {
 
     @Column(name = "error_message", length = 1000)
     private String errorMessage;
+
+    public static OutboxEvent create(String aggregateType, String aggregateId, String eventType, String topic, String payload) {
+        return create(aggregateType, aggregateId, eventType, "", topic, payload);
+    }
 
     public static OutboxEvent create(String aggregateType, String aggregateId, String eventType, String exchange, String routingKey, String payload) {
         OutboxEvent event = new OutboxEvent();

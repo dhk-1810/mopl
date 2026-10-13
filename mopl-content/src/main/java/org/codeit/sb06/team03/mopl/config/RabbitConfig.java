@@ -13,14 +13,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
 
-    public static final String CONTENT_EXCHANGE = "mopl.content.exchange";
     public static final String PLAYLIST_EXCHANGE = "mopl.playlist.exchange";
     public static final String IMAGE_UPLOAD_EXCHANGE = "mopl.image.exchange";
-
-    @Bean
-    public TopicExchange contentExchange() {
-        return new TopicExchange(CONTENT_EXCHANGE);
-    }
 
     @Bean
     public TopicExchange playlistExchange() {
@@ -31,8 +25,6 @@ public class RabbitConfig {
     public TopicExchange imageUploadExchange() {
         return new TopicExchange(IMAGE_UPLOAD_EXCHANGE);
     }
-
-
 
 
     @Bean

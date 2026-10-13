@@ -24,6 +24,11 @@ public class OutboxService {
     private final ObjectMapper objectMapper;
 
     @Transactional(value = "contentTransactionManager")
+    public OutboxEvent saveEvent(String aggregateType, String aggregateId, String eventType, String topic, Object payload) {
+        return saveEvent(aggregateType, aggregateId, eventType, "", topic, payload);
+    }
+
+    @Transactional(value = "contentTransactionManager")
     public OutboxEvent saveEvent(String aggregateType, String aggregateId, String eventType, String exchange, String routingKey, Object payload) {
         try {
             String jsonPayload = objectMapper.writeValueAsString(payload);

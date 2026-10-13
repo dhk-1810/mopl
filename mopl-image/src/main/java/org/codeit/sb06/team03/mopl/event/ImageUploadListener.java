@@ -7,8 +7,8 @@ import org.codeit.sb06.team03.mopl.entity.policy.PresignedUrlTimeoutPolicy;
 import org.codeit.sb06.team03.mopl.repository.ImageRepository;
 import org.codeit.sb06.team03.mopl.service.S3Service;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +21,13 @@ public class ImageUploadListener {
     private final ImageRepository imageRepository;
     private final PresignedUrlTimeoutPolicy presignedUrlTimeoutPolicy;
     private final S3Service s3Service;
-    private final org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public ImageUploadListener(
             S3Service s3Service,
             ImageRepository imageRepository,
             @Qualifier("imageBasicPresignedUrlTimeoutPolicy") PresignedUrlTimeoutPolicy presignedUrlTimeoutPolicy,
-            org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate
+            KafkaTemplate<String, Object> kafkaTemplate
     ) {
         this.s3Service = s3Service;
         this.imageRepository = imageRepository;
