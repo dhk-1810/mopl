@@ -5,6 +5,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+    implementation project(':mopl-proto')
+    implementation "net.devh:grpc-client-spring-boot-starter:${grpcSpringBootVersion}"
 
     testImplementation 'org.springframework.batch:spring-batch-test'
 

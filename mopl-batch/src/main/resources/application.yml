@@ -36,3 +36,10 @@ management:
     web:
       exposure:
         include: "health,info,metrics,prometheus"
+
+grpc:
+  client:
+    content-service:
+      address: "static://${GRPC_CONTENT_HOST:localhost}:${GRPC_CONTENT_PORT:8182}"
+      negotiation-type: plaintext
+

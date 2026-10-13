@@ -44,5 +44,8 @@ public class ContentQueryService {
         return contentRepository.findByIdsIn(contentIds);
     }
 
+    public boolean existsByTitleAndType(String title, org.codeit.sb06.team03.mopl.enums.ContentType type) {
+        return contentRepository.existsByTitleAndType(title, type);
+    }
 }
 

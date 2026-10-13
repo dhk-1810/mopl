@@ -8,10 +8,20 @@ option java_outer_classname = "ContentProto";
 
 service ContentService {
   rpc GetContent (GetContentRequest) returns (ContentResponse);
+  rpc CheckContentExists (CheckContentExistsRequest) returns (CheckContentExistsResponse);
 }
 
 message GetContentRequest {
   string content_id = 1;
+}
+
+message CheckContentExistsRequest {
+  string title = 1;
+  string type = 2;
+}
+
+message CheckContentExistsResponse {
+  bool exists = 1;
 }
 
 message ContentResponse {

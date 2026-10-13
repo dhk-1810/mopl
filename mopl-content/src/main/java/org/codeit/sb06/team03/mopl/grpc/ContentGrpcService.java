@@ -52,4 +52,33 @@ public class ContentGrpcService extends ContentServiceGrpc.ContentServiceImplBas
             responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
         }
     }
+
+    @Override
+    @Transactional(value = "contentTransactionManager", readOnly = true)
+    public void checkContentExists(
+            org.codeit.sb06.team03.mopl.grpc.content.CheckContentExistsRequest request,
+            StreamObserver<org.codeit.sb06.team03.mopl.grpc.content.CheckContentExistsResponse> responseObserver
+    ) {
+        try {
+            org.codeit.sb06.team03.mopl.enums.ContentType type = null;
+            if (request.getType() != null && !request.getType().isBlank()) {
+                type = org.codeit.sb06.team03.mopl.enums.ContentType.valueOf(request.getType());
+            }
+            boolean exists = contentQueryService.existsByTitleAndType(request.getTitle(), type);
+
+            org.codeit.sb06.team03.mopl.grpc.content.CheckContentExistsResponse response =
+                    org.codeit.sb06.team03.mopl.grpc.content.CheckContentExistsResponse.newBuilder()
+                            .setExists(exists)
+                            .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid contentType format: {}", request.getType());
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Invalid contentType: " + request.getType()).asRuntimeException());
+        } catch (Exception e) {
+            log.error("Failed to check content exists for title: {}, error: {}", request.getTitle(), e.getMessage());
+            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
 }

@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.dto.CollectedContentDto;
 import org.codeit.sb06.team03.mopl.dto.ContentCreateRequest;
-import org.codeit.sb06.team03.mopl.dto.CursorResponseContentDto;
 import org.codeit.sb06.team03.mopl.client.TmdbClient;
 import org.codeit.sb06.team03.mopl.client.SportsDbClient;
 import org.codeit.sb06.team03.mopl.client.ContentClient;
@@ -120,8 +119,7 @@ public class ContentCollectionBatchConfig {
     @Bean
     public ItemProcessor<CollectedContentDto, ContentCreateRequest> contentProcessor() {
         return dto -> {
-            CursorResponseContentDto response = contentClient.getContents(dto.title(), dto.type().name());
-            boolean exists = response != null && response.data() != null && !response.data().isEmpty();
+            boolean exists = contentClient.exists(dto.title(), dto.type().name());
             if (exists) {
                 log.info("Content already exists, skipping: {} ({})", dto.title(), dto.type());
                 return null;
