@@ -33,7 +33,7 @@ public class ExternalUserQueryService {
             log.warn("Failed to fetch user info via gRPC for userId: {}", userId);
             return null;
         }
-        ExternalUserView view = ExternalUserView.create(userDto.id(), userDto.name(), userDto.profileImageUrl());
+        ExternalUserView view = ExternalUserView.create(userDto.id(), userDto.name(), userDto.profileImageKey());
         try {
             return externalUserViewRepository.save(view);
         } catch (Exception e) {

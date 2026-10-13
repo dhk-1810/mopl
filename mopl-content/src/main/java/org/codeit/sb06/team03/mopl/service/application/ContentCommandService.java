@@ -88,7 +88,9 @@ public class ContentCommandService {
         contentRepository.save(content);
 
         Set<String> tags = contentTagService.create(content.getId(), request.tags());
-        return ContentReadModel.from(content, tags);
+        ContentReadModel readModel = ContentReadModel.from(content, tags);
+        publishUpdatedEvent(readModel);
+        return readModel;
     }
 
     public void delete(UUID id) {

@@ -12,6 +12,8 @@ import org.codeit.sb06.team03.mopl.exception.account.*;
 import org.codeit.sb06.team03.mopl.entity.Followee;
 import org.codeit.sb06.team03.mopl.entity.Profile;
 import org.codeit.sb06.team03.mopl.repository.AccountRepository;
+import org.codeit.sb06.team03.mopl.event.ProfileCreatedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +25,12 @@ import java.util.UUID;
 public class AccountCommandService {
 
     private final AccountRepository accountRepository;
-    private final ProfileCommandService profileCommandService;
-    private final FollowCommandService followCommandService;
     private final PasswordEncryptionPolicy passwordEncryptionPolicy;
     private final TempPasswordGenerationPolicy tempPasswordGenerationPolicy;
     private final TempPasswordResetTimeoutPolicy tempPasswordResetTimeoutPolicy;
+    private final ApplicationEventPublisher eventPublisher;
+    private final ProfileCommandService profileCommandService;
+    private final FollowCommandService followCommandService;
 
     @Transactional
     public Account register(String name, EmailAddress emailAddress, String rawPassword) {
@@ -42,6 +45,7 @@ public class AccountCommandService {
 
             newAccount.setProfile(profile);
             accountRepository.save(newAccount);
+            eventPublisher.publishEvent(new ProfileCreatedEvent(newAccount.getId(), name, null));
             return newAccount;
         } catch (Exception e) {
             throw new AccountRegistrationFailedException(e);

@@ -36,7 +36,7 @@ message UserResponse {
   string id = 1;
   string email = 2;
   string name = 3;
-  string profile_image_url = 4;
+  string profile_image_key = 4;
   string role = 5;
   bool locked = 6;
   string created_at = 7;

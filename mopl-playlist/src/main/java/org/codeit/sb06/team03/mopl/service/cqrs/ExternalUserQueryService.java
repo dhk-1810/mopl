@@ -60,7 +60,7 @@ public class ExternalUserQueryService {
             return externalUserWriter.saveFromDto(userDto);
         } catch (Exception e) {
             log.error("Failed to save replicated ExternalUserView for userId: {}", userId, e);
-            return ExternalUserView.create(userDto.id(), userDto.name(), userDto.profileImageUrl());
+            return ExternalUserView.create(userDto.id(), userDto.name(), userDto.profileImageKey());
         }
     }
 }

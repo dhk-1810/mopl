@@ -30,28 +30,28 @@ public interface AccountRepository extends QuerydslJpaRepository<Account, UUID> 
         final String cursor = query.cursor();
         final String idAfter = query.idAfter();
         final int limit = query.limit();
-        String sortDirection = query.sortDirection();
         final String sortBy = query.sortBy();
+
+        final boolean isAscending = query.sortDirection() != null &&
+                (query.sortDirection().equalsIgnoreCase("ASCENDING") || query.sortDirection().equalsIgnoreCase("ASC"));
 
         Predicate[] predicates = {
                 emailLikePredicate(emailLike),
                 roleEqualPredicate(roleEqual),
                 isLockedPredicate(isLocked),
-                cursorExpressionPredicate(cursor, idAfter, sortDirection, sortBy)
+                cursorExpressionPredicate(cursor, idAfter, isAscending, sortBy)
         };
 
-        sortDirection = sortDirection.equalsIgnoreCase("ASCENDING") ? "ASC" : "DESC";
+        final Order order = isAscending ? Order.ASC : Order.DESC;
 
         return select(account)
                 .from(account)
                 .innerJoin(account.profile).fetchJoin()
                 .where(predicates)
-                .orderBy(orderByExpressions(sortDirection, sortBy))
+                .orderBy(orderByExpressions(order, sortBy))
                 .limit(1L + limit)
                 .fetch();
     }
-
-
 
     @Nullable
     private static BooleanExpression emailLikePredicate(@Nullable String emailLike) {
@@ -75,7 +75,7 @@ public interface AccountRepository extends QuerydslJpaRepository<Account, UUID> 
     private static BooleanExpression cursorExpressionPredicate(
             @Nullable String cursor,
             @Nullable String idAfter,
-            String sortDirection,
+            boolean isAscending,
             String sortBy
     ) {
         if (cursor == null || idAfter == null) {
@@ -86,69 +86,69 @@ public interface AccountRepository extends QuerydslJpaRepository<Account, UUID> 
         return switch (sortBy) {
             case "name" -> {
                 final String nameCursor = cursor;
-                if ("ASCENDING".equalsIgnoreCase(sortDirection)) {
+                if (isAscending) {
                     yield account.profile.name.gt(nameCursor)
-                            .or(account.profile.name.eq(nameCursor).and(account.id.goe(idAfterUuid)));
+                            .or(account.profile.name.eq(nameCursor).and(account.id.gt(idAfterUuid)));
                 }
                 yield account.profile.name.lt(nameCursor)
-                        .or(account.profile.name.eq(nameCursor).and(account.id.loe(idAfterUuid)));
+                        .or(account.profile.name.eq(nameCursor).and(account.id.lt(idAfterUuid)));
             }
             case "email" -> {
                 final String emailCursor = cursor;
-                if ("ASCENDING".equalsIgnoreCase(sortDirection)) {
+                if (isAscending) {
                     yield account.emailAddress.value.gt(emailCursor)
-                            .or(account.emailAddress.value.eq(emailCursor).and(account.id.goe(idAfterUuid)));
+                            .or(account.emailAddress.value.eq(emailCursor).and(account.id.gt(idAfterUuid)));
                 }
                 yield account.emailAddress.value.lt(emailCursor)
-                        .or(account.emailAddress.value.eq(emailCursor).and(account.id.loe(idAfterUuid)));
+                        .or(account.emailAddress.value.eq(emailCursor).and(account.id.lt(idAfterUuid)));
             }
             case "createdAt" -> {
                 final Instant createdAtCursor = Instant.parse(cursor);
-                if ("ASCENDING".equalsIgnoreCase(sortDirection)) {
+                if (isAscending) {
                     yield account.createdAt.gt(createdAtCursor)
-                            .or(account.createdAt.eq(createdAtCursor).and(account.id.goe(idAfterUuid)));
+                            .or(account.createdAt.eq(createdAtCursor).and(account.id.gt(idAfterUuid)));
                 }
                 yield account.createdAt.lt(createdAtCursor)
-                        .or(account.createdAt.eq(createdAtCursor).and(account.id.loe(idAfterUuid)));
+                        .or(account.createdAt.eq(createdAtCursor).and(account.id.lt(idAfterUuid)));
             }
             case "isLocked" -> {
                 final boolean isLockedCursor = Boolean.parseBoolean(cursor);
-                if ("ASCENDING".equalsIgnoreCase(sortDirection)) {
+                if (isAscending) {
                     yield account.locked.gt(isLockedCursor)
-                            .or(account.locked.eq(isLockedCursor).and(account.id.goe(idAfterUuid)));
+                            .or(account.locked.eq(isLockedCursor).and(account.id.gt(idAfterUuid)));
                 }
                 yield account.locked.lt(isLockedCursor)
-                        .or(account.locked.eq(isLockedCursor).and(account.id.loe(idAfterUuid)));
+                        .or(account.locked.eq(isLockedCursor).and(account.id.lt(idAfterUuid)));
             }
             default -> {
                 final Role roleCursor = Role.parse(cursor);
-                if ("ASCENDING".equalsIgnoreCase(sortDirection)) {
+                if (isAscending) {
                     yield account.role.gt(roleCursor)
-                            .or(account.role.eq(roleCursor).and(account.id.goe(idAfterUuid)));
+                            .or(account.role.eq(roleCursor).and(account.id.gt(idAfterUuid)));
                 }
                 yield account.role.lt(roleCursor)
-                        .or(account.role.eq(roleCursor).and(account.id.loe(idAfterUuid)));
+                        .or(account.role.eq(roleCursor).and(account.id.lt(idAfterUuid)));
             }
         };
     }
 
-    private static OrderSpecifier<?>[] orderByExpressions(String sortDirection, String sortBy) {
+    private static OrderSpecifier<?>[] orderByExpressions(Order order, String sortBy) {
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
 
-        orderSpecifiers.add(orderByCursor(sortDirection, sortBy));
-        final var orderById = new OrderSpecifier<>(Order.valueOf(sortDirection), account.id);
+        orderSpecifiers.add(orderByCursor(order, sortBy));
+        final var orderById = new OrderSpecifier<>(order, account.id);
         orderSpecifiers.add(orderById);
 
         return orderSpecifiers.toArray(OrderSpecifier[]::new);
     }
 
-    private static OrderSpecifier<?> orderByCursor(String sortDirection, String sortBy) {
+    private static OrderSpecifier<?> orderByCursor(Order order, String sortBy) {
         return switch (sortBy) {
-            case "name" -> new OrderSpecifier<>(Order.valueOf(sortDirection), account.profile.name);
-            case "email" -> new OrderSpecifier<>(Order.valueOf(sortDirection), account.emailAddress.value);
-            case "createdAt" -> new OrderSpecifier<>(Order.valueOf(sortDirection), account.createdAt);
-            case "isLocked" -> new OrderSpecifier<>(Order.valueOf(sortDirection), account.locked);
-            default -> new OrderSpecifier<>(Order.valueOf(sortDirection), account.role);
+            case "name" -> new OrderSpecifier<>(order, account.profile.name);
+            case "email" -> new OrderSpecifier<>(order, account.emailAddress.value);
+            case "createdAt" -> new OrderSpecifier<>(order, account.createdAt);
+            case "isLocked" -> new OrderSpecifier<>(order, account.locked);
+            default -> new OrderSpecifier<>(order, account.role);
         };
     }
 
@@ -171,15 +171,5 @@ public interface AccountRepository extends QuerydslJpaRepository<Account, UUID> 
                 .fetchOne();
 
         return count == null ? 0 : count;
-    }
-
-    default Optional<Account> findAccountById(String accountId) {
-        final UUID accountIdUuid = UUID.fromString(accountId);
-        Account result = select(account)
-                .from(account)
-                .innerJoin(account.profile).fetchJoin()
-                .where(account.id.eq(accountIdUuid))
-                .fetchFirst();
-        return Optional.ofNullable(result);
     }
 }

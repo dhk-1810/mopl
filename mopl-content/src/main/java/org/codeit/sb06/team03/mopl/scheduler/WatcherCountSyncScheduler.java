@@ -3,6 +3,8 @@ package org.codeit.sb06.team03.mopl.scheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.repository.ContentRepository;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Content의 watcherCount를 Redis에서 RDB로 주기적(5초) 동기화하는 스케줄러.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -27,12 +32,16 @@ public class WatcherCountSyncScheduler {
     @Transactional("contentTransactionManager")
     public void syncWatcherCounts() {
         try {
-            // 1. Redis에 활성 세션이 존재하는 room 키 목록 조회
-            Set<String> roomKeys = redisTemplate.keys(LIVE_CHATROOM_KEY_PREFIX + "*");
+            // 1. Redis에 활성 세션이 존재하는 room 키 목록을 non-blocking scan으로 조회
             Set<UUID> targetContentIds = new HashSet<>();
+            ScanOptions scanOptions = ScanOptions.scanOptions()
+                    .match(LIVE_CHATROOM_KEY_PREFIX + "*")
+                    .count(200)
+                    .build();
 
-            if (roomKeys != null) {
-                for (String key : roomKeys) {
+            try (Cursor<String> cursor = redisTemplate.scan(scanOptions)) {
+                while (cursor.hasNext()) {
+                    String key = cursor.next();
                     try {
                         String idStr = key.substring(LIVE_CHATROOM_KEY_PREFIX.length());
                         targetContentIds.add(UUID.fromString(idStr));

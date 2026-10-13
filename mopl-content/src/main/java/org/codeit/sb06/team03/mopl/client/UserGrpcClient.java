@@ -22,7 +22,7 @@ public class UserGrpcClient {
             Instant createdAt,
             String email,
             String name,
-            String profileImageUrl,
+            String profileImageKey,
             String role,
             Boolean locked
     ) {}
@@ -50,7 +50,7 @@ public class UserGrpcClient {
                     createdAt,
                     response.getEmail(),
                     response.getName(),
-                    response.getProfileImageUrl(),
+                    response.getProfileImageKey(),
                     response.getRole(),
                     response.getLocked()
             );

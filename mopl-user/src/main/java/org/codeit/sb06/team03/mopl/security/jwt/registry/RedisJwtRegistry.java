@@ -122,11 +122,6 @@ public class RedisJwtRegistry implements JwtRegistry {
         return register(jwtClaims);
     }
 
-    @Override
-    public void clearExpiredTokenSession() {
-        // Redis는 TTL에 의해 자동으로 데이터가 삭제되므로 별도의 Cleanup이 필요 없습니다.
-    }
-
     private void invalidateByRefreshTokenId(String refreshIdStr, String userIdStr) {
         redisTemplate.delete(REFRESH_KEY_PREFIX + refreshIdStr);
         redisTemplate.opsForZSet().remove(USER_SESSIONS_PREFIX + userIdStr, refreshIdStr);

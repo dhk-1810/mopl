@@ -16,6 +16,4 @@ public interface JwtRegistry {
     void invalidateToken(String refreshToken);
 
     TokenPair rotate(String oldRefreshToken);
-
-    void clearExpiredTokenSession();
 }

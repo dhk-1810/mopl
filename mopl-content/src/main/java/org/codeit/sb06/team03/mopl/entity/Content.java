@@ -58,9 +58,6 @@ public class Content {
     @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Review> reviews;
 
-    @OneToOne(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ReviewStats reviewStats;
-
     @NotNull
     @Column(name = "average_rating", nullable = false)
     private double averageRating;

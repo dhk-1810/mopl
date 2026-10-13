@@ -8,7 +8,9 @@ import org.codeit.sb06.team03.mopl.repository.ExternalUserViewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,13 +29,39 @@ public class ExternalUserQueryService {
                 .orElseGet(() -> fetchAndSaveProfile(userId));
     }
 
+    public Map<UUID, ExternalUserView> getProfiles(Collection<UUID> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return Map.of();
+        }
+        List<UUID> distinctIds = userIds.stream().filter(Objects::nonNull).distinct().toList();
+        List<ExternalUserView> found = externalUserViewRepository.findAllById(distinctIds);
+        Map<UUID, ExternalUserView> resultMap = new HashMap<>();
+        for (ExternalUserView view : found) {
+            resultMap.put(view.getId(), view);
+        }
+
+        for (UUID userId : distinctIds) {
+            if (!resultMap.containsKey(userId)) {
+                ExternalUserView view = fetchAndSaveProfile(userId);
+                if (view != null) {
+                    resultMap.put(userId, view);
+                }
+            }
+        }
+        return resultMap;
+    }
+
     private ExternalUserView fetchAndSaveProfile(UUID userId) {
         UserGrpcClient.UserDto userDto = userGrpcClient.getUserById(userId);
         if (userDto == null) {
             log.warn("Failed to fetch user info via gRPC for userId: {}", userId);
             return null;
         }
-        ExternalUserView view = ExternalUserView.create(userDto.id(), userDto.name(), userDto.profileImageUrl());
+        String imageKey = userDto.profileImageKey();
+        if (imageKey != null && (imageKey.isBlank() || imageKey.startsWith("http://") || imageKey.startsWith("https://"))) {
+            imageKey = null;
+        }
+        ExternalUserView view = ExternalUserView.create(userDto.id(), userDto.name(), imageKey);
         try {
             return externalUserViewRepository.save(view);
         } catch (Exception e) {

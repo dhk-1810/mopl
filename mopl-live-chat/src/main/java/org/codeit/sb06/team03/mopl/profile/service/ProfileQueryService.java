@@ -64,7 +64,7 @@ public class ProfileQueryService {
                 return new ProfileReadModel(
                         userDto.id(),
                         userDto.name(),
-                        userDto.profileImageUrl()
+                        userDto.profileImageKey()
                 );
             }
         } catch (Exception e) {

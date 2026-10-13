@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.codeit.sb06.team03.mopl.event.ProfileCreatedEvent;
 import org.codeit.sb06.team03.mopl.event.ProfileUpdatedEvent;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.lang.Nullable;
@@ -51,7 +50,6 @@ public class Profile extends AbstractAggregateRoot<Profile> {
         profile.accountId = accountId;
         profile.name = name;
         profile.version = 0;
-        profile.registerEvent(new ProfileCreatedEvent(accountId, name, null));
         return profile;
     }
 

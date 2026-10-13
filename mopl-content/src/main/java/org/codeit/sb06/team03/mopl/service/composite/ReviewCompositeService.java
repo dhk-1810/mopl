@@ -17,6 +17,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -57,8 +59,39 @@ public class ReviewCompositeService {
         );
 
         List<Review> reviews = slice.getContent();
+
+        List<UUID> authorIds = reviews.stream()
+                .map(Review::getAuthorId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<UUID, ExternalUserView> userMap = externalUserQueryService.getProfiles(authorIds);
+
+        List<String> imageKeys = userMap.values().stream()
+                .map(ExternalUserView::getProfileImageKey)
+                .filter(key -> key != null && !key.isBlank())
+                .distinct()
+                .toList();
+
+        Map<String, String> urlMap = imageQueryService.getPresignedUrls(imageKeys);
+
         List<ReviewDto> data = reviews.stream()
-                .map(review -> getReviewDto(review.getAuthorId(), review))
+                .map(review -> {
+                    UUID authorId = review.getAuthorId();
+                    ExternalUserView profile = userMap.get(authorId);
+                    String name = profile != null ? profile.getName() : "Unknown User";
+                    String imageKey = profile != null ? profile.getProfileImageKey() : null;
+                    String profileUrl = imageKey != null ? urlMap.get(imageKey) : null;
+                    UserSummary author = new UserSummary(authorId, name, profileUrl);
+                    return new ReviewDto(
+                            review.getId(),
+                            review.getContent().getId(),
+                            author,
+                            review.getText(),
+                            review.getRating()
+                    );
+                })
                 .toList();
 
         String nextCursor = null;
@@ -85,6 +118,7 @@ public class ReviewCompositeService {
                 request.sortDirection()
         );
     }
+
 
     private ReviewDto getReviewDto(UUID authorId, Review review) {
         ExternalUserView profile = externalUserQueryService.getProfile(authorId);

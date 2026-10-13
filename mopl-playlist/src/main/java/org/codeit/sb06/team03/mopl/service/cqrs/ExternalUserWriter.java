@@ -19,7 +19,7 @@ public class ExternalUserWriter {
         if (userDto == null) {
             return null;
         }
-        ExternalUserView view = ExternalUserView.create(userDto.id(), userDto.name(), userDto.profileImageUrl());
+        ExternalUserView view = ExternalUserView.create(userDto.id(), userDto.name(), userDto.profileImageKey());
         return externalUserViewRepository.save(view);
     }
 }
