@@ -9,19 +9,12 @@ import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalContentView;
 import org.codeit.sb06.team03.mopl.repository.cqrs.ExternalContentViewRepository;
 import org.codeit.sb06.team03.mopl.service.application.InboxService;
 import org.codeit.sb06.team03.mopl.service.application.PlaylistCommandService;
-import org.codeit.sb06.team03.mopl.dto.PlaylistCurationBackupDto;
-import org.codeit.sb06.team03.mopl.entity.Curation;
-import org.codeit.sb06.team03.mopl.repository.CurationRepository;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,11 +24,9 @@ import java.util.UUID;
 public class ContentEventListener {
 
     private final ExternalContentViewRepository externalContentViewRepository;
-    private final CurationRepository curationRepository;
     private final PlaylistCommandService playlistCommandService;
     private final InboxService inboxService;
     private final ObjectMapper objectMapper;
-    private final StringRedisTemplate redisTemplate;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
     private void sendSagaResponse(ContentDeletionSagaEvent event) {
@@ -158,62 +149,22 @@ public class ContentEventListener {
         }
 
         try {
-            // 1. 삭제 전 Redis 백업 (Curation 목록 및 CQRS View)
-            backupCurationsAndContentView(event);
-
-            // 2. 플레이리스트 연관 항목 및 CQRS View 삭제
+            // 1. 플레이리스트 연관 항목 및 CQRS View 논리 삭제 (Soft Delete: deleted_at = NOW())
             playlistCommandService.deleteCurationByContentId(event.contentId());
             externalContentViewRepository.deleteById(event.contentId());
 
-            // 3. Inbox 테이블에 성공 처리 기록
+            // 2. Inbox 테이블에 성공 처리 기록
             inboxService.recordProcessed(messageId, "CONTENT_SAGA", "SUCCESS", event.toString());
 
-            // 4. 성공 이벤트 응답 (Kafka 전송)
+            // 3. 성공 이벤트 응답 (Kafka 전송)
             sendSagaResponse(ContentDeletionSagaEvent.success(event.sagaId(), event.contentId(), "PLAYLIST"));
         } catch (Exception e) {
-            log.error("Failed to delete playlist curation for contentId: {}", event.contentId(), e);
-            // 3. Inbox 테이블에 실패 처리 기록 (중복 재시도 시 FAILED 응답 일관성 유지)
+            log.error("Failed to soft-delete playlist curation for contentId: {}", event.contentId(), e);
+            // 2. Inbox 테이블에 실패 처리 기록 (중복 재시도 시 FAILED 응답 일관성 유지)
             inboxService.recordProcessed(messageId, "CONTENT_SAGA", "FAILED", e.getMessage() != null ? e.getMessage() : "Unknown error");
-            // 4. 실패 응답 전송 (Kafka)
+            // 3. 실패 응답 전송 (Kafka)
             sendSagaResponse(ContentDeletionSagaEvent.failed(event.sagaId(), event.contentId(), "PLAYLIST", e.getMessage()));
             // 비즈니스 실패 통보 완료 후 정상 리턴하여 Kafka 재시도 에러 폭풍 차단
-        }
-    }
-
-    private void backupCurationsAndContentView(ContentDeletionSagaEvent event) {
-        try {
-            List<Curation> curations = curationRepository.findAllByContentId(event.contentId());
-            ExternalContentView view = externalContentViewRepository.findById(event.contentId()).orElse(null);
-
-            if (!curations.isEmpty() || view != null) {
-                List<PlaylistCurationBackupDto.CurationItem> curationItems = curations.stream()
-                        .map(c -> new PlaylistCurationBackupDto.CurationItem(
-                                c.getId().getPlaylistId(),
-                                c.getId().getContentId(),
-                                c.getContentTitle()))
-                        .toList();
-
-                PlaylistCurationBackupDto.ExternalContentViewItem viewItem = view != null ?
-                        new PlaylistCurationBackupDto.ExternalContentViewItem(
-                                view.getId(),
-                                view.getType(),
-                                view.getTitle(),
-                                view.getDescription(),
-                                view.getThumbnailKey(),
-                                view.getTags(),
-                                view.getAverageRating(),
-                                view.getReviewCount(),
-                                view.getWatcherCount()
-                        ) : null;
-
-                PlaylistCurationBackupDto backupDto = new PlaylistCurationBackupDto(curationItems, viewItem);
-                String backupJson = objectMapper.writeValueAsString(backupDto);
-                String backupKey = "backup:playlist:curation:" + event.sagaId();
-                redisTemplate.opsForValue().set(backupKey, backupJson, Duration.ofMinutes(10));
-                log.info("Successfully backed up {} curation(s) and view for sagaId: {}", curationItems.size(), event.sagaId());
-            }
-        } catch (Exception e) {
-            log.error("Failed to backup curations to Redis for sagaId: {}", event.sagaId(), e);
         }
     }
 
@@ -224,35 +175,12 @@ public class ContentEventListener {
             return;
         }
 
-        String backupKey = "backup:playlist:curation:" + event.sagaId();
-        String backupJson = redisTemplate.opsForValue().get(backupKey);
-        if (backupJson == null) {
-            log.warn("No backup found in Redis for saga compensation, sagaId: {}. Skipping restore.", event.sagaId());
-            inboxService.recordProcessed(messageId, "CONTENT_SAGA_COMPENSATE", "ContentDeletionSagaEvent", event.toString());
-            return;
-        }
-
         try {
-            PlaylistCurationBackupDto backupDto = objectMapper.readValue(backupJson, PlaylistCurationBackupDto.class);
-            if (backupDto.curations() != null && !backupDto.curations().isEmpty()) {
-                List<Curation> toRestore = backupDto.curations().stream()
-                        .map(item -> Curation.create(item.playlistId(), item.contentId(), item.contentTitle()))
-                        .toList();
-                playlistCommandService.restoreCurations(toRestore);
-                log.info("Restored {} curation(s) for contentId: {}", toRestore.size(), event.contentId());
-            }
+            // RDB에서 Soft Delete 원복 (deleted_at = NULL)
+            playlistCommandService.restoreCurationByContentId(event.contentId());
+            externalContentViewRepository.restoreById(event.contentId());
+            log.info("Restored curations and ExternalContentView for contentId: {} (SagaId: {})", event.contentId(), event.sagaId());
 
-            if (backupDto.contentView() != null) {
-                PlaylistCurationBackupDto.ExternalContentViewItem v = backupDto.contentView();
-                ExternalContentView restoredView = ExternalContentView.create(
-                        v.id(), v.type(), v.title(), v.description(), v.thumbnailKey(),
-                        v.tags(), v.averageRating(), v.reviewCount(), v.watcherCount()
-                );
-                externalContentViewRepository.save(restoredView);
-                log.info("Restored ExternalContentView for contentId: {}", event.contentId());
-            }
-
-            redisTemplate.delete(backupKey);
             inboxService.recordProcessed(messageId, "CONTENT_SAGA_COMPENSATE", "ContentDeletionSagaEvent", event.toString());
             log.info("Successfully completed saga compensation in playlist for sagaId: {}", event.sagaId());
         } catch (Exception e) {

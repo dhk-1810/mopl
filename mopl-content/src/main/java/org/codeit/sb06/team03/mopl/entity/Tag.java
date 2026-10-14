@@ -12,22 +12,23 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
 @Table(name = "tags")
-@SQLDelete(sql = "UPDATE tags SET is_deleted = true WHERE id = ?")
-@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE tags SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class Tag {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @NotNull
     @Column(name = "name", nullable = false)
@@ -40,5 +41,9 @@ public class Tag {
 
     public static Tag create(String name) {
         return new Tag(name);
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

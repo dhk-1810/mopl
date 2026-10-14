@@ -8,16 +8,18 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.time.Instant;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "contents_tags")
-@SQLDelete(sql = "UPDATE contents_tags SET is_deleted = true WHERE content_id = ? AND tag_id = ?")
-@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE contents_tags SET deleted_at = NOW() WHERE content_id = ? AND tag_id = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class ContentTag {
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @EmbeddedId
     private ContentTagId id;
@@ -40,5 +42,9 @@ public class ContentTag {
 
     public static ContentTag create(Content content, Tag tag) {
         return new ContentTag(content, tag);
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

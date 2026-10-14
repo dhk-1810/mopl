@@ -135,4 +135,10 @@ public interface PlaylistRepository extends QuerydslJpaRepository<Playlist, UUID
             default -> new OrderSpecifier<>(Order.valueOf(sortDirection), playlist.updatedAt);
         };
     }
+
+    default int purgeDeletedBefore(Instant threshold) {
+        return (int) delete(playlist)
+                .where(playlist.deletedAt.isNotNull().and(playlist.deletedAt.before(threshold)))
+                .execute();
+    }
 }

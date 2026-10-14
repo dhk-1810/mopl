@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @CompoundIndexes({
-        @CompoundIndex(name = "idx_chatroom_created_id", def = "{'dmChatRoomId': 1, 'isDeleted': 1, 'createdAt': -1, '_id': -1}")
+        @CompoundIndex(name = "idx_chatroom_created_id", def = "{'dmChatRoomId': 1, 'deletedAt': 1, 'createdAt': -1, '_id': -1}")
 })
 @Document(collection = "dm_messages")
 public class DMMessage {
@@ -23,7 +23,7 @@ public class DMMessage {
     @Id
     private UUID id;
 
-    private boolean isDeleted = false;
+    private Instant deletedAt;
 
     @CreatedDate
     private Instant createdAt;
@@ -55,6 +55,10 @@ public class DMMessage {
     }
 
     public void delete() {
-        this.isDeleted = true;
+        this.deletedAt = Instant.now();
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

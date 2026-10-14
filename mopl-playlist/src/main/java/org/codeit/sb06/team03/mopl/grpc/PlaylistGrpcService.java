@@ -24,27 +24,18 @@ public class PlaylistGrpcService extends PlaylistServiceGrpc.PlaylistServiceImpl
     private final PlaylistCommandService playlistCommandService;
     private final ExternalContentViewRepository externalContentViewRepository;
 
-    // 보상 트랜잭션을 위한 임시 백업 캐시 (contentId -> BackupData)
-    private final Map<UUID, BackupData> backupCache = new ConcurrentHashMap<>();
-
-    private record BackupData(List<Curation> curations, ExternalContentView contentView) {}
-
     @Override
     @Transactional(value = "playlistTransactionManager")
     public void deleteCurations(DeleteCurationsRequest request, StreamObserver<DeleteCurationsResponse> responseObserver) {
         try {
             UUID contentId = UUID.fromString(request.getContentId());
-            log.info("[gRPC PlaylistService] DeleteCurations called for contentId: {}", contentId);
+            log.info("[gRPC PlaylistService] DeleteCurations (Soft Delete) called for contentId: {}", contentId);
 
-            ExternalContentView contentView = externalContentViewRepository.findById(contentId).orElse(null);
-            List<Curation> deletedCurations = playlistCommandService.deleteCurationByContentIdWithBackup(contentId);
+            playlistCommandService.deleteCurationByContentId(contentId);
             externalContentViewRepository.deleteById(contentId);
-
-            backupCache.put(contentId, new BackupData(deletedCurations, contentView));
 
             DeleteCurationsResponse response = DeleteCurationsResponse.newBuilder()
                     .setSuccess(true)
-                    .setDeletedCount(deletedCurations.size())
                     .build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
@@ -61,17 +52,9 @@ public class PlaylistGrpcService extends PlaylistServiceGrpc.PlaylistServiceImpl
             UUID contentId = UUID.fromString(request.getContentId());
             log.info("[gRPC PlaylistService] Compensating Transaction: RestoreCurations called for contentId: {}", contentId);
 
-            BackupData backup = backupCache.remove(contentId);
-            if (backup != null) {
-                playlistCommandService.restoreCurations(backup.curations());
-                if (backup.contentView() != null) {
-                    externalContentViewRepository.save(backup.contentView());
-                }
-                log.info("[gRPC PlaylistService] Successfully restored {} curations and view for contentId: {}", 
-                        backup.curations().size(), contentId);
-            } else {
-                log.warn("[gRPC PlaylistService] No backup found for restoreCurations contentId: {}", contentId);
-            }
+            playlistCommandService.restoreCurationByContentId(contentId);
+            externalContentViewRepository.restoreById(contentId);
+            log.info("[gRPC PlaylistService] Successfully restored curations and view for contentId: {}", contentId);
 
             RestoreCurationsResponse response = RestoreCurationsResponse.newBuilder()
                     .setSuccess(true)

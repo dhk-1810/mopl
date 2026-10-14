@@ -24,16 +24,16 @@ import java.util.UUID;
                 )
         }
 )
-@SQLDelete(sql = "UPDATE reviews SET is_deleted = true WHERE id = ? AND version = ?")
-@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE reviews SET deleted_at = NOW() WHERE id = ? AND version = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class Review {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -77,5 +77,9 @@ public class Review {
         if (rating != null) {
             this.rating = rating;
         }
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

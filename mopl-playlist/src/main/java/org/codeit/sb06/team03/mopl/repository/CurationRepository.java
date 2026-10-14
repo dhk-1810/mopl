@@ -28,15 +28,32 @@ public interface CurationRepository extends QuerydslJpaRepository<Curation, Cura
 
     default void deleteAllByPlaylistId(UUID playlistId) {
         QCuration curation = QCuration.curation;
-        delete(curation)
+        update(curation)
+                .set(curation.deletedAt, java.time.Instant.now())
                 .where(curation.id.playlistId.eq(playlistId))
                 .execute();
     }
 
     default void deleteAllByContentId(UUID contentId) {
         QCuration curation = QCuration.curation;
-        delete(curation)
+        update(curation)
+                .set(curation.deletedAt, java.time.Instant.now())
                 .where(curation.id.contentId.eq(contentId))
+                .execute();
+    }
+
+    default void restoreAllByContentId(UUID contentId) {
+        QCuration curation = QCuration.curation;
+        update(curation)
+                .setNull(curation.deletedAt)
+                .where(curation.id.contentId.eq(contentId))
+                .execute();
+    }
+
+    default int purgeDeletedBefore(java.time.Instant threshold) {
+        QCuration curation = QCuration.curation;
+        return (int) delete(curation)
+                .where(curation.deletedAt.isNotNull().and(curation.deletedAt.before(threshold)))
                 .execute();
     }
 

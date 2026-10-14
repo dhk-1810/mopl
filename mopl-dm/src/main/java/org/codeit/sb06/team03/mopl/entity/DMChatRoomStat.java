@@ -22,16 +22,16 @@ import java.util.UUID;
         name = "dm_chat_room_stats",
         uniqueConstraints = @UniqueConstraint(columnNames = {"dm_chat_room_id", "account_id"})
 )
-@SQLDelete(sql = "UPDATE dm_chat_room_stats SET is_deleted = true WHERE id = ? AND version = ?")
-@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE dm_chat_room_stats SET deleted_at = NOW() WHERE id = ? AND version = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class DMChatRoomStat {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dm_chat_room_id", nullable = false)
@@ -86,5 +86,9 @@ public class DMChatRoomStat {
     public void markAsUnread() {
         this.hasUnread = true;
         this.updatedAt = Instant.now();
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

@@ -101,6 +101,10 @@ public class PlaylistCommandService {
         curationRepository.deleteAllByContentId(contentId);
     }
 
+    public void restoreCurationByContentId(UUID contentId) {
+        curationRepository.restoreAllByContentId(contentId);
+    }
+
     public List<Curation> deleteCurationByContentIdWithBackup(UUID contentId) {
         List<Curation> curations = curationRepository.findAllByContentId(contentId);
         curationRepository.deleteAllByContentId(contentId);

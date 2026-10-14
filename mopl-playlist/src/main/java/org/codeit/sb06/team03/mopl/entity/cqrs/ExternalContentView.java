@@ -5,18 +5,26 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.codeit.sb06.team03.mopl.enums.ContentType;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
 @Table(name = "external_content_views")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE external_content_views SET deleted_at = NOW() WHERE content_id = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class ExternalContentView {
 
     @Id
     @Column(name = "content_id")
     private UUID id;
+
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -80,5 +88,17 @@ public class ExternalContentView {
         this.averageRating = averageRating;
         this.reviewCount = reviewCount;
         this.watcherCount = watcherCount;
+    }
+
+    public void delete() {
+        this.deletedAt = Instant.now();
+    }
+
+    public void restore() {
+        this.deletedAt = null;
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

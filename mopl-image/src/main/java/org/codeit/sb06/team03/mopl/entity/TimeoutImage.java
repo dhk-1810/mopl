@@ -16,16 +16,16 @@ import java.util.UUID;
 @ToString
 @Entity
 @Table(name = "timeout_images")
-@SQLDelete(sql = "UPDATE timeout_images SET is_deleted = true WHERE id = ?")
-@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE timeout_images SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class TimeoutImage {
 
     @Id
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @Column(name = "image_key", unique = true)
     private String key;
@@ -52,5 +52,9 @@ public class TimeoutImage {
     public void updatePresignedUrl(Instant exp, String presignedUrl) {
         this.exp = exp;
         this.presignedUrl = presignedUrl;
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

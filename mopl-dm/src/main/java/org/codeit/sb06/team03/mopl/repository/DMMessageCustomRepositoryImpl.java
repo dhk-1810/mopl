@@ -27,7 +27,7 @@ public class DMMessageCustomRepositoryImpl implements DMMessageCustomRepository 
             String sortBy
     ) {
         Criteria criteria = Criteria.where("dmChatRoomId").is(dmChatRoomId)
-                .and("isDeleted").is(false);
+                .and("deletedAt").is(null);
 
         if (cursor != null) {
             Instant cursorTime = Instant.parse(cursor);

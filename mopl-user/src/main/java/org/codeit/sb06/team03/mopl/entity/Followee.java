@@ -9,6 +9,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -17,16 +18,16 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "followees")
-@SQLDelete(sql = "UPDATE followees SET is_deleted = true WHERE id = ?")
-@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE followees SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class Followee extends AbstractAggregateRoot<Followee> {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @Column(name = "follower_count", nullable = false)
     private long followerCount;
@@ -66,5 +67,9 @@ public class Followee extends AbstractAggregateRoot<Followee> {
 
     public boolean isFollowedBy(UUID followerId) {
         return followers.stream().anyMatch(follower -> follower.getId().getFollowerId().equals(followerId));
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

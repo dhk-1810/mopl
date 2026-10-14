@@ -16,7 +16,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "timeout_images")
-@SQLRestriction("is_deleted = false")
+@SQLRestriction("deleted_at IS NULL")
 public class ExternalImageView {
 
     @Id
@@ -29,8 +29,8 @@ public class ExternalImageView {
     @Column(name = "presigned_url", length = 1024)
     private String presignedUrl;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @Column(name = "exp")
     private Instant exp;
@@ -41,7 +41,7 @@ public class ExternalImageView {
         view.imageKey = imageKey;
         view.presignedUrl = presignedUrl;
         view.exp = exp;
-        view.isDeleted = false;
+        view.deletedAt = null;
         return view;
     }
 
@@ -52,5 +52,9 @@ public class ExternalImageView {
 
     public boolean isExpired() {
         return exp != null && Instant.now().isAfter(exp);
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

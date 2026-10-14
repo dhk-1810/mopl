@@ -16,16 +16,16 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "notifications")
-@SQLDelete(sql = "UPDATE notifications SET is_deleted = true WHERE id = ? AND version = ?")
-@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE notifications SET deleted_at = NOW() WHERE id = ? AND version = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class Notification {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @Column(name = "receiver_id", nullable = false)
     private UUID receiverId;
@@ -57,5 +57,9 @@ public class Notification {
 
     public static Notification create(UUID receiverId, String title, String content, NotificationLevel level){
         return new Notification(receiverId, title, content, level);
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

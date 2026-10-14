@@ -28,16 +28,16 @@ import java.util.UUID;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "accounts")
-@SQLDelete(sql = "UPDATE accounts SET is_deleted = true WHERE id = ? AND version = ?")
-@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE accounts SET deleted_at = NOW() WHERE id = ? AND version = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class Account extends AbstractAggregateRoot<Account> {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @NotNull
     @CreatedDate
@@ -95,6 +95,15 @@ public class Account extends AbstractAggregateRoot<Account> {
         return this;
     }
 
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+        profile.setAccount(this);
+    }
+
     public Account passwordReset(
             TempPasswordGenerationPolicy tempPasswordGenerationPolicy,
             TempPasswordResetTimeoutPolicy tempPasswordResetTimeoutPolicy,
@@ -110,10 +119,5 @@ public class Account extends AbstractAggregateRoot<Account> {
                 emailAddress.value(), rawTempPassword, expiresAt.toString()
         ));
         return this;
-    }
-
-    public void setProfile(Profile profile) {
-        this.profile = profile;
-        profile.setAccount(this);
     }
 }

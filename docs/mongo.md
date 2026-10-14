@@ -20,15 +20,15 @@
 - **설정된 복합 인덱스 (Compound Index)**
   ```java
   @CompoundIndexes({
-      @CompoundIndex(name = "idx_chatroom_created_id", def = "{'dmChatRoomId': 1, 'isDeleted': 1, 'createdAt': -1, '_id': -1}")
+      @CompoundIndex(name = "idx_chatroom_created_id", def = "{'dmChatRoomId': 1, 'deletedAt': 1, 'createdAt': -1, '_id': -1}")
   })
   @Document(collection = "dm_messages")
   public class DMMessage { ... }
   ```
 
 - **인덱스 설계 및 컬럼 선정 근거 (ESR 원칙 적용)**
-  1. **Equality (`dmChatRoomId: 1`, `isDeleted: 1`)**
-     - 특정 채팅방의 활성(미삭제) 메시지만 필터링하므로 가장 선두에 배치하여 검색 대상 범위를 최소화합니다.
+  1. **Equality (`dmChatRoomId: 1`, `deletedAt: 1`)**
+     - 특정 채팅방의 활성(미삭제 `deletedAt: null`) 메시지만 필터링하므로 가장 선두에 배치하여 검색 대상 범위를 최소화합니다.
   2. **Sort (`createdAt: -1`, `_id: -1`)**
      - 최신 메시지 조회 및 무한 스크롤 페이징을 위해 역순 정렬을 인덱스 트리에 일치시켰습니다.
      - 같은 밀리초 단위에 생성된 메시지의 순서 보장(Tie-breaker)을 위해 고유값인 `_id`를 2차 정렬 컬럼으로 포함했습니다.

@@ -5,8 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.AbstractAggregateRoot;
-
-
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -18,11 +18,16 @@ import java.util.UUID;
         name = "playlists",
         indexes = { @Index(name = "idx_updatedAt_cursor", columnList = "updatedAt, id") }
 )
+@SQLDelete(sql = "UPDATE playlists SET deleted_at = NOW() WHERE id = ? AND version = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class Playlist extends AbstractAggregateRoot<Playlist> {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
+
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @Column(name = "owner_id", nullable = false)
     private UUID ownerId;
@@ -94,5 +99,19 @@ public class Playlist extends AbstractAggregateRoot<Playlist> {
         if (subscriberCount > 0) {
             this.subscriberCount--;
         }
+    }
+
+    public void delete() {
+        this.deletedAt = Instant.now();
+        this.updatedAt = Instant.now();
+    }
+
+    public void restore() {
+        this.deletedAt = null;
+        this.updatedAt = Instant.now();
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

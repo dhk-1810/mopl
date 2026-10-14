@@ -21,16 +21,16 @@ import java.util.UUID;
 @Entity
 @Table(name = "dm_chat_rooms")
 @EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE dm_chat_rooms SET is_deleted = true WHERE id = ? AND version = ?")
-@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE dm_chat_rooms SET deleted_at = NOW() WHERE id = ? AND version = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class DMChatRoom {
 
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @NotNull
     @CreatedDate
@@ -95,5 +95,9 @@ public class DMChatRoom {
 
     private void addStat(UUID accountId) {
         this.dmChatRoomStats.put(accountId, DMChatRoomStat.create(this, accountId));
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

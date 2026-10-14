@@ -12,22 +12,23 @@ import org.springframework.lang.Nullable;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
 @Table(name = "profiles")
-@SQLDelete(sql = "UPDATE profiles SET is_deleted = true WHERE id = ? AND version = ?")
-@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE profiles SET deleted_at = NOW() WHERE id = ? AND version = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class Profile extends AbstractAggregateRoot<Profile> {
 
     @Id
     @Column(name = "id")
     private UUID accountId;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @Version
     @Column(name = "version")
@@ -65,5 +66,10 @@ public class Profile extends AbstractAggregateRoot<Profile> {
     public void setAccount(Account account) {
         this.account = account;
     }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
 }
+
 
