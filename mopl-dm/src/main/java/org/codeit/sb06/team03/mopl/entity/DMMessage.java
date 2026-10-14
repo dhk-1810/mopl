@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -12,6 +14,9 @@ import java.util.UUID;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@CompoundIndexes({
+        @CompoundIndex(name = "idx_chatroom_created_id", def = "{'dmChatRoomId': 1, 'isDeleted': 1, 'createdAt': -1, '_id': -1}")
+})
 @Document(collection = "dm_messages")
 public class DMMessage {
 
