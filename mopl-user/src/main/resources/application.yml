@@ -104,3 +104,8 @@ management:
 grpc:
   server:
     port: ${GRPC_SERVER_PORT:8181}
+  client:
+    image-service:
+      address: "static://${GRPC_IMAGE_HOST:localhost}:${GRPC_IMAGE_PORT:8185}"
+      negotiation-type: plaintext
+

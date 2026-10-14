@@ -8,6 +8,7 @@ import org.codeit.sb06.team03.mopl.grpc.image.ImageServiceGrpc;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -31,7 +32,9 @@ public class ImageGrpcClient {
                     .setKey(key)
                     .build();
 
-            GetPresignedUrlResponse response = imageServiceStub.getPresignedUrl(request);
+            GetPresignedUrlResponse response = imageServiceStub
+                    .withDeadlineAfter(2, TimeUnit.SECONDS)
+                    .getPresignedUrl(request);
 
             Instant exp = null;
             if (response.getExp() != null && !response.getExp().isBlank()) {

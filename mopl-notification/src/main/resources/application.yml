@@ -20,15 +20,6 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
-mopl:
-  storage:
-    aws:
-      region: ${AWS_REGION:ap-northeast-2}
-      bucket-name: ${AWS_S3_BUCKET}
-      access-key: ${AWS_ACCESS_KEY}
-      secret-key: ${AWS_SECRET_KEY}
-      signature-duration-in-hours: 1 # Presigned URL 유효기간
-
 management:
   endpoints:
     web:

@@ -57,3 +57,6 @@ grpc:
     watching-session-service:
       address: "static://${GRPC_LIVE_CHAT_HOST:localhost}:${GRPC_LIVE_CHAT_PORT:8183}"
       negotiation-type: plaintext
+    image-service:
+      address: "static://${GRPC_IMAGE_HOST:localhost}:${GRPC_IMAGE_PORT:8185}"
+      negotiation-type: plaintext

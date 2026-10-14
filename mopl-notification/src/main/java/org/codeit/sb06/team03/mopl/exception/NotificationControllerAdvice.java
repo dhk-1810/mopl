@@ -2,6 +2,7 @@ package org.codeit.sb06.team03.mopl.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.ErrorResponse;
+import org.codeit.sb06.team03.mopl.controller.NotificationController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Collections;
 
 @Slf4j
-@RestControllerAdvice(basePackageClasses = NotificationControllerAdvice.class)
+@RestControllerAdvice(basePackageClasses = NotificationController.class)
 public class NotificationControllerAdvice {
 
     @ExceptionHandler(NotificationNotFoundException.class)

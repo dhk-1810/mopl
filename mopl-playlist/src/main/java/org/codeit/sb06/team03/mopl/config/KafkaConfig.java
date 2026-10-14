@@ -10,4 +10,5 @@ public class KafkaConfig {
     public static final String TOPIC_USER_PROFILE_EVENTS = "user.profile.events";
     public static final String TOPIC_CONTENT_METADATA_EVENTS = "content.metadata.events";
     public static final String TOPIC_USER_FOLLOW_EVENTS = "user.follow.events";
+    public static final String TOPIC_IMAGE_PRESIGNED_URL_EVENTS = "image.presigned-url.events";
 }

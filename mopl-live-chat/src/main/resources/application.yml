@@ -33,13 +33,6 @@ spring:
 mopl:
   saga:
     type: ${MOPL_SAGA_TYPE:grpc} # grpc | cdc-kafka
-  storage:
-    aws:
-      region: ${AWS_REGION:ap-northeast-2}
-      bucket-name: ${AWS_S3_BUCKET}
-      access-key: ${AWS_ACCESS_KEY}
-      secret-key: ${AWS_SECRET_KEY}
-      signature-duration-in-hours: 1 # Presigned URL 유효기간
 
 management:
   endpoints:
@@ -56,4 +49,7 @@ grpc:
       negotiation-type: plaintext
     content-service:
       address: "static://${GRPC_CONTENT_HOST:localhost}:${GRPC_CONTENT_PORT:8182}"
+      negotiation-type: plaintext
+    image-service:
+      address: "static://${GRPC_IMAGE_HOST:localhost}:${GRPC_IMAGE_PORT:8185}"
       negotiation-type: plaintext

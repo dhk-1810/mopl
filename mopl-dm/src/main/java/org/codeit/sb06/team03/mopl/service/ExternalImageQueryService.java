@@ -62,27 +62,33 @@ public class ExternalImageQueryService {
         return imageDto.presignedUrl();
     }
 
+    @Transactional(value = "dmTransactionManager")
     public Map<String, String> getPresignedUrls(List<String> imageKeys) {
         if (imageKeys == null || imageKeys.isEmpty()) {
             return Map.of();
         }
         List<ExternalImageView> images = externalImageViewRepository.findByImageKeyIn(imageKeys);
-        Map<String, String> dbMap = images.stream()
+        Map<String, ExternalImageView> viewMap = images.stream()
                 .collect(Collectors.toMap(
                         ExternalImageView::getImageKey,
-                        ExternalImageView::getPresignedUrl,
+                        v -> v,
                         (existing, replacement) -> existing
                 ));
 
         return imageKeys.stream()
                 .filter(key -> key != null && !key.isBlank())
+                .distinct()
                 .collect(Collectors.toMap(
                         key -> key,
                         key -> {
                             if (key.startsWith("http://") || key.startsWith("https://")) {
                                 return key;
                             }
-                            return dbMap.getOrDefault(key, key);
+                            ExternalImageView view = viewMap.get(key);
+                            if (view != null && !view.isExpired() && view.getPresignedUrl() != null && !view.getPresignedUrl().isBlank()) {
+                                return view.getPresignedUrl();
+                            }
+                            return fetchAndSavePresignedUrl(key, view);
                         },
                         (existing, replacement) -> existing
                 ));
