@@ -38,14 +38,8 @@ public class StompContentInboundInterceptor implements ChannelInterceptor {
     private Message<?> handleSend(StompHeaderAccessor accessor, Message<?> message) {
         String destination = accessor.getDestination();
 
-        if (destination == null) {
+        if (destination == null || !DestinationUtils.matchDmPubDestination(destination)) {
             throw new SecurityException("잘못된 전송 경로 입니다.");
-
-        }
-        if (DestinationUtils.isContentDestination(destination)) {
-            if (!DestinationUtils.matchPubDestination(destination)) {
-                throw new SecurityException("잘못된 전송 경로 입니다.");
-            }
         }
 
         return message;
@@ -54,18 +48,13 @@ public class StompContentInboundInterceptor implements ChannelInterceptor {
     private Message<?> handleSubscribe(StompHeaderAccessor accessor, Message<?> message) {
         String destination = accessor.getDestination();
 
-        if (destination == null) {
+        if (destination == null || !DestinationUtils.matchDmSubDestination(destination)) {
             throw new SecurityException("잘못된 구독 경로 입니다.");
         }
 
-        if (DestinationUtils.isContentDestination(destination)) {
-            if (!DestinationUtils.matchWatchSubDestination(destination) &&
-            !DestinationUtils.matchChatSubDestination(destination)) {
-                throw new SecurityException("잘못된 구독 경로 입니다.");
-            }
+        if (accessor.getSessionAttributes() != null && accessor.getSubscriptionId() != null) {
+            accessor.getSessionAttributes().put(accessor.getSubscriptionId(), destination);
         }
-
-        accessor.getSessionAttributes().put(accessor.getSubscriptionId(), destination);
 
         return message;
     }

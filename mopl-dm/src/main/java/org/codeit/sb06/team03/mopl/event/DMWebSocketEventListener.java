@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 @Component
 @RequiredArgsConstructor
 public class DMWebSocketEventListener {
-    private static final Pattern DM_SUB_PATTERN = Pattern.compile("^/sub/dm_chat_rooms/[0-9a-fA-F-]+/direct-messages$");
+    private static final Pattern DM_SUB_PATTERN = Pattern.compile("^/sub/conversations/[0-9a-fA-F-]+/direct-messages$");
 
     private final DMChatRoomCommandService dmChatRoomCommandService;
 
@@ -44,7 +44,7 @@ public class DMWebSocketEventListener {
     @EventListener
     void onUnsubscribe(SessionUnsubscribeEvent event) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(event.getMessage(), StompHeaderAccessor.class);
-        if (accessor == null) return;
+        if (accessor == null || accessor.getSessionAttributes() == null) return;
 
         String destination = (String) accessor.getSessionAttributes().get(accessor.getSubscriptionId());
         log.info("DMWebSocketEventListener.onUnsubscribe: destination={}", destination);

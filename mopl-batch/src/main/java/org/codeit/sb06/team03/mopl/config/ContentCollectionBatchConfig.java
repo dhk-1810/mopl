@@ -33,10 +33,10 @@ public class ContentCollectionBatchConfig {
 
     private final PlatformTransactionManager transactionManager;
     private final JobRepository jobRepository;
+    private final MeterRegistry meterRegistry;
     private final TmdbClient tmdbClient;
     private final SportsDbClient sportsDbClient;
     private final ContentClient contentClient;
-    private final MeterRegistry meterRegistry;
 
     @Bean
     public Job contentCollectionJob(Step collectTmdbStep, Step collectSportsStep) {

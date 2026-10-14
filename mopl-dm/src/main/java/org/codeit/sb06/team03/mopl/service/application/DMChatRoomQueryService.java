@@ -48,8 +48,12 @@ public class DMChatRoomQueryService {
     }
 
     public DMChatRoom findById(UUID userId, UUID dmChatRoomId) {
-        return dmChatRoomRepository.findDMChatRoomById(dmChatRoomId)
+        DMChatRoom dmChatRoom = dmChatRoomRepository.findDMChatRoomById(dmChatRoomId)
                 .orElseThrow(() -> new DMChatRoomNotFoundException(dmChatRoomId));
+        if (userId != null && !dmChatRoom.getDmChatRoomStats().containsKey(userId)) {
+            throw new DMChatRoomNotFoundException(dmChatRoomId);
+        }
+        return dmChatRoom;
     }
 
     public DMChatRoom findByWith(UUID userId, UUID withUserId) {

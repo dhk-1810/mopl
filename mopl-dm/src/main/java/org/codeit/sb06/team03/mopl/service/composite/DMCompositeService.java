@@ -16,8 +16,6 @@ import org.codeit.sb06.team03.mopl.exception.DMChatRoomNotFoundException;
 import org.codeit.sb06.team03.mopl.service.application.*;
 import org.codeit.sb06.team03.mopl.service.cqrs.ExternalUserQueryService;
 import org.codeit.sb06.team03.mopl.entity.cqrs.ExternalUserView;
-import org.codeit.sb06.team03.mopl.service.application.DMCommandService;
-import org.codeit.sb06.team03.mopl.service.application.DMQueryService;
 import org.codeit.sb06.team03.mopl.dto.request.MessageSendRequest;
 import org.codeit.sb06.team03.mopl.service.ExternalImageQueryService;
 import org.codeit.sb06.team03.mopl.enums.SortDirection;
@@ -221,11 +219,14 @@ public class DMCompositeService {
                 })
                 .orElse(null);
 
+        DMChatRoomStat stat = dmChatRoom.getDmChatRoomStats().get(userId);
+        boolean hasUnread = stat != null && stat.isHasUnread();
+
         return new DMChatRoomDto(
                 dmChatRoom.getId().toString(),
                 with,
                 latestMessage,
-                false
+                hasUnread
         );
     }
 
