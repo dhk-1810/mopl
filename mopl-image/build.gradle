@@ -6,11 +6,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
-    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
     
     implementation "io.github.openfeign.querydsl:querydsl-jpa-spring:${querydslVersion}"
     annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:${querydslVersion}:jakarta"
+    implementation project(':mopl-proto')
+    implementation "net.devh:grpc-server-spring-boot-starter:${grpcSpringBootVersion}"
     
     runtimeOnly 'org.postgresql:postgresql'
 }

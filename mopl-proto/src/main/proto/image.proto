@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package org.codeit.sb06.team03.mopl.grpc.image;
+
+option java_multiple_files = true;
+option java_package = "org.codeit.sb06.team03.mopl.grpc.image";
+option java_outer_classname = "ImageProto";
+
+/**
+ * 이미지 Presigned URL 조회를 위한 gRPC 서비스
+ * - 대상 서비스: mopl-image (서버), mopl-user/content/playlist/dm (클라이언트)
+ * - CQRS 로컬 복제 테이블(ExternalImageView) 만료 또는 Cache-Miss 발생 시 Lazy Fallback 조회용으로 사용
+ */
+service ImageService {
+  rpc GetPresignedUrl (GetPresignedUrlRequest) returns (GetPresignedUrlResponse);
+}
+
+message GetPresignedUrlRequest {
+  string key = 1;
+}
+
+message GetPresignedUrlResponse {
+  string key = 1;
+  string presigned_url = 2;
+  string exp = 3;
+}

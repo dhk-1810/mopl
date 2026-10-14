@@ -1,24 +1,20 @@
 package org.codeit.sb06.team03.mopl.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
-import org.codeit.sb06.team03.mopl.event.PresignedUrlUpdateListener;
-
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.Instant;
 import java.util.UUID;
 
-@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @ToString
 @Entity
-@EntityListeners(PresignedUrlUpdateListener.class)
 @Table(name = "timeout_images")
 @SQLDelete(sql = "UPDATE timeout_images SET is_deleted = true WHERE id = ?")
 @SQLRestriction("is_deleted = false")
@@ -51,5 +47,10 @@ public class TimeoutImage {
 
     public boolean isExpired() {
         return Instant.now().isAfter(exp);
+    }
+
+    public void updatePresignedUrl(Instant exp, String presignedUrl) {
+        this.exp = exp;
+        this.presignedUrl = presignedUrl;
     }
 }

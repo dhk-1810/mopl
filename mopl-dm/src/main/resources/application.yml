@@ -25,3 +25,6 @@ grpc:
     user-service:
       address: "static://${GRPC_USER_HOST:localhost}:${GRPC_USER_PORT:8181}"
       negotiation-type: plaintext
+    image-service:
+      address: "static://${GRPC_IMAGE_HOST:localhost}:${GRPC_IMAGE_PORT:8185}"
+      negotiation-type: plaintext
