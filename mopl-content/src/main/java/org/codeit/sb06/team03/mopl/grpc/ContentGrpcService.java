@@ -16,9 +16,14 @@ import org.codeit.sb06.team03.mopl.grpc.content.BatchCreateContentsResponse;
 import org.codeit.sb06.team03.mopl.grpc.content.CreateContentItem;
 import org.codeit.sb06.team03.mopl.service.application.ContentCommandService;
 import org.codeit.sb06.team03.mopl.service.application.ContentQueryService;
+import org.codeit.sb06.team03.mopl.grpc.content.BatchUpdateWatcherCountsRequest;
+import org.codeit.sb06.team03.mopl.grpc.content.BatchUpdateWatcherCountsResponse;
+import org.codeit.sb06.team03.mopl.grpc.content.WatcherCountItem;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -123,6 +128,36 @@ public class ContentGrpcService extends ContentServiceGrpc.ContentServiceImplBas
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
         } catch (Exception e) {
             log.error("Failed to batch create contents: {}", e.getMessage(), e);
+            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void batchUpdateWatcherCounts(
+            BatchUpdateWatcherCountsRequest request,
+            StreamObserver<BatchUpdateWatcherCountsResponse> responseObserver
+    ) {
+        try {
+            Map<UUID, Long> watcherCounts = new HashMap<>();
+            for (WatcherCountItem item : request.getItemsList()) {
+                if (item.getContentId() != null && !item.getContentId().isBlank()) {
+                    watcherCounts.put(UUID.fromString(item.getContentId()), item.getWatcherCount());
+                }
+            }
+
+            int updatedCount = contentCommandService.updateWatcherCounts(watcherCounts);
+
+            BatchUpdateWatcherCountsResponse response = BatchUpdateWatcherCountsResponse.newBuilder()
+                    .setUpdatedCount(updatedCount)
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid contentId format in batchUpdateWatcherCounts: {}", e.getMessage());
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
+        } catch (Exception e) {
+            log.error("Failed to batch update watcher counts: {}", e.getMessage(), e);
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }
     }

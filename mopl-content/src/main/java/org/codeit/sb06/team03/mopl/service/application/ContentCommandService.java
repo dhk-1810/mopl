@@ -28,11 +28,11 @@ import java.util.UUID;
 public class ContentCommandService {
 
     private final ContentRepository contentRepository;
+    private final SagaInstanceRepository sagaInstanceRepository;
+    private final ApplicationEventPublisher eventPublisher;
     private final ContentService contentService;
     private final ContentTagService contentTagService;
     private final ContentEventPublisher contentEventPublisher;
-    private final SagaInstanceRepository sagaInstanceRepository;
-    private final ApplicationEventPublisher eventPublisher;
 
     public ContentReadModel create(ContentCreateRequest request, String thumbnailKey) {
         Content content = contentService.create(
@@ -118,6 +118,17 @@ public class ContentCommandService {
         );
 
         return sagaId;
+    }
+
+    public int updateWatcherCounts(java.util.Map<UUID, Long> watcherCounts) {
+        if (watcherCounts == null || watcherCounts.isEmpty()) {
+            return 0;
+        }
+        int totalUpdated = 0;
+        for (java.util.Map.Entry<UUID, Long> entry : watcherCounts.entrySet()) {
+            totalUpdated += contentRepository.updateWatcherCount(entry.getKey(), entry.getValue());
+        }
+        return totalUpdated;
     }
 }
 

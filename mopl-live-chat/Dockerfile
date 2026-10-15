@@ -1,5 +1,5 @@
 # 1. 빌드 스테이지
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM eclipse-temurin:21-jdk AS builder
 
 WORKDIR /app
 

@@ -1,0 +1,20 @@
+# ==============================================================================
+# MOPL 전체 마이크로서비스 통합 Docker Compose
+# - 각 서비스 모듈의 docker-compose.yml을 include하여 한 번에 관리합니다.
+# - 사용법:
+#     전체 실행:  docker compose -f docker-compose.all.yml up -d
+#     전체 빌드:  docker compose -f docker-compose.all.yml up -d --build
+#     전체 종료:  docker compose -f docker-compose.all.yml down
+#     전체 상태:  docker compose -f docker-compose.all.yml ps
+# ==============================================================================
+
+include:
+  - path: mopl-gateway/docker-compose.yml
+  - path: mopl-user/docker-compose.yml
+  - path: mopl-content/docker-compose.yml
+  - path: mopl-playlist/docker-compose.yml
+  - path: mopl-live-chat/docker-compose.yml
+  - path: mopl-dm/docker-compose.yml
+  - path: mopl-notification/docker-compose.yml
+  - path: mopl-image/docker-compose.yml
+  - path: mopl-batch/docker-compose.yml

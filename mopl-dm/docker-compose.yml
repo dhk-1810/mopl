@@ -1,6 +1,7 @@
 services:
   mopl-dm-app:
     container_name: mopl-dm-app
+    image: mopl-dm:latest
     build:
       context: ..
       dockerfile: mopl-dm/Dockerfile

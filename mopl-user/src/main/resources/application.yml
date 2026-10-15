@@ -48,12 +48,14 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "${GATEWAY_URL:http://localhost:8080}/login/oauth2/code/google"
             scope: profile,email # 제공자의 서비스 scope. OIDC 비활성화 및 CustomOAuth2UserService 사용
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET}
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
+            redirect-uri: "${GATEWAY_URL:http://localhost:8080}/login/oauth2/code/kakao"
             scope: profile_nickname
         provider:
           kakao:
@@ -63,6 +65,10 @@ spring:
             user-name-attribute: id
 
 mopl:
+  oauth2:
+    redirect-uri:
+      success: "${GATEWAY_URL:http://localhost:8080}/oauth-redirect"
+      failure: "${GATEWAY_URL:http://localhost:8080}/sign-in"
   account:
     password-policy: "bcrypt"
     temp-password-policy: "fixed"

@@ -1,6 +1,7 @@
 services:
   mopl-content-app:
     container_name: mopl-content-app
+    image: mopl-content:latest
     build:
       context: ..
       dockerfile: mopl-content/Dockerfile
@@ -20,6 +21,7 @@ services:
   mopl-content-postgres:
     image: postgres:18-alpine
     container_name: mopl-content-postgres
+    command: ["postgres", "-c", "wal_level=logical"] # WAL 기록 상세 수준을 논리적 복제 수준으로 활성화
     ports:
       - "5433:5432"
     env_file:

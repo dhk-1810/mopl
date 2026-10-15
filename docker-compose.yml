@@ -2,26 +2,6 @@
 # 로컬 테스트만을 위한 DB, Redis, RabbitMQ 구성임.
 # -------------------------------------------------------------
 services:
-  # -------------------------------------------------------------
-  # Nginx Service (API Gateway / Reverse Proxy) - SCG와 CloudFront로 대체
-  # -------------------------------------------------------------
-#  nginx:
-#    image: nginx:1.25-alpine
-#    container_name: mopl-nginx
-#    ports:
-#      - "80:80"
-#      - "443:443"
-#    volumes:
-#      - ./nginx.conf.bak:/etc/nginx/nginx.conf.bak:ro
-#      - ./html:/usr/share/nginx/html:ro
-#    extra_hosts:
-#      - "host.docker.internal:host-gateway"
-#    restart: always
-#    logging:
-#      driver: "json-file"
-#      options:
-#        max-size: "10m"
-#        max-file: "3"
 
   # -------------------------------------------------------------
   # Redis Services (각 마이크로서비스별 독립 인스턴스)
@@ -117,7 +97,7 @@ services:
 
   # -------------------------------------------------------------
   # Kafka & Debezium Connect (KRaft Mode for CDC & Event Streaming)
-  # profiles: ["kafka", "cdc"] -> 'docker compose --profile kafka up -d' 로 구동 가능
+  # 'docker compose --profile kafka up -d' 로 구동 가능
   # -------------------------------------------------------------
   kafka:
     image: confluentinc/cp-kafka:7.6.0
@@ -126,17 +106,18 @@ services:
     ports:
       - "9092:9092"
       - "29092:29092"
+      - "29094:29094"
     environment:
       KAFKA_NODE_ID: 1
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT_DOCKER:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092,PLAINTEXT_DOCKER://host.docker.internal:29094'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_PROCESS_ROLES: 'broker,controller'
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
-      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092'
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092,PLAINTEXT_DOCKER://0.0.0.0:29094'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_LOG_DIRS: '/var/lib/kafka/data'
@@ -175,8 +156,6 @@ services:
       resources:
         limits:
           memory: 512M
-
-
 
   # -------------------------------------------------------------
   # PostgreSQL Databases (Database-per-service 격리)

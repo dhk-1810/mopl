@@ -1,6 +1,7 @@
 services:
   mopl-playlist-app:
     container_name: mopl-playlist-app
+    image: mopl-playlist:latest
     build:
       context: ..
       dockerfile: mopl-playlist/Dockerfile

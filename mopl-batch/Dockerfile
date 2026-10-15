@@ -1,5 +1,5 @@
 # 1. 빌드 스테이지
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM eclipse-temurin:21-jdk AS builder
 
 WORKDIR /app
 
@@ -22,6 +22,7 @@ COPY mopl-proto/build.gradle mopl-proto/
 RUN chmod +x ./gradlew && ./gradlew :mopl-batch:dependencies --no-daemon
 
 # 소스 코드 복사 및 애플리케이션 빌드
+COPY mopl-proto/src mopl-proto/src
 COPY mopl-batch/src mopl-batch/src
 RUN ./gradlew :mopl-batch:bootJar -x test --no-daemon
 

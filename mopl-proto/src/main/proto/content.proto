@@ -10,6 +10,7 @@ service ContentService {
   rpc GetContent (GetContentRequest) returns (ContentResponse);
   rpc CheckContentExists (CheckContentExistsRequest) returns (CheckContentExistsResponse);
   rpc BatchCreateContents (BatchCreateContentsRequest) returns (BatchCreateContentsResponse);
+  rpc BatchUpdateWatcherCounts (BatchUpdateWatcherCountsRequest) returns (BatchUpdateWatcherCountsResponse);
 }
 
 message GetContentRequest {
@@ -39,6 +40,19 @@ message BatchCreateContentsRequest {
 
 message BatchCreateContentsResponse {
   int32 created_count = 1;
+}
+
+message WatcherCountItem {
+  string content_id = 1;
+  int64 watcher_count = 2;
+}
+
+message BatchUpdateWatcherCountsRequest {
+  repeated WatcherCountItem items = 1;
+}
+
+message BatchUpdateWatcherCountsResponse {
+  int32 updated_count = 1;
 }
 
 message ContentResponse {

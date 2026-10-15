@@ -1,6 +1,7 @@
 services:
   mopl-image-app:
     container_name: mopl-image-app
+    image: mopl-image:latest
     build:
       context: ..
       dockerfile: mopl-image/Dockerfile

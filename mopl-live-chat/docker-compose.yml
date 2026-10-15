@@ -1,6 +1,7 @@
 services:
   mopl-live-chat-app:
     container_name: mopl-live-chat-app
+    image: mopl-live-chat:latest
     build:
       context: ..
       dockerfile: mopl-live-chat/Dockerfile
@@ -20,7 +21,7 @@ services:
     image: redis:7.2-alpine
     container_name: mopl-live-chat-redis
     ports:
-      - "6381:6379"
+      - "6380:6379"
     restart: always
     deploy:
       resources:

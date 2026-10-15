@@ -1,6 +1,7 @@
 services:
   mopl-batch-app:
     container_name: mopl-batch-app
+    image: mopl-batch:latest
     build:
       context: ..
       dockerfile: mopl-batch/Dockerfile
