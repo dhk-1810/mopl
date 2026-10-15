@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface DMMessageRepository extends MongoRepository<DMMessage, UUID>, DMMessageCustomRepository {
 
-    Optional<DMMessage> findFirstByDmChatRoomIdAndIsDeletedFalseOrderByCreatedAtDescIdDesc(UUID dmChatRoomId);
+    Optional<DMMessage> findFirstByDmChatRoomIdAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(UUID dmChatRoomId);
 
-    long countByDmChatRoomIdAndIsDeletedFalse(UUID dmChatRoomId);
+    long countByDmChatRoomIdAndDeletedAtIsNull(UUID dmChatRoomId);
 }

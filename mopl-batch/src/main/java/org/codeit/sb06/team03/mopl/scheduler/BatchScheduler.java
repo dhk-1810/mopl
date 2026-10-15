@@ -2,7 +2,9 @@ package org.codeit.sb06.team03.mopl.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -26,8 +28,12 @@ public class BatchScheduler {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLong("runTime", System.currentTimeMillis())
                     .toJobParameters();
-            jobLauncher.run(contentCollectionJob, jobParameters);
-            log.info("Scheduled Content Collection Job completed successfully.");
+            JobExecution execution = jobLauncher.run(contentCollectionJob, jobParameters);
+            if (execution.getStatus() == BatchStatus.COMPLETED) {
+                log.info("Scheduled Content Collection Job completed successfully.");
+            } else {
+                log.warn("Scheduled Content Collection Job finished with status: {}", execution.getStatus());
+            }
         } catch (Exception e) {
             log.error("Failed to run scheduled Content Collection Job: {}", e.getMessage(), e);
         }
