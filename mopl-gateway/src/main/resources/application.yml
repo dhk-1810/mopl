@@ -22,88 +22,82 @@ spring:
       routes:
         # 1. Live Chat / Watching Session Service
         - id: live-chat-user-route
-          uri: http://${LIVE_CHAT_HOST:${WATCHING_SESSION_HOST:localhost}}:8083
+          uri: http://${LIVE_CHAT_HOST}:8083
           predicates:
             - Path=/api/users/{watcherId}/watching-sessions
 
         - id: live-chat-content-route
-          uri: http://${LIVE_CHAT_HOST:${WATCHING_SESSION_HOST:localhost}}:8083
+          uri: http://${LIVE_CHAT_HOST}:8083
           predicates:
             - Path=/api/contents/{contentId}/watching-sessions
 
         # 2. SSE (Notification Service)
         - id: sse-route
-          uri: http://${NOTIFICATION_HOST:localhost}:8086
+          uri: http://${NOTIFICATION_HOST}:8086
           predicates:
             - Path=/api/sse
 
         # 3. WebSocket (Live Chat Service)
         - id: websocket-content-route
-          uri: http://${LIVE_CHAT_HOST:${WATCHING_SESSION_HOST:localhost}}:8083
+          uri: http://${LIVE_CHAT_HOST}:8083
           predicates:
             - Path=/ws/contents/**
 
         # 4. WebSocket (DM Service)
         - id: websocket-dm-route
-          uri: http://${DM_HOST:localhost}:8085
+          uri: http://${DM_HOST}:8085
           predicates:
             - Path=/ws/dm/**
 
         # 4. User / Auth / Follow Service
         - id: user-service-auth-route
-          uri: http://${USER_HOST:localhost}:8081
+          uri: http://${USER_HOST}:8081
           predicates:
             - Path=/api/auth/**
 
         - id: user-service-oauth2-route
-          uri: http://${USER_HOST:localhost}:8081
+          uri: http://${USER_HOST}:8081
           predicates:
             - Path=/oauth2/**, /login/oauth2/**
 
         - id: user-service-users-route
-          uri: http://${USER_HOST:localhost}:8081
+          uri: http://${USER_HOST}:8081
           predicates:
             - Path=/api/users/**
 
         - id: user-service-follows-route
-          uri: http://${USER_HOST:localhost}:8081
+          uri: http://${USER_HOST}:8081
           predicates:
             - Path=/api/follows/**
 
         # 5. Content / Review Service
         - id: content-service-route
-          uri: http://${CONTENT_HOST:localhost}:8082
+          uri: http://${CONTENT_HOST}:8082
           predicates:
             - Path=/api/contents/**
 
         - id: review-service-route
-          uri: http://${CONTENT_HOST:localhost}:8082
+          uri: http://${CONTENT_HOST}:8082
           predicates:
             - Path=/api/reviews/**
 
         # 6. Playlist Service
         - id: playlist-service-route
-          uri: http://${PLAYLIST_HOST:localhost}:8084
+          uri: http://${PLAYLIST_HOST}:8084
           predicates:
             - Path=/api/playlists/**
 
         # 7. DM Service
         - id: dm-service-route
-          uri: http://${DM_HOST:localhost}:8085
+          uri: http://${DM_HOST}:8085
           predicates:
             - Path=/api/conversations/**
 
         # 8. Notification Service
         - id: notification-service-route
-          uri: http://${NOTIFICATION_HOST:localhost}:8086
+          uri: http://${NOTIFICATION_HOST}:8086
           predicates:
             - Path=/api/notifications/**
-
-        # 9. Batch Service
-        - id: batch-service-route
-          uri: http://${BATCH_HOST:localhost}:8088
-          predicates:
-            - Path=/api/admin/batch/**
 
 mopl:
   jwt:

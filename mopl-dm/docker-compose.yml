@@ -8,7 +8,7 @@ services:
     ports:
       - "8085:8085"
     env_file:
-      - .env
+      - .env.dev
     depends_on:
       mopl-dm-postgres:
         condition: service_healthy
@@ -23,10 +23,11 @@ services:
   mopl-dm-postgres:
     image: postgres:18-alpine
     container_name: mopl-dm-postgres
+    command: postgres -p 5435
     ports:
-      - "5435:5432"
+      - "5435:5435"
     env_file:
-      - .env
+      - .env.dev
     volumes:
       - mopl-dm-postgres-data:/var/lib/postgresql
     restart: always
@@ -35,7 +36,7 @@ services:
         limits:
           memory: 256M
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -p 5435 -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -46,11 +47,18 @@ services:
     ports:
       - "27017:27017"
     env_file:
-      - .env
+      - .env.dev
     volumes:
       - mopl-dm-mongo-data:/data/db
     restart: always
 
 volumes:
   mopl-dm-postgres-data:
+    name: mopl-dm-postgres-data
   mopl-dm-mongo-data:
+    name: mopl-dm-mongo-data
+
+networks:
+  default:
+    name: mopl-network
+    external: true

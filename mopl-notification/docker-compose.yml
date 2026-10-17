@@ -8,7 +8,7 @@ services:
     ports:
       - "8086:8086"
     env_file:
-      - .env
+      - .env.dev
     depends_on:
       mopl-notification-postgres:
         condition: service_healthy
@@ -27,10 +27,11 @@ services:
   mopl-notification-postgres:
     image: postgres:18-alpine
     container_name: mopl-notification-postgres
+    command: postgres -p 5436
     ports:
-      - "5436:5432"
+      - "5436:5436"
     env_file:
-      - .env
+      - .env.dev
     volumes:
       - mopl-notification-postgres-data:/var/lib/postgresql
     restart: always
@@ -39,7 +40,7 @@ services:
         limits:
           memory: 256M
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -p 5436 -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -103,3 +104,9 @@ services:
 
 volumes:
   mopl-notification-postgres-data:
+    name: mopl-notification-postgres-data
+
+networks:
+  default:
+    name: mopl-network
+    external: true

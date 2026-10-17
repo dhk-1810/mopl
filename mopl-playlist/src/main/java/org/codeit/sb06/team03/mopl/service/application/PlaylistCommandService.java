@@ -88,10 +88,11 @@ public class PlaylistCommandService {
         }
 
         CurationId id = new CurationId(playlistId, contentId);
-        curationRepository.findById(id)
+        Curation curation = curationRepository.findById(id)
                 .orElseThrow(() -> new CurationNotFoundException(playlistId, contentId));
 
-        curationRepository.deleteById(id);
+        curation.delete();
+        curationRepository.save(curation);
 
         playlist.decreaseContentCount();
         playlistRepository.save(playlist);

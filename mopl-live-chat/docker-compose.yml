@@ -7,8 +7,9 @@ services:
       dockerfile: mopl-live-chat/Dockerfile
     ports:
       - "8083:8083"
+      - "8183:8183"
     env_file:
-      - .env
+      - .env.dev
     depends_on:
       - mopl-live-chat-redis
     restart: always
@@ -27,3 +28,8 @@ services:
       resources:
         limits:
           memory: 256M
+
+networks:
+  default:
+    name: mopl-network
+    external: true

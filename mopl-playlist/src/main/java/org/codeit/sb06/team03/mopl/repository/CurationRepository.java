@@ -21,7 +21,7 @@ public interface CurationRepository extends QuerydslJpaRepository<Curation, Cura
     default List<UUID> findAllByPlaylistId(UUID playlistId) {
         QCuration curation = QCuration.curation;
         return select(curation.id.contentId)
-                .where(curation.id.playlistId.eq(playlistId))
+                .where(curation.deletedAt.isNull().and(curation.id.playlistId.eq(playlistId)))
                 .from(curation)
                 .fetch();
     }
@@ -61,7 +61,7 @@ public interface CurationRepository extends QuerydslJpaRepository<Curation, Cura
         QCuration curation = QCuration.curation;
         return select(curation)
                 .from(curation)
-                .where(curation.id.contentId.eq(contentId))
+                .where(curation.deletedAt.isNull().and(curation.id.contentId.eq(contentId)))
                 .fetch();
     }
 
@@ -73,7 +73,7 @@ public interface CurationRepository extends QuerydslJpaRepository<Curation, Cura
         QCuration curation = QCuration.curation;
         List<Curation> curations = select(curation)
                 .from(curation)
-                .where(curation.id.playlistId.in(playlistIds))
+                .where(curation.deletedAt.isNull().and(curation.id.playlistId.in(playlistIds)))
                 .fetch();
 
         return curations.stream()

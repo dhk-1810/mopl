@@ -7,8 +7,9 @@ services:
       dockerfile: mopl-playlist/Dockerfile
     ports:
       - "8084:8084"
+      - "8184:8184"
     env_file:
-      - .env
+      - .env.dev
     depends_on:
       mopl-playlist-postgres:
         condition: service_healthy
@@ -21,10 +22,11 @@ services:
   mopl-playlist-postgres:
     image: postgres:18-alpine
     container_name: mopl-playlist-postgres
+    command: postgres -p 5434
     ports:
-      - "5434:5432"
+      - "5434:5434"
     env_file:
-      - .env
+      - .env.dev
     volumes:
       - mopl-playlist-postgres-data:/var/lib/postgresql
     restart: always
@@ -33,10 +35,16 @@ services:
         limits:
           memory: 256M
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -p 5434 -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
 volumes:
   mopl-playlist-postgres-data:
+    name: mopl-playlist-postgres-data
+
+networks:
+  default:
+    name: mopl-network
+    external: true

@@ -172,7 +172,7 @@ services:
       -c max_replication_slots=10
       -c hot_standby=on
     env_file:
-      - mopl-user/.env.local
+      - mopl-user/.env.dev
     volumes:
       - user-db-data:/var/lib/postgresql
       - ./mopl-user/docker/postgres/init-master.sh:/docker-entrypoint-initdb.d/init-master.sh:ro
@@ -193,7 +193,7 @@ services:
     ports:
       - "5431:5432"
     env_file:
-      - mopl-user/.env.local
+      - mopl-user/.env.dev
     environment:
       - MASTER_HOST=user-db
     volumes:
@@ -212,11 +212,11 @@ services:
   content-db:
     image: postgres:18-alpine
     container_name: mopl-content-db
-    command: ["postgres", "-c", "wal_level=logical"]
+    command: ["postgres", "-p", "5433", "-c", "wal_level=logical"]
     ports:
-      - "5433:5432"
+      - "5433:5433"
     env_file:
-      - mopl-content/.env.local
+      - mopl-content/.env.dev
     volumes:
       - content-db-data:/var/lib/postgresql
     restart: always
@@ -228,10 +228,11 @@ services:
   playlist-db:
     image: postgres:18-alpine
     container_name: mopl-playlist-db
+    command: postgres -p 5434
     ports:
-      - "5434:5432"
+      - "5434:5434"
     env_file:
-      - mopl-playlist/.env.local
+      - mopl-playlist/.env.dev
     volumes:
       - playlist-db-data:/var/lib/postgresql
     restart: always
@@ -243,10 +244,11 @@ services:
   dm-db:
     image: postgres:18-alpine
     container_name: mopl-dm-db
+    command: postgres -p 5435
     ports:
-      - "5435:5432"
+      - "5435:5435"
     env_file:
-      - mopl-dm/.env.local
+      - mopl-dm/.env.dev
     volumes:
       - dm-db-data:/var/lib/postgresql
     restart: always
@@ -261,7 +263,7 @@ services:
     ports:
       - "27017:27017"
     env_file:
-      - mopl-dm/.env.local
+      - mopl-dm/.env.dev
     volumes:
       - dm-mongo-data:/data/db
     restart: always
@@ -269,10 +271,11 @@ services:
   notification-db:
     image: postgres:18-alpine
     container_name: mopl-notification-db
+    command: postgres -p 5436
     ports:
-      - "5436:5432"
+      - "5436:5436"
     env_file:
-      - mopl-notification/.env.local
+      - mopl-notification/.env.dev
     volumes:
       - notification-db-data:/var/lib/postgresql
     restart: always
@@ -284,10 +287,11 @@ services:
   image-db:
     image: postgres:18-alpine
     container_name: mopl-image-db
+    command: postgres -p 5437
     ports:
-      - "5437:5432"
+      - "5437:5437"
     env_file:
-      - mopl-image/.env.local
+      - mopl-image/.env.dev
     volumes:
       - image-db-data:/var/lib/postgresql
     restart: always
@@ -299,10 +303,11 @@ services:
   batch-db:
     image: postgres:18-alpine
     container_name: mopl-batch-db
+    command: postgres -p 5438
     ports:
-      - "5438:5432"
+      - "5438:5438"
     env_file:
-      - mopl-batch/.env.local
+      - mopl-batch/.env.dev
     volumes:
       - batch-db-data:/var/lib/postgresql
     restart: always
@@ -323,3 +328,8 @@ volumes:
   notification-db-data:
   image-db-data:
   batch-db-data:
+
+networks:
+  default:
+    name: mopl-network
+    external: true

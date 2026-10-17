@@ -7,8 +7,9 @@ services:
       dockerfile: mopl-user/Dockerfile
     ports:
       - "8081:8081"
+      - "8181:8181"
     env_file:
-      - .env
+      - .env.dev
     depends_on:
       mopl-user-postgres:
         condition: service_healthy
@@ -32,7 +33,7 @@ services:
       -c max_replication_slots=10
       -c hot_standby=on
     env_file:
-      - .env
+      - .env.dev
     volumes:
       - mopl-user-postgres-data:/var/lib/postgresql
       - ./docker/postgres/init-master.sh:/docker-entrypoint-initdb.d/init-master.sh:ro
@@ -53,7 +54,7 @@ services:
     ports:
       - "5431:5432"
     env_file:
-      - .env
+      - .env.dev
     environment:
       - MASTER_HOST=mopl-user-postgres
     volumes:
@@ -88,4 +89,11 @@ services:
 
 volumes:
   mopl-user-postgres-data:
+    name: mopl-user-postgres-data
   mopl-user-postgres-slave-data:
+    name: mopl-user-postgres-slave-data
+
+networks:
+  default:
+    name: mopl-network
+    external: true

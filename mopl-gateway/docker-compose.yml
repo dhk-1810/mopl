@@ -8,7 +8,7 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - .env
+      - .env.dev
     restart: always
     deploy:
       resources:
@@ -39,7 +39,7 @@ services:
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT_DOCKER:PLAINTEXT'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092,PLAINTEXT_DOCKER://host.docker.internal:29094'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092,PLAINTEXT_DOCKER://${KAFKA_ADVERTISED_HOST:-host.docker.internal}:29094'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
@@ -86,3 +86,9 @@ services:
 
 volumes:
   kafka-data:
+    name: kafka-data
+
+networks:
+  default:
+    name: mopl-network
+    external: true

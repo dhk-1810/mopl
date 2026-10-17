@@ -1,0 +1,42 @@
+services:
+  mopl-content-app:
+    container_name: mopl-content-app
+    image: mopl-content:latest
+    ports:
+      - "8082:8082"
+      - "8182:8182"
+    env_file:
+      - .env
+    depends_on:
+      mopl-content-postgres:
+        condition: service_healthy
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  mopl-content-postgres:
+    image: postgres:18-alpine
+    container_name: mopl-content-postgres
+    command: ["postgres", "-p", "5433", "-c", "wal_level=logical"] # WAL 기록 상세 수준을 논리적 복제 수준으로 활성화
+    ports:
+      - "5433:5433"
+    env_file:
+      - .env
+    volumes:
+      - mopl-content-postgres-data:/var/lib/postgresql
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -p 5433 -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mopl-content-postgres-data:
+    name: mopl-content-postgres-data

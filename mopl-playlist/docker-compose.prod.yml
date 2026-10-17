@@ -1,0 +1,42 @@
+services:
+  mopl-playlist-app:
+    container_name: mopl-playlist-app
+    image: mopl-playlist:latest
+    ports:
+      - "8084:8084"
+      - "8184:8184"
+    env_file:
+      - .env
+    depends_on:
+      mopl-playlist-postgres:
+        condition: service_healthy
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  mopl-playlist-postgres:
+    image: postgres:18-alpine
+    container_name: mopl-playlist-postgres
+    command: postgres -p 5434
+    ports:
+      - "5434:5434"
+    env_file:
+      - .env
+    volumes:
+      - mopl-playlist-postgres-data:/var/lib/postgresql
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -p 5434 -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mopl-playlist-postgres-data:
+    name: mopl-playlist-postgres-data

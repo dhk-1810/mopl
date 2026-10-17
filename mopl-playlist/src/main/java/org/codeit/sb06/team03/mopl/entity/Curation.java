@@ -17,7 +17,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "curations")
-@SQLDelete(sql = "UPDATE curations SET deleted_at = NOW() WHERE playlist_id = ? AND content_id = ?")
+@SQLDelete(sql = "UPDATE curations SET deleted_at = NOW() WHERE content_id = ? AND playlist_id = ?")
 @SQLRestriction("deleted_at IS NULL")
 public class Curation {
 

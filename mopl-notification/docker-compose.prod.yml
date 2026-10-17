@@ -1,0 +1,104 @@
+services:
+  mopl-notification-app:
+    container_name: mopl-notification-app
+    image: mopl-notification:latest
+    ports:
+      - "8086:8086"
+    env_file:
+      - .env
+    depends_on:
+      mopl-notification-postgres:
+        condition: service_healthy
+      notification-redis-1:
+        condition: service_started
+      notification-redis-2:
+        condition: service_started
+      notification-redis-3:
+        condition: service_started
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  mopl-notification-postgres:
+    image: postgres:18-alpine
+    container_name: mopl-notification-postgres
+    command: postgres -p 5436
+    ports:
+      - "5436:5436"
+    env_file:
+      - .env
+    volumes:
+      - mopl-notification-postgres-data:/var/lib/postgresql
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -p 5436 -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # -------------------------------------------------------------
+  # Redis Cluster Services (Notification Routing Table)
+  # -------------------------------------------------------------
+  notification-redis-1:
+    image: redis:7.2-alpine
+    container_name: mopl-notification-redis-1
+    ports:
+      - "7001:7001"
+      - "17001:17001"
+    command: redis-server --port 7001 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --requirepass ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --masterauth ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --cluster-announce-hostname notification-redis-1 --cluster-preferred-endpoint-type hostname --cluster-announce-port 7001 --cluster-announce-bus-port 17001
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  notification-redis-2:
+    image: redis:7.2-alpine
+    container_name: mopl-notification-redis-2
+    ports:
+      - "7002:7002"
+      - "17002:17002"
+    command: redis-server --port 7002 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --requirepass ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --masterauth ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --cluster-announce-hostname notification-redis-2 --cluster-preferred-endpoint-type hostname --cluster-announce-port 7002 --cluster-announce-bus-port 17002
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  notification-redis-3:
+    image: redis:7.2-alpine
+    container_name: mopl-notification-redis-3
+    ports:
+      - "7003:7003"
+      - "17003:17003"
+    command: redis-server --port 7003 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --requirepass ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --masterauth ${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --cluster-announce-hostname notification-redis-3 --cluster-preferred-endpoint-type hostname --cluster-announce-port 7003 --cluster-announce-bus-port 17003
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # 최초 1회 실행. 3개 노드를 하나의 클러스터로 묶고 16,384개 해시 슬롯 분할
+  notification-redis-cluster-init:
+    image: redis:7.2-alpine
+    container_name: mopl-notification-redis-cluster-init
+    depends_on:
+      - notification-redis-1
+      - notification-redis-2
+      - notification-redis-3
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Waiting for Redis cluster nodes to start...' &&
+      sleep 3 &&
+      redis-cli -a $${REDIS_PASSWORD_NOTIFICATION:-moplnotificationpwd123} --cluster create notification-redis-1:7001 notification-redis-2:7002 notification-redis-3:7003 --cluster-yes || true
+      "
+
+volumes:
+  mopl-notification-postgres-data:
+    name: mopl-notification-postgres-data

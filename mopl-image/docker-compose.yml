@@ -7,8 +7,9 @@ services:
       dockerfile: mopl-image/Dockerfile
     ports:
       - "8087:8087"
+      - "8185:8185"
     env_file:
-      - .env
+      - .env.dev
     depends_on:
       mopl-image-postgres:
         condition: service_healthy
@@ -21,10 +22,11 @@ services:
   mopl-image-postgres:
     image: postgres:18-alpine
     container_name: mopl-image-postgres
+    command: postgres -p 5437
     ports:
-      - "5437:5432"
+      - "5437:5437"
     env_file:
-      - .env
+      - .env.dev
     volumes:
       - mopl-image-postgres-data:/var/lib/postgresql
     restart: always
@@ -33,10 +35,16 @@ services:
         limits:
           memory: 256M
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -p 5437 -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
 volumes:
   mopl-image-postgres-data:
+    name: mopl-image-postgres-data
+
+networks:
+  default:
+    name: mopl-network
+    external: true
