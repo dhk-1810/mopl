@@ -44,6 +44,7 @@ public class UserDbConfig {
     }
 
     @Bean(name = "masterDataSource")
+    @ConfigurationProperties(prefix = "spring.datasource.user.master.hikari")
     public DataSource masterDataSource() {
         return masterDataSourceProperties()
                 .initializeDataSourceBuilder()
@@ -58,6 +59,7 @@ public class UserDbConfig {
     }
 
     @Bean(name = "slaveDataSource")
+    @ConfigurationProperties(prefix = "spring.datasource.user.slave.hikari")
     public DataSource slaveDataSource() {
         return slaveDataSourceProperties()
                 .initializeDataSourceBuilder()

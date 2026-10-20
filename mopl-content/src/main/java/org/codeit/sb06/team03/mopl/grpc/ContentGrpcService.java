@@ -6,19 +6,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.codeit.sb06.team03.mopl.entity.ContentReadModel;
-import org.codeit.sb06.team03.mopl.grpc.content.ContentResponse;
-import org.codeit.sb06.team03.mopl.grpc.content.ContentServiceGrpc;
-import org.codeit.sb06.team03.mopl.grpc.content.GetContentRequest;
+import org.codeit.sb06.team03.mopl.grpc.content.*;
 import org.codeit.sb06.team03.mopl.dto.request.ContentCreateInternalRequest;
 import org.codeit.sb06.team03.mopl.enums.ContentType;
-import org.codeit.sb06.team03.mopl.grpc.content.BatchCreateContentsRequest;
-import org.codeit.sb06.team03.mopl.grpc.content.BatchCreateContentsResponse;
-import org.codeit.sb06.team03.mopl.grpc.content.CreateContentItem;
 import org.codeit.sb06.team03.mopl.service.application.ContentCommandService;
 import org.codeit.sb06.team03.mopl.service.application.ContentQueryService;
-import org.codeit.sb06.team03.mopl.grpc.content.BatchUpdateWatcherCountsRequest;
-import org.codeit.sb06.team03.mopl.grpc.content.BatchUpdateWatcherCountsResponse;
-import org.codeit.sb06.team03.mopl.grpc.content.WatcherCountItem;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
@@ -70,8 +62,8 @@ public class ContentGrpcService extends ContentServiceGrpc.ContentServiceImplBas
     @Override
     @Transactional(value = "contentTransactionManager", readOnly = true)
     public void checkContentExists(
-            org.codeit.sb06.team03.mopl.grpc.content.CheckContentExistsRequest request,
-            StreamObserver<org.codeit.sb06.team03.mopl.grpc.content.CheckContentExistsResponse> responseObserver
+            CheckContentExistsRequest request,
+            StreamObserver<CheckContentExistsResponse> responseObserver
     ) {
         try {
             org.codeit.sb06.team03.mopl.enums.ContentType type = null;
@@ -80,8 +72,8 @@ public class ContentGrpcService extends ContentServiceGrpc.ContentServiceImplBas
             }
             boolean exists = contentQueryService.existsByTitleAndType(request.getTitle(), type);
 
-            org.codeit.sb06.team03.mopl.grpc.content.CheckContentExistsResponse response =
-                    org.codeit.sb06.team03.mopl.grpc.content.CheckContentExistsResponse.newBuilder()
+            CheckContentExistsResponse response =
+                    CheckContentExistsResponse.newBuilder()
                             .setExists(exists)
                             .build();
 

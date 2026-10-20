@@ -12,11 +12,19 @@ spring:
         url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB}
         username: ${POSTGRES_USER}
         password: ${POSTGRES_PASSWORD}
+        hikari:
+          pool-name: HikariPool-User-Master
+          maximum-pool-size: 3
+          minimum-idle: 3
       slave:
         driver-class-name: org.postgresql.Driver
         url: jdbc:postgresql://${DB_SLAVE_HOST:${DB_HOST:localhost}}:${DB_SLAVE_PORT:5431}/${POSTGRES_DB}
         username: ${POSTGRES_USER}
         password: ${POSTGRES_PASSWORD}
+        hikari:
+          pool-name: HikariPool-User-Slave
+          maximum-pool-size: 7
+          minimum-idle: 7
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST:localhost}

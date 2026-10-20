@@ -37,20 +37,20 @@ services:
       - "29092:29092"
       - "29094:29094"
     environment:
-      KAFKA_NODE_ID: 1
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT_DOCKER:PLAINTEXT'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092,PLAINTEXT_DOCKER://${KAFKA_ADVERTISED_HOST:-host.docker.internal}:29094'
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_PROCESS_ROLES: 'broker,controller'
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
-      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092,PLAINTEXT_DOCKER://0.0.0.0:29094'
-      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
-      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
-      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+      KAFKA_NODE_ID: 1                                              # KRaft 클러스터 내 브로커 노드 고유 식별 ID
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT_DOCKER:PLAINTEXT' # 리스너별 보안 프로토콜 매핑 (모두 미암호화 평문 통신)
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092,PLAINTEXT_DOCKER://${KAFKA_ADVERTISED_HOST:-host.docker.internal}:29094' # 클라이언트 접속 시 전달할 브로커 공지 주소 (내부/호스트/외부)
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1                     # 컨슈머 오프셋 내부 토픽 복제 계수 (단일 노드이므로 1)
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0                     # 컨슈머 그룹 초기 리밸런싱 대기 시간(ms) 단축
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1                        # 트랜잭션 상태 로그 최소 동기화 복제본(ISR) 수
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1             # 트랜잭션 상태 로그 토픽 복제 계수
+      KAFKA_PROCESS_ROLES: 'broker,controller'                      # KRaft 모드 브로커 및 컨트롤러 역할 동시 수행
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'               # KRaft 컨트롤러 투표자 목록 (NodeID@Host:Port)
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092,PLAINTEXT_DOCKER://0.0.0.0:29094' # 브로커가 바인딩하여 수신 대기할 IP/포트 목록
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'                 # 브로커 간 내부 통신에 사용할 리스너 이름
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'                 # 컨트롤러 통신에 사용할 리스너 이름
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'                         # 카프카 토픽/파티션 메시지 로그 데이터 저장 경로
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'                          # KRaft 클러스터 고유 식별자 ID
     volumes:
       - kafka-data:/var/lib/kafka/data
     restart: always
@@ -65,17 +65,17 @@ services:
     ports:
       - "8089:8083"
     environment:
-      BOOTSTRAP_SERVERS: kafka:9092
-      GROUP_ID: 1
-      CONFIG_STORAGE_TOPIC: connect_configs
-      OFFSET_STORAGE_TOPIC: connect_offsets
-      STATUS_STORAGE_TOPIC: connect_statuses
-      CONFIG_STORAGE_REPLICATION_FACTOR: 1
-      OFFSET_STORAGE_REPLICATION_FACTOR: 1
-      STATUS_STORAGE_REPLICATION_FACTOR: 1
-      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      ENABLE_DEBEZIUM_SCRIPTING: "false"
+      BOOTSTRAP_SERVERS: kafka:9092                         # 카프카 브로커 내부 접속 주소
+      GROUP_ID: 1                                           # Kafka Connect 클러스터 그룹 ID
+      CONFIG_STORAGE_TOPIC: connect_configs                 # 커넥터 구성 정보 저장 토픽
+      OFFSET_STORAGE_TOPIC: connect_offsets                 # 소스 커넥터 오프셋 위치 저장 토픽
+      STATUS_STORAGE_TOPIC: connect_statuses                # 커넥터 및 태스크 상태 저장 토픽
+      CONFIG_STORAGE_REPLICATION_FACTOR: 1                  # 설정 토픽 복제 계수 (단일 노드 1)
+      OFFSET_STORAGE_REPLICATION_FACTOR: 1                  # 오프셋 토픽 복제 계수 (단일 노드 1)
+      STATUS_STORAGE_REPLICATION_FACTOR: 1                  # 상태 토픽 복제 계수 (단일 노드 1)
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter     # 메시지 Key 변환기 (JSON 포맷)
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter   # 메시지 Value 변환기 (JSON 포맷)
+      ENABLE_DEBEZIUM_SCRIPTING: "false"                    # Debezium SMT 스크립팅 기능 활성화 여부
     depends_on:
       - kafka
     restart: always
