@@ -65,7 +65,7 @@ Spring Transaction의 `readOnly` 속성에 따라 동적으로 DataSource를 선
 ### 6. 점검, 주의사항
 
 - Service 계층 `@Transactional(readOnly = true)` 점검
-    - 조회 쿼리 수행 메서드/서비스에 누락 없는지 확인. `readOnly = true` 없으면 기본값인 master로 라우팅됨.
+  - 조회 쿼리 수행 메서드/서비스에 누락 없는지 확인. `readOnly = true` 없으면 기본값인 master로 라우팅됨.
 - 쿼리 실행 시 어떤 DataSource의 커넥션이 획득되는지 확인하는 통합 테스트 또는 로깅 추가
   - CUD 작업 시 Master DataSource 연결 확인
   - R 작업 시 Slave DataSource 연결 확인

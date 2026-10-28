@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.codeit.sb06.team03.mopl.websocket.StompAuthInboundInterceptor;
 import org.codeit.sb06.team03.mopl.websocket.StompContentInboundInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -16,6 +17,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+
+import java.util.Arrays;
 
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import org.springframework.web.socket.handler.WebSocketHandlerDecorator;
@@ -33,6 +36,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final StompContentInboundInterceptor stompContentInboundInterceptor;
     private final WebSocketSessionManager webSocketSessionManager;
     private final UserIdHandshakeInterceptor userIdHandshakeInterceptor;
+
+    @Value("${cors.allowed-origins}")
+    private String allowedOrigins;
 
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
@@ -61,12 +67,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        String[] patterns = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toArray(String[]::new);
+
         registry.addEndpoint("/ws/dm")
-                .setAllowedOriginPatterns("*")
+                .setAllowedOriginPatterns(patterns)
                 .addInterceptors(userIdHandshakeInterceptor)
                 .withSockJS();
         registry.addEndpoint("/ws/dm")
-                .setAllowedOriginPatterns("*")
+                .setAllowedOriginPatterns(patterns)
                 .addInterceptors(userIdHandshakeInterceptor);
     }
 

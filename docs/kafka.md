@@ -26,14 +26,15 @@
     - 파티션 키: `contentId`
     - 주요 역할: 콘텐츠 메타데이터 수정 이벤트 동기화 (`mopl-content` -> `mopl-playlist`의 `ExternalContentView` 갱신)
 - **`user.follow.events`**
-    - 기본 파티션 수: 1 (기본값)
+    - 기본 파티션 수: **3**
     - 복제본 수: 1
     - 파티션 키: `followeeId`
     - 주요 역할: 사용자 팔로우/언팔로우 이벤트 동기화 (`mopl-user` -> `mopl-playlist`의 `ExternalFollowView` 추가/삭제 반영)
 
 - **파티셔닝 설계 현황**:
     - 프로듀서에서 `userId`, `sagaId`, `imageKey`, `contentId`, `followeeId`를 메시지 키로 전송하여 **동일 엔티티 기준 순서 보장(Ordering Guarantee)**의 기반은 갖추어져 있음.
-    - 현재는 토픽 파티션 수가 1개로 운영되고 있어, 추후 처리량 확장 및 병렬 소비 실습을 위해 파티션 증설(예: 3개) 및 리스너 `concurrency` 조정 대상임.
+    - **`user.follow.events` 파티셔닝 적용 완료**: 파티션 수를 3개로 확장하고 컨슈머 리스너의 동시성(`concurrency = 3`)을 적용하여 3개의 워커 스레드가 파티션을 1:1로 병렬 소비하도록 구성 완료.
+    - 나머지 토픽들은 단일 파티션(1개)으로 운영 중이며 트래픽에 따라 확장 가능.
 
 ### 2. 컨슈머 및 컨슈머 그룹 현황
 
@@ -66,12 +67,12 @@
 
 
 - **`user.follow.events`**
-  - `playlist-follow-group` (`mopl-playlist` / `FollowEventListener`): 플레이리스트 서비스 팔로우 관계 복제 뷰 동기화
+  - `playlist-follow-group` (`mopl-playlist` / `FollowEventListener`): 플레이리스트 서비스 팔로우 관계 복제 뷰 동기화 (`concurrency = 3` 적용)
 
 
 - **특징**
   - 동일 토픽(`user.profile.events`, `image.presigned-url.events`)을 다수 그룹이 각각 구독하여 1:N Pub/Sub(브로드캐스팅) 보장.
-  - 모든 리스너의 동시성(`concurrency`)은 현재 기본값(1)으로 설정되어 단일 스레드로 동작.
+  - `user.follow.events` 리스너는 `concurrency = 3`으로 설정되어 3개의 워커 스레드가 3개 파티션을 1:1로 매핑하여 병렬 처리함. (그 외 리스너는 기본 동시성 1로 동작)
 
 ### 3. 브로커 및 클러스터 인프라 현황
 

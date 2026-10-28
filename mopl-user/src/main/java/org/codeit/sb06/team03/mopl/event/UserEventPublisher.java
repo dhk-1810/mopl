@@ -2,6 +2,7 @@ package org.codeit.sb06.team03.mopl.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.codeit.sb06.team03.mopl.config.KafkaConfig;
 import org.codeit.sb06.team03.mopl.config.RabbitConfig;
 import org.codeit.sb06.team03.mopl.security.jwt.registry.JwtRegistry;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -45,7 +46,17 @@ public class UserEventPublisher {
         );
         try {
             FollowKafkaEvent kafkaEvent = FollowKafkaEvent.followed(event.followeeId(), event.followerId());
-            kafkaTemplate.send(org.codeit.sb06.team03.mopl.config.KafkaConfig.TOPIC_USER_FOLLOW_EVENTS, event.followeeId().toString(), kafkaEvent);
+            kafkaTemplate.send(KafkaConfig.TOPIC_USER_FOLLOW_EVENTS, event.followeeId().toString(), kafkaEvent)
+                    .whenComplete((result, ex) -> {
+                        if (ex == null) {
+                            log.info("Successfully sent FollowKafkaEvent (FOLLOWED) to Kafka: key={}, partition={}, offset={}",
+                                    event.followeeId(),
+                                    result.getRecordMetadata().partition(),
+                                    result.getRecordMetadata().offset());
+                        } else {
+                            log.warn("Failed to send FollowKafkaEvent (FOLLOWED) to Kafka: {}", ex.getMessage());
+                        }
+                    });
             log.info("Publishing FollowKafkaEvent (FOLLOWED) to Kafka: {}", kafkaEvent);
         } catch (Exception e) {
             log.warn("Failed to publish FollowedEvent to Kafka: {}", e.getMessage());
@@ -56,7 +67,17 @@ public class UserEventPublisher {
     public void handleUnfollowedEvent(UnfollowedEvent event) {
         try {
             FollowKafkaEvent kafkaEvent = FollowKafkaEvent.unfollowed(event.followeeId(), event.followerId());
-            kafkaTemplate.send(org.codeit.sb06.team03.mopl.config.KafkaConfig.TOPIC_USER_FOLLOW_EVENTS, event.followeeId().toString(), kafkaEvent);
+            kafkaTemplate.send(KafkaConfig.TOPIC_USER_FOLLOW_EVENTS, event.followeeId().toString(), kafkaEvent)
+                    .whenComplete((result, ex) -> {
+                        if (ex == null) {
+                            log.info("Successfully sent FollowKafkaEvent (UNFOLLOWED) to Kafka: key={}, partition={}, offset={}",
+                                    event.followeeId(),
+                                    result.getRecordMetadata().partition(),
+                                    result.getRecordMetadata().offset());
+                        } else {
+                            log.warn("Failed to send FollowKafkaEvent (UNFOLLOWED) to Kafka: {}", ex.getMessage());
+                        }
+                    });
             log.info("Publishing FollowKafkaEvent (UNFOLLOWED) to Kafka: {}", kafkaEvent);
         } catch (Exception e) {
             log.warn("Failed to publish UnfollowedEvent to Kafka: {}", e.getMessage());
