@@ -1,5 +1,6 @@
 package org.codeit.sb06.team03.mopl.filter;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -69,7 +70,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             try {
                 SignedJWT signedJWT = SignedJWT.parse(token);
 
-                if (signedJWT.verify(accessTokenVerifier)) {
+                if (!JWSAlgorithm.HS256.equals(signedJWT.getHeader().getAlgorithm())) { // 서명 알고리즘 변조 차단
+                    log.warn("Disallowed JWT algorithm detected: {} for path {}", signedJWT.getHeader().getAlgorithm(), path);
+                } else if (signedJWT.verify(accessTokenVerifier)) {
                     JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
                     Date expiration = claimsSet.getExpirationTime();
 

@@ -133,9 +133,18 @@ public class JwtTokenProvider {
         }
     }
 
+    private SignedJWT parseSignedJwt(String token) throws ParseException {
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        if (!JWSAlgorithm.HS256.equals(signedJWT.getHeader().getAlgorithm())) {
+            log.debug("Disallowed JWT algorithm detected: expected {}, got {}", JWSAlgorithm.HS256, signedJWT.getHeader().getAlgorithm());
+            throw new InvalidTokenException();
+        }
+        return signedJWT;
+    }
+
     private boolean validateToken(String token, JWSVerifier verifier, String type) {
         try {
-            SignedJWT signedJWT = SignedJWT.parse(token);
+            SignedJWT signedJWT = parseSignedJwt(token);
 
             if (!signedJWT.verify(verifier)) {
                 log.debug("JWT signature verification failed");
@@ -163,8 +172,7 @@ public class JwtTokenProvider {
 
     private JWTClaimsSet parseClaims(String token) {
         try {
-            SignedJWT signedJWT = SignedJWT.parse(token);
-            return signedJWT.getJWTClaimsSet();
+            return parseSignedJwt(token).getJWTClaimsSet();
         } catch (ParseException e) {
             log.debug("Invalid JWT Token");
             throw new InvalidTokenException();

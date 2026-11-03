@@ -6,98 +6,103 @@ spring:
     name: mopl-gateway
   cloud:
     gateway:
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOriginPatterns: "${CORS_ALLOWED_ORIGINS}"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - PATCH
-              - OPTIONS
-            allowedHeaders: "*"
-            allowCredentials: true
-      routes:
-        # 1. Live Chat / Watching Session Service
-        - id: live-chat-user-route
-          uri: http://${LIVE_CHAT_HOST}:8083
-          predicates:
-            - Path=/api/users/{watcherId}/watching-sessions
+      server:
+        webflux:
+          globalcors:
+            add-to-simple-url-handler-mapping: true # Preflight OPTIONS 요청 다운스트림으로 라우트 안하고 즉시 응답 처리
+            cors-configurations:
+              '[/**]':
+                allowedOriginPatterns: "${CORS_ALLOWED_ORIGINS}"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - PATCH
+                  - OPTIONS
+                allowedHeaders: "*"
+                allowCredentials: true
+                max-age: 3600
 
-        - id: live-chat-content-route
-          uri: http://${LIVE_CHAT_HOST}:8083
-          predicates:
-            - Path=/api/contents/{contentId}/watching-sessions
+          routes:
+            # 1. Live Chat / Watching Session Service
+            - id: live-chat-user-route
+              uri: http://${LIVE_CHAT_HOST}:8083
+              predicates:
+                - Path=/api/users/{watcherId}/watching-sessions
 
-        # 2. SSE (Notification Service)
-        - id: sse-route
-          uri: http://${NOTIFICATION_HOST}:8086
-          predicates:
-            - Path=/api/sse
+            - id: live-chat-content-route
+              uri: http://${LIVE_CHAT_HOST}:8083
+              predicates:
+                - Path=/api/contents/{contentId}/watching-sessions
 
-        # 3. WebSocket (Live Chat Service)
-        - id: websocket-content-route
-          uri: http://${LIVE_CHAT_HOST}:8083
-          predicates:
-            - Path=/ws/contents/**
+            # 2. SSE (Notification Service)
+            - id: sse-route
+              uri: http://${NOTIFICATION_HOST}:8086
+              predicates:
+                - Path=/api/sse
 
-        # 4. WebSocket (DM Service)
-        - id: websocket-dm-route
-          uri: http://${DM_HOST}:8085
-          predicates:
-            - Path=/ws/dm/**
+            # 3. WebSocket (Live Chat Service)
+            - id: websocket-content-route
+              uri: http://${LIVE_CHAT_HOST}:8083
+              predicates:
+                - Path=/ws/contents/**
 
-        # 4. User / Auth / Follow Service
-        - id: user-service-auth-route
-          uri: http://${USER_HOST}:8081
-          predicates:
-            - Path=/api/auth/**
+            # 4. WebSocket (DM Service)
+            - id: websocket-dm-route
+              uri: http://${DM_HOST}:8085
+              predicates:
+                - Path=/ws/dm/**
 
-        - id: user-service-oauth2-route
-          uri: http://${USER_HOST}:8081
-          predicates:
-            - Path=/oauth2/**, /login/oauth2/**
+            # 4. User / Auth / Follow Service
+            - id: user-service-auth-route
+              uri: http://${USER_HOST}:8081
+              predicates:
+                - Path=/api/auth/**
 
-        - id: user-service-users-route
-          uri: http://${USER_HOST}:8081
-          predicates:
-            - Path=/api/users/**
+            - id: user-service-oauth2-route
+              uri: http://${USER_HOST}:8081
+              predicates:
+                - Path=/oauth2/**, /login/oauth2/**
 
-        - id: user-service-follows-route
-          uri: http://${USER_HOST}:8081
-          predicates:
-            - Path=/api/follows/**
+            - id: user-service-users-route
+              uri: http://${USER_HOST}:8081
+              predicates:
+                - Path=/api/users/**
 
-        # 5. Content / Review Service
-        - id: content-service-route
-          uri: http://${CONTENT_HOST}:8082
-          predicates:
-            - Path=/api/contents/**
+            - id: user-service-follows-route
+              uri: http://${USER_HOST}:8081
+              predicates:
+                - Path=/api/follows/**
 
-        - id: review-service-route
-          uri: http://${CONTENT_HOST}:8082
-          predicates:
-            - Path=/api/reviews/**
+            # 5. Content / Review Service
+            - id: content-service-route
+              uri: http://${CONTENT_HOST}:8082
+              predicates:
+                - Path=/api/contents/**
 
-        # 6. Playlist Service
-        - id: playlist-service-route
-          uri: http://${PLAYLIST_HOST}:8084
-          predicates:
-            - Path=/api/playlists/**
+            - id: review-service-route
+              uri: http://${CONTENT_HOST}:8082
+              predicates:
+                - Path=/api/reviews/**
 
-        # 7. DM Service
-        - id: dm-service-route
-          uri: http://${DM_HOST}:8085
-          predicates:
-            - Path=/api/conversations/**
+            # 6. Playlist Service
+            - id: playlist-service-route
+              uri: http://${PLAYLIST_HOST}:8084
+              predicates:
+                - Path=/api/playlists/**
 
-        # 8. Notification Service
-        - id: notification-service-route
-          uri: http://${NOTIFICATION_HOST}:8086
-          predicates:
-            - Path=/api/notifications/**
+            # 7. DM Service
+            - id: dm-service-route
+              uri: http://${DM_HOST}:8085
+              predicates:
+                - Path=/api/conversations/**
+
+            # 8. Notification Service
+            - id: notification-service-route
+              uri: http://${NOTIFICATION_HOST}:8086
+              predicates:
+                - Path=/api/notifications/**
 
 mopl:
   jwt:

@@ -10,6 +10,11 @@ import org.codeit.sb06.team03.mopl.enums.SagaStatus;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Saga 상태 추적용 엔터티. CDC-Kafka 방식에서만 사용.
+ * gRPC 방식 - 요청 스레드 하나가 Saga 순차 호출하므로 사용 X. 서버 크래시 복구, 감사 및 모니터링 시엔 활용 가능.
+ * CDC-Kafka 방식 - 상태 추적, 타임아웃을 위해 사용.
+ */
 @Getter
 @Entity
 @Table(name = "saga_instances")
