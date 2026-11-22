@@ -6,6 +6,12 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD 'replicator_password';
 EOSQL
 
+# Keycloak 전용 데이터베이스 생성 (기존 user DB 인스턴스 공유)
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+    SELECT 'CREATE DATABASE keycloak'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'keycloak')\gexec
+EOSQL
+
 # Slave 컨테이너 접속 허용 규칙 추가
 echo "host replication replicator 0.0.0.0/0 md5" >> "$PGDATA/pg_hba.conf"
 

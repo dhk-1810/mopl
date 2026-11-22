@@ -3,8 +3,15 @@ package org.codeit.sb06.team03.mopl.filter;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.jwk.source.RemoteJWKSet;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -19,14 +26,17 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
-    private final JWSVerifier accessTokenVerifier;
+    private final ConfigurableJWTProcessor<SecurityContext> jwtProcessor;
+    private final JWSVerifier macVerifier;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     // 퍼블릭 허용 경로 목록 (인증 없이 접근 가능)
@@ -39,6 +49,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/oauth2/**",
             "/login/oauth2/**",
             "/oauth-redirect",
+            "/realms/**",
+            "/resources/**",
             "/ws/**",
             "/swagger-ui/**",
             "/v3/api-docs/**",
@@ -49,10 +61,39 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     );
 
     public JwtAuthenticationFilter(
-            @Value("${mopl.jwt.access-token.secret}")
-            String accessTokenSecret
-    ) throws Exception {
-        this.accessTokenVerifier = new MACVerifier(accessTokenSecret.getBytes());
+            @Value("${mopl.jwt.jwk-set-uri:}") String jwkSetUri,
+            @Value("${mopl.jwt.access-token.secret:}") String accessTokenSecret
+    ) {
+        // 1. Keycloak OIDC 비대칭키(RS256) JWKS 프로세서 설정
+        if (StringUtils.hasText(jwkSetUri)) {
+            ConfigurableJWTProcessor<SecurityContext> processor = null;
+            try {
+                processor = new DefaultJWTProcessor<>();
+                JWKSource<SecurityContext> keySource = new RemoteJWKSet<>(new URI(jwkSetUri).toURL());
+                JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, keySource);
+                processor.setJWSKeySelector(keySelector);
+                log.info("Initialized Keycloak JWKS verification with URI: {}", jwkSetUri);
+            } catch (Exception e) {
+                log.warn("Failed to initialize RemoteJWKSet for URI: {}. RS256 verification may fail.", jwkSetUri, e);
+                processor = null;
+            }
+            this.jwtProcessor = processor;
+        } else {
+            this.jwtProcessor = null;
+        }
+
+        // 2. 기존 대칭키(HS256) MACVerifier 설정 (하위 호환성)
+        if (StringUtils.hasText(accessTokenSecret)) {
+            JWSVerifier verifier = null;
+            try {
+                verifier = new MACVerifier(accessTokenSecret.getBytes());
+            } catch (Exception e) {
+                log.warn("Failed to initialize MACVerifier with provided secret", e);
+            }
+            this.macVerifier = verifier;
+        } else {
+            this.macVerifier = null;
+        }
     }
 
     @Override
@@ -69,16 +110,31 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         if (StringUtils.hasText(token)) {
             try {
                 SignedJWT signedJWT = SignedJWT.parse(token);
+                JWSAlgorithm algorithm = signedJWT.getHeader().getAlgorithm();
+                JWTClaimsSet claimsSet = null;
 
-                if (!JWSAlgorithm.HS256.equals(signedJWT.getHeader().getAlgorithm())) { // 서명 알고리즘 변조 차단
-                    log.warn("Disallowed JWT algorithm detected: {} for path {}", signedJWT.getHeader().getAlgorithm(), path);
-                } else if (signedJWT.verify(accessTokenVerifier)) {
-                    JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+                if (JWSAlgorithm.RS256.equals(algorithm)) {
+                    if (jwtProcessor != null) {
+                        claimsSet = jwtProcessor.process(signedJWT, null);
+                    } else {
+                        log.warn("RS256 token received but Keycloak JWKS processor is not configured for path {}", path);
+                    }
+                } else if (JWSAlgorithm.HS256.equals(algorithm)) {
+                    if (macVerifier != null && signedJWT.verify(macVerifier)) {
+                        claimsSet = signedJWT.getJWTClaimsSet();
+                    } else {
+                        log.warn("HS256 signature verification failed for path {}", path);
+                    }
+                } else {
+                    log.warn("Disallowed JWT algorithm detected: {} for path {}", algorithm, path);
+                }
+
+                if (claimsSet != null) {
                     Date expiration = claimsSet.getExpirationTime();
 
                     if (expiration != null && expiration.after(new Date())) {
                         String userId = claimsSet.getSubject();
-                        String role = claimsSet.getStringClaim("role");
+                        String role = extractRole(claimsSet);
                         log.debug("JWT verification success for path {}. UserId: {}, Role: {}", path, userId, role);
 
                         // Request Header에 X-User-Id 및 X-User-Role 주입
@@ -92,11 +148,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     } else {
                         log.warn("JWT token expired for path {}", path);
                     }
-                } else {
-                    log.warn("JWT signature verification failed for path {}", path);
                 }
             } catch (Exception e) {
-                log.warn("JWT parsing error for path {}: {}", path, e.getMessage());
+                log.warn("JWT verification error for path {}: {}", path, e.getMessage());
             }
         } else {
             log.debug("No JWT token found for path {}", path);
@@ -111,6 +165,29 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         log.warn("Unauthorized request blocked by Gateway: {} {}", request.getMethod(), path);
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         return exchange.getResponse().setComplete();
+    }
+
+    private String extractRole(JWTClaimsSet claimsSet) {
+        try {
+            String role = claimsSet.getStringClaim("role");
+            if (StringUtils.hasText(role)) {
+                return role;
+            }
+
+            // Keycloak 기본 형식: realm_access.roles
+            Map<String, Object> realmAccess = claimsSet.getJSONObjectClaim("realm_access");
+            if (realmAccess != null && realmAccess.get("roles") instanceof List<?> roles) {
+                if (roles.contains("ADMIN")) {
+                    return "ROLE_ADMIN";
+                }
+                if (roles.contains("USER")) {
+                    return "ROLE_USER";
+                }
+            }
+        } catch (Exception e) {
+            log.debug("Failed to extract role from JWT claims: {}", e.getMessage());
+        }
+        return null;
     }
 
     private boolean isPublicPath(String path, String method) {

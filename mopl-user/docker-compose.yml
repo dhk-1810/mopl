@@ -87,6 +87,32 @@ services:
         limits:
           memory: 256M
 
+  mopl-keycloak:
+    image: quay.io/keycloak/keycloak:26.0.0
+    container_name: mopl-keycloak
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://mopl-user-postgres:5432/keycloak
+      KC_DB_USERNAME: ${POSTGRES_USER:-mopl}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-mopl}
+      KC_HTTP_PORT: 8089
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./docker/keycloak/realm-export.json:/opt/keycloak/data/import/realm.json:ro
+    depends_on:
+      mopl-user-postgres:
+        condition: service_healthy
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+
 volumes:
   mopl-user-postgres-data:
     name: mopl-user-postgres-data
