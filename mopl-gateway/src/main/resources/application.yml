@@ -106,7 +106,7 @@ spring:
 
             # 9. Keycloak Auth Route
             - id: keycloak-route
-              uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8089}
+              uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8090}
               predicates:
                 - Path=/realms/**, /resources/**
 
@@ -114,5 +114,5 @@ mopl:
   jwt:
     access-token:
       secret: ${JWT_ACCESS_TOKEN_SECRET:}
-    jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8089}/realms/mopl/protocol/openid-connect/certs}
-    issuer: ${KEYCLOAK_ISSUER:http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8089}/realms/mopl}
+    jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8090}/realms/mopl/protocol/openid-connect/certs}
+    issuer: ${KEYCLOAK_ISSUER:http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8090}/realms/mopl}
