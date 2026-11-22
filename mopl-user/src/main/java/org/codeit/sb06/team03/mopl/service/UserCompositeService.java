@@ -34,14 +34,17 @@ public class UserCompositeService {
 
     private final ProfileImageCache profileImageCache;
     private final ExternalImageQueryService imageQueryService;
+    private final KeycloakUserService keycloakUserService;
 
     public UserDto registerAccount(UserCreateRequest request) {
         Account newAccount = accountCommandService.register(request.name(), new EmailAddress(request.email()), request.password());
+        keycloakUserService.createUser(newAccount.getId(), request.email(), request.name(), request.password());
         return UserDto.from(newAccount, newAccount.getProfile(), null);
     }
 
     public void updatePassword(UUID userId, PasswordUpdateRequest request) {
         accountCommandService.updatePassword(userId, request.password());
+        keycloakUserService.updatePassword(userId, request.password());
     }
 
     public void assignUserRole(UUID userId, UserRoleUpdateRequest request) {
